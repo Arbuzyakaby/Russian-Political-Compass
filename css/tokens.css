@@ -1,0 +1,68 @@
+/* ============ ТОКЕНЫ ТЕМЫ ============
+   Тёмная тема — значения по умолчанию, светлая переопределяет их
+   через [data-theme="light"] на <html>. ============ */
+:root{
+  --bg:#080b12;
+  --blob-1:rgba(56,110,255,.20);
+  --blob-2:rgba(168,85,247,.16);
+  --blob-3:rgba(20,184,166,.13);
+  --surface:rgba(255,255,255,.035);
+  --surface-2:rgba(255,255,255,.06);
+  --card-a:rgba(255,255,255,.045);
+  --card-b:rgba(255,255,255,.018);
+  --stroke:rgba(255,255,255,.09);
+  --stroke-2:rgba(255,255,255,.16);
+  --text:#f2f5fb;
+  --body:#cfd6e6;
+  --muted:#8b95ae;
+  --muted-2:#6b748c;
+  --accent:#6ee7f9;
+  --accent-soft:rgba(110,231,249,.13);
+  --accent-line:rgba(110,231,249,.42);
+  --line-minor:rgba(255,255,255,.035);
+  --line-major:rgba(255,255,255,.085);
+  --line-axis:rgba(255,255,255,.26);
+  --line-frame:rgba(255,255,255,.14);
+  --tick:rgba(255,255,255,.26);
+  --cap:rgba(255,255,255,.66);
+  --quad-cap:rgba(255,255,255,.30);
+  --tag:rgba(255,255,255,.86);
+  --tag-halo:rgba(8,11,18,.92);
+  --dot-stroke:rgba(255,255,255,.9);
+  --quad-op:1;
+  --tip-bg:rgba(13,17,27,.94);
+  --shadow:0 24px 70px -20px rgba(0,0,0,.75);
+  --radius:18px;
+}
+:root[data-theme="light"]{
+  --bg:#eef1f7;
+  --blob-1:rgba(56,110,255,.14);
+  --blob-2:rgba(168,85,247,.11);
+  --blob-3:rgba(16,185,129,.10);
+  --surface:rgba(255,255,255,.72);
+  --surface-2:rgba(255,255,255,.95);
+  --card-a:rgba(255,255,255,.86);
+  --card-b:rgba(255,255,255,.66);
+  --stroke:rgba(16,24,48,.10);
+  --stroke-2:rgba(16,24,48,.20);
+  --text:#111827;
+  --body:#334155;
+  --muted:#5b6579;
+  --muted-2:#8a93a6;
+  --accent:#0e7490;
+  --accent-soft:rgba(14,116,144,.10);
+  --accent-line:rgba(14,116,144,.40);
+  --line-minor:rgba(16,24,48,.05);
+  --line-major:rgba(16,24,48,.12);
+  --line-axis:rgba(16,24,48,.32);
+  --line-frame:rgba(16,24,48,.16);
+  --tick:rgba(16,24,48,.38);
+  --cap:rgba(16,24,48,.62);
+  --quad-cap:rgba(16,24,48,.34);
+  --tag:rgba(15,23,42,.92);
+  --tag-halo:rgba(255,255,255,.95);
+  --dot-stroke:rgba(255,255,255,.95);
+  --quad-op:.72;
+  --tip-bg:rgba(255,255,255,.97);
+  --shadow:0 22px 60px -22px rgba(15,23,42,.35);
+}
