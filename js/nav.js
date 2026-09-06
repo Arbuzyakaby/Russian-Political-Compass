@@ -30,12 +30,31 @@
     TABS.forEach(function(name){
       var panel = document.getElementById("panel-" + name);
       if(!panel) return;
-      if(name === current) panel.removeAttribute("hidden");
-      else panel.setAttribute("hidden", "");
+      if(name === current){
+        panel.removeAttribute("hidden");
+        /* класс снимаем и вешаем заново, иначе анимация входа проигралась
+           бы только при первом показе: обращение к offsetWidth между двумя
+           операциями заставляет браузер применить снятие класса сразу */
+        panel.classList.remove("panel-enter");
+        void panel.offsetWidth;
+        panel.classList.add("panel-enter");
+      }else{
+        panel.setAttribute("hidden", "");
+        panel.classList.remove("panel-enter");
+      }
     });
-    /* поиск относится только к компасу — на других вкладках он бесполезен */
+    /* поиск относится только к компасу — на других вкладках он бесполезен.
+       Оставшуюся в одиночестве кнопку темы на узком экране убирает в угол
+       шапки класс tools-solo (см. css/header.css). */
     var search = document.getElementById("searchWrap");
-    if(search) search.hidden = current !== "compass";
+    if(search){
+      var solo = current !== "compass";
+      search.hidden = solo;
+      var tools = search.parentNode;
+      if(tools) tools.classList.toggle("tools-solo", solo);
+      var bar = document.querySelector(".topbar");
+      if(bar) bar.classList.toggle("topbar-solo", solo);
+    }
     document.title = TITLES[current] || TITLES.compass;
   }
 

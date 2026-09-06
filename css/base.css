@@ -1,27 +1,42 @@
-/* ============ БАЗА: сброс, фон, каркас страницы ============ */
+/* ============ БАЗА: сброс, фон, каркас страницы ============
+   Большие градиенты на весь экран из двух стопов дают видимые кольца:
+   браузер интерполирует альфу линейно, а глаз видит границу там, где
+   производная меняется скачком. Поэтому каждое затухание разложено на
+   несколько стопов, приближающих кривую ease-out, а поверх лежит слой
+   зерна .grain, добивающий остатки полос. ============ */
 *{box-sizing:border-box;margin:0;padding:0;}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 body{
   min-height:100vh;color:var(--text);
   background:
-    radial-gradient(1200px 700px at 50% -10%, color-mix(in srgb,var(--accent) 7%, transparent), transparent 70%),
-    linear-gradient(180deg,var(--bg),var(--bg-deep));
+    radial-gradient(1200px 720px at 50% -12%,
+      color-mix(in srgb,var(--accent) 8%, transparent) 0%,
+      color-mix(in srgb,var(--accent) 5%, transparent) 26%,
+      color-mix(in srgb,var(--accent) 2%, transparent) 48%,
+      color-mix(in srgb,var(--accent) .6%, transparent) 66%,
+      transparent 80%),
+    linear-gradient(180deg,
+      var(--bg) 0%,
+      color-mix(in srgb,var(--bg) 72%, var(--bg-deep)) 46%,
+      color-mix(in srgb,var(--bg) 32%, var(--bg-deep)) 76%,
+      var(--bg-deep) 100%);
   background-attachment:fixed;
   font-family:var(--font-body);
   font-size:15px;line-height:1.5;position:relative;overflow-x:hidden;
   font-variant-numeric:tabular-nums;
   transition:background .45s ease,color .45s ease;
 }
-body::before,body::after{content:"";position:fixed;inset:-15%;pointer-events:none;z-index:0;}
-body::before{
-  background:
-    radial-gradient(760px 560px at 14% 4%, var(--blob-1), transparent 62%),
-    radial-gradient(700px 520px at 90% 12%, var(--blob-2), transparent 60%);
-  animation:drift 26s ease-in-out infinite alternate;
-}
+/* единственное цветное пятно — снизу по центру: оно подсвечивает подвал
+   и не спорит с шапкой, у которой свой ореол в background самого body */
 body::after{
-  background:radial-gradient(820px 640px at 58% 100%, var(--blob-3), transparent 62%);
-  animation:drift 34s ease-in-out infinite alternate-reverse;
+  content:"";position:fixed;inset:-15%;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 680px at 58% 104%,
+    var(--blob-3) 0%,
+    color-mix(in srgb,var(--blob-3) 62%, transparent) 22%,
+    color-mix(in srgb,var(--blob-3) 30%, transparent) 40%,
+    color-mix(in srgb,var(--blob-3) 10%, transparent) 56%,
+    transparent 72%);
+  animation:drift 38s ease-in-out infinite alternate-reverse;
 }
 /* тончайшее зерно поверх фона: убирает банды у больших градиентов */
 .grain{
@@ -30,15 +45,14 @@ body::after{
 }
 @keyframes drift{
   0%{transform:translate3d(0,0,0) scale(1);}
-  50%{transform:translate3d(2.5%,-2%,0) scale(1.06);}
-  100%{transform:translate3d(-2%,2.5%,0) scale(1.02);}
+  50%{transform:translate3d(1.6%,-1.4%,0) scale(1.045);}
+  100%{transform:translate3d(-1.4%,1.6%,0) scale(1.015);}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important;}
 }
 
-.shell{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:26px clamp(14px,3vw,40px) 44px;}
-footer{margin-top:26px;text-align:center;font-size:11px;color:var(--muted-2);line-height:1.6;}
+.shell{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:26px clamp(14px,3vw,40px) 0;}
 
 /* доступно скринридеру, скрыто визуально */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;

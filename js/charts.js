@@ -78,25 +78,34 @@
     duma.forEach(function(p){ var s = seatsAt(p,c); wx += p.x*s; wy += p.y*s; });
     wx = total ? wx/total : 0; wy = total ? wy/total : 0;
 
+    /* data-count — цель для счётчика из js/motion.js; в разметку кладём
+       уже конечное число, чтобы страница оставалась правильной, даже если
+       анимация не запустится (нет наблюдателя, отключены анимации). */
+    function num(v, signed){
+      return '<span data-count="' + v + '"' + (signed ? ' data-count-fmt="signed"' : "") + '>' +
+             (signed ? fmt(v) : v) + '</span>';
+    }
+
     var tiles = [
-      { k:"Партий на компасе", v:PC.PARTIES.length,
+      { k:"Партий на компасе", v:num(PC.PARTIES.length),
         d:"в выбранном созыве существовали " + existing(c).length },
-      { k:"Фракций в Госдуме", v:duma.length, d:conv.label + " · " + conv.years },
-      { k:"Крупнейшая фракция", v:(top ? seatsAt(top,c) : 0),
+      { k:"Фракций в Госдуме", v:num(duma.length), d:conv.label + " · " + conv.years },
+      { k:"Крупнейшая фракция", v:num(top ? seatsAt(top,c) : 0),
         vs:" / " + PC.TOTAL_SEATS,
         d:(top ? esc(top.short) + " · " + (seatsAt(top,c)/PC.TOTAL_SEATS*100).toFixed(1) + "% палаты" : "нет данных") },
       { k:"Центр тяжести палаты",
         body:'<div class="stat-dual">' +
-               '<div><span class="lbl">Гос. контроль</span><span class="num">' + fmt(wy) + '</span></div>' +
-               '<div><span class="lbl">Экономика</span><span class="num">' + fmt(wx) + '</span></div>' +
+               '<div><span class="lbl">Гос. контроль</span><span class="num">' + num(Number(wy.toFixed(1)), true) + '</span></div>' +
+               '<div><span class="lbl">Экономика</span><span class="num">' + num(Number(wx.toFixed(1)), true) + '</span></div>' +
              '</div>',
         d:"взвешено по мандатам" }
     ];
     host.stats.innerHTML = tiles.map(function(t){
-      return '<div class="stat"><div class="k">' + t.k + '</div>' +
+      return '<div class="stat" data-reveal><div class="k">' + t.k + '</div>' +
              (t.body ? t.body : '<div class="v">' + t.v + (t.vs ? '<small>' + t.vs + '</small>' : '') + '</div>') +
              '<div class="d">' + t.d + '</div></div>';
     }).join("");
+    if(PC.motion) PC.motion.scan(host.stats);
   }
 
   /* ---------- 1. Парламентская диаграмма ---------- */
@@ -281,6 +290,43 @@
     if(activeId) highlight(activeId);
   }
 
+  /* Линии графика прорисовываются слева направо: длина пути уходит в
+     stroke-dasharray, а смещение штриха возвращается к нулю. Делается
+     только на первой отрисовке — иначе линии перерисовывались бы при
+     каждом переключении созыва, скрытии серии и смене темы. Длину пути
+     можно спросить только у элемента в документе, поэтому вызов идёт
+     после вставки svg в контейнер. */
+  var trendDrawn = false;
+  function drawIn(lines, marks, card){
+    if(trendDrawn) return;
+    trendDrawn = true;
+    if(!window.requestAnimationFrame || !PC.motion || PC.motion.reduced()) return;
+
+    lines.forEach(function(path, i){
+      var len;
+      try{ len = path.getTotalLength(); }catch(e){ return; }
+      if(!len) return;
+      path.style.strokeDasharray = len + " " + len;
+      path.style.strokeDashoffset = len;
+      path.style.transition = "stroke-dashoffset .85s cubic-bezier(.25,.85,.35,1) " + (i * 70) + "ms";
+    });
+    marks.forEach(function(dot){
+      dot.style.opacity = "0";
+      dot.style.transition = "opacity .4s ease 480ms";
+    });
+
+    /* спуск ждёт появления карточки: график строится при загрузке
+       страницы, а увидят его только после прокрутки */
+    PC.motion.whenRevealed(card, function(){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          lines.forEach(function(path){ path.style.strokeDashoffset = "0"; });
+          marks.forEach(function(dot){ dot.style.opacity = "1"; });
+        });
+      });
+    });
+  }
+
   /* ---------- 2. Динамика мандатов по созывам ---------- */
   function renderTrend(){
     var box = host.trend;
@@ -325,8 +371,12 @@
     /* мягкая заливка под выделенной серией — она же метка «вот эта линия» */
     var defs = el("defs");
     var grad = el("linearGradient", { id:"trendFill", x1:"0", y1:"0", x2:"0", y2:"1" });
-    grad.appendChild(el("stop", { offset:"0%", "stop-color":"currentColor", "stop-opacity":".26" }));
-    grad.appendChild(el("stop", { offset:"100%", "stop-color":"currentColor", "stop-opacity":"0" }));
+    /* заливка высотой во весь график из двух стопов полосит заметнее
+       любого CSS-градиента — разбиваем затухание на кривую */
+    [[0, ".28"], [.34, ".15"], [.62, ".06"], [.84, ".015"], [1, "0"]].forEach(function(s){
+      grad.appendChild(el("stop", { offset:(s[0]*100) + "%",
+        "stop-color":"currentColor", "stop-opacity":s[1] }));
+    });
     defs.appendChild(grad);
     svg.appendChild(defs);
 
@@ -372,6 +422,7 @@
     var visible = order.filter(function(p){ return !trendOff[p.id]; });
     var labels = [];      /* прямые подписи собираем и расставляем после линий */
     var dots = {};        /* id -> кружки серии, чтобы подсвечивать при наведении */
+    var lines = [], marks = [];   /* плоские списки для анимации прорисовки */
 
     visible.forEach(function(p){
       var col = chartColor(p.color);
@@ -395,13 +446,16 @@
               fill:"url(#trendFill)"
             }));
           }
-          g.appendChild(el("path", { class:"trend-line", d:d, fill:"none", stroke:col,
-            "stroke-width":on ? 3 : 2, "stroke-linejoin":"round", "stroke-linecap":"round" }));
+          var line = el("path", { class:"trend-line", d:d, fill:"none", stroke:col,
+            "stroke-width":on ? 3 : 2, "stroke-linejoin":"round", "stroke-linecap":"round" });
+          g.appendChild(line);
+          lines.push(line);
         }
         seg.forEach(function(q){
           var dot = el("circle", { class:"trend-dot", cx:q.x, cy:q.y, r:on ? 5 : 3.6, fill:col,
             stroke:"var(--chart-surface)", "stroke-width":2 });
           g.appendChild(dot);
+          marks.push(dot);
           (dots[p.id] || (dots[p.id] = [])).push(dot);
         });
       });
@@ -439,6 +493,7 @@
 
     box.innerHTML = "";
     box.appendChild(svg);
+    drawIn(lines, marks, box.closest(".chart-card"));
     var tip = document.createElement("div");
     tip.className = "c-tip";
     box.appendChild(tip);

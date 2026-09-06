@@ -152,9 +152,9 @@
           'устройстве власти. В конце получите две координаты по тем же шкалам, что и у партий, — ' +
           'и увидите, рядом с кем оказались.</p>' +
         '<ul class="quiz-facts">' +
-          '<li><b>' + (Q.length / 2) + ' + ' + (Q.length / 2) + '</b> утверждений: экономика и роль государства</li>' +
-          '<li><b>5–7 минут</b> — примерное время прохождения</li>' +
-          '<li><b>Ничего не отправляется</b> — ответы остаются в вашем браузере</li>' +
+          '<li data-reveal><b>' + (Q.length / 2) + ' + ' + (Q.length / 2) + '</b> утверждений: экономика и роль государства</li>' +
+          '<li data-reveal><b>5–7 минут</b> — примерное время прохождения</li>' +
+          '<li data-reveal><b>Ничего не отправляется</b> — ответы остаются в вашем браузере</li>' +
         '</ul>' +
         '<div class="quiz-actions">' +
           '<button type="button" class="btn primary" id="quizStart">' +
@@ -290,10 +290,10 @@
           '<span class="eyebrow">Ваш результат</span>' +
           '<h2>' + esc(capitalize(quadrant(pt.x, pt.y))) + '</h2>' +
           '<div class="qr-coords">' +
-            '<div class="qr-coord"><div class="k">Экономика</div><div class="v">' + fmt(pt.x) + '</div>' +
+            '<div class="qr-coord" data-reveal><div class="k">Экономика</div><div class="v">' + fmt(pt.x) + '</div>' +
               '<div class="d">' + esc(econWord(pt.x)) + ' взгляды</div>' + bar(pt.x) +
               '<div class="qr-poles"><span>плановая</span><span>рыночная</span></div></div>' +
-            '<div class="qr-coord"><div class="k">Отношение к государству</div><div class="v">' + fmt(pt.y) + '</div>' +
+            '<div class="qr-coord" data-reveal><div class="k">Отношение к государству</div><div class="v">' + fmt(pt.y) + '</div>' +
               '<div class="d">' + esc(stateWord(pt.y)) + '</div>' + bar(pt.y) +
               '<div class="qr-poles"><span>свободы</span><span>этатизм</span></div></div>' +
           '</div>' +
@@ -314,7 +314,7 @@
         '<div class="qr-side">' + miniCompass(pt) +
           '<div class="qr-rank">' +
             rank.map(function(r){
-              return '<button type="button" class="qr-row" data-id="' + esc(r.p.id) + '">' +
+              return '<button type="button" class="qr-row" data-reveal data-id="' + esc(r.p.id) + '">' +
                 '<i style="background:' + esc(r.p.color) + '"></i>' +
                 '<span class="n">' + esc(r.p.short) + '</span>' +
                 '<span class="track"><span class="fill" data-w="' + r.match + '" style="background:' +
@@ -354,6 +354,9 @@
     if(view === "run") renderRun();
     else if(view === "result" && (result || Object.keys(answers).length)) renderResult();
     else renderIntro();
+    /* экраны теста строятся заново на каждом шаге — заново регистрируем
+       их элементы у наблюдателя появления */
+    if(PC.motion) PC.motion.scan(host);
   }
 
   /* ---------- клавиатура ---------- */

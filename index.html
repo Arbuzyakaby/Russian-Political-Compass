@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="css/charts.css">
 <link rel="stylesheet" href="css/quiz.css">
 <link rel="stylesheet" href="css/about.css">
+<link rel="stylesheet" href="css/footer.css">
 
 <!-- синхронно, до отрисовки: снимает вспышку чужой темы -->
 <script src="js/theme-boot.js"></script>
@@ -53,7 +54,7 @@
 
   <nav class="tabs" role="tablist" aria-label="Разделы">
     <button type="button" class="tab" data-tab="compass" role="tab" id="tab-compass"
-            aria-controls="panel-compass" aria-selected="true">Компас и аналитика</button>
+            aria-controls="panel-compass" aria-selected="true">Компас<span class="tab-more"> и аналитика</span></button>
     <button type="button" class="tab" data-tab="quiz" role="tab" id="tab-quiz"
             aria-controls="panel-quiz" aria-selected="false" tabindex="-1">Тест<span class="tab-badge">40</span></button>
     <button type="button" class="tab" data-tab="about" role="tab" id="tab-about"
@@ -100,7 +101,7 @@
       </aside>
     </div>
 
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <h2>Аналитика Госдумы</h2>
       <span class="rule"></span>
       <span class="hint">все графики следуют за выбранным созывом</span>
@@ -109,7 +110,7 @@
     <div class="stats" id="stats"></div>
 
     <div class="charts">
-      <section class="card chart-card" aria-label="Состав Госдумы по фракциям">
+      <section class="card chart-card" data-reveal aria-label="Состав Госдумы по фракциям">
         <div class="chart-head">
           <h3>Состав палаты</h3>
           <p>450 мест, каждая точка — один мандат. Места расставлены слева направо по экономической оси: слева плановая экономика, справа рыночная. Наведите курсор на любую часть дуги — подсветится ближайшая фракция.</p>
@@ -118,7 +119,7 @@
         <div class="hemi-legend" id="hemiLegend"></div>
       </section>
 
-      <section class="card chart-card" aria-label="Динамика мандатов по созывам">
+      <section class="card chart-card" data-reveal aria-label="Динамика мандатов по созывам">
         <div class="chart-head">
           <h3>Динамика мандатов, IV–VIII созывы</h3>
           <p>Мандаты по итогам выборов 2003–2021. Разрыв линии означает, что партия в том созыве не участвовала. Клик по графику переключает созыв на всей странице.</p>
@@ -133,7 +134,7 @@
         <div class="data-wrap" id="trendTableWrap" hidden><div id="trendTable"></div></div>
       </section>
 
-      <section class="card chart-card wide" aria-label="Идеологический спектр партий">
+      <section class="card chart-card wide" data-reveal aria-label="Идеологический спектр партий">
         <div class="chart-head">
           <h3>Идеологический спектр</h3>
           <p>Те же координаты, что и на компасе, но развёрнутые в две шкалы: видно порядок партий и расстояния между ними. Полоса растёт от нуля в сторону полюса.</p>
@@ -151,7 +152,7 @@
   <!-- ============ ВКЛАДКА: О ПРОЕКТЕ ============ -->
   <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="-1" hidden>
     <div class="about">
-      <article class="card about-card about-hero">
+      <article class="card about-card about-hero" data-reveal>
         <span class="eyebrow">О проекте</span>
         <h2>Карта вместо ярлыков</h2>
         <p class="about-lede">Разговор о политике в России быстро сводится к двум ярлыкам — «свои» и «чужие».
@@ -162,7 +163,7 @@
           и как менялся состав Госдумы за пять созывов подряд.</p>
       </article>
 
-      <article class="card about-card">
+      <article class="card about-card" data-reveal>
         <h3>Две оси</h3>
         <p>Одномерная шкала «левые — правые» склеивает вещи, которые в жизни не связаны: отношение
           к собственности и отношение к принуждению. Поэтому осей две, и они независимы.</p>
@@ -184,7 +185,7 @@
           за честные выборы — таких сочетаний в российской политике достаточно, и на одной шкале они бы слиплись.</p>
       </article>
 
-      <article class="card about-card">
+      <article class="card about-card" data-reveal>
         <h3>Откуда берутся координаты</h3>
         <p>Координаты — это экспертная оценка, а не результат измерения. Каждая позиция выведена
           из четырёх источников, в порядке приоритета:</p>
@@ -199,7 +200,7 @@
           Это и есть главное содержание проекта: не цифра, а обоснование, с которым можно спорить.</p>
       </article>
 
-      <article class="card about-card">
+      <article class="card about-card" data-reveal>
         <h3>Данные о мандатах</h3>
         <p>Мандаты приводятся по итогам выборов в Государственную Думу IV–VIII созывов (2003–2021),
           всего 450 мест в каждом. Переключатель созыва над компасом меняет и список партий, и все графики
@@ -209,7 +210,7 @@
           и самовыдвиженцы; на диаграмме состава палаты они показаны серыми точками и отдельной строкой легенды.</p>
       </article>
 
-      <article class="card about-card">
+      <article class="card about-card" data-reveal>
         <h3>Тест на 40 утверждений</h3>
         <p>Тест ставит на ту же сетку вас. Двадцать утверждений про экономику и двадцать про роль
           государства, ответ по шкале от «полностью не согласен» до «полностью согласен».
@@ -223,7 +224,7 @@
           в проекте нет — единственный внешний ресурс на странице это шрифты.</p>
       </article>
 
-      <article class="card about-card">
+      <article class="card about-card" data-reveal>
         <h3>Чего проект не делает</h3>
         <ul class="about-list plain">
           <li>Не агитирует и не призывает голосовать — материал справочный.</li>
@@ -234,7 +235,7 @@
         </ul>
       </article>
 
-      <article class="card about-card">
+      <article class="card about-card" data-reveal>
         <h3>Как это устроено</h3>
         <p>Статическая страница без сборки, фреймворков и зависимостей: HTML, CSS и обычный JavaScript.
           Компас, парламентская диаграмма, график динамики и спектр рисуются в SVG прямо в браузере.
@@ -250,14 +251,59 @@
     </div>
   </section>
 
-  <footer>
-    Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–VIII, 2003–2021, всего 450 мест); переключить созыв можно над компасом.<br>
-    Координаты и лидеры партий — экспертная оценка и данные на текущий момент; материал не является агитацией.
-  </footer>
 </div>
+
+<footer class="site-footer">
+  <div class="foot-inner">
+    <div class="foot-grid">
+      <div class="foot-brand" data-reveal>
+        <div class="foot-mark" aria-hidden="true">🧭</div>
+        <div>
+          <h2>Политический компас партий РФ</h2>
+          <p>Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по пяти созывам Госдумы.</p>
+          <p class="foot-privacy">Без счётчиков, аналитики и внешних запросов</p>
+        </div>
+      </div>
+
+      <nav class="foot-col" data-reveal aria-label="Разделы сайта">
+        <h3>Разделы</h3>
+        <ul>
+          <li><a href="#/compass">Компас и аналитика<span class="arr" aria-hidden="true">→</span></a></li>
+          <li><a href="#/quiz">Тест на 40 утверждений<span class="arr" aria-hidden="true">→</span></a></li>
+          <li><a href="#/about">О проекте и методике<span class="arr" aria-hidden="true">→</span></a></li>
+        </ul>
+      </nav>
+
+      <div class="foot-col" data-reveal>
+        <h3>Данные</h3>
+        <ul>
+          <li>Созывы <b>IV–VIII</b>, 2003–2021</li>
+          <li><b>450</b> мандатов в каждом созыве</li>
+          <li>Координаты — экспертная оценка</li>
+          <li><a href="#/about">Как они выведены<span class="arr" aria-hidden="true">→</span></a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col" data-reveal>
+        <h3>Проект</h3>
+        <ul>
+          <li><a href="https://github.com/Arbuzyakaby/Russian-Political-Compass" target="_blank" rel="noopener noreferrer">Исходный код на GitHub<span class="arr" aria-hidden="true">→</span></a></li>
+          <li>Статическая страница без сборки</li>
+          <li>Ответы теста — только в браузере</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <p>Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–VIII, 2003–2021, всего 450 мест); переключить созыв можно над компасом. Координаты и лидеры партий — экспертная оценка и данные на текущий момент; материал не является агитацией.</p>
+      <span class="foot-meta">2026 · CC BY 4.0</span>
+    </div>
+  </div>
+</footer>
 
 <script src="js/data.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/motion.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/tooltip.js"></script>

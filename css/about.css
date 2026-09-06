@@ -1,9 +1,10 @@
 /* ============ О ПРОЕКТЕ: текстовые карточки ============ */
-.about{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;}
-.about-card{padding:clamp(18px,2.4vw,28px);animation:rise .6s cubic-bezier(.2,.8,.3,1) both;}
-.about-card:nth-child(2){animation-delay:.05s}.about-card:nth-child(3){animation-delay:.08s}
-.about-card:nth-child(4){animation-delay:.11s}.about-card:nth-child(5){animation-delay:.14s}
-.about-card:nth-child(6){animation-delay:.17s}.about-card:nth-child(7){animation-delay:.2s}
+/* Без align-items:start карточки строки растягиваются до её высоты,
+   поэтому вертикальный просвет между всеми карточками равен ровно gap.
+   С выравниванием по верху под короткой карточкой оставался случайный
+   хвост высотой в разницу с соседкой — отступы выглядели разными. */
+.about{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.about-card{padding:clamp(18px,2.4vw,28px);display:flex;flex-direction:column;}
 .about-hero{grid-column:1 / -1;}
 .about-hero h2{font-family:var(--font-display);font-size:clamp(22px,3.4vw,32px);font-weight:750;
   letter-spacing:-.03em;line-height:1.14;margin:6px 0 14px;}
@@ -39,7 +40,7 @@
 
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:1050px){
-  .about{grid-template-columns:1fr;gap:14px;}
+  .about{grid-template-columns:1fr;}
 }
 @media(max-width:560px){
   .axis-grid{grid-template-columns:1fr;}

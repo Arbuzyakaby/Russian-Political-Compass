@@ -72,11 +72,19 @@
   /* ---------- статичная подложка ---------- */
   function drawDefs(){
     var defs = el("defs");
+    /* Подсветка квадрантов: два стопа на площади в четверть поля дают
+       заметное кольцо там, где градиент упирается в край. Промежуточные
+       стопы приближают кривую ease-out, и заливка гаснет незаметно. */
+    var QUAD_STOPS = [
+      { at:"0%",   o:".20" }, { at:"38%", o:".13" },
+      { at:"64%",  o:".075" }, { at:"84%", o:".045" }, { at:"100%", o:".03" }
+    ];
     [{ id:"gq1", c:"#ef4444" }, { id:"gq2", c:"#a855f7" },
      { id:"gq3", c:"#38bdf8" }, { id:"gq4", c:"#fbbf24" }].forEach(function(q){
       var g = el("radialGradient", { id:q.id });
-      g.appendChild(el("stop", { offset:"0%",   "stop-color":q.c, "stop-opacity":".20" }));
-      g.appendChild(el("stop", { offset:"100%", "stop-color":q.c, "stop-opacity":".03" }));
+      QUAD_STOPS.forEach(function(s){
+        g.appendChild(el("stop", { offset:s.at, "stop-color":q.c, "stop-opacity":s.o }));
+      });
       defs.appendChild(g);
     });
     var glow = el("filter", { id:"glow", x:"-60%", y:"-60%", width:"220%", height:"220%" });

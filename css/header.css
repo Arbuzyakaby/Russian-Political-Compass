@@ -1,11 +1,12 @@
 /* ============ ШАПКА: бренд, поиск, переключатель темы ============ */
-.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:22px;
+.topbar{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:22px;
   animation:fadeDown .6s cubic-bezier(.2,.8,.3,1) both;}
 @keyframes fadeDown{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:none;}}
 .brand{display:flex;align-items:center;gap:14px;}
 .brand-mark{
   width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:22px;
-  background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 22%,transparent),color-mix(in srgb,var(--accent-2) 26%,transparent));
+  background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 24%,transparent) 0%,color-mix(in srgb,var(--accent-2) 28%,transparent) 100%);
+  background:linear-gradient(140deg in oklab,color-mix(in srgb,var(--accent) 24%,transparent) 0%,color-mix(in srgb,var(--accent-2) 28%,transparent) 100%);
   border:1px solid var(--stroke-2);box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
   animation:swing 7s ease-in-out infinite;
 }
@@ -47,11 +48,15 @@
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:720px){
   .topbar{align-items:stretch;gap:14px;margin-bottom:16px;}
-  /* на вкладках без поиска в строке остаётся одна кнопка темы —
-     прижимаем её к правому краю, как в десктопной шапке */
   .tools{width:100%;justify-content:flex-end;}
   .search{flex:1;min-width:0;}
   .search input{width:100%;}
+  /* на вкладках без поиска в строке остаётся одна кнопка темы: целая
+     строка ради неё — потеря высоты, поэтому уводим её в верхний угол
+     шапки. Классы ставит js/nav.js вместе со скрытием поиска, а отступ
+     у названия резервирует место, чтобы заголовок не заезжал под кнопку. */
+  .tools.tools-solo{position:absolute;top:0;right:0;width:auto;}
+  .topbar-solo .brand{padding-right:54px;}
 }
 @media(max-width:420px){
   .brand-mark{width:38px;height:38px;font-size:18px;border-radius:11px;}
