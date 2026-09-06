@@ -1,0 +1,35 @@
+/* ============ БАЗА: сброс, фон, каркас страницы ============ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{
+  min-height:100vh;background:var(--bg);color:var(--text);
+  font-family:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.5;position:relative;overflow-x:hidden;
+  transition:background .45s ease,color .45s ease;
+}
+body::before,body::after{content:"";position:fixed;inset:-15%;pointer-events:none;z-index:0;}
+body::before{
+  background:
+    radial-gradient(760px 560px at 14% 4%, var(--blob-1), transparent 62%),
+    radial-gradient(700px 520px at 90% 12%, var(--blob-2), transparent 60%);
+  animation:drift 26s ease-in-out infinite alternate;
+}
+body::after{
+  background:radial-gradient(820px 640px at 58% 100%, var(--blob-3), transparent 62%);
+  animation:drift 34s ease-in-out infinite alternate-reverse;
+}
+@keyframes drift{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  50%{transform:translate3d(2.5%,-2%,0) scale(1.06);}
+  100%{transform:translate3d(-2%,2.5%,0) scale(1.02);}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important;}
+}
+
+.shell{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:26px clamp(14px,3vw,40px) 44px;}
+footer{margin-top:22px;text-align:center;font-size:11px;color:var(--muted-2);line-height:1.6;}
+
+/* доступно скринридеру, скрыто визуально */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;}

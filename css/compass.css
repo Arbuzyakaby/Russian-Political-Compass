@@ -1,0 +1,67 @@
+/* ============ КОМПАС: поле, примитивы SVG, подсказка, легенда ============ */
+/* max-width наравне с max-height: иначе на низком окне высота обрезается,
+   поле остаётся широким и компас сжимается, оставляя пустые поля по бокам */
+.plot{position:relative;width:100%;aspect-ratio:1/1;max-width:74vh;max-height:74vh;margin-inline:auto;}
+svg.compass{width:100%;height:100%;display:block;overflow:visible;}
+
+/* ---- compass primitives ---- */
+.quad{opacity:var(--quad-op);transition:opacity .45s ease;}
+.grid-minor{stroke:var(--line-minor);stroke-width:1;}
+.grid-major{stroke:var(--line-major);stroke-width:1;}
+.axis{stroke:var(--line-axis);stroke-width:1.4;}
+.frame{fill:none;stroke:var(--line-frame);stroke-width:1.4;}
+.tick{font-size:9px;fill:var(--tick);}
+.axis-cap{font-size:11px;font-weight:700;letter-spacing:.11em;fill:var(--cap);}
+.quad-cap{font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;fill:var(--quad-cap);}
+.origin{fill:var(--cap);opacity:.45;}
+
+.cross line{stroke:currentColor;stroke-width:1.2;stroke-dasharray:4 5;opacity:0;transition:opacity .22s ease;}
+.cross.show line{opacity:.55;animation:dash 14s linear infinite;}
+@keyframes dash{to{stroke-dashoffset:-180;}}
+
+.node{cursor:pointer;opacity:0;transition:opacity .5s ease;}
+.node.in{opacity:1;}
+.node.muted{opacity:.12;pointer-events:none;}
+.node.muted .tag{opacity:0;}
+.node .dot{stroke:var(--dot-stroke);stroke-width:1.8;
+  transition:r .28s cubic-bezier(.34,1.5,.5,1),stroke-width .22s ease;}
+.node .ring{fill:none;stroke-width:1.6;opacity:0;transition:opacity .25s ease,r .32s cubic-bezier(.34,1.5,.5,1);}
+.node .pulse{fill:none;stroke-width:1.2;opacity:0;}
+.node .tag{font-size:10.5px;font-weight:650;pointer-events:none;fill:var(--tag);
+  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3.4px;stroke-linejoin:round;
+  transition:fill .2s ease,opacity .3s ease;}
+.node .seat{font-size:8px;font-weight:600;fill:var(--muted);pointer-events:none;
+  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3px;stroke-linejoin:round;opacity:0;transition:opacity .25s ease;}
+.node:hover .seat,.node.active .seat{opacity:1;}
+.node:hover .dot,.node.active .dot{stroke-width:2.8;}
+.node:hover .ring,.node.active .ring{opacity:.9;}
+.node.active .pulse{opacity:.5;animation:pulse 2.4s ease-out infinite;}
+@keyframes pulse{0%{r:14px;opacity:.5;}100%{r:38px;opacity:0;}}
+
+/* ---- tooltip ---- */
+.tip{position:absolute;left:0;top:0;width:258px;padding:13px 15px;background:var(--tip-bg);
+  border:1px solid var(--stroke-2);border-radius:13px;box-shadow:var(--shadow);
+  backdrop-filter:blur(14px);pointer-events:none;opacity:0;z-index:30;
+  transform:translate(-50%,calc(-100% - 22px)) scale(.94);
+  transition:opacity .18s ease,transform .28s cubic-bezier(.3,1.3,.4,1);}
+.tip.show{opacity:1;transform:translate(-50%,calc(-100% - 22px)) scale(1);}
+.tip.below{transform:translate(-50%,22px) scale(.94);}
+.tip.below.show{transform:translate(-50%,22px) scale(1);}
+.tip-top{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.tip-dot{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(125,125,125,.16);}
+.tip-name{font-size:13.5px;font-weight:650;line-height:1.25;letter-spacing:-.01em;}
+.tip-ideo{font-size:11.5px;color:var(--muted);line-height:1.45;margin-bottom:9px;}
+.tip-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.tip-meta span{font-size:10px;color:var(--muted);background:var(--surface-2);border:1px solid var(--stroke);padding:3px 8px;border-radius:6px;}
+.tip-meta b{color:var(--text);font-weight:650;}
+.tip-hint{font-size:10px;color:var(--muted-2);margin-top:9px;padding-top:8px;border-top:1px solid var(--stroke);}
+
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;padding:16px 4px 2px;}
+.legend div{font-size:11.5px;color:var(--muted);display:flex;gap:8px;align-items:center;}
+.legend b{color:var(--text);font-weight:650;font-size:12px;flex:none;}
+
+/* точки компаса доступны с клавиатуры (tabindex на <g class="node">) */
+.node:focus{outline:none;}
+.node:focus-visible .ring{opacity:1;}
+.node:focus-visible .dot{stroke-width:2.8;}
+.node:focus-visible .seat{opacity:1;}
