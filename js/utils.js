@@ -14,7 +14,7 @@
   function fmt(v){ return (v > 0 ? "+" : "") + v.toFixed(1); }
 
   /* радиус точки растёт от числа мандатов, но не бесконечно */
-  function radius(p){ return 9 + Math.min(6, Math.sqrt(p.seats) * 0.36); }
+  function radius(seats){ return 9 + Math.min(6, Math.sqrt(seats || 0) * 0.36); }
 
   /* окончание слова «мандат» для русского счёта: 1 мандат, 2 мандата, 5 мандатов */
   function plural(n){

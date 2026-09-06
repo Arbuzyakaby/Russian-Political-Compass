@@ -26,6 +26,8 @@
   }
 
   function show(p, sx, sy){
+    var seats = PC.seatsOf(p);
+    var conv = PC.convocationInfo();
     tip.innerHTML =
       '<div class="tip-top"><span class="tip-dot" style="background:' + esc(p.color) + '"></span>' +
       '<span class="tip-name">' + esc(p.name) + '</span></div>' +
@@ -33,10 +35,10 @@
       '<div class="tip-meta">' +
         '<span>Экономика <b>' + fmt(p.x) + '</b></span>' +
         '<span>Гос. контроль <b>' + fmt(p.y) + '</b></span>' +
-        '<span>Госдума VIII <b>' + p.seats + '</b> / ' + PC.TOTAL_SEATS + '</span>' +
+        '<span>Госдума ' + esc(conv.label) + ' <b>' + seats + '</b> / ' + PC.TOTAL_SEATS + '</span>' +
       '</div>' +
       '<div class="tip-hint">' +
-        (p.seats ? "Есть представительство в Госдуме" : "Нет мандатов в Госдуме VIII созыва") +
+        (seats ? "Есть представительство в Госдуме" : "Нет мандатов в Госдуме " + esc(conv.label)) +
         " · клик — подробнее</div>";
 
     var pos = toPlotPx(sx, sy);

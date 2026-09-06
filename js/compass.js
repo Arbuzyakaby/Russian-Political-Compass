@@ -165,20 +165,24 @@
     var layer = el("g");
     svg.appendChild(layer);
 
-    /* сами точки — препятствия для чужих подписей */
+    /* сами точки — препятствия для чужих подписей; партии, отсутствующие
+       в выбранном созыве, в отрисовке не участвуют */
     PC.PARTIES.forEach(function(p){
-      var c = px(p.x, p.y), r = radius(p) + 4;
+      var seats = PC.seatsOf(p);
+      if(seats === null) return;
+      var c = px(p.x, p.y), r = radius(seats) + 4;
       obstacles.push({ x1:c.sx - r, y1:c.sy - r, x2:c.sx + r, y2:c.sy + r });
     });
 
     /* крупные фракции раскладываем первыми — им достаются лучшие места */
-    PC.PARTIES.map(function(p, i){ return { p:p, i:i }; })
-      .sort(function(a, b){ return b.p.seats - a.p.seats; })
+    PC.PARTIES.map(function(p, i){ return { p:p, i:i, seats:PC.seatsOf(p) }; })
+      .filter(function(item){ return item.seats !== null; })
+      .sort(function(a, b){ return b.seats - a.seats; })
       .forEach(function(item){
-        var p = item.p, c = px(p.x, p.y), r = radius(p);
+        var p = item.p, seats = item.seats, c = px(p.x, p.y), r = radius(seats);
         var g = el("g", {
           "class":"node", "data-id":p.id, tabindex:"0", role:"button",
-          "aria-label":p.name + ", " + U.seatsLabel(p.seats),
+          "aria-label":p.name + ", " + U.seatsLabel(seats),
           transform:"translate(" + c.sx + "," + c.sy + ")"
         });
         g.appendChild(el("circle", { "class":"pulse", r:14, stroke:p.color }));
@@ -186,7 +190,7 @@
         g.appendChild(el("circle", { "class":"dot", r:0, fill:p.color, filter:"url(#glow)" }));
 
         var tag  = el("text", { "class":"tag" }, p.tag);
-        var seat = el("text", { "class":"seat" }, U.seatsLabel(p.seats));
+        var seat = el("text", { "class":"seat" }, U.seatsLabel(seats));
         g.appendChild(tag);
         g.appendChild(seat);
         layer.appendChild(g);

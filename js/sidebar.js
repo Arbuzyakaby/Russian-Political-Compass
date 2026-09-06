@@ -14,21 +14,22 @@
   function stateLabel(y){ return y < -3 ? "либертарианство" : y > 3 ? "этатизм" : "центр"; }
 
   function renderList(list, activeId){
-    var sorted = list.slice().sort(function(a, b){ return b.seats - a.seats; });
+    var sorted = list.slice().sort(function(a, b){ return PC.seatsOf(b) - PC.seatsOf(a); });
     countEl.textContent = sorted.length;
     countEl.hidden = false;
-    title.textContent = "Партии · мандаты в ГД";
+    title.textContent = "Партии · мандаты в ГД · " + PC.convocationInfo().label;
 
     if(!sorted.length){
       body.innerHTML = '<div class="empty">Ничего не найдено.<br>Попробуйте изменить запрос.</div>';
       return;
     }
     body.innerHTML = '<div class="plist">' + sorted.map(function(p, i){
+      var seats = PC.seatsOf(p);
       return '<button type="button" class="pitem' + (p.id === activeId ? " active" : "") + '"' +
              ' data-id="' + esc(p.id) + '" style="animation-delay:' + (i * 35) + 'ms">' +
                '<span class="sw" style="background:' + esc(p.color) + '"></span>' +
                '<span class="nm">' + esc(p.name) + '<small>' + esc(p.ideology) + '</small></span>' +
-               '<span class="mandates"><b>' + p.seats + '</b>мандат' + U.plural(p.seats) + '</span>' +
+               '<span class="mandates"><b>' + seats + '</b>мандат' + U.plural(seats) + '</span>' +
              '</button>';
     }).join("") + '</div>';
 
@@ -41,16 +42,19 @@
   function renderDetail(p){
     countEl.hidden = true;
     title.textContent = "Карточка партии";
-    var pct = p.seats / PC.TOTAL_SEATS * 100;
+    var seats = PC.seatsOf(p);
+    var conv = PC.convocationInfo();
+    var pct = seats / PC.TOTAL_SEATS * 100;
 
     body.innerHTML =
       '<div class="detail">' +
         '<button type="button" class="back" id="back">← Все партии</button>' +
         '<div class="d-head">' +
-          '<div class="d-badge" style="background:' + esc(p.color) + ';color:' + esc(p.color) + '">' +
+          '<div class="d-badge" style="background:' + esc(p.color) + ';--glow:' + esc(p.color) + '">' +
             esc(p.name.trim().charAt(0)) + '</div>' +
           '<div><h3>' + esc(p.name) + '</h3><div class="ideo">' + esc(p.ideology) + '</div></div>' +
         '</div>' +
+        '<div class="leader"><span class="k">Лидер партии</span><span class="v">' + esc(p.leader) + '</span></div>' +
         '<div class="coords">' +
           '<div class="coord"><div class="k">Экономика</div><div class="v">' + fmt(p.x) + '</div>' +
             '<div class="d">' + econLabel(p.x) + '</div></div>' +
@@ -59,13 +63,13 @@
         '</div>' +
         '<div class="mandate-box">' +
           '<div class="mandate-top">' +
-            '<span class="k">Госдума VIII созыва</span>' +
-            '<span class="v">' + p.seats + ' <small>/ ' + PC.TOTAL_SEATS + ' мест</small></span>' +
+            '<span class="k">Госдума ' + esc(conv.label) + '</span>' +
+            '<span class="v">' + seats + ' <small>/ ' + PC.TOTAL_SEATS + ' мест</small></span>' +
           '</div>' +
           '<div class="bar"><i id="bar" style="background:' + esc(p.color) + '"></i></div>' +
           '<div class="mandate-note">' +
-            (p.seats ? pct.toFixed(1) + "% состава палаты"
-                     : "Партия не преодолела барьер и не получила мандатов") +
+            (seats ? pct.toFixed(1) + "% состава палаты"
+                   : "Партия не преодолела барьер и не получила мандатов") +
           '</div>' +
         '</div>' +
         '<div class="sect"><h4>Ключевые тезисы</h4><ul>' +
@@ -81,7 +85,7 @@
     /* ширина полосы задаётся в следующем кадре, чтобы сработал transition */
     requestAnimationFrame(function(){
       var bar = document.getElementById("bar");
-      if(bar) bar.style.width = Math.max(p.seats ? 2 : 0, pct) + "%";
+      if(bar) bar.style.width = Math.max(seats ? 2 : 0, pct) + "%";
     });
   }
 

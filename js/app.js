@@ -2,24 +2,49 @@
 (function(PC){
   "use strict";
 
-  var state = { active:null, filter:"all", query:"" };
+  var state = { active:null, filter:"all", query:"", convocation:8 };
   var rendered = null;   // что сейчас в панели: "list" или id партии
 
   function byId(id){
     return PC.PARTIES.filter(function(p){ return p.id === id; })[0] || null;
   }
 
-  /* Партии, проходящие текущий фильтр и поисковый запрос. */
+  /* Мандаты партии в текущем выбранном созыве. null — партия в этом
+     созыве не участвовала / не существовала. */
+  function seatsOf(p){
+    if(state.convocation === 8) return p.seats;
+    return (p.seatsBy && state.convocation in p.seatsBy) ? p.seatsBy[state.convocation] : null;
+  }
+
+  /* Партии, проходящие текущий фильтр, поисковый запрос и существовавшие
+     в выбранном созыве. */
   function visible(){
     return PC.PARTIES.filter(function(p){
-      if(state.filter === "duma" && !p.seats) return false;
-      if(state.filter === "nonduma" && p.seats) return false;
+      var seats = seatsOf(p);
+      if(seats === null) return false;
+      if(state.filter === "duma" && !seats) return false;
+      if(state.filter === "nonduma" && seats) return false;
       if(state.query){
         var hay = (p.name + " " + p.short + " " + p.tag + " " + p.ideology).toLowerCase();
         if(hay.indexOf(state.query) === -1) return false;
       }
       return true;
     });
+  }
+
+  function convocationInfo(){
+    var id = state.convocation;
+    return PC.CONVOCATIONS.filter(function(c){ return c.id === id; })[0] || PC.CONVOCATIONS[0];
+  }
+
+  function setConvocation(id){
+    id = Number(id);
+    if(id === state.convocation) return;
+    state.convocation = id;
+    if(state.active && seatsOf(byId(state.active)) === null) state.active = null;
+    PC.compass.draw();
+    syncNodes();
+    renderSide(true);
   }
 
   function syncNodes(){
@@ -88,6 +113,15 @@
       });
     });
 
+    var convSelect = document.getElementById("convSelect");
+    if(convSelect){
+      convSelect.innerHTML = PC.CONVOCATIONS.map(function(c){
+        return '<option value="' + c.id + '">' + c.label + " · " + c.years + "</option>";
+      }).join("");
+      convSelect.value = String(state.convocation);
+      convSelect.addEventListener("change", function(){ setConvocation(convSelect.value); });
+    }
+
     document.addEventListener("keydown", function(e){
       if(e.key === "Escape"){
         if(document.activeElement === input && input.value){
@@ -152,6 +186,9 @@
 
   PC.select = select;
   PC.visible = visible;
+  PC.seatsOf = seatsOf;
+  PC.convocationInfo = convocationInfo;
+  PC.setConvocation = setConvocation;
 
   if(document.readyState === "loading"){
     document.addEventListener("DOMContentLoaded", init);
