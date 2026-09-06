@@ -216,6 +216,62 @@
           g.querySelector(".dot").setAttribute("r", r);
         }, 140 + item.i * 60);
       });
+
+    drawUser(layer);
+  }
+
+  /* ---------- точка пользователя по результату теста ---------- */
+  /* Рисуется последней: к этому моменту в obstacles уже лежат все партийные
+     ярлыки, поэтому подпись «Вы» встаёт в свободное место, а не поверх них. */
+  function drawUser(layer){
+    var res = PC.quiz && PC.quiz.result();
+    if(!res) return;
+
+    var c = px(res.x, res.y), r = 9;
+    var g = el("g", {
+      "class":"node you", tabindex:"0", role:"button",
+      "aria-label":"Ваша позиция по результатам теста: экономика " + U.fmt(res.x) +
+                   ", отношение к государству " + U.fmt(res.y),
+      transform:"translate(" + c.sx + "," + c.sy + ")"
+    });
+    g.appendChild(el("circle", { "class":"you-halo", r:r + 9 }));
+    g.appendChild(el("path", { "class":"you-mark",
+      d:"M0 -11 L3.1 -3.6 L11 -3.4 L4.8 1.6 L7 9.2 L0 4.8 L-7 9.2 L-4.8 1.6 L-11 -3.4 L-3.1 -3.6 Z" }));
+    var tag  = el("text", { "class":"tag" }, "Вы");
+    var seat = el("text", { "class":"seat" }, "результат теста");
+    g.appendChild(tag);
+    g.appendChild(seat);
+    layer.appendChild(g);
+    obstacles.push(placeLabel(tag, seat, c.sx, c.sy, r, "top"));
+
+    function enter(){
+      var best = PC.quiz.ranking(res)[0];
+      PC.tip.showHTML(
+        '<div class="tip-top"><span class="tip-dot you"></span>' +
+        '<span class="tip-name">Ваша позиция</span></div>' +
+        '<div class="tip-ideo">' + U.esc(PC.quiz.quadrant(res.x, res.y)) + ' — по результатам теста</div>' +
+        '<div class="tip-meta">' +
+          '<span>Экономика <b>' + U.fmt(res.x) + '</b></span>' +
+          '<span>Гос. контроль <b>' + U.fmt(res.y) + '</b></span>' +
+        '</div>' +
+        '<div class="tip-hint">Ближе всего — ' + U.esc(best.p.name) + ' · ' + best.match + '% совпадения</div>',
+        c.sx, c.sy);
+      showCross(c.sx, c.sy);
+    }
+    function leave(){ PC.tip.hide(); hideCross(); }
+    g.addEventListener("mouseenter", enter);
+    g.addEventListener("mouseleave", leave);
+    g.addEventListener("focus", enter);
+    g.addEventListener("blur", leave);
+    g.addEventListener("click", function(){ if(PC.nav) PC.nav.go("quiz"); });
+    g.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+        e.preventDefault();
+        if(PC.nav) PC.nav.go("quiz");
+      }
+    });
+
+    setTimeout(function(){ g.classList.add("in"); }, 260);
   }
 
   function draw(){
@@ -241,9 +297,10 @@
   }
 
   /* Приводит точки в соответствие с фильтром и выбранной партией.
-     Скрытые точки убираются и из порядка обхода Tab. */
+     Скрытые точки убираются и из порядка обхода Tab.
+     Точка пользователя фильтрам не подчиняется — у неё нет data-id. */
   function syncNodes(visibleIds, activeId){
-    svg.querySelectorAll(".node").forEach(function(n){
+    svg.querySelectorAll(".node:not(.you)").forEach(function(n){
       var muted = !visibleIds.has(n.dataset.id);
       n.classList.toggle("muted", muted);
       n.classList.toggle("active", n.dataset.id === activeId);
@@ -252,5 +309,17 @@
     });
   }
 
-  PC.compass = { draw:draw, syncNodes:syncNodes, hideCross:hideCross };
+  /* Полная пересборка поля с последующей синхронизацией состояния —
+     нужна, когда изменились сами данные отрисовки (результат теста,
+     возврат на вкладку компаса, подмена веб-шрифта). Подписчик ставится
+     из app.js, чтобы модуль компаса не знал про фильтры и выделение. */
+  var drawListeners = [];
+  function onDraw(fn){ drawListeners.push(fn); }
+  function redraw(){
+    if(!document.getElementById("svg")) return;
+    draw();
+    drawListeners.forEach(function(fn){ fn(); });
+  }
+
+  PC.compass = { draw:draw, redraw:redraw, onDraw:onDraw, syncNodes:syncNodes, hideCross:hideCross };
 })(window.PC = window.PC || {});

@@ -135,3 +135,30 @@
   .stat{padding:12px 13px;}
   .stat .d{display:none;}
 }
+
+/* ---------- переключатель шкалы графика ---------- */
+.chart-toolbar{display:flex;gap:5px;margin:-4px 0 12px;}
+.trend-mode{font:inherit;font-size:11.5px;font-weight:550;padding:5px 12px;border-radius:999px;cursor:pointer;
+  background:var(--surface);border:1px solid var(--stroke);color:var(--muted);transition:all .16s ease;}
+.trend-mode:hover{color:var(--text);border-color:var(--stroke-2);}
+.trend-mode[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);}
+.trend-mode:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---------- динамика: серии и подсказка ---------- */
+.trend-series{transition:opacity .2s ease;}
+.trend-series.faded{opacity:.26;}
+.trend-dot,.trend-line{transition:r .2s ease,stroke-width .2s ease;}
+.c-tip .r.on{color:var(--text);background:var(--surface);border-radius:6px;
+  margin:0 -4px;padding:0 4px;}
+.c-tip .r u{margin-left:8px;font-size:9.5px;text-decoration:none;font-variant-numeric:tabular-nums;flex:none;}
+.c-tip .r u.up{color:#3fb950;}
+.c-tip .r u.down{color:#f85149;}
+.c-tip .r u.flat,.c-tip .r u.new{color:var(--muted-2);}
+.c-tip .f{margin-top:7px;padding-top:6px;border-top:1px solid var(--stroke);
+  font-size:9.5px;color:var(--muted-2);}
+.tleg b{margin-left:5px;color:var(--text);font-weight:650;font-variant-numeric:tabular-nums;}
+.tleg.off b{color:inherit;}
+
+/* приглушение всей фракции на диаграмме состава палаты */
+.seat-group{transition:opacity .2s ease;}
+.dim-group{opacity:.55;}

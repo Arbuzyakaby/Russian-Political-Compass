@@ -47,7 +47,9 @@
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:720px){
   .topbar{align-items:stretch;gap:14px;margin-bottom:16px;}
-  .tools{width:100%;}
+  /* на вкладках без поиска в строке остаётся одна кнопка темы —
+     прижимаем её к правому краю, как в десктопной шапке */
+  .tools{width:100%;justify-content:flex-end;}
   .search{flex:1;min-width:0;}
   .search input{width:100%;}
 }

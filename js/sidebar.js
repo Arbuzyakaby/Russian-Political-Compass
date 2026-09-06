@@ -43,8 +43,8 @@
      созыв, в котором партии не существовало; ноль — участвовала, но
      не прошла барьер. */
   function histBlock(p){
-    var convs = PC.CONVOCATIONS.slice().sort(function(a, b){ return a.id - b.id; });
-    var vals = convs.map(function(c){ return PC.charts ? PC.charts.seatsAt(p, c.id) : null; });
+    var convs = PC.convsAsc();
+    var vals = convs.map(function(c){ return PC.seatsAt(p, c.id); });
     var max = Math.max.apply(null, vals.map(function(v){ return v || 0; }).concat([1]));
     var any = vals.some(function(v){ return v; });
     return '<div class="sect"><h4>Мандаты по созывам</h4>' +

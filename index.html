@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII.">
-<meta name="color-scheme" content="dark light">
+<meta name="description" content="Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII, тест на 40 утверждений.">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%236ee7f9' stroke-width='6'/%3E%3Cpath d='M38 62 L62 38 L54 60 Z' fill='%23f43f5e'/%3E%3C/svg%3E">
 <title>Политический компас партий РФ</title>
 
@@ -19,8 +19,10 @@
 <link rel="stylesheet" href="css/compass.css">
 <link rel="stylesheet" href="css/sidebar.css">
 <link rel="stylesheet" href="css/charts.css">
+<link rel="stylesheet" href="css/quiz.css">
+<link rel="stylesheet" href="css/about.css">
 
-<!-- синхронно, до отрисовки: снимает вспышку тёмной темы у светлой -->
+<!-- синхронно, до отрисовки: снимает вспышку чужой темы -->
 <script src="js/theme-boot.js"></script>
 </head>
 <body>
@@ -44,87 +46,209 @@
         <button type="button" class="clear" id="clearBtn" title="Очистить" aria-label="Очистить поиск">✕</button>
       </div>
       <button type="button" class="theme-btn" id="themeBtn" title="Переключить тему" aria-label="Переключить тему">
-        <span id="themeIcon" aria-hidden="true">☀️</span>
+        <span id="themeIcon" aria-hidden="true">🖥️</span>
       </button>
     </div>
   </header>
 
-  <div class="grid">
-    <section class="card stage" aria-label="Компас партий">
-      <div class="stage-head">
-        <span class="stage-title">Позиции партий · шкала −10…+10</span>
-        <div class="chips" role="group" aria-label="Фильтр партий">
-          <button type="button" class="chip" data-filter="all" aria-pressed="true">Все</button>
-          <button type="button" class="chip" data-filter="duma" aria-pressed="false">В Госдуме</button>
-          <button type="button" class="chip" data-filter="nonduma" aria-pressed="false">Без мандатов</button>
+  <nav class="tabs" role="tablist" aria-label="Разделы">
+    <button type="button" class="tab" data-tab="compass" role="tab" id="tab-compass"
+            aria-controls="panel-compass" aria-selected="true">Компас и аналитика</button>
+    <button type="button" class="tab" data-tab="quiz" role="tab" id="tab-quiz"
+            aria-controls="panel-quiz" aria-selected="false" tabindex="-1">Тест<span class="tab-badge">40</span></button>
+    <button type="button" class="tab" data-tab="about" role="tab" id="tab-about"
+            aria-controls="panel-about" aria-selected="false" tabindex="-1">О проекте</button>
+  </nav>
+
+  <!-- ============ ВКЛАДКА: КОМПАС И АНАЛИТИКА ============ -->
+  <section class="panel" id="panel-compass" role="tabpanel" aria-labelledby="tab-compass" tabindex="-1">
+    <div class="grid">
+      <section class="card stage" aria-label="Компас партий">
+        <div class="stage-head">
+          <span class="stage-title">Позиции партий · шкала −10…+10</span>
+          <div class="chips" role="group" aria-label="Фильтр партий">
+            <button type="button" class="chip" data-filter="all" aria-pressed="true">Все</button>
+            <button type="button" class="chip" data-filter="duma" aria-pressed="false">В Госдуме</button>
+            <button type="button" class="chip" data-filter="nonduma" aria-pressed="false">Без мандатов</button>
+          </div>
+          <label class="conv-select">
+            <span class="sr-only">Созыв Госдумы</span>
+            <select id="convSelect" aria-label="Созыв Госдумы"></select>
+          </label>
         </div>
-        <label class="conv-select">
-          <span class="sr-only">Созыв Госдумы</span>
-          <select id="convSelect" aria-label="Созыв Госдумы"></select>
-        </label>
-      </div>
 
-      <div class="plot" id="plot">
-        <svg class="compass" id="svg" viewBox="0 0 660 660" preserveAspectRatio="xMidYMid meet"
-             role="img" aria-label="Политический компас: партии по осям экономики и отношения к государству"></svg>
-        <div class="tip" id="tip" role="tooltip"></div>
-      </div>
+        <div class="plot" id="plot">
+          <svg class="compass" id="svg" viewBox="0 0 660 660" preserveAspectRatio="xMidYMid meet"
+               role="img" aria-label="Политический компас: партии по осям экономики и отношения к государству"></svg>
+          <div class="tip" id="tip" role="tooltip"></div>
+        </div>
 
-      <div class="legend">
-        <div><b>←</b> Плановая экономика, национализация</div>
-        <div><b>→</b> Свободный рынок, частная инициатива</div>
-        <div><b>↑</b> Сильное государство, контроль</div>
-        <div><b>↓</b> Личные свободы, децентрализация</div>
-      </div>
-    </section>
+        <div class="legend">
+          <div><b>←</b> Плановая экономика, национализация</div>
+          <div><b>→</b> Свободный рынок, частная инициатива</div>
+          <div><b>↑</b> Сильное государство, контроль</div>
+          <div><b>↓</b> Личные свободы, децентрализация</div>
+        </div>
+      </section>
 
-    <aside class="card side" aria-label="Список партий">
-      <div class="side-head">
-        <h2 id="sideTitle">Партии</h2>
-        <span class="count" id="count"></span>
-      </div>
-      <div class="scroll" id="sideBody"></div>
-    </aside>
-  </div>
+      <aside class="card side" aria-label="Список партий">
+        <div class="side-head">
+          <h2 id="sideTitle">Партии</h2>
+          <span class="count" id="count"></span>
+        </div>
+        <div class="scroll" id="sideBody"></div>
+      </aside>
+    </div>
 
+    <div class="section-head">
+      <h2>Аналитика Госдумы</h2>
+      <span class="rule"></span>
+      <span class="hint">все графики следуют за выбранным созывом</span>
+    </div>
 
-  <div class="section-head">
-    <h2>Аналитика Госдумы</h2>
-    <span class="rule"></span>
-    <span class="hint">все графики следуют за выбранным созывом</span>
-  </div>
+    <div class="stats" id="stats"></div>
 
-  <div class="stats" id="stats"></div>
+    <div class="charts">
+      <section class="card chart-card" aria-label="Состав Госдумы по фракциям">
+        <div class="chart-head">
+          <h3>Состав палаты</h3>
+          <p>450 мест, каждая точка — один мандат. Места расставлены слева направо по экономической оси: слева плановая экономика, справа рыночная. Наведите курсор на любую часть дуги — подсветится ближайшая фракция.</p>
+        </div>
+        <div class="chart-body hemi-wrap" id="hemi"></div>
+        <div class="hemi-legend" id="hemiLegend"></div>
+      </section>
 
-  <div class="charts">
-    <section class="card chart-card" aria-label="Состав Госдумы по фракциям">
-      <div class="chart-head">
-        <h3>Состав палаты</h3>
-        <p>450 мест, каждая точка — один мандат. Места расставлены слева направо по экономической оси: слева плановая экономика, справа рыночная.</p>
-      </div>
-      <div class="chart-body hemi-wrap" id="hemi"></div>
-      <div class="hemi-legend" id="hemiLegend"></div>
-    </section>
+      <section class="card chart-card" aria-label="Динамика мандатов по созывам">
+        <div class="chart-head">
+          <h3>Динамика мандатов, IV–VIII созывы</h3>
+          <p>Мандаты по итогам выборов 2003–2021. Разрыв линии означает, что партия в том созыве не участвовала. Клик по графику переключает созыв на всей странице.</p>
+        </div>
+        <div class="chart-toolbar" role="group" aria-label="Шкала графика">
+          <button type="button" class="trend-mode" data-mode="seats" aria-pressed="true">Мандаты</button>
+          <button type="button" class="trend-mode" data-mode="share" aria-pressed="false">Доля палаты</button>
+        </div>
+        <div class="chart-body" id="trend"></div>
+        <div class="trend-legend" id="trendLegend"></div>
+        <button type="button" class="data-toggle" id="trendTableBtn" aria-expanded="false">Показать таблицу данных</button>
+        <div class="data-wrap" id="trendTableWrap" hidden><div id="trendTable"></div></div>
+      </section>
 
-    <section class="card chart-card" aria-label="Динамика мандатов по созывам">
-      <div class="chart-head">
-        <h3>Динамика мандатов, IV–VIII созывы</h3>
-        <p>Мандаты по итогам выборов 2003–2021. Разрыв линии означает, что партия в том созыве не участвовала.</p>
-      </div>
-      <div class="chart-body" id="trend"></div>
-      <div class="trend-legend" id="trendLegend"></div>
-      <button type="button" class="data-toggle" id="trendTableBtn" aria-expanded="false">Показать таблицу данных</button>
-      <div class="data-wrap" id="trendTableWrap" hidden><div id="trendTable"></div></div>
-    </section>
+      <section class="card chart-card wide" aria-label="Идеологический спектр партий">
+        <div class="chart-head">
+          <h3>Идеологический спектр</h3>
+          <p>Те же координаты, что и на компасе, но развёрнутые в две шкалы: видно порядок партий и расстояния между ними. Полоса растёт от нуля в сторону полюса.</p>
+        </div>
+        <div class="spectrum" id="spectrum"></div>
+      </section>
+    </div>
+  </section>
 
-    <section class="card chart-card wide" aria-label="Идеологический спектр партий">
-      <div class="chart-head">
-        <h3>Идеологический спектр</h3>
-        <p>Те же координаты, что и на компасе, но развёрнутые в две шкалы: видно порядок партий и расстояния между ними. Полоса растёт от нуля в сторону полюса.</p>
-      </div>
-      <div class="spectrum" id="spectrum"></div>
-    </section>
-  </div>
+  <!-- ============ ВКЛАДКА: ТЕСТ ============ -->
+  <section class="panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="-1" hidden>
+    <div class="card quiz-card" id="quiz"></div>
+  </section>
+
+  <!-- ============ ВКЛАДКА: О ПРОЕКТЕ ============ -->
+  <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="-1" hidden>
+    <div class="about">
+      <article class="card about-card about-hero">
+        <span class="eyebrow">О проекте</span>
+        <h2>Карта вместо ярлыков</h2>
+        <p class="about-lede">Разговор о политике в России быстро сводится к двум ярлыкам — «свои» и «чужие».
+          Этот проект пробует заменить их координатной сеткой: у каждой партии есть измеримое положение
+          по двум независимым осям, и рядом с ним — объяснение, почему оно именно такое.</p>
+        <p>Компас не голосует за вас и никого не рекламирует. Он показывает, как программы и публичная
+          риторика партий раскладываются по двум измерениям, насколько далеко партии отстоят друг от друга
+          и как менялся состав Госдумы за пять созывов подряд.</p>
+      </article>
+
+      <article class="card about-card">
+        <h3>Две оси</h3>
+        <p>Одномерная шкала «левые — правые» склеивает вещи, которые в жизни не связаны: отношение
+          к собственности и отношение к принуждению. Поэтому осей две, и они независимы.</p>
+        <div class="axis-grid">
+          <div class="axis-box">
+            <div class="k">Горизонталь · экономика</div>
+            <div class="poles"><span>−10 плановая</span><span>+10 рыночная</span></div>
+            <p>Кто распоряжается собственностью и доходом: государство через национализацию, планирование
+              и перераспределение — или частные владельцы через рынок, конкуренцию и низкие налоги.</p>
+          </div>
+          <div class="axis-box">
+            <div class="k">Вертикаль · отношение к власти государства</div>
+            <div class="poles"><span>−10 свободы</span><span>+10 этатизм</span></div>
+            <p>Сколько государство вправе решать за человека: контроль над словом, собраниями, интернетом
+              и частной жизнью, сила вертикали власти — или права личности, суд, федерализм и самоуправление.</p>
+          </div>
+        </div>
+        <p class="about-note">Оси независимы: партия может требовать национализации и при этом выступать
+          за честные выборы — таких сочетаний в российской политике достаточно, и на одной шкале они бы слиплись.</p>
+      </article>
+
+      <article class="card about-card">
+        <h3>Откуда берутся координаты</h3>
+        <p>Координаты — это экспертная оценка, а не результат измерения. Каждая позиция выведена
+          из четырёх источников, в порядке приоритета:</p>
+        <ol class="about-list">
+          <li><b>Программные документы партии</b> — официальная программа и предвыборная платформа.</li>
+          <li><b>Голосования фракции в Госдуме</b> — что партия поддерживает на практике, а не на словах.</li>
+          <li><b>Публичная риторика руководства</b> — заявления лидеров и партийных спикеров.</li>
+          <li><b>Позиция относительно соседей</b> — координата калибруется так, чтобы расстояния между
+            партиями отражали реальную разницу программ, а не только абсолютные значения.</li>
+        </ol>
+        <p>У каждой партии в карточке есть раздел «Почему такие координаты» — там разбор конкретной позиции.
+          Это и есть главное содержание проекта: не цифра, а обоснование, с которым можно спорить.</p>
+      </article>
+
+      <article class="card about-card">
+        <h3>Данные о мандатах</h3>
+        <p>Мандаты приводятся по итогам выборов в Государственную Думу IV–VIII созывов (2003–2021),
+          всего 450 мест в каждом. Переключатель созыва над компасом меняет и список партий, и все графики
+          сразу: партии, которой в том созыве не существовало, на поле нет вовсе, а ноль означает,
+          что партия участвовала, но мандатов не получила.</p>
+        <p>Разница между суммой мандатов фракций и 450 местами — это депутаты вне фракций
+          и самовыдвиженцы; на диаграмме состава палаты они показаны серыми точками и отдельной строкой легенды.</p>
+      </article>
+
+      <article class="card about-card">
+        <h3>Тест на 40 утверждений</h3>
+        <p>Тест ставит на ту же сетку вас. Двадцать утверждений про экономику и двадцать про роль
+          государства, ответ по шкале от «полностью не согласен» до «полностью согласен».
+          Согласие двигает координату к одному полюсу оси, несогласие — к другому; несколько ключевых
+          утверждений весят чуть больше, потому что разводят позиции сильнее остальных.</p>
+        <p>Результат — две координаты и список партий, отсортированный по расстоянию до вашей точки.
+          Совпадение в процентах считается именно от расстояния и означает близость координат,
+          а не совет за кого-то голосовать.</p>
+        <p class="about-note">Ответы никуда не отправляются: они лежат в localStorage вашего браузера,
+          и кнопка «Сбросить ответы» стирает их полностью. Никакой аналитики, счётчиков и внешних запросов
+          в проекте нет — единственный внешний ресурс на странице это шрифты.</p>
+      </article>
+
+      <article class="card about-card">
+        <h3>Чего проект не делает</h3>
+        <ul class="about-list plain">
+          <li>Не агитирует и не призывает голосовать — материал справочный.</li>
+          <li>Не измеряет внешнюю политику, национальный вопрос и личное доверие к политикам:
+            две оси не вмещают всё, и это осознанное упрощение.</li>
+          <li>Не претендует на единственно верные координаты — это оценка, открытая к аргументам.</li>
+          <li>Не собирает и не передаёт данные о посетителях.</li>
+        </ul>
+      </article>
+
+      <article class="card about-card">
+        <h3>Как это устроено</h3>
+        <p>Статическая страница без сборки, фреймворков и зависимостей: HTML, CSS и обычный JavaScript.
+          Компас, парламентская диаграмма, график динамики и спектр рисуются в SVG прямо в браузере.
+          Тема по умолчанию системная — берётся из настроек операционной системы и меняется вместе с ней,
+          пока вы не выберете светлую или тёмную вручную.</p>
+        <p>Доступность: точки компаса и элементы легенд достижимы с клавиатуры, у графика динамики есть
+          таблица данных как альтернатива цвету, анимации выключаются по <code>prefers-reduced-motion</code>.</p>
+        <p class="about-cta">Исходный код открыт:
+          <a href="https://github.com/Arbuzyakaby/Russian-Political-Compass" target="_blank" rel="noopener noreferrer">
+            github.com/Arbuzyakaby/Russian-Political-Compass</a>. Замечания к координатам, данным
+          и формулировкам вопросов — через issues.</p>
+      </article>
+    </div>
+  </section>
 
   <footer>
     Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–VIII, 2003–2021, всего 450 мест); переключить созыв можно над компасом.<br>
@@ -134,10 +258,14 @@
 
 <script src="js/data.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/tooltip.js"></script>
 <script src="js/compass.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/quiz-data.js"></script>
+<script src="js/quiz.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

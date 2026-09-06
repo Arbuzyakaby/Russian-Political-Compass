@@ -6,7 +6,10 @@
    означает, что партия в этом созыве не участвовала / не была зарегистрирована.
    leader — нынешний руководитель партии (на некоторых партиях — коллегиальное
    руководство, тогда перечислены сопредседатели). */
-const CONVOCATIONS = [
+(function(PC){
+  "use strict";
+
+var CONVOCATIONS = [
   { id:8, label:"VIII созыв", years:"2021–2026" },
   { id:7, label:"VII созыв",  years:"2016–2021" },
   { id:6, label:"VI созыв",   years:"2011–2016" },
@@ -14,7 +17,7 @@ const CONVOCATIONS = [
   { id:4, label:"IV созыв",   years:"2003–2007" }
 ];
 
-const PARTIES = [
+var PARTIES = [
   {
     id:"er", name:"Единая Россия", short:"Единая Россия", tag:"Единая Россия", lp:"left",
     seats:324, seatsBy:{7:343, 6:238, 5:315, 4:223}, color:"#2f6fe0", x:3.2, y:8.2,
@@ -159,9 +162,33 @@ const PARTIES = [
     why:"Умеренно правая экономика: ставка на технологический бизнес и предпринимательскую среду без перераспределительной программы. По вертикали — одна из самых либертарианских точек: сама идея прямой демократии предполагает передачу власти от государственного аппарата гражданам."
   }
 ];
-const TOTAL_SEATS = 450;
+var TOTAL_SEATS = 450;
+var CURRENT_CONVOCATION = 8;   /* созыв, мандаты которого лежат в поле seats */
 
-window.PC = window.PC || {};
-window.PC.PARTIES = PARTIES;
-window.PC.TOTAL_SEATS = TOTAL_SEATS;
-window.PC.CONVOCATIONS = CONVOCATIONS;
+/* Мандаты партии в конкретном созыве. null — партии в этом созыве
+   не существовало (не участвовала / не была зарегистрирована), 0 —
+   участвовала, но мандатов не получила. Единая точка правды: раньше
+   эта же логика жила отдельно в app.js и в charts.js. */
+function seatsAt(p, conv){
+  if(conv === CURRENT_CONVOCATION) return p.seats;
+  return (p.seatsBy && conv in p.seatsBy) ? p.seatsBy[conv] : null;
+}
+
+function partyById(id){
+  for(var i = 0; i < PARTIES.length; i++) if(PARTIES[i].id === id) return PARTIES[i];
+  return null;
+}
+
+/* созывы от старого к новому — порядок оси X на графике динамики */
+function convsAsc(){
+  return CONVOCATIONS.slice().sort(function(a, b){ return a.id - b.id; });
+}
+
+PC.PARTIES = PARTIES;
+PC.TOTAL_SEATS = TOTAL_SEATS;
+PC.CONVOCATIONS = CONVOCATIONS;
+PC.CURRENT_CONVOCATION = CURRENT_CONVOCATION;
+PC.seatsAt = seatsAt;
+PC.partyById = partyById;
+PC.convsAsc = convsAsc;
+})(window.PC = window.PC || {});

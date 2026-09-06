@@ -1,4 +1,4 @@
-/* ============ Общие утилиты и геометрия компаса ============ */
+/* ============ Общие утилиты, хранилище и геометрия компаса ============ */
 (function(PC){
   "use strict";
 
@@ -16,6 +16,8 @@
   /* радиус точки растёт от числа мандатов, но не бесконечно */
   function radius(seats){ return 9 + Math.min(6, Math.sqrt(seats || 0) * 0.36); }
 
+  function clamp(v, lo, hi){ return v < lo ? lo : v > hi ? hi : v; }
+
   /* окончание слова «мандат» для русского счёта: 1 мандат, 2 мандата, 5 мандатов */
   function plural(n){
     var a = n % 10, b = n % 100;
@@ -24,6 +26,14 @@
     return "ов";
   }
   function seatsLabel(n){ return n ? n + " мандат" + plural(n) : "нет мандатов"; }
+
+  /* общий склонятель: word(5, ["вопрос","вопроса","вопросов"]) -> "вопросов" */
+  function word(n, forms){
+    var a = n % 10, b = n % 100;
+    if(a === 1 && b !== 11) return forms[0];
+    if(a >= 2 && a <= 4 && (b < 10 || b >= 20)) return forms[1];
+    return forms[2];
+  }
 
   /* создание SVG-элемента с атрибутами и (необязательно) текстом */
   function el(tag, attrs, text){
@@ -41,6 +51,34 @@
     });
   }
 
+  /* localStorage бросает исключение в приватном режиме и при запрете
+     сторонних данных — единая безопасная обёртка вместо try/catch
+     в каждом месте вызова. */
+  var store = {
+    get: function(key, fallback){
+      try{
+        var v = localStorage.getItem(key);
+        return v === null ? fallback : v;
+      }catch(e){ return fallback; }
+    },
+    set: function(key, value){
+      try{ localStorage.setItem(key, value); return true; }catch(e){ return false; }
+    },
+    remove: function(key){
+      try{ localStorage.removeItem(key); return true; }catch(e){ return false; }
+    },
+    getJSON: function(key, fallback){
+      var raw = store.get(key, null);
+      if(raw === null) return fallback;
+      try{ return JSON.parse(raw); }catch(e){ return fallback; }
+    },
+    setJSON: function(key, value){
+      try{ return store.set(key, JSON.stringify(value)); }catch(e){ return false; }
+    }
+  };
+
   PC.geom  = { SIZE:SIZE, PAD:PAD, C:C, K:K, NS:NS, px:px, radius:radius };
-  PC.utils = { fmt:fmt, plural:plural, seatsLabel:seatsLabel, el:el, esc:esc };
+  PC.utils = { fmt:fmt, plural:plural, word:word, seatsLabel:seatsLabel,
+               el:el, esc:esc, clamp:clamp };
+  PC.store = store;
 })(window.PC = window.PC || {});

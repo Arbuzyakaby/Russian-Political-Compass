@@ -10,17 +10,20 @@
 (function(PC){
   "use strict";
   var U = PC.utils, el = U.el, esc = U.esc, fmt = U.fmt;
+  var seatsAt = PC.seatsAt;
+
   var host = {};          /* ссылки на контейнеры */
   var trendOff = {};      /* серии, скрытые кликом по легенде */
+  var trendMode = "seats";/* seats | share — что на оси Y графика динамики */
   var activeId = null;
   var lastKey = null;     /* последнее состояние, на котором графики уже отрисованы */
 
   /* ---------- цвет марок ---------- */
   function hexToRgb(h){
-    h = h.replace("#","");
+    h = h.replace("#", "");
     return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
   }
-  function rgbToHsl(r,g,b){
+  function rgbToHsl(r, g, b){
     r/=255; g/=255; b/=255;
     var mx = Math.max(r,g,b), mn = Math.min(r,g,b), h = 0, s = 0, l = (mx+mn)/2, d = mx-mn;
     if(d){
@@ -28,9 +31,11 @@
       h = mx === r ? ((g-b)/d + (g<b?6:0)) : mx === g ? (b-r)/d + 2 : (r-g)/d + 4;
       h /= 6;
     }
-    return [h,s,l];
+    return [h, s, l];
   }
-  function hslToCss(h,s,l){ return "hsl(" + (h*360).toFixed(1) + " " + (s*100).toFixed(1) + "% " + (l*100).toFixed(1) + "%)"; }
+  function hslToCss(h, s, l){
+    return "hsl(" + (h*360).toFixed(1) + " " + (s*100).toFixed(1) + "% " + (l*100).toFixed(1) + "%)";
+  }
 
   /* Тёмные фирменные цвета (бордовый, тёмно-синий) на почти чёрном фоне
      дают контраст ниже 3:1 — поднимаем светлоту, сохраняя тон. В светлой
@@ -44,33 +49,38 @@
     return hslToCss(hsl[0], hsl[1], l);
   }
 
-  /* ---------- данные ---------- */
-  function seatsAt(p, conv){
-    if(conv === 8) return p.seats;
-    return (p.seatsBy && conv in p.seatsBy) ? p.seatsBy[conv] : null;
-  }
+  /* ---------- выборки по данным ---------- */
   function inDuma(conv){
     return PC.PARTIES.filter(function(p){ return seatsAt(p, conv) > 0; });
   }
   function existing(conv){
     return PC.PARTIES.filter(function(p){ return seatsAt(p, conv) !== null; });
   }
-  function convsAsc(){
-    return PC.CONVOCATIONS.slice().sort(function(a,b){ return a.id - b.id; });
+
+  /* «Круглый» шаг сетки: 1 · 2 · 5 · 10 … — чтобы подписи оси были
+     читаемыми при любом максимуме, а не всегда кратными 50. */
+  function niceScale(max, targetSteps){
+    if(max <= 0) return { max:1, step:1 };
+    var raw = max / (targetSteps || 5);
+    var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var norm = raw / mag;
+    var step = (norm > 5 ? 10 : norm > 2 ? 5 : norm > 1 ? 2 : 1) * mag;
+    return { max: Math.ceil(max / step) * step, step: step };
   }
 
   /* ---------- KPI-плитки ---------- */
   function renderStats(){
     var conv = PC.convocationInfo(), c = conv.id;
-    var duma = inDuma(c).sort(function(a,b){ return seatsAt(b,c) - seatsAt(a,c); });
+    var duma = inDuma(c).sort(function(a, b){ return seatsAt(b,c) - seatsAt(a,c); });
     var top = duma[0];
-    var total = duma.reduce(function(s,p){ return s + seatsAt(p,c); }, 0);
+    var total = duma.reduce(function(s, p){ return s + seatsAt(p,c); }, 0);
     var wx = 0, wy = 0;
     duma.forEach(function(p){ var s = seatsAt(p,c); wx += p.x*s; wy += p.y*s; });
     wx = total ? wx/total : 0; wy = total ? wy/total : 0;
 
     var tiles = [
-      { k:"Партий на компасе", v:PC.PARTIES.length, d:"в выбранном созыве существовали " + existing(c).length },
+      { k:"Партий на компасе", v:PC.PARTIES.length,
+        d:"в выбранном созыве существовали " + existing(c).length },
       { k:"Фракций в Госдуме", v:duma.length, d:conv.label + " · " + conv.years },
       { k:"Крупнейшая фракция", v:(top ? seatsAt(top,c) : 0),
         vs:" / " + PC.TOTAL_SEATS,
@@ -94,7 +104,7 @@
     var radii = [], sum = 0, i, j;
     for(i = 0; i < rows; i++){ var r = r0 + (r1-r0)*i/(rows-1); radii.push(r); sum += r; }
     var counts = radii.map(function(r){ return Math.max(1, Math.round(total*r/sum)); });
-    var diff = total - counts.reduce(function(a,b){ return a+b; }, 0);
+    var diff = total - counts.reduce(function(a, b){ return a+b; }, 0);
     for(i = rows-1; diff !== 0 && i >= 0; i--){
       var step = diff > 0 ? 1 : -1;
       counts[i] += step; diff -= step;
@@ -109,7 +119,7 @@
         pts.push({ x:cx + r*Math.cos(a), y:cy - r*Math.sin(a), a:a });
       }
     });
-    pts.sort(function(p,q){ return q.a - p.a; });   /* слева направо */
+    pts.sort(function(p, q){ return q.a - p.a; });   /* слева направо */
     return { pts:pts, gap:(r1-r0)/(rows-1), innerCount:counts[0] };
   }
 
@@ -125,14 +135,12 @@
     var pts = seats.pts;
     /* точка не должна перекрывать соседей ни по радиусу, ни по дуге:
        берём меньший из двух шагов — радиальный и угловой на внутреннем ряду */
-    var dotR = Math.max(1.6, Math.min(seats.gap, Math.PI * r0 / seats.innerCount) * .40);
-    /* хитбокс крупнее видимой точки — заполняет промежутки между местами,
-       иначе курсор проваливается в пустоту и подсветка партии мигает */
-    var hitR = Math.max(dotR, Math.min(seats.gap, Math.PI * r0 / seats.innerCount) * .5);
+    var step = Math.min(seats.gap, Math.PI * r0 / seats.innerCount);
+    var dotR = Math.max(1.6, step * .40);
 
     /* места раздаются партиям слева направо по экономической оси —
        так дуга читается как политический спектр, а не как рейтинг */
-    var duma = inDuma(c).slice().sort(function(a,b){ return a.x - b.x; });
+    var duma = inDuma(c).slice().sort(function(a, b){ return a.x - b.x; });
     var owners = new Array(pts.length).fill(null);
     var k = 0;
     duma.forEach(function(p){
@@ -146,22 +154,44 @@
     var groups = {};
     pts.forEach(function(pt, i){
       var p = owners[i];
-      var g = p ? (groups[p.id] || (groups[p.id] = el("g", { "data-id":p.id, class:"seat-group" }))) : null;
       var dot = el("circle", {
         class:"seat", cx:pt.x.toFixed(2), cy:pt.y.toFixed(2), r:dotR.toFixed(2),
         fill:p ? chartColor(p.color) : "var(--chart-empty)",
         stroke:"var(--chart-surface)", "stroke-width":1.2        /* зазор между соседними местами */
       });
-      if(g){
-        var hit = el("circle", {
-          cx:pt.x.toFixed(2), cy:pt.y.toFixed(2), r:hitR.toFixed(2),
-          fill:"transparent", "pointer-events":"all"
-        });
-        g.appendChild(hit);
+      if(p){
+        var g = groups[p.id] || (groups[p.id] = el("g", { "data-id":p.id, class:"seat-group" }));
         g.appendChild(dot);
-      } else svg.appendChild(dot);
+      }else svg.appendChild(dot);
     });
     duma.forEach(function(p){ if(groups[p.id]) svg.appendChild(groups[p.id]); });
+
+    /* Хитбокс: одна прозрачная плоскость на всю диаграмму вместо кружка
+       вокруг каждого места. Точка мандата — это 2–3 пикселя, попасть в неё
+       курсором тяжело, а соседние кружки не могли перекрываться, не съедая
+       клики друг друга. Здесь фракция определяется по ближайшему месту в
+       радиусе REACH шагов, поэтому промежутки между точками и полоса вокруг
+       дуги тоже «принадлежат» ближайшей фракции — навести можно уверенным
+       движением, без прицеливания. */
+    var REACH = 2.6;
+    var maxDist = Math.max(14, step * REACH);
+    var hit = el("rect", { x:0, y:0, width:W, height:H, fill:"transparent",
+      "pointer-events":"all", style:"cursor:pointer" });
+    svg.appendChild(hit);
+
+    function nearest(clientX, clientY){
+      var r = svg.getBoundingClientRect();
+      if(!r.width) return null;
+      var mx = (clientX - r.left) / r.width * W;
+      var my = (clientY - r.top) / r.height * H;
+      var best = null, bestD = maxDist * maxDist;
+      for(var i = 0; i < pts.length; i++){
+        if(!owners[i]) continue;
+        var dx = pts[i].x - mx, dy = pts[i].y - my, d = dx*dx + dy*dy;
+        if(d < bestD){ bestD = d; best = owners[i]; }
+      }
+      return best;
+    }
 
     box.innerHTML = "";
     box.appendChild(svg);
@@ -170,19 +200,25 @@
     hero.className = "hemi-center";
     hero.style.width = Math.round(r0 * 1.6) + "px";
     box.appendChild(hero);
+
     function setHero(p){
       hero.innerHTML = p
         ? '<div class="big" style="color:' + esc(chartColor(p.color)) + '">' + seatsAt(p,c) + '</div>' +
           '<div class="sub">' + esc(p.short) + ' · ' + (seatsAt(p,c)/PC.TOTAL_SEATS*100).toFixed(1) + '% палаты</div>'
         : '<div class="big">' + PC.TOTAL_SEATS + '</div>' +
-          '<div class="sub">мест · ' + esc(conv.label) + ' · ' + duma.length + ' фракц' + (duma.length === 1 ? "ия" : duma.length < 5 ? "ии" : "ий") + '</div>';
+          '<div class="sub">мест · ' + esc(conv.label) + ' · ' + duma.length + ' фракц' +
+            (duma.length === 1 ? "ия" : duma.length < 5 ? "ии" : "ий") + '</div>';
     }
     setHero(activeId ? duma.filter(function(p){ return p.id === activeId; })[0] : null);
 
+    var shown = null;                 /* фракция, подсвеченная прямо сейчас */
     function highlight(id){
+      if(id === shown) return;        /* лишние перерисовки = мигание подсветки */
+      shown = id;
       svg.querySelectorAll(".seat-group").forEach(function(g){
-        g.classList.toggle("dim-group", !!id && g.dataset.id !== id);
-        g.querySelectorAll(".seat").forEach(function(s){ s.classList.toggle("dim", !!id && g.dataset.id !== id); });
+        var off = !!id && g.dataset.id !== id;
+        g.classList.toggle("dim-group", off);
+        g.querySelectorAll(".seat").forEach(function(s){ s.classList.toggle("dim", off); });
       });
       host.hemiLegend.querySelectorAll(".hleg").forEach(function(b){
         b.classList.toggle("active", b.dataset.id === id);
@@ -190,21 +226,34 @@
       setHero(id ? duma.filter(function(p){ return p.id === id; })[0] : null);
     }
 
-    duma.forEach(function(p){
-      var g = groups[p.id];
-      if(!g) return;
-      g.style.cursor = "pointer";
-      g.addEventListener("mouseenter", function(){ highlight(p.id); });
-      g.addEventListener("mouseleave", function(){ highlight(activeId); });
-      g.addEventListener("click", function(){ PC.select(p.id); });
+    var hovered = null;
+    hit.addEventListener("mousemove", function(e){
+      var p = nearest(e.clientX, e.clientY);
+      hovered = p;
+      highlight(p ? p.id : activeId);
+      hit.style.cursor = p ? "pointer" : "default";
     });
-    svg.addEventListener("mouseleave", function(){ highlight(activeId); });
+    hit.addEventListener("mouseleave", function(){
+      hovered = null;
+      highlight(activeId);
+    });
+    hit.addEventListener("click", function(e){
+      var p = nearest(e.clientX, e.clientY);
+      if(p) PC.select(p.id);
+    });
+    /* на тач-устройствах наведения нет: касание сразу открывает карточку */
+    hit.addEventListener("touchstart", function(e){
+      var t = e.touches[0];
+      var p = nearest(t.clientX, t.clientY);
+      if(p) highlight(p.id);
+    }, { passive:true });
 
     /* легенда = таблица данных: название + число + доля, цвет вторичен */
-    host.hemiLegend.innerHTML = duma.slice().sort(function(a,b){ return seatsAt(b,c) - seatsAt(a,c); })
+    host.hemiLegend.innerHTML = duma.slice().sort(function(a, b){ return seatsAt(b,c) - seatsAt(a,c); })
       .map(function(p){
-        var s = seatsAt(p,c);
-        return '<button type="button" class="hleg' + (p.id === activeId ? " active" : "") + '" data-id="' + esc(p.id) + '">' +
+        var s = seatsAt(p, c);
+        return '<button type="button" class="hleg' + (p.id === activeId ? " active" : "") +
+          '" data-id="' + esc(p.id) + '">' +
           '<i style="background:' + esc(chartColor(p.color)) + '"></i>' +
           '<span class="n">' + esc(p.name) + '</span>' +
           '<span class="s">' + s + '</span>' +
@@ -213,7 +262,7 @@
 
     /* остаток мест — самовыдвиженцы и депутаты вне фракций; серые точки
        на диаграмме без этой строки читались бы как ошибка */
-    var held = duma.reduce(function(a,p){ return a + seatsAt(p,c); }, 0);
+    var held = duma.reduce(function(a, p){ return a + seatsAt(p,c); }, 0);
     if(held < PC.TOTAL_SEATS && duma.length){
       var rest = PC.TOTAL_SEATS - held;
       host.hemiLegend.insertAdjacentHTML("beforeend",
@@ -226,7 +275,7 @@
     host.hemiLegend.querySelectorAll(".hleg[data-id]").forEach(function(b){
       b.addEventListener("click", function(){ PC.select(b.dataset.id); });
       b.addEventListener("mouseenter", function(){ highlight(b.dataset.id); });
-      b.addEventListener("mouseleave", function(){ highlight(activeId); });
+      b.addEventListener("mouseleave", function(){ highlight(hovered ? hovered.id : activeId); });
     });
 
     if(activeId) highlight(activeId);
@@ -235,42 +284,80 @@
   /* ---------- 2. Динамика мандатов по созывам ---------- */
   function renderTrend(){
     var box = host.trend;
-    var convs = convsAsc();
+    var convs = PC.convsAsc();
+    var share = trendMode === "share";
     var series = PC.PARTIES.filter(function(p){
       return convs.some(function(c){ return seatsAt(p, c.id) > 0; });
     });
 
+    /* значение серии в созыве в единицах выбранного режима */
+    function val(p, id){
+      var s = seatsAt(p, id);
+      if(s === null) return null;
+      return share ? s / PC.TOTAL_SEATS * 100 : s;
+    }
+    /* в долях «20%» читается лучше, чем «20.0%», но дробная часть нужна
+       там, где она есть: 2.9% фракции «Новых людей» до целого не округлить */
+    function label(v){
+      if(!share) return String(v);
+      var near = Math.abs(v - Math.round(v)) < .05;
+      return (near ? String(Math.round(v)) : v.toFixed(1)) + "%";
+    }
+
     var W = Math.max(260, box.clientWidth || 320);
     var narrow = W < 460;
-    var H = narrow ? 250 : 290;
-    var pl = 34, pr = narrow ? 12 : 16, pt = 14, pb = narrow ? 40 : 44;
+    var H = narrow ? 260 : 300;
+    var pl = share ? 40 : 34, pr = narrow ? 12 : 16, pt = 16, pb = narrow ? 42 : 46;
     var iw = W - pl - pr, ih = H - pt - pb;
 
     var max = 0;
-    series.forEach(function(p){ convs.forEach(function(c){ max = Math.max(max, seatsAt(p, c.id) || 0); }); });
-    var yMax = Math.ceil(max/50)*50 || 50;
+    series.forEach(function(p){
+      convs.forEach(function(c){ max = Math.max(max, val(p, c.id) || 0); });
+    });
+    var scale = niceScale(max, narrow ? 5 : 7);
 
     function X(i){ return pl + (convs.length === 1 ? iw/2 : iw*i/(convs.length-1)); }
-    function Y(v){ return pt + ih - ih*v/yMax; }
+    function Y(v){ return pt + ih - ih*v/scale.max; }
 
-    var svg = el("svg", { viewBox:"0 0 " + W + " " + H, width:W, height:H,
-      role:"img", "aria-label":"Динамика мандатов партий по созывам Госдумы IV–VIII" });
+    var svg = el("svg", { viewBox:"0 0 " + W + " " + H, width:W, height:H, role:"img",
+      "aria-label":"Динамика " + (share ? "доли мест" : "мандатов") + " партий по созывам Госдумы IV–VIII" });
+
+    /* мягкая заливка под выделенной серией — она же метка «вот эта линия» */
+    var defs = el("defs");
+    var grad = el("linearGradient", { id:"trendFill", x1:"0", y1:"0", x2:"0", y2:"1" });
+    grad.appendChild(el("stop", { offset:"0%", "stop-color":"currentColor", "stop-opacity":".26" }));
+    grad.appendChild(el("stop", { offset:"100%", "stop-color":"currentColor", "stop-opacity":"0" }));
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+
+    /* полоса выбранного созыва — тот же созыв, что выбран над компасом */
+    var picked = PC.convocationInfo().id;
+    var pickedIdx = convs.map(function(c){ return c.id; }).indexOf(picked);
+    if(pickedIdx > -1){
+      /* у крайних созывов половина полосы уходила бы за поле графика —
+         SVG рисует с overflow:visible, и она вылезала за карточку */
+      var bandW = convs.length > 1 ? iw/(convs.length-1) : iw;
+      var bx1 = Math.max(pl, X(pickedIdx) - bandW/2);
+      var bx2 = Math.min(pl + iw, X(pickedIdx) + bandW/2);
+      svg.appendChild(el("rect", {
+        x:bx1.toFixed(1), y:pt, width:(bx2 - bx1).toFixed(1), height:ih,
+        fill:"var(--accent-soft)", rx:6
+      }));
+    }
 
     /* сетка и ось Y */
-    for(var v = 0; v <= yMax; v += 50){
+    for(var v = 0; v <= scale.max + 1e-9; v += scale.step){
       svg.appendChild(el("line", { x1:pl, x2:W-pr, y1:Y(v), y2:Y(v),
         stroke:v === 0 ? "var(--chart-axis)" : "var(--chart-grid)", "stroke-width":1 }));
       svg.appendChild(el("text", { x:pl-8, y:Y(v)+3.5, "text-anchor":"end",
-        "font-size":10, fill:"var(--muted-2)" }, String(v)));
+        "font-size":10, fill:"var(--muted-2)" }, label(v)));
     }
-    /* ось X: римский номер созыва и год выборов */
-    var picked = PC.convocationInfo().id;
+    svg.appendChild(el("text", { x:pl-8, y:pt-5, "text-anchor":"end", "font-size":9,
+      fill:"var(--muted-2)", "letter-spacing":".06em" }, share ? "% МЕСТ" : "МЕСТ"));
+
+    /* ось X: римский номер созыва и год выборов, оба кликабельны */
     convs.forEach(function(c, i){
-      var on = c.id === picked;          /* созыв, выбранный над компасом */
-      if(on){
-        svg.appendChild(el("line", { x1:X(i), x2:X(i), y1:pt, y2:pt+ih,
-          stroke:"var(--accent-line)", "stroke-width":1, opacity:.45 }));
-      }
+      var on = c.id === picked;
       svg.appendChild(el("text", { x:X(i), y:H-pb+18, "text-anchor":"middle",
         "font-size":11, "font-weight":on ? 750 : 650,
         fill:on ? "var(--accent)" : "var(--muted)" }, c.label.split(" ")[0]));
@@ -279,38 +366,50 @@
     });
 
     /* линии: разрыв там, где партии ещё/уже не было */
-    var order = series.slice().sort(function(a,b){ return (seatsAt(b,8)||0) - (seatsAt(a,8)||0); });
+    var order = series.slice().sort(function(a, b){
+      return (seatsAt(b, PC.CURRENT_CONVOCATION) || 0) - (seatsAt(a, PC.CURRENT_CONVOCATION) || 0);
+    });
+    var visible = order.filter(function(p){ return !trendOff[p.id]; });
     var labels = [];      /* прямые подписи собираем и расставляем после линий */
-    order.forEach(function(p){
-      if(trendOff[p.id]) return;
+    var dots = {};        /* id -> кружки серии, чтобы подсвечивать при наведении */
+
+    visible.forEach(function(p){
       var col = chartColor(p.color);
       var on = activeId === p.id, faded = activeId && !on;
       var segs = [], cur = [];
       convs.forEach(function(c, i){
-        var s = seatsAt(p, c.id);
+        var s = val(p, c.id);
         if(s === null){ if(cur.length) segs.push(cur); cur = []; }
         else cur.push({ x:X(i), y:Y(s), v:s });
       });
       if(cur.length) segs.push(cur);
 
+      var g = el("g", { "data-id":p.id, class:"trend-series" + (faded ? " faded" : ""), color:col });
       segs.forEach(function(seg){
         if(seg.length > 1){
-          svg.appendChild(el("path", {
-            d:"M" + seg.map(function(q){ return q.x.toFixed(1) + " " + q.y.toFixed(1); }).join("L"),
-            fill:"none", stroke:col, "stroke-width":on ? 3 : 2,
-            "stroke-linejoin":"round", "stroke-linecap":"round",
-            opacity:faded ? .28 : 1
-          }));
+          var d = "M" + seg.map(function(q){ return q.x.toFixed(1) + " " + q.y.toFixed(1); }).join("L");
+          if(on){
+            g.appendChild(el("path", {
+              class:"trend-area",
+              d:d + "L" + seg[seg.length-1].x.toFixed(1) + " " + (pt+ih) + "L" + seg[0].x.toFixed(1) + " " + (pt+ih) + "Z",
+              fill:"url(#trendFill)"
+            }));
+          }
+          g.appendChild(el("path", { class:"trend-line", d:d, fill:"none", stroke:col,
+            "stroke-width":on ? 3 : 2, "stroke-linejoin":"round", "stroke-linecap":"round" }));
         }
         seg.forEach(function(q){
-          svg.appendChild(el("circle", { cx:q.x, cy:q.y, r:on ? 5 : 4, fill:col,
-            stroke:"var(--chart-surface)", "stroke-width":2, opacity:faded ? .28 : 1 }));
+          var dot = el("circle", { class:"trend-dot", cx:q.x, cy:q.y, r:on ? 5 : 3.6, fill:col,
+            stroke:"var(--chart-surface)", "stroke-width":2 });
+          g.appendChild(dot);
+          (dots[p.id] || (dots[p.id] = [])).push(dot);
         });
       });
+      svg.appendChild(g);
 
       /* прямая подпись у последней точки — для крупных фракций */
       var last = segs.length ? segs[segs.length-1][segs[segs.length-1].length-1] : null;
-      if(last && !narrow && (seatsAt(p,8) || 0) >= 20){
+      if(last && !narrow && (seatsAt(p, PC.CURRENT_CONVOCATION) || 0) >= 20){
         labels.push({ x:last.x - 8, y:last.y - 9, text:p.short, faded:faded });
       }
     });
@@ -318,7 +417,7 @@
     /* Подписи расставляем снизу вверх: каждая следующая уходит выше
        предыдущей, поэтому их порядок совпадает с порядком самих линий —
        иначе подпись меньшей фракции всплывала бы над большей. */
-    labels.sort(function(a,b){ return b.y - a.y; });
+    labels.sort(function(a, b){ return b.y - a.y; });
     var prevY = Infinity;
     labels.forEach(function(L){
       var y = Math.min(L.y, prevY - 15);
@@ -333,7 +432,9 @@
     var cursor = el("line", { y1:pt, y2:pt+ih, stroke:"var(--accent-line)", "stroke-width":1,
       "stroke-dasharray":"4 4", opacity:0 });
     svg.appendChild(cursor);
-    var hit = el("rect", { x:pl, y:pt, width:iw, height:ih, fill:"transparent", style:"cursor:crosshair" });
+    var focusDot = el("circle", { r:6.5, fill:"none", stroke:"var(--text)", "stroke-width":2, opacity:0 });
+    svg.appendChild(focusDot);
+    var hit = el("rect", { x:pl, y:pt, width:iw, height:ih, fill:"transparent", style:"cursor:pointer" });
     svg.appendChild(hit);
 
     box.innerHTML = "";
@@ -344,39 +445,85 @@
 
     function at(clientX){
       var r = svg.getBoundingClientRect();
+      if(!r.width) return 0;
       var rel = (clientX - r.left) / r.width * W;
       var i = Math.round((rel - pl) / (iw / Math.max(1, convs.length-1)));
       return Math.max(0, Math.min(convs.length-1, i));
     }
-    function show(clientX){
+    /* серия, к линии которой курсор ближе всего по вертикали в этом созыве —
+       её строка в подсказке выделяется, а точка обводится */
+    function nearestSeries(i, clientY){
+      var r = svg.getBoundingClientRect();
+      if(!r.height) return null;
+      var my = (clientY - r.top) / r.height * H;
+      var best = null, bestD = Infinity;
+      visible.forEach(function(p){
+        var s = val(p, convs[i].id);
+        if(s === null) return;
+        var d = Math.abs(Y(s) - my);
+        if(d < bestD){ bestD = d; best = p; }
+      });
+      return bestD < ih * .2 ? best : null;
+    }
+
+    function show(clientX, clientY){
       var i = at(clientX), c = convs[i];
+      var near = nearestSeries(i, clientY);
       cursor.setAttribute("x1", X(i)); cursor.setAttribute("x2", X(i));
       cursor.setAttribute("opacity", 1);
-      var rows = order.filter(function(p){ return !trendOff[p.id] && seatsAt(p, c.id) !== null; })
-        .sort(function(a,b){ return seatsAt(b,c.id) - seatsAt(a,c.id); })
+
+      if(near){
+        focusDot.setAttribute("cx", X(i));
+        focusDot.setAttribute("cy", Y(val(near, c.id)));
+        focusDot.setAttribute("opacity", 1);
+      }else focusDot.setAttribute("opacity", 0);
+
+      var prev = i > 0 ? convs[i-1] : null;
+      var rows = visible.filter(function(p){ return val(p, c.id) !== null; })
+        .sort(function(a, b){ return val(b, c.id) - val(a, c.id); })
         .map(function(p){
-          return '<div class="r"><i style="background:' + esc(chartColor(p.color)) + '"></i>' +
-                 esc(p.short) + '<b>' + seatsAt(p, c.id) + '</b></div>';
+          var now = val(p, c.id);
+          var was = prev ? val(p, prev.id) : null;
+          var delta = "";
+          if(was !== null){
+            var d = now - was;
+            var sign = d > 0 ? "▲ +" : d < 0 ? "▼ −" : "= ";
+            delta = '<u class="' + (d > 0 ? "up" : d < 0 ? "down" : "flat") + '">' + sign +
+              (d === 0 ? "0" : label(Math.abs(d))) + '</u>';
+          }else delta = '<u class="new">впервые</u>';
+          return '<div class="r' + (near && near.id === p.id ? " on" : "") + '">' +
+                 '<i style="background:' + esc(chartColor(p.color)) + '"></i>' +
+                 esc(p.short) + '<b>' + label(now) + '</b>' + delta + '</div>';
         }).join("");
-      tip.innerHTML = '<div class="t">' + esc(c.label) + ' · ' + esc(c.years) + '</div>' + rows;
+
+      tip.innerHTML = '<div class="t">' + esc(c.label) + ' · ' + esc(c.years) + '</div>' + rows +
+        '<div class="f">Клик — переключить созыв</div>';
       var bw = box.clientWidth, tw = tip.offsetWidth;
       var left = X(i) / W * bw;
-      tip.style.left = Math.min(Math.max(left, tw/2 + 4), bw - tw/2 - 4) + "px";
+      tip.style.left = Math.min(Math.max(left, tw/2 + 4), Math.max(tw/2 + 4, bw - tw/2 - 4)) + "px";
       tip.style.top = (pt + ih*.45) + "px";
       tip.classList.add("show");
     }
-    function hide(){ tip.classList.remove("show"); cursor.setAttribute("opacity", 0); }
-    hit.addEventListener("mousemove", function(e){ show(e.clientX); });
+    function hide(){
+      tip.classList.remove("show");
+      cursor.setAttribute("opacity", 0);
+      focusDot.setAttribute("opacity", 0);
+    }
+    hit.addEventListener("mousemove", function(e){ show(e.clientX, e.clientY); });
     hit.addEventListener("mouseleave", hide);
-    hit.addEventListener("touchstart", function(e){ show(e.touches[0].clientX); }, { passive:true });
-    hit.addEventListener("touchmove", function(e){ show(e.touches[0].clientX); }, { passive:true });
+    hit.addEventListener("click", function(e){ PC.setConvocation(convs[at(e.clientX)].id); });
+    hit.addEventListener("touchstart", function(e){ show(e.touches[0].clientX, e.touches[0].clientY); }, { passive:true });
+    hit.addEventListener("touchmove", function(e){ show(e.touches[0].clientX, e.touches[0].clientY); }, { passive:true });
     hit.addEventListener("touchend", hide);
 
-    /* легенда — переключатель серий */
+    /* легенда — переключатель серий; число рядом с названием делает
+       её ещё и сводкой по выбранному созыву */
     host.trendLegend.innerHTML = order.map(function(p){
-      return '<button type="button" class="tleg' + (trendOff[p.id] ? " off" : "") + '" data-id="' + esc(p.id) + '"' +
-        ' aria-pressed="' + (!trendOff[p.id]) + '"><i style="background:' + esc(chartColor(p.color)) + '"></i>' +
-        esc(p.short) + '</button>';
+      var s = seatsAt(p, picked);
+      return '<button type="button" class="tleg' + (trendOff[p.id] ? " off" : "") +
+        '" data-id="' + esc(p.id) + '" aria-pressed="' + (!trendOff[p.id]) + '">' +
+        '<i style="background:' + esc(chartColor(p.color)) + '"></i>' +
+        esc(p.short) + '<b>' + (s === null ? "—" : s) + '</b></button>';
     }).join("");
     host.trendLegend.querySelectorAll(".tleg").forEach(function(b){
       b.addEventListener("click", function(){
@@ -387,11 +534,12 @@
 
     /* таблица данных: тот же ряд без опоры на цвет */
     host.trendTable.innerHTML =
-      '<table class="data-table"><thead><tr><th>Партия</th>' +
-      convs.map(function(c){ return "<th>" + esc(c.label.split(" ")[0]) + "</th>"; }).join("") +
+      '<table class="data-table"><caption class="sr-only">Мандаты партий по созывам Госдумы</caption>' +
+      '<thead><tr><th scope="col">Партия</th>' +
+      convs.map(function(c){ return '<th scope="col">' + esc(c.label.split(" ")[0]) + "</th>"; }).join("") +
       '</tr></thead><tbody>' +
       order.map(function(p){
-        return "<tr><td>" + esc(p.short) + "</td>" + convs.map(function(c){
+        return '<tr><th scope="row">' + esc(p.short) + "</th>" + convs.map(function(c){
           var s = seatsAt(p, c.id);
           return "<td>" + (s === null ? "—" : s) + "</td>";
         }).join("") + "</tr>";
@@ -400,7 +548,7 @@
 
   /* ---------- 3. Идеологический спектр ---------- */
   function specColumn(key, title, left, right){
-    var list = PC.PARTIES.slice().sort(function(a,b){ return a[key] - b[key]; });
+    var list = PC.PARTIES.slice().sort(function(a, b){ return a[key] - b[key]; });
     return '<div class="spec-col"><h4>' + title + '</h4>' +
       '<div class="poles"><span>' + left + '</span><span>' + right + '</span></div>' +
       list.map(function(p){
@@ -443,16 +591,34 @@
     if(toggle && wrap){
       toggle.addEventListener("click", function(){
         var open = wrap.hasAttribute("hidden");
-        if(open) wrap.removeAttribute("hidden"); else wrap.setAttribute("hidden","");
+        if(open) wrap.removeAttribute("hidden"); else wrap.setAttribute("hidden", "");
         toggle.textContent = open ? "Скрыть таблицу данных" : "Показать таблицу данных";
         toggle.setAttribute("aria-expanded", String(open));
       });
     }
 
+    /* переключатель шкалы: абсолютные мандаты или доля палаты. В долях
+       созывы сравнимы напрямую — размер Думы менялся по составу фракций,
+       но не по числу мест, зато доля читается без деления в уме. */
+    document.querySelectorAll(".trend-mode").forEach(function(b){
+      b.addEventListener("click", function(){
+        if(trendMode === b.dataset.mode) return;
+        trendMode = b.dataset.mode;
+        document.querySelectorAll(".trend-mode").forEach(function(o){
+          o.setAttribute("aria-pressed", String(o.dataset.mode === trendMode));
+        });
+        renderTrend();
+      });
+    });
+
     var t = null;
     window.addEventListener("resize", function(){
       clearTimeout(t);
-      t = setTimeout(function(){ renderHemicycle(); renderTrend(); }, 180);   /* размер в ключ не входит */
+      t = setTimeout(function(){    /* размер в ключ не входит — перерисовываем напрямую */
+        if(!host.hemi.clientWidth) return;
+        renderHemicycle();
+        renderTrend();
+      }, 180);
     });
   }
 
@@ -471,5 +637,9 @@
     renderSpectrum();
   }
 
-  PC.charts = { init:init, render:render, chartColor:chartColor, seatsAt:seatsAt };
+  /* Сброс кэша: после возврата на вкладку компаса размеры контейнеров
+     изменились, хотя ключ состояния прежний. */
+  function invalidate(){ lastKey = null; }
+
+  PC.charts = { init:init, render:render, invalidate:invalidate, chartColor:chartColor };
 })(window.PC = window.PC || {});

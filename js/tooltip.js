@@ -25,21 +25,11 @@
     };
   }
 
-  function show(p, sx, sy){
-    var seats = PC.seatsOf(p);
-    var conv = PC.convocationInfo();
-    tip.innerHTML =
-      '<div class="tip-top"><span class="tip-dot" style="background:' + esc(p.color) + '"></span>' +
-      '<span class="tip-name">' + esc(p.name) + '</span></div>' +
-      '<div class="tip-ideo">' + esc(p.ideology) + '</div>' +
-      '<div class="tip-meta">' +
-        '<span>Экономика <b>' + fmt(p.x) + '</b></span>' +
-        '<span>Гос. контроль <b>' + fmt(p.y) + '</b></span>' +
-        '<span>Госдума ' + esc(conv.label) + ' <b>' + seats + '</b> / ' + PC.TOTAL_SEATS + '</span>' +
-      '</div>' +
-      '<div class="tip-hint">' +
-        (seats ? "Есть представительство в Госдуме" : "Нет мандатов в Госдуме " + esc(conv.label)) +
-        " · клик — подробнее</div>";
+  /* Показ произвольного содержимого: кроме партий над полем всплывает
+     точка пользователя, у которой нет ни мандатов, ни идеологии. */
+  function showHTML(html, sx, sy){
+    if(!tip) return;
+    tip.innerHTML = html;
 
     var pos = toPlotPx(sx, sy);
     var box = plot.getBoundingClientRect();
@@ -58,7 +48,25 @@
     tip.classList.add("show");
   }
 
+  function show(p, sx, sy){
+    var seats = PC.seatsOf(p);
+    var conv = PC.convocationInfo();
+    showHTML(
+      '<div class="tip-top"><span class="tip-dot" style="background:' + esc(p.color) + '"></span>' +
+      '<span class="tip-name">' + esc(p.name) + '</span></div>' +
+      '<div class="tip-ideo">' + esc(p.ideology) + '</div>' +
+      '<div class="tip-meta">' +
+        '<span>Экономика <b>' + fmt(p.x) + '</b></span>' +
+        '<span>Гос. контроль <b>' + fmt(p.y) + '</b></span>' +
+        '<span>Госдума ' + esc(conv.label) + ' <b>' + seats + '</b> / ' + PC.TOTAL_SEATS + '</span>' +
+      '</div>' +
+      '<div class="tip-hint">' +
+        (seats ? "Есть представительство в Госдуме" : "Нет мандатов в Госдуме " + esc(conv.label)) +
+        " · клик — подробнее</div>",
+      sx, sy);
+  }
+
   function hide(){ if(tip) tip.classList.remove("show"); }
 
-  PC.tip = { init:init, show:show, hide:hide };
+  PC.tip = { init:init, show:show, showHTML:showHTML, hide:hide };
 })(window.PC = window.PC || {});

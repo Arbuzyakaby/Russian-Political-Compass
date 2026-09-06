@@ -1,20 +1,13 @@
-/* ============ Состояние, фильтры, тема, инициализация ============ */
+/* ============ Состояние, фильтры, вкладки, инициализация ============ */
 (function(PC){
   "use strict";
 
-  var state = { active:null, filter:"all", query:"", convocation:8 };
+  var state = { active:null, filter:"all", query:"", convocation:PC.CURRENT_CONVOCATION };
   var rendered = null;   // что сейчас в панели: "list" или id партии
-
-  function byId(id){
-    return PC.PARTIES.filter(function(p){ return p.id === id; })[0] || null;
-  }
 
   /* Мандаты партии в текущем выбранном созыве. null — партия в этом
      созыве не участвовала / не существовала. */
-  function seatsOf(p){
-    if(state.convocation === 8) return p.seats;
-    return (p.seatsBy && state.convocation in p.seatsBy) ? p.seatsBy[state.convocation] : null;
-  }
+  function seatsOf(p){ return PC.seatsAt(p, state.convocation); }
 
   /* Партии, проходящие текущий фильтр, поисковый запрос и существовавшие
      в выбранном созыве. */
@@ -41,11 +34,15 @@
     id = Number(id);
     if(id === state.convocation) return;
     state.convocation = id;
-    if(state.active && seatsOf(byId(state.active)) === null) state.active = null;
+    if(state.active && seatsOf(PC.partyById(state.active)) === null) state.active = null;
+
+    var sel = document.getElementById("convSelect");
+    if(sel && sel.value !== String(id)) sel.value = String(id);   /* созыв можно выбрать и с графика */
+
     PC.compass.draw();
     syncNodes();
     renderSide(true);
-    if(PC.charts) PC.charts.render(state.active);
+    PC.charts.render(state.active);
   }
 
   function syncNodes(){
@@ -59,7 +56,7 @@
   function renderSide(force){
     if(state.active){
       if(force || rendered !== state.active){
-        PC.sidebar.renderDetail(byId(state.active));
+        PC.sidebar.renderDetail(PC.partyById(state.active));
         rendered = state.active;
       }
     }else{
@@ -74,7 +71,7 @@
     state.active = (id && state.active === id) ? null : id;
     syncNodes();
     renderSide(true);
-    if(PC.charts) PC.charts.render(state.active);
+    PC.charts.render(state.active);
   }
 
   function refresh(){
@@ -86,7 +83,7 @@
     PC.tip.hide();
     PC.compass.hideCross();
     renderSide(false);
-    if(PC.charts) PC.charts.render(state.active);
+    PC.charts.render(state.active);
   }
 
   /* ---------- поиск и фильтры ---------- */
@@ -126,6 +123,7 @@
     }
 
     document.addEventListener("keydown", function(e){
+      if(PC.nav.current() !== "compass") return;
       if(e.key === "Escape"){
         if(document.activeElement === input && input.value){
           input.value = "";
@@ -143,45 +141,42 @@
     });
   }
 
-  /* ---------- тема ---------- */
-  function initTheme(){
-    var btn  = document.getElementById("themeBtn");
-    var icon = document.getElementById("themeIcon");
-
-    function iconFor(t){ return t === "dark" ? "☀️" : "🌙"; }
-    icon.textContent = iconFor(document.documentElement.dataset.theme);
-
-    btn.addEventListener("click", function(){
-      var next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      icon.style.transform = "rotate(180deg) scale(.3)";
-      setTimeout(function(){
-        icon.textContent = iconFor(next);
-        icon.style.transform = "none";
-      }, 170);
-      try{ localStorage.setItem("pc-theme", next); }catch(e){}
-      /* цвета марок подбираются под фон, поэтому графики перерисовываем */
-      if(PC.charts) PC.charts.render(state.active);
-    });
-  }
-
   /* ---------- запуск ---------- */
   function init(){
     /* подписи, зависящие от данных, — чтобы число партий не расходилось с массивом */
     var n = PC.PARTIES.length;
     var lead = document.getElementById("lead");
-    if(lead) lead.textContent = n + " " + partyWord(n) +
+    if(lead) lead.textContent = n + " " + PC.utils.word(n, ["партия", "партии", "партий"]) +
       " на двух осях: экономика и отношение к власти государства";
 
+    PC.nav.init();
+    PC.theme.init();
     PC.tip.init();
     PC.sidebar.init();
-    if(PC.charts) PC.charts.init();
+    PC.charts.init();
+    PC.compass.onDraw(syncNodes);
     PC.compass.draw();
     syncNodes();
     renderSide(true);
-    if(PC.charts) PC.charts.render(state.active);
+    PC.charts.render(state.active);
     initControls();
-    initTheme();
+    PC.quiz.init();
+
+    /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
+       цвета марок — графики пересобираем. */
+    PC.theme.onChange(function(){
+      PC.charts.render(state.active);
+    });
+
+    /* Скрытая вкладка выпадает из раскладки: у контейнеров нулевая ширина,
+       а getBBox() внутри display:none возвращает нули. Поэтому компас и
+       графики пересобираются при каждом возврате на вкладку. */
+    PC.nav.onChange(function(tab){
+      if(tab !== "compass") return;
+      PC.charts.invalidate();
+      PC.compass.redraw();
+      PC.charts.render(state.active);
+    });
 
     /* подписи компаса раскладываются по реальным размерам текста (getBBox);
        если веб-шрифт ещё не подгрузился, метрики берутся с системного
@@ -189,17 +184,9 @@
        пересчитываем раскладку, когда шрифты точно готовы */
     if(document.fonts && document.fonts.ready){
       document.fonts.ready.then(function(){
-        PC.compass.draw();
-        syncNodes();
+        if(PC.nav.current() === "compass") PC.compass.redraw();
       });
     }
-  }
-
-  function partyWord(n){
-    var a = n % 10, b = n % 100;
-    if(a === 1 && b !== 11) return "партия";
-    if(a >= 2 && a <= 4 && (b < 10 || b >= 20)) return "партии";
-    return "партий";
   }
 
   PC.select = select;
