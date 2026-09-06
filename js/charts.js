@@ -13,6 +13,7 @@
   var host = {};          /* ссылки на контейнеры */
   var trendOff = {};      /* серии, скрытые кликом по легенде */
   var activeId = null;
+  var lastKey = null;     /* последнее состояние, на котором графики уже отрисованы */
 
   /* ---------- цвет марок ---------- */
   function hexToRgb(h){
@@ -201,13 +202,13 @@
     if(held < PC.TOTAL_SEATS && duma.length){
       var rest = PC.TOTAL_SEATS - held;
       host.hemiLegend.insertAdjacentHTML("beforeend",
-        '<div class="hleg" style="cursor:default"><i style="background:var(--chart-empty)"></i>' +
+        '<div class="hleg static"><i style="background:var(--chart-empty)"></i>' +
         '<span class="n">Вне фракций и самовыдвиженцы</span>' +
         '<span class="s">' + rest + '</span>' +
         '<span class="p">' + (rest/PC.TOTAL_SEATS*100).toFixed(1) + '%</span></div>');
     }
 
-    host.hemiLegend.querySelectorAll(".hleg").forEach(function(b){
+    host.hemiLegend.querySelectorAll(".hleg[data-id]").forEach(function(b){
       b.addEventListener("click", function(){ PC.select(b.dataset.id); });
       b.addEventListener("mouseenter", function(){ highlight(b.dataset.id); });
       b.addEventListener("mouseleave", function(){ highlight(activeId); });
@@ -248,23 +249,23 @@
         "font-size":10, fill:"var(--muted-2)" }, String(v)));
     }
     /* ось X: римский номер созыва и год выборов */
+    var picked = PC.convocationInfo().id;
     convs.forEach(function(c, i){
+      var on = c.id === picked;          /* созыв, выбранный над компасом */
+      if(on){
+        svg.appendChild(el("line", { x1:X(i), x2:X(i), y1:pt, y2:pt+ih,
+          stroke:"var(--accent-line)", "stroke-width":1, opacity:.45 }));
+      }
       svg.appendChild(el("text", { x:X(i), y:H-pb+18, "text-anchor":"middle",
-        "font-size":11, "font-weight":650, fill:"var(--muted)" }, c.label.split(" ")[0]));
+        "font-size":11, "font-weight":on ? 750 : 650,
+        fill:on ? "var(--accent)" : "var(--muted)" }, c.label.split(" ")[0]));
       svg.appendChild(el("text", { x:X(i), y:H-pb+32, "text-anchor":"middle",
-        "font-size":9.5, fill:"var(--muted-2)" }, c.years.split("–")[0]));
+        "font-size":9.5, fill:on ? "var(--accent)" : "var(--muted-2)" }, c.years.split("–")[0]));
     });
 
     /* линии: разрыв там, где партии ещё/уже не было */
     var order = series.slice().sort(function(a,b){ return (seatsAt(b,8)||0) - (seatsAt(a,8)||0); });
-    var labelY = [];      /* занятые высоты прямых подписей — чтобы не наезжали */
-    function freeY(y){
-      for(var i = 0; i < 40; i++){
-        var cand = y - i * 15;               /* тесно — уводим подпись вверх */
-        if(!labelY.some(function(u){ return Math.abs(u - cand) < 15; })){ labelY.push(cand); return cand; }
-      }
-      labelY.push(y); return y;
-    }
+    var labels = [];      /* прямые подписи собираем и расставляем после линий */
     order.forEach(function(p){
       if(trendOff[p.id]) return;
       var col = chartColor(p.color);
@@ -295,11 +296,22 @@
       /* прямая подпись у последней точки — для крупных фракций */
       var last = segs.length ? segs[segs.length-1][segs[segs.length-1].length-1] : null;
       if(last && !narrow && (seatsAt(p,8) || 0) >= 20){
-        svg.appendChild(el("text", { x:last.x - 8, y:freeY(last.y - 9), "text-anchor":"end",
-          "font-size":10.5, "font-weight":650, fill:"var(--text)",
-          "paint-order":"stroke", stroke:"var(--tag-halo)", "stroke-width":3.2,
-          "stroke-linejoin":"round", opacity:faded ? .4 : 1 }, p.short));
+        labels.push({ x:last.x - 8, y:last.y - 9, text:p.short, faded:faded });
       }
+    });
+
+    /* Подписи расставляем снизу вверх: каждая следующая уходит выше
+       предыдущей, поэтому их порядок совпадает с порядком самих линий —
+       иначе подпись меньшей фракции всплывала бы над большей. */
+    labels.sort(function(a,b){ return b.y - a.y; });
+    var prevY = Infinity;
+    labels.forEach(function(L){
+      var y = Math.min(L.y, prevY - 15);
+      prevY = y;
+      svg.appendChild(el("text", { x:L.x, y:y, "text-anchor":"end",
+        "font-size":10.5, "font-weight":650, fill:"var(--text)",
+        "paint-order":"stroke", stroke:"var(--tag-halo)", "stroke-width":3.2,
+        "stroke-linejoin":"round", opacity:L.faded ? .4 : 1 }, L.text));
     });
 
     /* слой наведения: вертикальный курсор и подсказка по созыву */
@@ -425,13 +437,19 @@
     var t = null;
     window.addEventListener("resize", function(){
       clearTimeout(t);
-      t = setTimeout(function(){ renderHemicycle(); renderTrend(); }, 180);
+      t = setTimeout(function(){ renderHemicycle(); renderTrend(); }, 180);   /* размер в ключ не входит */
     });
   }
 
+  /* Графики зависят только от созыва и выбранной партии — поиск и фильтры
+     на них не влияют. Без этой проверки каждое нажатие клавиши в поиске
+     перерисовывало бы 450 точек парламента и сбрасывало подсветку. */
   function render(active){
     if(!host.stats) return;
     activeId = active || null;
+    var key = PC.convocationInfo().id + "|" + activeId + "|" + document.documentElement.dataset.theme;
+    if(key === lastKey) return;
+    lastKey = key;
     renderStats();
     renderHemicycle();
     renderTrend();

@@ -61,6 +61,8 @@
 .hleg .s{font-size:12px;font-weight:650;flex:none;}
 .hleg .p{font-size:10.5px;color:var(--muted-2);flex:none;width:44px;text-align:right;}
 .hleg:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.hleg.static{cursor:default;}
+.hleg.static:hover{background:transparent;border-color:transparent;}
 
 /* ---------- динамика мандатов ---------- */
 .trend-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;}
