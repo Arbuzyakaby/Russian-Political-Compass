@@ -182,6 +182,17 @@
     if(PC.charts) PC.charts.render(state.active);
     initControls();
     initTheme();
+
+    /* подписи компаса раскладываются по реальным размерам текста (getBBox);
+       если веб-шрифт ещё не подгрузился, метрики берутся с системного
+       фолбэка и после подмены шрифта ярлык может наехать на соседний —
+       пересчитываем раскладку, когда шрифты точно готовы */
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){
+        PC.compass.draw();
+        syncNodes();
+      });
+    }
   }
 
   function partyWord(n){

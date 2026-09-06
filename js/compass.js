@@ -222,10 +222,22 @@
     svg = document.getElementById("svg");
     svg.textContent = "";
     obstacles = [];
+    /* Разметка ярлыков считается по getBBox() реального текста, а он у
+       Chromium не масштабонезависим: на маленьком физическом размере SVG
+       (узкий экран телефона) метрики глифов слегка съезжают и алгоритм
+       расстановки может выбрать другую сторону, чем на десктопе, — вплоть
+       до наезда на подпись квадранта. Поэтому на время построения раскладки
+       временно растягиваем сам SVG до полного канонического размера
+       (660×660, как в viewBox) за пределами экрана — расчёт получается
+       одинаковым независимо от того, во сколько раз он потом отмасштабируется
+       CSS для показа. */
+    var prevStyle = svg.getAttribute("style");
+    svg.style.cssText = "position:fixed;left:-9999px;top:0;width:" + SIZE + "px;height:" + SIZE + "px;visibility:hidden;";
     drawDefs();
     drawBoard();
     drawCaptions();
     drawNodes();
+    if(prevStyle === null) svg.removeAttribute("style"); else svg.setAttribute("style", prevStyle);
   }
 
   /* Приводит точки в соответствие с фильтром и выбранной партией.
