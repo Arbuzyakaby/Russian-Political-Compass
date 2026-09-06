@@ -75,11 +75,16 @@
       { k:"Крупнейшая фракция", v:(top ? seatsAt(top,c) : 0),
         vs:" / " + PC.TOTAL_SEATS,
         d:(top ? esc(top.short) + " · " + (seatsAt(top,c)/PC.TOTAL_SEATS*100).toFixed(1) + "% палаты" : "нет данных") },
-      { k:"Центр тяжести палаты", v:fmt(wy), d:"гос. контроль · экономика " + fmt(wx) + " (взвешено по мандатам)" }
+      { k:"Центр тяжести палаты",
+        body:'<div class="stat-dual">' +
+               '<div><span class="lbl">Гос. контроль</span><span class="num">' + fmt(wy) + '</span></div>' +
+               '<div><span class="lbl">Экономика</span><span class="num">' + fmt(wx) + '</span></div>' +
+             '</div>',
+        d:"взвешено по мандатам" }
     ];
     host.stats.innerHTML = tiles.map(function(t){
       return '<div class="stat"><div class="k">' + t.k + '</div>' +
-             '<div class="v">' + t.v + (t.vs ? '<small>' + t.vs + '</small>' : '') + '</div>' +
+             (t.body ? t.body : '<div class="v">' + t.v + (t.vs ? '<small>' + t.vs + '</small>' : '') + '</div>') +
              '<div class="d">' + t.d + '</div></div>';
     }).join("");
   }
@@ -121,6 +126,9 @@
     /* точка не должна перекрывать соседей ни по радиусу, ни по дуге:
        берём меньший из двух шагов — радиальный и угловой на внутреннем ряду */
     var dotR = Math.max(1.6, Math.min(seats.gap, Math.PI * r0 / seats.innerCount) * .40);
+    /* хитбокс крупнее видимой точки — заполняет промежутки между местами,
+       иначе курсор проваливается в пустоту и подсветка партии мигает */
+    var hitR = Math.max(dotR, Math.min(seats.gap, Math.PI * r0 / seats.innerCount) * .5);
 
     /* места раздаются партиям слева направо по экономической оси —
        так дуга читается как политический спектр, а не как рейтинг */
@@ -144,7 +152,14 @@
         fill:p ? chartColor(p.color) : "var(--chart-empty)",
         stroke:"var(--chart-surface)", "stroke-width":1.2        /* зазор между соседними местами */
       });
-      if(g) g.appendChild(dot); else svg.appendChild(dot);
+      if(g){
+        var hit = el("circle", {
+          cx:pt.x.toFixed(2), cy:pt.y.toFixed(2), r:hitR.toFixed(2),
+          fill:"transparent", "pointer-events":"all"
+        });
+        g.appendChild(hit);
+        g.appendChild(dot);
+      } else svg.appendChild(dot);
     });
     duma.forEach(function(p){ if(groups[p.id]) svg.appendChild(groups[p.id]); });
 

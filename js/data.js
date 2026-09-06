@@ -134,7 +134,7 @@ const PARTIES = [
   },
   {
     id:"rodina", name:"Родина", short:"Родина", tag:"Родина", lp:"right",
-    seats:1, seatsBy:{7:1, 4:37}, color:"#6366f1", x:2.0, y:6.2,
+    seats:1, seatsBy:{7:1, 4:37}, color:"#b45309", x:2.0, y:6.2,
     ideology:"Национал-консерватизм, державный патриотизм",
     leader:"Алексей Журавлёв",
     theses:[
