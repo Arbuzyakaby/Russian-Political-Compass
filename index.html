@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII.">
 <meta name="color-scheme" content="dark light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%236ee7f9' stroke-width='6'/%3E%3Cpath d='M38 62 L62 38 L54 60 Z' fill='%23f43f5e'/%3E%3C/svg%3E">
 <title>Политический компас партий РФ</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap">
 
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
@@ -13,11 +18,13 @@
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/compass.css">
 <link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/charts.css">
 
 <!-- синхронно, до отрисовки: снимает вспышку тёмной темы у светлой -->
 <script src="js/theme-boot.js"></script>
 </head>
 <body>
+<div class="grain" aria-hidden="true"></div>
 <div class="shell">
 
   <header class="topbar">
@@ -80,6 +87,45 @@
     </aside>
   </div>
 
+
+  <div class="section-head">
+    <h2>Аналитика Госдумы</h2>
+    <span class="rule"></span>
+    <span class="hint">все графики следуют за выбранным созывом</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="charts">
+    <section class="card chart-card" aria-label="Состав Госдумы по фракциям">
+      <div class="chart-head">
+        <h3>Состав палаты</h3>
+        <p>450 мест, каждая точка — один мандат. Места расставлены слева направо по экономической оси: слева плановая экономика, справа рыночная.</p>
+      </div>
+      <div class="chart-body hemi-wrap" id="hemi"></div>
+      <div class="hemi-legend" id="hemiLegend"></div>
+    </section>
+
+    <section class="card chart-card" aria-label="Динамика мандатов по созывам">
+      <div class="chart-head">
+        <h3>Динамика мандатов, IV–VIII созывы</h3>
+        <p>Мандаты по итогам выборов 2003–2021. Разрыв линии означает, что партия в том созыве не участвовала.</p>
+      </div>
+      <div class="chart-body" id="trend"></div>
+      <div class="trend-legend" id="trendLegend"></div>
+      <button type="button" class="data-toggle" id="trendTableBtn" aria-expanded="false">Показать таблицу данных</button>
+      <div class="data-wrap" id="trendTableWrap" hidden><div id="trendTable"></div></div>
+    </section>
+
+    <section class="card chart-card wide" aria-label="Идеологический спектр партий">
+      <div class="chart-head">
+        <h3>Идеологический спектр</h3>
+        <p>Те же координаты, что и на компасе, но развёрнутые в две шкалы: видно порядок партий и расстояния между ними. Полоса растёт от нуля в сторону полюса.</p>
+      </div>
+      <div class="spectrum" id="spectrum"></div>
+    </section>
+  </div>
+
   <footer>
     Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–VIII, 2003–2021, всего 450 мест); переключить созыв можно над компасом.<br>
     Координаты и лидеры партий — экспертная оценка и данные на текущий момент; материал не является агитацией.
@@ -90,6 +136,7 @@
 <script src="js/utils.js"></script>
 <script src="js/tooltip.js"></script>
 <script src="js/compass.js"></script>
+<script src="js/charts.js"></script>
 <script src="js/sidebar.js"></script>
 <script src="js/app.js"></script>
 </body>

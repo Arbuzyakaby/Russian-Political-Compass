@@ -39,6 +39,30 @@
     body.scrollTop = 0;
   }
 
+  /* Мини-график: мандаты партии по всем созывам. Столбец без заливки —
+     созыв, в котором партии не существовало; ноль — участвовала, но
+     не прошла барьер. */
+  function histBlock(p){
+    var convs = PC.CONVOCATIONS.slice().sort(function(a, b){ return a.id - b.id; });
+    var vals = convs.map(function(c){ return PC.charts ? PC.charts.seatsAt(p, c.id) : null; });
+    var max = Math.max.apply(null, vals.map(function(v){ return v || 0; }).concat([1]));
+    var any = vals.some(function(v){ return v; });
+    return '<div class="sect"><h4>Мандаты по созывам</h4>' +
+      '<div class="hist">' + convs.map(function(c, i){
+        var v = vals[i];
+        var h = v ? Math.max(4, v / max * 58) : 3;
+        return '<div class="col">' +
+          '<span class="num">' + (v === null ? "—" : v) + '</span>' +
+          '<span class="bar-v' + (v ? "" : " none") + '" data-h="' + h.toFixed(1) + '"' +
+            ' style="background:' + esc(p.color) + '"></span>' +
+          '<span class="lbl">' + esc(c.label.split(" ")[0]) + '</span></div>';
+      }).join("") + '</div>' +
+      '<div class="hist-note">' +
+        (any ? "Максимум за период — " + max + " мандат" + U.plural(max)
+             : "Партия ни разу не получала мандатов в Госдуме") +
+        ". «—» — партии в том созыве не существовало.</div></div>";
+  }
+
   function renderDetail(p){
     countEl.hidden = true;
     title.textContent = "Карточка партии";
@@ -72,6 +96,7 @@
                    : "Партия не преодолела барьер и не получила мандатов") +
           '</div>' +
         '</div>' +
+        histBlock(p) +
         '<div class="sect"><h4>Ключевые тезисы</h4><ul>' +
           p.theses.map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("") +
         '</ul></div>' +
@@ -86,6 +111,7 @@
     requestAnimationFrame(function(){
       var bar = document.getElementById("bar");
       if(bar) bar.style.width = Math.max(seats ? 2 : 0, pct) + "%";
+      body.querySelectorAll(".hist .bar-v").forEach(function(b){ b.style.height = b.dataset.h + "px"; });
     });
   }
 

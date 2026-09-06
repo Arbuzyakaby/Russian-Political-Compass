@@ -17,7 +17,7 @@ const CONVOCATIONS = [
 const PARTIES = [
   {
     id:"er", name:"Единая Россия", short:"Единая Россия", tag:"Единая Россия", lp:"left",
-    seats:324, seatsBy:{7:343, 6:238, 5:315, 4:223}, color:"#2563c9", x:3.2, y:8.2,
+    seats:324, seatsBy:{7:343, 6:238, 5:315, 4:223}, color:"#2f6fe0", x:3.2, y:8.2,
     ideology:"Государственный консерватизм, центризм «партии власти»",
     leader:"Дмитрий Медведев (председатель партии)",
     theses:[
@@ -30,7 +30,7 @@ const PARTIES = [
   },
   {
     id:"ldpr", name:"ЛДПР", short:"ЛДПР", tag:"ЛДПР", lp:"left",
-    seats:21, seatsBy:{7:39, 6:56, 5:40, 4:36}, color:"#1e40af", x:1.0, y:7.0,
+    seats:21, seatsBy:{7:39, 6:56, 5:40, 4:36}, color:"#eab308", x:1.0, y:7.0,
     ideology:"Национал-популизм, державный дирижизм",
     leader:"Леонид Слуцкий",
     theses:[
@@ -95,7 +95,7 @@ const PARTIES = [
   },
   {
     id:"kr", name:"Коммунисты России", short:"Коммунисты России", tag:"Коммунисты России", lp:"top",
-    seats:0, seatsBy:{7:0}, color:"#991b1b", x:-9.0, y:5.5,
+    seats:0, seatsBy:{7:0}, color:"#8b1f3f", x:-9.0, y:5.5,
     ideology:"Ортодоксальный коммунизм сталинистского толка",
     leader:"Максим Сурайкин",
     theses:[
@@ -134,7 +134,7 @@ const PARTIES = [
   },
   {
     id:"rodina", name:"Родина", short:"Родина", tag:"Родина", lp:"right",
-    seats:1, seatsBy:{7:1, 4:37}, color:"#0e4b8f", x:2.0, y:6.2,
+    seats:1, seatsBy:{7:1, 4:37}, color:"#6366f1", x:2.0, y:6.2,
     ideology:"Национал-консерватизм, державный патриотизм",
     leader:"Алексей Журавлёв",
     theses:[

@@ -45,6 +45,7 @@
     PC.compass.draw();
     syncNodes();
     renderSide(true);
+    if(PC.charts) PC.charts.render(state.active);
   }
 
   function syncNodes(){
@@ -73,6 +74,7 @@
     state.active = (id && state.active === id) ? null : id;
     syncNodes();
     renderSide(true);
+    if(PC.charts) PC.charts.render(state.active);
   }
 
   function refresh(){
@@ -84,6 +86,7 @@
     PC.tip.hide();
     PC.compass.hideCross();
     renderSide(false);
+    if(PC.charts) PC.charts.render(state.active);
   }
 
   /* ---------- поиск и фильтры ---------- */
@@ -157,6 +160,8 @@
         icon.style.transform = "none";
       }, 170);
       try{ localStorage.setItem("pc-theme", next); }catch(e){}
+      /* цвета марок подбираются под фон, поэтому графики перерисовываем */
+      if(PC.charts) PC.charts.render(state.active);
     });
   }
 
@@ -170,9 +175,11 @@
 
     PC.tip.init();
     PC.sidebar.init();
+    if(PC.charts) PC.charts.init();
     PC.compass.draw();
     syncNodes();
     renderSide(true);
+    if(PC.charts) PC.charts.render(state.active);
     initControls();
     initTheme();
   }

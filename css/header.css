@@ -5,12 +5,14 @@
 .brand{display:flex;align-items:center;gap:14px;}
 .brand-mark{
   width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:22px;
-  background:linear-gradient(140deg,var(--accent-soft),rgba(168,85,247,.18));
+  background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 22%,transparent),color-mix(in srgb,var(--accent-2) 26%,transparent));
   border:1px solid var(--stroke-2);box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
   animation:swing 7s ease-in-out infinite;
 }
 @keyframes swing{0%,100%{transform:rotate(-7deg);}50%{transform:rotate(7deg);}}
-.brand h1{font-size:clamp(18px,2.2vw,25px);font-weight:650;letter-spacing:-.02em;line-height:1.15;}
+.brand h1{font-family:var(--font-display);font-size:clamp(19px,2.2vw,26px);font-weight:750;letter-spacing:-.03em;line-height:1.12;
+  background:linear-gradient(120deg,var(--text) 30%,color-mix(in srgb,var(--accent) 65%,var(--text)));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
 .brand p{color:var(--muted);font-size:13px;margin-top:3px;}
 .eyebrow{display:inline-block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;font-weight:600;}
 

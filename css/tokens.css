@@ -1,24 +1,39 @@
 /* ============ ТОКЕНЫ ТЕМЫ ============
    Тёмная тема — значения по умолчанию, светлая переопределяет их
-   через [data-theme="light"] на <html>. ============ */
+   через [data-theme="light"] на <html>.
+
+   Шкала оттенков строится вокруг «обсидиан + аврора» в тёмной теме и
+   «слоновая кость + чернила» в светлой: фон почти нейтральный, цвет
+   приходит из мягких свечений, а не из заливок — так данные на графиках
+   остаются самым ярким на экране. ============ */
 :root{
-  --bg:#080b12;
-  --blob-1:rgba(56,110,255,.20);
-  --blob-2:rgba(168,85,247,.16);
-  --blob-3:rgba(20,184,166,.13);
+  color-scheme:dark;
+
+  --bg:#06080e;
+  --bg-deep:#04060b;
+  --blob-1:rgba(56,110,255,.22);
+  --blob-2:rgba(168,85,247,.17);
+  --blob-3:rgba(20,184,166,.14);
+
   --surface:rgba(255,255,255,.035);
-  --surface-2:rgba(255,255,255,.06);
-  --card-a:rgba(255,255,255,.045);
-  --card-b:rgba(255,255,255,.018);
+  --surface-2:rgba(255,255,255,.065);
+  --surface-3:rgba(255,255,255,.10);
+  --card-a:rgba(255,255,255,.048);
+  --card-b:rgba(255,255,255,.016);
   --stroke:rgba(255,255,255,.09);
-  --stroke-2:rgba(255,255,255,.16);
-  --text:#f2f5fb;
+  --stroke-2:rgba(255,255,255,.17);
+  --hairline:rgba(255,255,255,.42);   /* верхний блик на карточках */
+
+  --text:#f4f7fd;
   --body:#cfd6e6;
-  --muted:#8b95ae;
-  --muted-2:#6b748c;
+  --muted:#8d97b0;
+  --muted-2:#6a7388;
+
   --accent:#6ee7f9;
+  --accent-2:#a78bfa;
   --accent-soft:rgba(110,231,249,.13);
   --accent-line:rgba(110,231,249,.42);
+
   --line-minor:rgba(255,255,255,.035);
   --line-major:rgba(255,255,255,.085);
   --line-axis:rgba(255,255,255,.26);
@@ -27,31 +42,54 @@
   --cap:rgba(255,255,255,.66);
   --quad-cap:rgba(255,255,255,.30);
   --tag:rgba(255,255,255,.86);
-  --tag-halo:rgba(8,11,18,.92);
+  --tag-halo:rgba(6,8,14,.92);
   --dot-stroke:rgba(255,255,255,.9);
   --quad-op:1;
-  --tip-bg:rgba(13,17,27,.94);
+
+  /* графики: цвет полотна для зазоров между марками и колец на пересечениях */
+  --chart-surface:#0a0d16;
+  --chart-grid:rgba(255,255,255,.07);
+  --chart-axis:rgba(255,255,255,.16);
+  --chart-empty:rgba(255,255,255,.09);
+  --chart-lift:1;                      /* 1 — осветлять цвета партий под тёмный фон */
+
+  --tip-bg:rgba(11,14,22,.94);
   --shadow:0 24px 70px -20px rgba(0,0,0,.75);
+  --shadow-lift:0 34px 90px -28px rgba(0,0,0,.85);
   --radius:18px;
+  --radius-sm:12px;
+
+  --font-body:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  --font-display:"Manrope","Inter","Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;
 }
 :root[data-theme="light"]{
-  --bg:#eef1f7;
-  --blob-1:rgba(56,110,255,.14);
-  --blob-2:rgba(168,85,247,.11);
-  --blob-3:rgba(16,185,129,.10);
+  color-scheme:light;
+
+  --bg:#eceff6;
+  --bg-deep:#e3e7f0;
+  --blob-1:rgba(56,110,255,.15);
+  --blob-2:rgba(168,85,247,.12);
+  --blob-3:rgba(16,185,129,.11);
+
   --surface:rgba(255,255,255,.72);
   --surface-2:rgba(255,255,255,.95);
-  --card-a:rgba(255,255,255,.86);
-  --card-b:rgba(255,255,255,.66);
+  --surface-3:rgba(255,255,255,1);
+  --card-a:rgba(255,255,255,.88);
+  --card-b:rgba(255,255,255,.68);
   --stroke:rgba(16,24,48,.10);
   --stroke-2:rgba(16,24,48,.20);
-  --text:#111827;
+  --hairline:rgba(255,255,255,.95);
+
+  --text:#0f172a;
   --body:#334155;
-  --muted:#5b6579;
-  --muted-2:#8a93a6;
+  --muted:#59637a;
+  --muted-2:#87909f;
+
   --accent:#0e7490;
+  --accent-2:#7c3aed;
   --accent-soft:rgba(14,116,144,.10);
   --accent-line:rgba(14,116,144,.40);
+
   --line-minor:rgba(16,24,48,.05);
   --line-major:rgba(16,24,48,.12);
   --line-axis:rgba(16,24,48,.32);
@@ -63,6 +101,14 @@
   --tag-halo:rgba(255,255,255,.95);
   --dot-stroke:rgba(255,255,255,.95);
   --quad-op:.72;
+
+  --chart-surface:#ffffff;
+  --chart-grid:rgba(16,24,48,.08);
+  --chart-axis:rgba(16,24,48,.20);
+  --chart-empty:rgba(16,24,48,.10);
+  --chart-lift:0;
+
   --tip-bg:rgba(255,255,255,.97);
-  --shadow:0 22px 60px -22px rgba(15,23,42,.35);
+  --shadow:0 22px 60px -22px rgba(15,23,42,.32);
+  --shadow-lift:0 30px 80px -26px rgba(15,23,42,.40);
 }
