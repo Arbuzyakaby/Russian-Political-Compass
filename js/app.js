@@ -107,7 +107,10 @@
       input.focus();
     });
 
-    var chips = document.querySelectorAll(".chip");
+    /* Только чипы-фильтры: класс .chip носят ещё кнопки «Траектории»
+       и «Экспорт», и общий селектор сбрасывал бы выбранный фильтр
+       (state.filter становился undefined) при каждом клике по ним. */
+    var chips = document.querySelectorAll(".chips .chip[data-filter]");
     chips.forEach(function(chip){
       chip.addEventListener("click", function(){
         state.filter = chip.dataset.filter;
@@ -178,19 +181,23 @@
 
     PC.nav.init();
     PC.theme.init();
+    PC.ui.init();
     /* до первой отрисовки блоков: иначе плитки KPI и экраны теста успели бы
        зарегистрироваться, когда наблюдателя ещё нет, и появились бы разом */
     PC.motion.init();
     PC.tip.init();
     PC.sidebar.init();
     PC.charts.init();
+    /* до первой отрисовки компаса: drawUser() спрашивает у теста сохранённый
+       результат, и при обратном порядке точка «Вы» появлялась бы на поле
+       только после первого переключения вкладок */
+    PC.quiz.init();
     PC.compass.onDraw(syncNodes);
     PC.compass.draw();
     syncNodes();
     renderSide(true);
     PC.charts.render(state.active);
     initControls();
-    PC.quiz.init();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
        цвета марок — графики пересобираем. */

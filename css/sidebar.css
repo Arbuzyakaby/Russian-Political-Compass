@@ -32,6 +32,8 @@
 .detail>*:nth-child(5){animation-delay:.18s}
 .detail>*:nth-child(6){animation-delay:.22s}
 .detail>*:nth-child(7){animation-delay:.26s}
+.detail>*:nth-child(8){animation-delay:.30s}
+.detail>*:nth-child(9){animation-delay:.34s}
 @keyframes up{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
 /* переключение между карточками двух разных партий (js/app.js) — данные
    меняются, а не открывается новая панель, так что въезд полей заново
@@ -80,6 +82,24 @@
 .sect li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;}
 .note{background:var(--surface);border:1px solid var(--stroke);border-radius:12px;padding:13px 14px;}
 .note p{font-size:12.5px;line-height:1.6;color:var(--body);}
+
+/* ---------- лента траектории партии ---------- */
+/* Вертикальная линия — псевдоэлемент списка, а не отдельная разметка:
+   она должна кончаться на последней точке, поэтому у последнего пункта
+   собственная заглушка цветом подложки не нужна — линия просто короче
+   на высоту его нижнего отступа. */
+.tline{list-style:none;position:relative;margin-top:4px;padding-left:20px;}
+.tline::before{content:"";position:absolute;left:4px;top:6px;bottom:14px;width:1px;
+  background:linear-gradient(180deg,var(--accent-line),color-mix(in srgb,var(--accent-line) 20%,transparent));}
+/* сбрасываем оформление списка тезисов (.sect li): у ленты свой маркер,
+   свой отступ и никакой ступенчатой анимации по пунктам */
+.tline li{position:relative;padding:0 0 13px;animation:none;font-size:inherit;color:inherit;}
+.tline li:last-child{padding-bottom:2px;}
+.tline li::before{content:"";position:absolute;left:-20px;top:5px;width:9px;height:9px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.tline .y{font-size:11px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.tline .c{font-size:10px;color:var(--muted-2);margin-left:8px;font-variant-numeric:tabular-nums;}
+.tline p{font-size:12px;line-height:1.55;color:var(--body);margin-top:3px;}
 
 .pitem:focus-visible,.back:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
 

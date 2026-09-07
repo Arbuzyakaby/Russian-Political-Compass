@@ -133,6 +133,21 @@
     }
   }
 
+  /* Показать перерисованный блок сразу, без ожидания наблюдателя.
+     Нужно там, где разметка пересобирается по действию пользователя
+     (плитки KPI при смене созыва): наблюдатель сообщает о появлении
+     асинхронно, и на кадр-другой блок оставался бы прозрачным — смена
+     созыва читалась бы как мигание. Счётчики при этом отрабатывают,
+     потому что новое число как раз и есть смысл перерисовки. */
+  function showNow(root){
+    if(!root) return;
+    root.querySelectorAll("[data-reveal]").forEach(function(node){
+      seen.add(node);
+      node.style.setProperty("--i", "0");
+      reveal(node);
+    });
+  }
+
   function init(){
     document.documentElement.style.setProperty("--reveal-step", STEP + "ms");
 
@@ -156,5 +171,5 @@
     scan();
   }
 
-  PC.motion = { init:init, scan:scan, reduced:reduced, whenRevealed:whenRevealed };
+  PC.motion = { init:init, scan:scan, showNow:showNow, reduced:reduced, whenRevealed:whenRevealed };
 })(window.PC = window.PC || {});

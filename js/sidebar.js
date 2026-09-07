@@ -63,6 +63,28 @@
         ". «—» — партии в том созыве не существовало.</div></div>";
   }
 
+  /* Траектория партии словами: те же точки, что рисует слой «Траектории»
+     на компасе, но здесь их видно без включения слоя и с полным текстом
+     пояснения — на поле оно доступно только по наведению. */
+  function trailBlock(p){
+    if(!p.history || p.history.length < 2) return "";
+    var from = p.history[0], to = p.history[p.history.length - 1];
+    var dx = to.x - from.x, dy = to.y - from.y;
+    function move(d, neg, pos){
+      if(Math.abs(d) < .5) return "почти без сдвига";
+      return (d < 0 ? neg : pos) + " на " + Math.abs(d).toFixed(1);
+    }
+    return '<div class="sect trail-sect"><h4>Как менялась позиция</h4>' +
+      '<ol class="tline">' + p.history.map(function(h){
+        return '<li><span class="y">' + h.year + '</span>' +
+          '<span class="c">' + fmt(h.x) + ' / ' + fmt(h.y) + '</span>' +
+          '<p>' + esc(h.note) + '</p></li>';
+      }).join("") + '</ol>' +
+      '<div class="hist-note">С ' + from.year + " по " + to.year + ": экономика — " +
+        move(dx, "влево", "вправо") + ", отношение к государству — " +
+        move(dy, "вниз к свободам", "вверх к этатизму") + ".</div></div>";
+  }
+
   function renderDetail(p, animate){
     countEl.hidden = true;
     title.textContent = "Карточка партии";
@@ -102,6 +124,7 @@
         '</ul></div>' +
         '<div class="sect"><h4>Почему такие координаты</h4>' +
           '<div class="note"><p>' + esc(p.why) + '</p></div></div>' +
+        trailBlock(p) +
       '</div>';
 
     body.scrollTop = 0;

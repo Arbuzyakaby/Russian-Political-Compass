@@ -69,6 +69,7 @@
   }
 
   /* ---------- KPI-плитки ---------- */
+  var statsShown = false;   /* плитки уже показывались хотя бы раз */
   function renderStats(){
     var conv = PC.convocationInfo(), c = conv.id;
     var duma = inDuma(c).sort(function(a, b){ return seatsAt(b,c) - seatsAt(a,c); });
@@ -105,7 +106,13 @@
              (t.body ? t.body : '<div class="v">' + t.v + (t.vs ? '<small>' + t.vs + '</small>' : '') + '</div>') +
              '<div class="d">' + t.d + '</div></div>';
     }).join("");
-    if(PC.motion) PC.motion.scan(host.stats);
+    /* Первая отрисовка проявляется по прокрутке, все последующие (смена
+       созыва, выбор партии) — сразу: блок уже на экране, и повторный
+       въезд выглядел бы как мигание. */
+    if(PC.motion){
+      if(statsShown) PC.motion.showNow(host.stats); else PC.motion.scan(host.stats);
+    }
+    statsShown = true;
   }
 
   /* ---------- 1. Парламентская диаграмма ---------- */
@@ -299,6 +306,10 @@
   var trendDrawn = false;
   function drawIn(lines, marks, card){
     if(trendDrawn) return;
+    /* график, построенный в скрытой вкладке, имеет нулевые размеры:
+       считать такую отрисовку первой значило бы навсегда потерять
+       анимацию — она бы «проигралась» там, где её никто не видит */
+    if(!card || !card.getClientRects().length) return;
     trendDrawn = true;
     if(!window.requestAnimationFrame || !PC.motion || PC.motion.reduced()) return;
 
@@ -696,5 +707,8 @@
      изменились, хотя ключ состояния прежний. */
   function invalidate(){ lastKey = null; }
 
-  PC.charts = { init:init, render:render, invalidate:invalidate, chartColor:chartColor };
+  /* niceScale и hemiSeats — чистые функции без DOM: раскладка мест
+     и шаг сетки проверяются тестами напрямую, без браузера. */
+  PC.charts = { init:init, render:render, invalidate:invalidate,
+                chartColor:chartColor, niceScale:niceScale, hemiSeats:hemiSeats };
 })(window.PC = window.PC || {});

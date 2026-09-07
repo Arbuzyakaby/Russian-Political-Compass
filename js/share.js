@@ -451,7 +451,13 @@
 
     host.querySelector("#shareSave").addEventListener("click", function(){
       canvas.toBlob(function(blob){
-        if(blob) PC.exporter.download(blob, fileNameFor(fmt));
+        if(!blob){
+          if(PC.ui) PC.ui.toast("Не удалось собрать картинку", true);
+          return;
+        }
+        var name = fileNameFor(fmt);
+        PC.exporter.download(blob, name);
+        if(PC.ui) PC.ui.toast("Карточка сохранена: " + name);
       }, "image/png");
     });
 

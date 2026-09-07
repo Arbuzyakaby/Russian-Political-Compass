@@ -45,8 +45,16 @@
        следующим тиком, а не сразу после click() */
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   }
+  /* Пустой набор данных не сохраняем: пустой файл в загрузках выглядит
+     как молчаливая поломка, а не как «нечего выгружать». */
   function downloadText(text, name, mime){
+    if(text == null){ note("Не удалось собрать файл", true); return; }
     download(new Blob([text], { type:mime + ";charset=utf-8" }), name);
+    note("Файл сохранён: " + name);
+  }
+
+  function note(text, bad){
+    if(PC.ui && PC.ui.toast) PC.ui.toast(text, bad);
   }
 
   /* Кавычки удваиваются, поле берётся в кавычки, если внутри есть
@@ -238,7 +246,7 @@
 
   function compassPNG(scale, done){
     var svgText = compassSVG();
-    if(!svgText) return;
+    if(!svgText){ note("Компас ещё не отрисован", true); if(done) done(); return; }
     var img = new Image();
     img.onload = function(){
       var px = SIZE * scale;
@@ -249,11 +257,15 @@
       ctx.fillRect(0, 0, px, px);
       ctx.drawImage(img, 0, 0, px, px);
       canvas.toBlob(function(blob){
-        if(blob) download(blob, fileName("compas-" + convSlug(), "png"));
+        if(blob){
+          var name = fileName("compas-" + convSlug(), "png");
+          download(blob, name);
+          note("Файл сохранён: " + name);
+        }else note("Не удалось собрать картинку", true);
         if(done) done();
       }, "image/png");
     };
-    img.onerror = function(){ if(done) done(); };
+    img.onerror = function(){ note("Не удалось собрать картинку", true); if(done) done(); };
     /* data: вместо blob: — так холст гарантированно не помечается tainted */
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgText);
   }
@@ -310,8 +322,22 @@
     document.removeEventListener("keydown", onEsc);
   }
   function onOutside(e){ if(!wrap.contains(e.target)) close(); }
+
+  /* Клавиатура в меню: Escape закрывает и возвращает фокус на кнопку,
+     стрелки ходят по пунктам по кругу, Home/End — к краям списка.
+     Это ожидаемое поведение для role="menu", без него список пунктов
+     обходится только Tab и уводит фокус за пределы меню. */
   function onEsc(e){
-    if(e.key === "Escape"){ e.stopPropagation(); close(); btn.focus(); }
+    if(e.key === "Escape"){ e.stopPropagation(); close(); btn.focus(); return; }
+    var items = Array.prototype.slice.call(menu.querySelectorAll(".export-item"));
+    if(!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    var to = -1;
+    if(e.key === "ArrowDown") to = i < 0 ? 0 : (i + 1) % items.length;
+    else if(e.key === "ArrowUp") to = i < 0 ? items.length - 1 : (i - 1 + items.length) % items.length;
+    else if(e.key === "Home" && i > -1) to = 0;
+    else if(e.key === "End" && i > -1) to = items.length - 1;
+    if(to > -1){ e.preventDefault(); items[to].focus(); }
   }
 
   function init(){
@@ -320,6 +346,16 @@
     menu = document.getElementById("exportMenu");
     if(!wrap || !btn || !menu) return;
     btn.addEventListener("click", function(){ menu.hidden ? open() : close(); });
+    btn.addEventListener("keydown", function(e){
+      if(e.key !== "ArrowDown") return;
+      e.preventDefault();
+      /* обработчик меню вешается на document прямо здесь, в open(), и успел
+         бы получить это же нажатие — фокус перескочил бы через первый пункт */
+      e.stopPropagation();
+      if(menu.hidden) open();
+      var first = menu.querySelector(".export-item");
+      if(first) first.focus();
+    });
   }
 
   PC.exporter = {

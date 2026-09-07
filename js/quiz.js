@@ -33,10 +33,13 @@
   }
   var MAX_X = axisMax("x"), MAX_Y = axisMax("y");
 
-  function score(){
+  /* Чистая функция: по набору ответов даёт координаты. Вынесена из
+     состояния модуля, чтобы её можно было посчитать для произвольных
+     ответов — этим пользуются тесты. */
+  function scoreOf(src){
     var sx = 0, sy = 0, answered = 0;
     Q.forEach(function(q){
-      var a = answers[q.id];
+      var a = src[q.id];
       if(a === undefined) return;
       answered++;
       var v = a * q.dir * q.w;
@@ -49,6 +52,7 @@
       ts: Date.now()
     };
   }
+  function score(){ return scoreOf(answers); }
 
   /* Партии, отсортированные по близости к точке пользователя.
      Совпадение считается от расстояния: 0 — точное попадание, MAX_DIST и
@@ -368,9 +372,13 @@
     if(PC.nav && PC.nav.current() !== "quiz") return;
     var tag = document.activeElement && document.activeElement.tagName;
     if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-    if(e.key >= "1" && e.key <= String(SCALE.length)){
+    /* сочетания с модификаторами принадлежат браузеру и ОС: Ctrl+1 —
+       переключение вкладки браузера, а не ответ на утверждение */
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    var n = /^[1-9]$/.test(e.key) ? Number(e.key) : 0;
+    if(n >= 1 && n <= SCALE.length){
       e.preventDefault();
-      answer(SCALE[Number(e.key) - 1].v);
+      answer(SCALE[n - 1].v);
     }else if(e.key === "ArrowLeft"){ e.preventDefault(); prev(); }
     else if(e.key === "ArrowRight"){ e.preventDefault(); next(); }
   }
@@ -391,6 +399,7 @@
     result: function(){ return result; },
     ranking: ranking,
     quadrant: quadrant,
+    scoreOf: scoreOf,
     /* словесные ярлыки нужны карточке для соцсетей — считаются здесь,
        чтобы формулировка на сайте и на картинке не разъезжались */
     words: function(pt){ return { econ:econWord(pt.x), state:stateWord(pt.y) }; }
