@@ -231,8 +231,12 @@
     document.getElementById("quizBack").addEventListener("click", function(){ view = "intro"; render(); });
   }
 
-  /* Ответ подсвечивается сразу, а переход к следующему вопросу происходит
-     через мгновение — без паузы выбор не успевает считаться глазом. */
+  /* Ответ только подсвечивается и включает кнопку «Дальше» — сам переход
+     к следующему вопросу происходит по отдельному действию (клик по
+     кнопке, Enter, стрелка вправо). Раньше клик по варианту сам кидал
+     дальше через мгновение, и кнопка «Дальше» либо ничего не успевала
+     сделать, либо просто дублировала то же самое движение — выбор
+     нельзя было спокойно передумать. */
   function answer(v){
     answers[Q[idx].id] = v;
     save();
@@ -241,11 +245,8 @@
       b.classList.toggle("on", on);
       b.setAttribute("aria-pressed", String(on));
     });
-    var at = idx;
-    setTimeout(function(){
-      if(view !== "run" || idx !== at) return;
-      if(idx === Q.length - 1) finish(); else { idx++; render(); }
-    }, 190);
+    var nextBtn = document.getElementById("quizNext");
+    if(nextBtn) nextBtn.disabled = false;
   }
   function prev(){ if(idx > 0){ idx--; render(); } }
   function next(){
