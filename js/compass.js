@@ -4,7 +4,8 @@
   var G = PC.geom, U = PC.utils;
   var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, radius = G.radius, el = U.el;
 
-  var svg, cross;
+  var svg, cross, defs, trails;
+  var trailsOn = false;
   var obstacles = [];          // занятые зоны: подписи осей, точки, уже размещённые ярлыки
   var LABEL_PAD = 3;
 
@@ -71,7 +72,7 @@
 
   /* ---------- статичная подложка ---------- */
   function drawDefs(){
-    var defs = el("defs");
+    defs = el("defs");
     /* Подсветка квадрантов: два стопа на площади в четверть поля дают
        заметное кольцо там, где градиент упирается в край. Промежуточные
        стопы приближают кривую ease-out, и заливка гаснет незаметно. */
@@ -154,6 +155,94 @@
     });
   }
 
+  /* ---------- траектории партий во времени ---------- */
+  /* Необязательный слой: ломаная от самой ранней известной позиции партии
+     к нынешней, со стрелкой на конце. Рисуется под точками, чтобы не
+     перекрывать их, и не участвует в раскладке подписей — линия тонкая,
+     ярлыкам она не мешает, а вот считать её препятствием значило бы
+     разогнать половину подписей на пустое место при выключенном слое. */
+  function trailPath(pts, endR){
+    var d = "M" + pts[0].sx.toFixed(1) + "," + pts[0].sy.toFixed(1);
+    for(var i = 1; i < pts.length - 1; i++){
+      d += " L" + pts[i].sx.toFixed(1) + "," + pts[i].sy.toFixed(1);
+    }
+    /* последний отрезок укорачиваем на радиус точки: иначе остриё стрелки
+       уезжает под кружок партии и его не видно */
+    var a = pts[pts.length - 2], b = pts[pts.length - 1];
+    var vx = b.sx - a.sx, vy = b.sy - a.sy, len = Math.sqrt(vx * vx + vy * vy) || 1;
+    var cut = Math.min(len - 1, endR + 7);
+    return d + " L" + (b.sx - vx / len * cut).toFixed(1) + "," + (b.sy - vy / len * cut).toFixed(1);
+  }
+
+  function drawTrails(){
+    trails = el("g", { "class":"trails" });
+    svg.appendChild(trails);
+
+    PC.PARTIES.forEach(function(p){
+      var h = p.history;
+      if(!h || h.length < 2) return;
+      var seats = PC.seatsOf(p);
+      if(seats === null) return;
+
+      var pts = h.map(function(step){
+        var c = px(step.x, step.y);
+        return { sx:c.sx, sy:c.sy, step:step };
+      });
+
+      var marker = el("marker", {
+        id:"arw-" + p.id, viewBox:"0 0 10 10", refX:"9", refY:"5",
+        markerWidth:"5", markerHeight:"5", orient:"auto", markerUnits:"strokeWidth"
+      });
+      marker.appendChild(el("path", { d:"M0 0.8 L10 5 L0 9.2 L2.6 5 Z", fill:p.color }));
+      defs.appendChild(marker);
+
+      var g = el("g", { "class":"trail", "data-id":p.id });
+      g.appendChild(el("path", {
+        "class":"trail-line", d:trailPath(pts, radius(seats)),
+        stroke:p.color, "marker-end":"url(#arw-" + p.id + ")"
+      }));
+
+      /* узлы маршрута: год и объяснение сдвига по наведению */
+      pts.slice(0, -1).forEach(function(pt, i){
+        var dot = el("circle", { "class":"trail-dot", cx:pt.sx, cy:pt.sy, r:3.4, fill:p.color });
+        g.appendChild(dot);
+        if(i === 0){
+          g.appendChild(el("text", { "class":"trail-year", x:pt.sx, y:pt.sy - 8, "text-anchor":"middle" },
+            String(pt.step.year)));
+        }
+        function enter(){
+          PC.tip.showHTML(
+            '<div class="tip-top"><span class="tip-dot" style="background:' + U.esc(p.color) + '"></span>' +
+            '<span class="tip-name">' + U.esc(p.name) + ' · ' + pt.step.year + '</span></div>' +
+            '<div class="tip-ideo">' + U.esc(pt.step.note) + '</div>' +
+            '<div class="tip-meta">' +
+              '<span>Экономика <b>' + U.fmt(pt.step.x) + '</b></span>' +
+              '<span>Гос. контроль <b>' + U.fmt(pt.step.y) + '</b></span>' +
+            '</div>' +
+            '<div class="tip-hint">Точка траектории · сейчас ' + U.fmt(p.x) + " / " + U.fmt(p.y) + '</div>',
+            pt.sx, pt.sy);
+        }
+        dot.addEventListener("mouseenter", enter);
+        dot.addEventListener("mouseleave", function(){ PC.tip.hide(); });
+      });
+
+      trails.appendChild(g);
+    });
+
+    svg.classList.toggle("show-trails", trailsOn);
+  }
+
+  /* Слой включается без перерисовки поля: ломаные уже построены,
+     переключается только их видимость. */
+  function setTrails(on){
+    trailsOn = !!on;
+    if(svg) svg.classList.toggle("show-trails", trailsOn);
+    if(!trailsOn) PC.tip.hide();
+  }
+  function hasTrails(){
+    return PC.PARTIES.some(function(p){ return p.history && p.history.length > 1; });
+  }
+
   /* ---------- перекрестие от осей до точки ---------- */
   function showCross(sx, sy){
     var cx = cross.firstChild, cy = cross.lastChild;
@@ -198,7 +287,10 @@
         g.appendChild(el("circle", { "class":"dot", r:0, fill:p.color, filter:"url(#glow)" }));
 
         var tag  = el("text", { "class":"tag" }, p.tag);
-        var seat = el("text", { "class":"seat" }, U.seatsLabel(seats));
+        /* «нет мандатов» на экране всплывает по наведению, а в экспортной
+           картинке висела бы постоянно у половины партий — отмечаем такие
+           строки классом, чтобы экспорт мог их скрыть */
+        var seat = el("text", { "class":"seat" + (seats ? "" : " empty") }, U.seatsLabel(seats));
         g.appendChild(tag);
         g.appendChild(seat);
         layer.appendChild(g);
@@ -300,6 +392,7 @@
     drawDefs();
     drawBoard();
     drawCaptions();
+    drawTrails();
     drawNodes();
     if(prevStyle === null) svg.removeAttribute("style"); else svg.setAttribute("style", prevStyle);
   }
@@ -315,6 +408,11 @@
       n.setAttribute("tabindex", muted ? "-1" : "0");
       n.setAttribute("aria-hidden", muted ? "true" : "false");
     });
+    /* траектория живёт по тем же правилам, что и её точка */
+    svg.querySelectorAll(".trail").forEach(function(t){
+      t.classList.toggle("muted", !visibleIds.has(t.dataset.id));
+      t.classList.toggle("active", t.dataset.id === activeId);
+    });
   }
 
   /* Полная пересборка поля с последующей синхронизацией состояния —
@@ -329,5 +427,7 @@
     drawListeners.forEach(function(fn){ fn(); });
   }
 
-  PC.compass = { draw:draw, redraw:redraw, onDraw:onDraw, syncNodes:syncNodes, hideCross:hideCross };
+  PC.compass = { draw:draw, redraw:redraw, onDraw:onDraw, syncNodes:syncNodes, hideCross:hideCross,
+                 setTrails:setTrails, hasTrails:hasTrails,
+                 trailsOn:function(){ return trailsOn; } };
 })(window.PC = window.PC || {});

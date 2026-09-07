@@ -87,3 +87,24 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;}
 .node.you .tag{fill:var(--accent);}
 .node.you:hover .seat,.node.you:focus-visible .seat{opacity:1;}
 .tip-dot.you{background:var(--accent);}
+
+/* ---- траектории партий во времени (необязательный слой) ---- */
+/* Слой всегда есть в DOM: включение — смена прозрачности, а не перерисовка.
+   pointer-events отключены у выключенного слоя, иначе невидимые узлы
+   маршрута перехватывали бы наведение на партийные точки. */
+.trails{opacity:0;pointer-events:none;transition:opacity .4s ease;}
+svg.compass.show-trails .trails{opacity:1;pointer-events:auto;}
+.trail{transition:opacity .3s ease;}
+.trail.muted{opacity:.08;pointer-events:none;}
+.trail-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:7 5;opacity:.62;transition:opacity .25s ease,stroke-width .25s ease;}
+.trail-dot{opacity:.7;cursor:pointer;transition:r .2s cubic-bezier(.34,1.5,.5,1),opacity .2s ease;}
+.trail-dot:hover{r:5;opacity:1;}
+.trail-year{font-size:8.5px;font-weight:650;fill:var(--muted);pointer-events:none;
+  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3px;stroke-linejoin:round;}
+.trail.active .trail-line,.trail:hover .trail-line{opacity:1;stroke-width:2.6;}
+svg.compass.show-trails .trails .trail-line{animation:trail-run 18s linear infinite;}
+@keyframes trail-run{to{stroke-dashoffset:-240;}}
+@media(prefers-reduced-motion:reduce){
+  svg.compass.show-trails .trails .trail-line{animation:none;}
+}

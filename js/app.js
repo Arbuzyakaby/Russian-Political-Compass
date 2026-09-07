@@ -122,6 +122,28 @@
       convSelect.addEventListener("change", function(){ setConvocation(convSelect.value); });
     }
 
+    /* Слой траекторий: выбор запоминается, потому что это режим просмотра,
+       а не разовое действие — вернувшись, человек ожидает увидеть поле
+       таким, каким оставил. */
+    var trailBtn = document.getElementById("trailBtn");
+    if(trailBtn){
+      if(!PC.compass.hasTrails()){
+        trailBtn.hidden = true;
+      }else{
+        var trailsOn = PC.store.get("pc-trails", "0") === "1";
+        PC.compass.setTrails(trailsOn);
+        trailBtn.setAttribute("aria-pressed", String(trailsOn));
+        trailBtn.addEventListener("click", function(){
+          trailsOn = !trailsOn;
+          PC.store.set("pc-trails", trailsOn ? "1" : "0");
+          PC.compass.setTrails(trailsOn);
+          trailBtn.setAttribute("aria-pressed", String(trailsOn));
+        });
+      }
+    }
+
+    PC.exporter.init();
+
     document.addEventListener("keydown", function(e){
       if(PC.nav.current() !== "compass") return;
       if(e.key === "Escape"){

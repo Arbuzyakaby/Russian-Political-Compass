@@ -1,0 +1,66 @@
+/* ============ ЭКСПОРТ И КАРТОЧКА РЕЗУЛЬТАТА ============ */
+
+/* ---- выпадающее меню экспорта в шапке компаса ---- */
+.export-wrap{position:relative;}
+.export-btn{display:inline-flex;align-items:center;gap:6px;}
+.export-btn .caret{font-size:9px;opacity:.7;transition:transform .2s ease;}
+.export-btn[aria-expanded="true"] .caret{transform:rotate(180deg);}
+.export-btn[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);}
+
+/* Меню шире кнопки и прижато к правому краю: слева от него — фильтры,
+   и всплывать в их сторону некуда. */
+.export-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:290px;padding:6px;
+  background:var(--tip-bg);border:1px solid var(--stroke-2);border-radius:14px;
+  box-shadow:var(--shadow);backdrop-filter:blur(14px);
+  display:flex;flex-direction:column;gap:2px;
+  animation:export-in .18s cubic-bezier(.3,1.2,.4,1);}
+@keyframes export-in{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+@media(prefers-reduced-motion:reduce){.export-menu{animation:none;}}
+
+.export-item{display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;
+  padding:9px 11px;border-radius:10px;border:1px solid transparent;background:transparent;
+  color:var(--body);cursor:pointer;transition:background .16s ease,border-color .16s ease;}
+.export-item:hover{background:var(--surface-2);border-color:var(--stroke);}
+.export-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.ei-label{font-size:12.5px;font-weight:650;color:var(--text);}
+.ei-hint{font-size:10.5px;color:var(--muted);line-height:1.35;}
+
+/* ---- чип слоя траекторий ---- */
+.trail-chip{display:inline-flex;align-items:center;gap:6px;}
+.trail-chip .ico{font-size:11px;opacity:.85;}
+
+/* ---- карточка результата в тесте ---- */
+.qr-share{display:block;margin-top:22px;padding:20px 22px 22px;border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--card-a),var(--card-b));border:1px solid var(--stroke);}
+.qr-share-head h3{font-family:var(--font-display);font-size:16px;font-weight:750;
+  letter-spacing:-.02em;margin-bottom:4px;}
+.qr-share-head p{font-size:12px;color:var(--muted);line-height:1.5;max-width:56ch;}
+.qr-share-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 16px;}
+
+.fmt-group{display:flex;gap:4px;padding:3px;border-radius:11px;
+  background:var(--surface);border:1px solid var(--stroke);}
+.fmt{font:inherit;font-size:12px;font-weight:650;padding:6px 12px;border-radius:8px;
+  border:0;background:transparent;color:var(--muted);cursor:pointer;transition:all .16s ease;}
+.fmt:hover{color:var(--text);}
+.fmt[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);}
+.fmt:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* Холст показывается в CSS-размере, а рисуется в полном (1080/1920 px):
+   так предпросмотр совпадает с файлом пиксель в пиксель по композиции. */
+.qr-share-preview{line-height:0;}
+/* рамка на самом холсте, а не на контейнере: у квадратной карточки
+   контейнер шире картинки, и подложка торчала бы по бокам */
+.qr-share-preview canvas{display:block;width:100%;height:auto;max-width:520px;margin-inline:auto;
+  border-radius:14px;border:1px solid var(--stroke);}
+.qr-share-preview canvas.wide{max-width:100%;}
+.qr-share-note{font-size:11px;color:var(--muted-2);margin-top:10px;}
+.qr-share-note b{color:var(--muted);font-weight:650;}
+
+@media(max-width:720px){
+  .export-menu{width:min(290px,calc(100vw - 48px));}
+  .export-wrap{width:100%;order:4;}
+  .export-wrap .export-btn{width:100%;justify-content:center;}
+  .trail-chip{width:100%;justify-content:center;order:2;}
+  .qr-share{padding:16px;}
+  .qr-share-tools .btn{flex:1;}
+}

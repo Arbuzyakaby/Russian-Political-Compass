@@ -310,6 +310,7 @@
           '<p class="quiz-note">Совпадение считается по расстоянию между точками на двух осях: ' +
             '100% — полное попадание, 0% — ' + MAX_DIST + ' и больше единиц шкалы. Это близость координат, ' +
             'а не рекомендация голосовать.</p>' +
+          '<section class="qr-share" id="qrShareBlock" data-reveal aria-label="Карточка результата"></section>' +
         '</div>' +
         '<div class="qr-side">' + miniCompass(pt) +
           '<div class="qr-rank">' +
@@ -324,6 +325,8 @@
           '</div>' +
         '</div>' +
       '</div>';
+
+    if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt);
 
     document.getElementById("qrAgain").addEventListener("click", resetAll);
     document.getElementById("qrReview").addEventListener("click", function(){ idx = 0; view = "run"; render(); });
@@ -387,6 +390,9 @@
     render: render,
     result: function(){ return result; },
     ranking: ranking,
-    quadrant: quadrant
+    quadrant: quadrant,
+    /* словесные ярлыки нужны карточке для соцсетей — считаются здесь,
+       чтобы формулировка на сайте и на картинке не разъезжались */
+    words: function(pt){ return { econ:econWord(pt.x), state:stateWord(pt.y) }; }
   };
 })(window.PC = window.PC || {});
