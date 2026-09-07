@@ -189,6 +189,30 @@
         return { sx:c.sx, sy:c.sy, step:step };
       });
 
+      /* Партии с малоподвижной историей (КПРФ и подобные) укладывают все
+         точки внутри пары соседних кружков — линия и узлы траектории тонут
+         под сплошной заливкой точек и становятся неразличимы. Если самая
+         дальняя историческая точка ближе порога к текущей позиции, весь
+         маршрут веерно растягивается от текущей точки — форма и порядок
+         остаются те же, только масштаб на глаз, а точные цифры остаются
+         в подписи года при наведении. */
+      var MIN_TRAIL_SPAN = 46;
+      (function(){
+        var last = pts[pts.length - 1];
+        var maxD = 0;
+        pts.forEach(function(pt){
+          var dx = pt.sx - last.sx, dy = pt.sy - last.sy;
+          maxD = Math.max(maxD, Math.sqrt(dx * dx + dy * dy));
+        });
+        if(maxD > 0 && maxD < MIN_TRAIL_SPAN){
+          var k = MIN_TRAIL_SPAN / maxD;
+          pts = pts.map(function(pt){
+            if(pt === last) return pt;
+            return { sx:last.sx + (pt.sx - last.sx) * k, sy:last.sy + (pt.sy - last.sy) * k, step:pt.step };
+          });
+        }
+      })();
+
       var marker = el("marker", {
         id:"arw-" + p.id, viewBox:"0 0 10 10", refX:"9", refY:"5",
         markerWidth:"5", markerHeight:"5", orient:"auto", markerUnits:"strokeWidth"

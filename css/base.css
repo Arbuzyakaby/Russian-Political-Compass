@@ -29,7 +29,7 @@ body{
 /* единственное цветное пятно — снизу по центру: оно подсвечивает подвал
    и не спорит с шапкой, у которой свой ореол в background самого body */
 body::after{
-  content:"";position:fixed;inset:-15%;pointer-events:none;z-index:0;
+  content:"";position:fixed;inset:-15%;pointer-events:none;z-index:0;will-change:transform;
   background:radial-gradient(900px 680px at 58% 104%,
     var(--blob-3) 0%,
     color-mix(in srgb,var(--blob-3) 62%, transparent) 22%,

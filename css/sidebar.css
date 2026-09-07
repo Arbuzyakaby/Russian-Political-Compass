@@ -33,6 +33,10 @@
 .detail>*:nth-child(6){animation-delay:.22s}
 .detail>*:nth-child(7){animation-delay:.26s}
 @keyframes up{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+/* переключение между карточками двух разных партий (js/app.js) — данные
+   меняются, а не открывается новая панель, так что въезд полей заново
+   тут отключается */
+.detail.no-anim>*{animation:none;}
 .back{display:inline-flex;align-items:center;gap:7px;background:none;border:0;color:var(--muted);font:inherit;font-size:12px;
   cursor:pointer;padding:5px 9px;margin:-5px 0 14px -9px;border-radius:8px;transition:background .15s,color .15s,transform .15s;}
 .back:hover{background:var(--surface);color:var(--text);transform:translateX(-3px);}

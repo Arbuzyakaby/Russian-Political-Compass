@@ -63,7 +63,7 @@
         ". «—» — партии в том созыве не существовало.</div></div>";
   }
 
-  function renderDetail(p){
+  function renderDetail(p, animate){
     countEl.hidden = true;
     title.textContent = "Карточка партии";
     var seats = PC.seatsOf(p);
@@ -71,7 +71,7 @@
     var pct = seats / PC.TOTAL_SEATS * 100;
 
     body.innerHTML =
-      '<div class="detail">' +
+      '<div class="detail' + (animate === false ? " no-anim" : "") + '">' +
         '<button type="button" class="back" id="back">← Все партии</button>' +
         '<div class="d-head">' +
           '<div class="d-badge" style="background:' + esc(p.color) + ';--glow:' + esc(p.color) + '">' +

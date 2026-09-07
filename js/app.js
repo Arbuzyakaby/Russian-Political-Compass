@@ -56,7 +56,12 @@
   function renderSide(force){
     if(state.active){
       if(force || rendered !== state.active){
-        PC.sidebar.renderDetail(PC.partyById(state.active));
+        /* Переход между карточками двух РАЗНЫХ партий (например, при
+           просмотре траекторий одной за другой) — это обновление данных,
+           а не первое открытие карточки: полный стартовый разъезд полей
+           анимацией здесь неуместен, он выглядит как перезагрузка панели. */
+        var freshOpen = !rendered || rendered === "list";
+        PC.sidebar.renderDetail(PC.partyById(state.active), freshOpen);
         rendered = state.active;
       }
     }else{

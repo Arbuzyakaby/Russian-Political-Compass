@@ -12,9 +12,7 @@
     var(--card-a) 0%,
     color-mix(in srgb,var(--card-a) 55%, var(--card-b)) 52%,
     var(--card-b) 100%);
-  border:1px solid var(--stroke);box-shadow:var(--shadow);overflow:hidden;
-  transition:border-color .2s ease,transform .2s ease;}
-.stat:hover{border-color:var(--stroke-2);transform:translateY(-2px);}
+  border:1px solid var(--stroke);box-shadow:var(--shadow);overflow:hidden;}
 .stat::after{content:"";position:absolute;inset:auto 0 0 0;height:2px;
   background:linear-gradient(90deg,
     var(--accent) 0%,

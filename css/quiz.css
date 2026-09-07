@@ -32,7 +32,13 @@
 .qopt{display:flex;align-items:center;gap:12px;width:100%;padding:12px 15px;border-radius:12px;cursor:pointer;
   background:var(--surface);border:1px solid var(--stroke);color:var(--body);font:inherit;font-size:13px;
   text-align:left;transition:background .15s,border-color .15s,transform .15s,color .15s;}
-.qopt:hover{background:var(--surface-2);border-color:var(--stroke-2);transform:translateX(3px);color:var(--text);}
+/* :hover без охраны по возможности устройства залипает на тач-экранах:
+   браузер применяет его после тапа и снимает не сразу, а следующим
+   тапом — соседняя плашка following-вопроса выглядит «нажатой», хотя
+   выбор к ней не относится. Тач и стилус этого правила не видят. */
+@media(hover:hover) and (pointer:fine){
+  .qopt:hover{background:var(--surface-2);border-color:var(--stroke-2);transform:translateX(3px);color:var(--text);}
+}
 .qopt .dot{width:15px;height:15px;border-radius:50%;flex:none;border:2px solid var(--stroke-2);
   transition:border-color .15s,box-shadow .15s,background .15s;}
 .qopt .lbl{flex:1;min-width:0;}

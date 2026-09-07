@@ -14,6 +14,11 @@
   box-shadow:var(--shadow);backdrop-filter:blur(14px);
   display:flex;flex-direction:column;gap:2px;
   animation:export-in .18s cubic-bezier(.3,1.2,.4,1);}
+/* без этого правила класс display:flex выше перебивает служебный атрибут
+   hidden (у обоих одинаковая специфичность, а автор-стили всегда сильнее
+   агента), и закрытое меню остаётся на экране — пустой полоской до первого
+   открытия и полным списком форматов после него */
+.export-menu[hidden]{display:none;}
 @keyframes export-in{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
 @media(prefers-reduced-motion:reduce){.export-menu{animation:none;}}
 
