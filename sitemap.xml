@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Три вкладки живут на одном документе через маршрут в hash (#/compass,
+     #/quiz, #/about) — после # браузер ничего не отправляет на сервер,
+     и поисковики индексируют это как один и тот же URL. Поэтому в карте
+     сайта одна запись, а не три. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://rupolitcompass.website/</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
