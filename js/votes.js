@@ -3,7 +3,7 @@
    Компас держится на утверждении, которое легко объявить и трудно
    проверить: координаты выведены не только из программ, но и из того,
    как фракции голосуют. Этот раздел выкладывает вторую часть основания
-   отдельно — восемь голосований, вокруг которых позиции расходились
+   отдельно — десять голосований, вокруг которых позиции расходились
    заметнее всего, и матрица совпадений между фракциями.
 
    Матрица совпадений интереснее самих голосований. Она показывает то,
@@ -115,13 +115,24 @@
       '"><b>' + pct + '%</b><small>' + r.same + "/" + r.common + "</small></td>";
   }
 
+  /* Полное имя фракции в узкой колонке ротировать некрасиво — особенно
+     «Единая Россия» и «Новые люди». Для шапки таблицы берём инициалы
+     из нескольких слов, а полное название остаётся в title. */
+  function headerAbbr(p){
+    var s = L(p, "short");
+    return /\s/.test(s)
+      ? s.split(/\s+/).map(function(w){ return w.charAt(0).toUpperCase(); }).join("")
+      : s;
+  }
+
   function renderMatrix(parties){
     if(!matrixHost) return;
     matrixHost.innerHTML =
       '<table class="ag-table"><caption class="sr-only">' + esc(t("votes.agreementAria")) + '</caption>' +
       '<thead><tr><td></td>' +
         parties.map(function(p){
-          return '<th scope="col"><span style="--c:' + esc(p.color) + '">' + esc(L(p, "short")) + "</span></th>";
+          return '<th scope="col" title="' + esc(L(p, "short")) + '"><span style="--c:' + esc(p.color) + '">' +
+            esc(headerAbbr(p)) + "</span></th>";
         }).join("") +
       '</tr></thead><tbody>' +
       parties.map(function(a){
@@ -129,7 +140,8 @@
           esc(L(a, "short")) + "</th>" +
           parties.map(function(b){ return agreementCell(a, b); }).join("") + "</tr>";
       }).join("") +
-      "</tbody></table>";
+      "</tbody></table>" +
+      '<div class="ag-scale"><span>0%</span><i></i><span>100%</span></div>';
   }
 
   /* ---------- сборка панели ---------- */

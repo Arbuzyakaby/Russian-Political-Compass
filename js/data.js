@@ -494,6 +494,20 @@ var VOTES = [
     }
   },
   {
+    id:"vat-2018", conv:7, date:"2018-07-24", topic:"econ", axis:"x",
+    title:"Повышение НДС до 20%",
+    summary:"Рост базовой ставки налога на добавленную стоимость с 18% до 20% в третьем чтении.",
+    tally:"303 за, 90 против в третьем чтении",
+    why:"Голосование того же года, что и пенсионная реформа, но по чистому вопросу налоговой нагрузки: «Единая Россия» снова голосует в одиночестве, три оппозиционные фракции — единым фронтом против повышения налога.",
+    pos:{ er:"for", ldpr:"against", kprf:"against", sr:"against" },
+    en:{
+      title:"Raising VAT to 20%",
+      summary:"An increase of the base value-added tax rate from 18% to 20% at third reading.",
+      tally:"303 for, 90 against at third reading",
+      why:"A vote from the same year as the pension reform, but on a pure tax-burden question: United Russia again votes alone, while the three opposition factions form a united front against the increase."
+    }
+  },
+  {
     id:"pension-2018", conv:7, date:"2018-09-27", topic:"econ", axis:"x",
     title:"Повышение пенсионного возраста",
     summary:"Поэтапное повышение возраста выхода на пенсию до 65 лет для мужчин и 60 лет для женщин.",
@@ -533,6 +547,20 @@ var VOTES = [
       summary:"Ratification of treaties of friendship and mutual assistance with the self-proclaimed republics.",
       tally:"401 votes in favour, unanimously",
       why:"A unanimous vote by all five factions of the VIII convocation — the upper bound of what the compass can show: on this question the distances between parties collapse to zero."
+    }
+  },
+  {
+    id:"lgbt-2022", conv:8, date:"2022-11-24", topic:"state", axis:"y",
+    title:"Полный запрет «пропаганды ЛГБТ» для всех возрастов",
+    summary:"Расширение запрета 2013 года с несовершеннолетних на всех граждан, включая рекламу, кино и интернет.",
+    tally:"397 за, единогласно",
+    why:"Расширение голосования 2013 года на всех совершеннолетних прошло без единого голоса против — редкий случай, когда все шесть фракций VIII созыва, включая рыночных «Новых людей», совпали по вопросу вне экономической оси.",
+    pos:{ er:"for", ldpr:"for", kprf:"for", sr:"for", nl:"for", rodina:"for" },
+    en:{
+      title:"Full ban on “LGBT propaganda” for all ages",
+      summary:"An extension of the 2013 ban from minors to all citizens, covering advertising, film and the internet.",
+      tally:"397 for, unanimously",
+      why:"Extending the 2013 vote to all adults passed without a single vote against — a rare case where all six factions of the VIII convocation, including the market-oriented New People, agreed on a question outside the economic axis."
     }
   }
 ];
