@@ -1,4 +1,4 @@
-/* ============ Тест: 40 утверждений -> координаты на компасе ============
+/* ============ Тест: утверждения -> координаты на компасе ============
 
    Ответ на каждое утверждение — число от −2 до +2. Вклад в ось равен
    answer × dir × w; сумма нормируется так, чтобы полюса шкалы достигались
@@ -6,24 +6,38 @@
    устойчиво выраженной позиции — иначе крайние точки были бы практически
    недостижимы и все результаты сползали бы к центру.
 
+   Версий теста две: полная на 40 утверждений и короткая на 20. Короткая —
+   не «первые двадцать вопросов», а отдельная выборка (поле short в
+   js/quiz-data.js), собранная так, чтобы обе версии измеряли одно и то
+   же: поровну на каждую ось, все шесть под-осей покрыты, все ключевые
+   утверждения сохранены, перекос по направлению внутри оси такой же,
+   как в полной.
+
+   Нормировка всегда считается по той выборке, которую человек проходил,
+   а не по всем сорока утверждениям. Это принципиально: делить сумму
+   двадцати ответов на максимум сорока значило бы систематически
+   поджимать короткий результат к центру, и две версии перестали бы
+   лежать на одной шкале.
+
    Тот же ответ считается дважды: один раз в общую сумму по оси, второй —
    в свою узкую под-ось. Под-оси ничего не меняют в итоговых координатах,
    они объясняют их: две точки могут совпасть на компасе и разойтись на
    радаре, и это интереснее самой точки.
 
    Ответы, итог и история прохождений хранятся в localStorage: тест на
-   40 вопросов не должен пропадать от случайного обновления страницы,
+   сорок вопросов не должен пропадать от случайного обновления страницы,
    а взгляды меняются, и направление сдвига говорит больше, чем одна
    точка на поле. ============ */
 (function(PC){
   "use strict";
   var U = PC.utils, esc = U.esc, fmt = U.fmt, clamp = U.clamp;
-  var Q = PC.QUIZ.QUESTIONS, SCALE = PC.QUIZ.SCALE;
+  var ALL = PC.QUIZ.QUESTIONS, SHORT = PC.QUIZ.SHORT, SCALE = PC.QUIZ.SCALE;
   var t = PC.t, L = PC.L;
 
   var KEY_ANS  = "pc-quiz-answers";
   var KEY_RES  = "pc-quiz-result";
   var KEY_HIST = "pc-quiz-history";
+  var KEY_MODE = "pc-quiz-mode";
 
   /* доля от максимума, при которой ось выходит на полюс */
   var REACH = 0.7;
@@ -34,30 +48,46 @@
 
   var host;                       /* контейнер вкладки */
   var answers = {};               /* id вопроса -> −2…+2 */
-  var result = null;              /* { x, y, answered, ts } */
+  var result = null;              /* { x, y, answered, ts, mode } */
   var history = [];               /* прошлые результаты, от старых к новым */
-  var idx = 0;                    /* текущий вопрос */
+  var idx = 0;                    /* текущий вопрос в активной выборке */
   var view = "intro";             /* intro | run | result */
+  var mode = "full";              /* full | short */
   var shared = null;              /* результат, открытый по чужой ссылке */
   var breakdownOpen = false;
 
-  /* ---------- счёт ---------- */
-  function axisMax(axis){
-    return Q.reduce(function(s, q){ return q.axis === axis ? s + q.w * 2 : s; }, 0);
+  /* ---------- выборки ---------- */
+  function questionsFor(m){ return m === "short" ? SHORT : ALL; }
+  function activeQuestions(){ return questionsFor(mode); }
+
+  /* ---------- максимумы ----------
+     Считаются по каждой выборке один раз на загрузку: величины
+     постоянные, а пересчитывать их на каждый ответ — лишняя работа
+     в обработчике клика. */
+  function axisMaxOf(list, axis){
+    return list.reduce(function(s, q){ return q.axis === axis ? s + q.w * 2 : s; }, 0);
   }
-  var MAX_X = axisMax("x"), MAX_Y = axisMax("y");
+  function subMaxOf(list){
+    var out = {};
+    PC.SUBAXES.forEach(function(ax){
+      out[ax.id] = list.reduce(function(s, q){ return q.sub === ax.id ? s + q.w * 2 : s; }, 0);
+    });
+    return out;
+  }
+  var MAXES = {
+    full:  { x:axisMaxOf(ALL, "x"),   y:axisMaxOf(ALL, "y"),   sub:subMaxOf(ALL) },
+    short: { x:axisMaxOf(SHORT, "x"), y:axisMaxOf(SHORT, "y"), sub:subMaxOf(SHORT) }
+  };
+  function maxesFor(list){ return list === SHORT ? MAXES.short : MAXES.full; }
 
-  var SUB_MAX = {};
-  PC.SUBAXES.forEach(function(ax){
-    SUB_MAX[ax.id] = Q.reduce(function(s, q){ return q.sub === ax.id ? s + q.w * 2 : s; }, 0);
-  });
-
-  /* Чистая функция: по набору ответов даёт координаты. Вынесена из
-     состояния модуля, чтобы её можно было посчитать для произвольных
-     ответов — этим пользуются тесты, разбор результата и ссылки. */
-  function scoreOf(src){
+  /* Чистая функция: по набору ответов даёт координаты. Второй аргумент —
+     выборка, по которой считать; по умолчанию полная, потому что так
+     функцию зовут снаружи модуля (тесты, экспорт). */
+  function scoreOf(src, list){
+    list = list || ALL;
+    var m = maxesFor(list);
     var sx = 0, sy = 0, answered = 0;
-    Q.forEach(function(q){
+    list.forEach(function(q){
       var a = src[q.id];
       if(a === undefined) return;
       answered++;
@@ -65,27 +95,35 @@
       if(q.axis === "x") sx += v; else sy += v;
     });
     return {
-      x: clamp(sx / (MAX_X * REACH) * 10, -10, 10),
-      y: clamp(sy / (MAX_Y * REACH) * 10, -10, 10),
+      x: clamp(sx / (m.x * REACH) * 10, -10, 10),
+      y: clamp(sy / (m.y * REACH) * 10, -10, 10),
       answered: answered,
+      total: list.length,
+      mode: list === SHORT ? "short" : "full",
       ts: Date.now()
     };
   }
-  function score(){ return scoreOf(answers); }
+  function score(){ return scoreOf(answers, activeQuestions()); }
 
   /* Те же ответы в разрезе шести узких шкал. Нормировка та же, что и
      у главных осей, поэтому значения сравнимы с партийными sub напрямую. */
-  function subScoreOf(src){
+  function subScoreOf(src, list){
+    /* Умолчание — выборка сохранённого результата, а не та, что выбрана
+       в интерфейсе прямо сейчас: радар в аналитике показывает профиль
+       уже пройденного теста, и переключатель версии на экране описания
+       не должен задним числом менять его нормировку. */
+    list = list || questionsFor(result ? result.mode : mode);
+    var m = maxesFor(list);
     var out = {};
     PC.SUBAXES.forEach(function(ax){
       var sum = 0;
-      Q.forEach(function(q){
+      list.forEach(function(q){
         if(q.sub !== ax.id) return;
         var a = src[q.id];
         if(a === undefined) return;
         sum += a * q.dir * q.w;
       });
-      var max = SUB_MAX[ax.id] * REACH;
+      var max = m.sub[ax.id] * REACH;
       out[ax.id] = max ? clamp(sum / max * 10, -10, 10) : 0;
     });
     return out;
@@ -94,8 +132,8 @@
   /* Вклад каждого утверждения в свою ось — то, из чего сложилась
      координата. Пропущенные утверждения возвращаются с нулём, а не
      выбрасываются: в разборе важно видеть и то, что не сыграло. */
-  function contributions(src){
-    return Q.map(function(q){
+  function contributions(src, list){
+    return (list || ALL).map(function(q){
       var a = src[q.id];
       var answered = a !== undefined;
       return { q:q, answer: answered ? a : null, value: answered ? a * q.dir * q.w : 0 };
@@ -119,42 +157,57 @@
      без ответа. Сорок символов вместо base64 от JSON выбраны намеренно:
      код читается глазами, не содержит символов, требующих экранирования
      в адресе, и не ломается, если мессенджер обрежет ссылку — короткий
-     хвост просто не декодируется, а не даёт неверный результат. */
+     хвост просто не декодируется, а не даёт неверный результат.
+
+     Короткая версия помечена ведущей «s»: без метки код из двадцати
+     ответов и двадцати прочерков невозможно отличить от полного
+     прохождения, где половина вопросов пропущена, а нормировать их
+     нужно по-разному. Полное прохождение метки не получает — ссылки,
+     выданные до появления короткой версии, продолжают работать. */
   var CODE = "abcde";
 
-  function encodeAnswers(src){
-    return Q.map(function(q){
+  function encodeAnswers(src, m){
+    var body = ALL.map(function(q){
       var a = src[q.id];
       return a === undefined ? "-" : CODE.charAt(a + 2);
     }).join("");
+    return (m === "short" ? "s" : "") + body;
+  }
+  function decodeMode(code){
+    return typeof code === "string" && code.charAt(0) === "s" ? "short" : "full";
   }
   function decodeAnswers(code){
     if(typeof code !== "string") return null;
-    var clean = code.replace(/[^a-e-]/g, "");
-    if(clean.length !== Q.length) return null;
+    var body = code.charAt(0) === "s" ? code.slice(1) : code;
+    var clean = body.replace(/[^a-e-]/g, "");
+    if(clean.length !== ALL.length) return null;
     var out = {}, any = false;
-    Q.forEach(function(q, i){
+    ALL.forEach(function(q, i){
       var v = CODE.indexOf(clean.charAt(i));
       if(v > -1){ out[q.id] = v - 2; any = true; }
     });
     return any ? out : null;
   }
-  function shareURL(src){
+  function shareURL(src, m){
     return location.origin + location.pathname + location.search +
-           "#/result/" + encodeAnswers(src);
+           "#/result/" + encodeAnswers(src, m);
   }
 
   /* ---------- сохранение ---------- */
   function save(){
     PC.store.setJSON(KEY_ANS, answers);
+    PC.store.set(KEY_MODE, mode);
     if(result) PC.store.setJSON(KEY_RES, result); else PC.store.remove(KEY_RES);
   }
   function saveHistory(){ PC.store.setJSON(KEY_HIST, history); }
 
   function load(){
+    var savedMode = PC.store.get(KEY_MODE, "full");
+    mode = savedMode === "short" ? "short" : "full";
+
     var a = PC.store.getJSON(KEY_ANS, null);
     if(a && typeof a === "object"){
-      Q.forEach(function(q){
+      ALL.forEach(function(q){
         var v = a[q.id];
         if(typeof v === "number" && v >= -2 && v <= 2) answers[q.id] = Math.round(v);
       });
@@ -162,7 +215,8 @@
     var r = PC.store.getJSON(KEY_RES, null);
     if(r && typeof r.x === "number" && typeof r.y === "number"){
       result = { x:clamp(r.x, -10, 10), y:clamp(r.y, -10, 10),
-                 answered:r.answered || 0, ts:r.ts || 0 };
+                 answered:r.answered || 0, total:r.total || ALL.length,
+                 mode:r.mode === "short" ? "short" : "full", ts:r.ts || 0 };
     }
     var h = PC.store.getJSON(KEY_HIST, null);
     if(Array.isArray(h)){
@@ -170,7 +224,9 @@
         return e && typeof e.x === "number" && typeof e.y === "number";
       }).map(function(e){
         return { x:clamp(e.x, -10, 10), y:clamp(e.y, -10, 10),
-                 answered:e.answered || 0, ts:e.ts || 0, code:typeof e.code === "string" ? e.code : null };
+                 answered:e.answered || 0, ts:e.ts || 0,
+                 mode:e.mode === "short" ? "short" : "full",
+                 code:typeof e.code === "string" ? e.code : null };
       }).slice(-HIST_MAX);
     }
   }
@@ -183,9 +239,10 @@
     var last = history[history.length - 1];
     if(last){
       var same = Math.abs(last.x - pt.x) < .05 && Math.abs(last.y - pt.y) < .05;
-      if(same && pt.ts - last.ts < 60000) return;
+      if(same && last.mode === pt.mode && pt.ts - last.ts < 60000) return;
     }
-    history.push({ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts, code:encodeAnswers(answers) });
+    history.push({ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts, mode:pt.mode,
+                   code:encodeAnswers(answers, pt.mode) });
     if(history.length > HIST_MAX) history = history.slice(-HIST_MAX);
     saveHistory();
   }
@@ -206,6 +263,7 @@
     return t("q.rightlib");
   }
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  function modeName(m){ return t(m === "short" ? "quiz.mode.short.n" : "quiz.mode.full.n"); }
 
   function scaleLabel(s){ return s.key ? t(s.key) : s.label; }
   function questionText(q){ return L(q, "t"); }
@@ -253,27 +311,55 @@
   }
 
   /* ---------- экран 1: описание ---------- */
+  /* Переключатель версии стоит только здесь: менять длину теста посреди
+     прохождения значит либо выбросить часть уже данных ответов, либо
+     дописать вопросов на ходу — и то и другое выглядит как поломка. */
+  function modeSwitch(){
+    return '<div class="quiz-modes" role="group" aria-label="' + esc(t("quiz.mode")) + '">' +
+      ["full", "short"].map(function(m){
+        var list = questionsFor(m);
+        return '<button type="button" class="qmode" data-mode="' + m + '" aria-pressed="' + (m === mode) + '">' +
+          '<span class="qm-n">' + esc(t("quiz.mode." + m, { n:list.length })) + '</span>' +
+          '<span class="qm-d">' + esc(t("quiz.mode." + m + "D", { n:list.length })) + '</span>' +
+        '</button>';
+      }).join("") +
+    '</div>';
+  }
+
   function renderIntro(){
-    var done = Object.keys(answers).length;
+    var list = activeQuestions();
+    var done = list.filter(function(q){ return answers[q.id] !== undefined; }).length;
     host.innerHTML =
       '<div class="quiz-intro">' +
-        '<span class="eyebrow">' + esc(t("quiz.eyebrow", { n:Q.length, statements:PC.i18n.pl(Q.length, "word.statement") })) + '</span>' +
+        '<span class="eyebrow">' + esc(t("quiz.eyebrow", { n:list.length, statements:PC.i18n.pl(list.length, "word.statement") })) + '</span>' +
         '<h2>' + esc(t("quiz.h")) + '</h2>' +
-        '<p class="quiz-lede">' + esc(t("quiz.lede", { n:Q.length })) + '</p>' +
+        '<p class="quiz-lede">' + esc(t("quiz.lede", { n:list.length })) + '</p>' +
+        modeSwitch() +
+        (mode === "short" ? '<p class="quiz-note short-note">' + esc(t("quiz.shortNote", { n:SHORT.length, all:ALL.length })) + '</p>' : "") +
         '<ul class="quiz-facts">' +
-          '<li data-reveal>' + t("quiz.fact1", { a:Q.length / 2, b:Q.length / 2 }) + '</li>' +
-          '<li data-reveal>' + t("quiz.fact2") + '</li>' +
+          '<li data-reveal>' + t("quiz.fact1", { a:list.length / 2, b:list.length / 2 }) + '</li>' +
+          '<li data-reveal>' + t(mode === "short" ? "quiz.fact2.short" : "quiz.fact2") + '</li>' +
           '<li data-reveal>' + t("quiz.fact3") + '</li>' +
         '</ul>' +
         '<div class="quiz-actions">' +
           '<button type="button" class="btn primary" id="quizStart">' +
-            esc(done && done < Q.length ? t("quiz.continue", { n:firstUnanswered() + 1 }) : t("quiz.start")) + '</button>' +
+            esc(done && done < list.length ? t("quiz.continue", { n:firstUnanswered() + 1 }) : t("quiz.start")) + '</button>' +
           (result ? '<button type="button" class="btn" id="quizShowResult">' + esc(t("quiz.showPrev")) + '</button>' : "") +
           (done ? '<button type="button" class="btn ghost" id="quizReset">' + esc(t("quiz.reset")) + '</button>' : "") +
         '</div>' +
         (history.length > 1 ? historyBlock(null) : "") +
         '<p class="quiz-note">' + esc(t("quiz.note")) + '</p>' +
       '</div>';
+
+    host.querySelectorAll(".qmode").forEach(function(b){
+      b.addEventListener("click", function(){
+        if(mode === b.dataset.mode) return;
+        mode = b.dataset.mode;
+        PC.store.set(KEY_MODE, mode);
+        idx = firstUnanswered();
+        render();
+      });
+    });
 
     document.getElementById("quizStart").addEventListener("click", function(){
       idx = firstUnanswered();
@@ -288,25 +374,27 @@
   }
 
   function firstUnanswered(){
-    for(var i = 0; i < Q.length; i++) if(answers[Q[i].id] === undefined) return i;
+    var list = activeQuestions();
+    for(var i = 0; i < list.length; i++) if(answers[list[i].id] === undefined) return i;
     return 0;
   }
 
   /* ---------- экран 2: вопросы ---------- */
   function renderRun(){
-    var q = Q[idx];
-    var done = Object.keys(answers).length;
+    var list = activeQuestions();
+    var q = list[idx];
+    var done = list.filter(function(x){ return answers[x.id] !== undefined; }).length;
     var cur = answers[q.id];
 
     host.innerHTML =
       '<div class="quiz-run">' +
         '<div class="quiz-top">' +
           '<button type="button" class="btn ghost small" id="quizBack">' + esc(t("quiz.back")) + '</button>' +
-          '<span class="quiz-counter">' + (idx + 1) + ' / ' + Q.length + '</span>' +
+          '<span class="quiz-counter">' + (idx + 1) + ' / ' + list.length + '</span>' +
         '</div>' +
-        '<div class="quiz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + Q.length +
+        '<div class="quiz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + list.length +
           '" aria-valuenow="' + done + '" aria-label="' + esc(t("quiz.answered")) + '">' +
-          '<i style="width:' + (done / Q.length * 100).toFixed(1) + '%"></i></div>' +
+          '<i style="width:' + (done / list.length * 100).toFixed(1) + '%"></i></div>' +
         '<div class="quiz-tagline">' +
           '<span class="qt-axis">' + esc(t(q.axis === "x" ? "quiz.tag.x" : "quiz.tag.y")) + '</span>' +
           '<span class="qt-sub">' + esc(t("quiz.subOf", { name:t("sub." + q.sub) })) + '</span>' +
@@ -326,7 +414,7 @@
           '<button type="button" class="btn" id="quizPrev"' + (idx === 0 ? " disabled" : "") + '>' + esc(t("quiz.prev")) + '</button>' +
           '<button type="button" class="btn ghost" id="quizSkip">' + esc(t("quiz.skip")) + '</button>' +
           '<button type="button" class="btn primary" id="quizNext"' + (cur === undefined ? " disabled" : "") + '>' +
-            esc(idx === Q.length - 1 ? t("quiz.finish") : t("quiz.next")) + '</button>' +
+            esc(idx === list.length - 1 ? t("quiz.finish") : t("quiz.next")) + '</button>' +
         '</div>' +
         '<div class="quiz-hint">' + t("quiz.keys") + '</div>' +
       '</div>';
@@ -337,7 +425,7 @@
     document.getElementById("quizPrev").addEventListener("click", prev);
     document.getElementById("quizNext").addEventListener("click", next);
     document.getElementById("quizSkip").addEventListener("click", function(){
-      if(idx === Q.length - 1) finish(); else { idx++; render(); }
+      if(idx === list.length - 1) finish(); else { idx++; render(); }
     });
     document.getElementById("quizBack").addEventListener("click", function(){ view = "intro"; render(); });
   }
@@ -349,7 +437,7 @@
      сделать, либо просто дублировала то же самое движение — выбор
      нельзя было спокойно передумать. */
   function answer(v){
-    answers[Q[idx].id] = v;
+    answers[activeQuestions()[idx].id] = v;
     save();
     host.querySelectorAll(".qopt").forEach(function(b){
       var on = Number(b.dataset.v) === v;
@@ -361,8 +449,9 @@
   }
   function prev(){ if(idx > 0){ idx--; render(); } }
   function next(){
-    if(answers[Q[idx].id] === undefined) return;
-    if(idx === Q.length - 1) finish(); else { idx++; render(); }
+    var list = activeQuestions();
+    if(answers[list[idx].id] === undefined) return;
+    if(idx === list.length - 1) finish(); else { idx++; render(); }
   }
 
   function finish(){
@@ -389,10 +478,10 @@
   }
 
   /* ---------- разбор: как ответы сложились в координаты ---------- */
-  function axisBreakdown(src, axis){
-    var rows = contributions(src).filter(function(c){ return c.q.axis === axis; });
+  function axisBreakdown(src, axis, list){
+    var rows = contributions(src, list).filter(function(c){ return c.q.axis === axis; });
     var sum = rows.reduce(function(s, c){ return s + c.value; }, 0);
-    var max = axis === "x" ? MAX_X : MAX_Y;
+    var max = maxesFor(list)[axis];
     var coord = clamp(sum / (max * REACH) * 10, -10, 10);
     return { rows:rows, sum:sum, max:max, coord:coord };
   }
@@ -402,8 +491,8 @@
     return t(positive ? "ch.spec.statism" : "ch.spec.liberty");
   }
 
-  function breakdownTable(axis){
-    var b = axisBreakdown(shared ? shared.answers : answers, axis);
+  function breakdownTable(src, axis, list){
+    var b = axisBreakdown(src, axis, list);
     var rows = b.rows.slice().sort(function(a, c){ return Math.abs(c.value) - Math.abs(a.value); });
     return '<div class="bd-axis">' +
       '<h4>' + esc(t(axis === "x" ? "res.break.axisX" : "res.break.axisY")) + '</h4>' +
@@ -430,8 +519,8 @@
       "</tbody></table></div>";
   }
 
-  function breakdownBlock(src){
-    var all = contributions(src).filter(function(c){ return c.value !== 0; })
+  function breakdownBlock(src, list){
+    var all = contributions(src, list).filter(function(c){ return c.value !== 0; })
       .sort(function(a, b){ return Math.abs(b.value) - Math.abs(a.value); })
       .slice(0, 5);
 
@@ -449,7 +538,7 @@
       '<button type="button" class="data-toggle" id="bdToggle" aria-expanded="' + breakdownOpen + '">' +
         esc(breakdownOpen ? t("res.break.hide") : t("res.break.show")) + '</button>' +
       '<div class="data-wrap bd-wrap"' + (breakdownOpen ? "" : " hidden") + '>' +
-        breakdownTable("x") + breakdownTable("y") +
+        breakdownTable(src, "x", list) + breakdownTable(src, "y", list) +
         '<p class="qr-block-p">' + esc(t("res.break.reach", { p:Math.round(REACH * 100) })) + '</p>' +
       '</div>' +
     '</section>';
@@ -499,7 +588,8 @@
          точку, не трогая хранилище */
       var last = list[list.length - 1];
       if(!last || Math.abs(last.x - pt.x) > .05 || Math.abs(last.y - pt.y) > .05){
-        list = list.concat([{ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts, code:null }]);
+        list = list.concat([{ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts,
+                              mode:pt.mode || "full", code:null }]);
       }
     }
     if(list.length < 2){
@@ -524,10 +614,11 @@
       })) + "</p>" +
       '<div class="hist-runs">' + list.map(function(e, i){
         var when = e.ts ? new Date(e.ts).toLocaleDateString(PC.i18n.isRu() ? "ru-RU" : "en-GB") : "—";
-        var tag = 'class="hrun" data-code="' + esc(e.code || "") + '"';
+        var tag = 'class="hrun' + (e.mode === "short" ? " short" : "") + '" data-code="' + esc(e.code || "") + '"';
         return "<" + (e.code ? "button type=\"button\" " + tag : "span " + tag) + ">" +
           '<b>' + (i + 1) + "</b><span>" + esc(when) + "</span>" +
           '<em>' + fmt(e.x) + " / " + fmt(e.y) + "</em>" +
+          '<u>' + esc(modeName(e.mode)) + "</u>" +
           "</" + (e.code ? "button" : "span") + ">";
       }).join("") + "</div>" +
       '<button type="button" class="btn ghost small" id="histClear">' + esc(t("res.hist.clear")) + "</button>" +
@@ -544,17 +635,13 @@
     });
     host.querySelectorAll("button.hrun").forEach(function(b){
       b.title = t("res.hist.open");
-      b.addEventListener("click", function(){
-        var src = decodeAnswers(b.dataset.code);
-        if(!src) return;
-        openShared(b.dataset.code, true);
-      });
+      b.addEventListener("click", function(){ openShared(b.dataset.code); });
     });
   }
 
   /* ---------- ссылка на результат ---------- */
-  function linkBlock(src){
-    var url = shareURL(src);
+  function linkBlock(src, m){
+    var url = shareURL(src, m);
     return '<section class="qr-block link-block" data-reveal aria-label="' + esc(t("res.link.h")) + '">' +
       '<h3>' + esc(t("res.link.h")) + '</h3>' +
       '<p class="qr-block-p">' + esc(t("res.link.p")) + '</p>' +
@@ -590,7 +677,7 @@
   }
 
   /* ---------- профиль по под-осям ---------- */
-  function subBlock(src, pt){
+  function subBlock(){
     return '<section class="qr-block sub-block" data-reveal aria-label="' + esc(t("res.sub.h")) + '">' +
       '<h3>' + esc(t("res.sub.h")) + '</h3>' +
       '<p class="qr-block-p">' + esc(t("res.sub.p")) + '</p>' +
@@ -599,10 +686,10 @@
     "</section>";
   }
 
-  function mountSubBlock(src, pt){
+  function mountSubBlock(src, pt, list){
     var box = document.getElementById("qrRadar");
     if(!box || !PC.radar) return;
-    var mine = subScoreOf(src);
+    var mine = subScoreOf(src, list);
     var best = ranking(pt)[0];
     PC.radar.render(box, [
       { label:L(best.p, "short"), color:best.p.color, values:best.p.sub },
@@ -614,13 +701,16 @@
 
   /* ---------- экран 3: результат ---------- */
   function renderResult(){
-    var src = shared ? shared.answers : answers;
-    var pt = shared ? shared.pt : (result || score());
+    var src  = shared ? shared.answers : answers;
+    var runMode = shared ? shared.mode : (result ? result.mode : mode);
+    var list = questionsFor(runMode);
+    var pt   = shared ? shared.pt : (result || score());
     var rank = ranking(pt);
     var best = rank[0];
     var far  = rank[rank.length - 1];
-    var answered = pt.answered !== undefined ? pt.answered : Object.keys(src).length;
-    var skipped = Q.length - answered;
+    var answered = pt.answered !== undefined ? pt.answered
+                 : list.filter(function(q){ return src[q.id] !== undefined; }).length;
+    var skipped = list.length - answered;
 
     function bar(v){
       var w = Math.abs(v) / 10 * 50;
@@ -633,6 +723,9 @@
         '<div class="qr-main">' +
           '<span class="eyebrow">' + esc(shared ? t("res.shared") : t("res.eyebrow")) + '</span>' +
           '<h2>' + esc(capitalize(quadrant(pt.x, pt.y))) + '</h2>' +
+          '<p class="qr-version">' + esc(t("res.version", {
+            v:modeName(runMode), n:list.length,
+            statements:PC.i18n.pl(list.length, "word.statement") })) + '</p>' +
           (shared ? '<p class="qr-shared-note">' + esc(t("res.sharedNote")) +
             ' <button type="button" class="btn ghost small" id="qrMine">' + esc(t("res.mine")) + '</button></p>' : "") +
           '<div class="qr-coords">' +
@@ -652,10 +745,11 @@
             '<button type="button" class="btn" id="qrReview">' + esc(t("res.review")) + '</button>' +
             '<button type="button" class="btn ghost" id="qrAgain">' + esc(t("res.again")) + '</button>' +
           '</div>' +
-          '<p class="quiz-note">' + esc(t("res.matchNote", { n:MAX_DIST })) + '</p>' +
-          subBlock(src, pt) +
-          breakdownBlock(src) +
-          linkBlock(src) +
+          '<p class="quiz-note">' + esc(t("res.matchNote", { n:MAX_DIST })) +
+            (runMode === "short" ? " " + esc(t("res.shortNote", { n:SHORT.length, all:ALL.length })) : "") + '</p>' +
+          subBlock() +
+          breakdownBlock(src, list) +
+          linkBlock(src, runMode) +
           (shared ? "" : historyBlock(pt)) +
           '<section class="qr-share" id="qrShareBlock" data-reveal aria-label="' + esc(t("res.shareBlock")) + '"></section>' +
         '</div>' +
@@ -674,7 +768,7 @@
       '</div>';
 
     if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt);
-    mountSubBlock(src, pt);
+    mountSubBlock(src, pt, list);
 
     document.getElementById("qrAgain").addEventListener("click", resetAll);
     document.getElementById("qrReview").addEventListener("click", function(){
@@ -686,7 +780,7 @@
     var mine = document.getElementById("qrMine");
     if(mine) mine.addEventListener("click", function(){
       shared = null;
-      if(location.hash.indexOf("#/result/") === 0) history_replace("#/quiz");
+      if(location.hash.indexOf("#/result/") === 0) replaceHash("#/quiz");
       view = result ? "result" : "intro";
       render();
     });
@@ -722,7 +816,9 @@
     });
   }
 
-  function history_replace(hash){
+  /* Локальная переменная history закрывает глобальную, поэтому обращение
+     к истории браузера идёт через window явно. */
+  function replaceHash(hash){
     if(window.history && window.history.replaceState) window.history.replaceState(null, "", hash);
     else location.hash = hash;
   }
@@ -730,26 +826,37 @@
   /* ---------- результат по ссылке ---------- */
   /* Чужой результат не трогает ваши ответы: он живёт в отдельном поле
      shared и исчезает по кнопке «вернуться к моему тесту». Иначе переход
-     по ссылке из мессенджера молча затирал бы сорок собственных ответов —
+     по ссылке из мессенджера молча затирал бы собственные ответы —
      ровно то, ради сохранности чего они и лежат в localStorage. */
   function openShared(code, silentHash){
     var src = decodeAnswers(code);
     if(!src) return false;
-    var pt = scoreOf(src);
-    shared = { answers:src, pt:pt, code:code };
+    var m = decodeMode(code);
+    var pt = scoreOf(src, questionsFor(m));
+    shared = { answers:src, pt:pt, code:code, mode:m };
     view = "result";
-    if(!silentHash) history_replace("#/result/" + code);
+    if(!silentHash) replaceHash("#/result/" + code);
     render();
     return true;
   }
 
   function hashCode(){
-    var m = /^#\/?result\/([a-e-]+)/.exec(location.hash || "");
+    var m = /^#\/?result\/(s?[a-e-]+)/.exec(location.hash || "");
     return m ? m[1] : null;
+  }
+
+  /* Счётчик на ярлыке вкладки. В разметке он статичный («40»), потому что
+     без скриптов другого числа взяться неоткуда; как только версия выбрана,
+     ярлык обязан показывать её длину — иначе на экране одновременно висят
+     «Тест · 20 утверждений» и вкладка «Тест 40». */
+  function paintTabBadge(){
+    var badge = document.querySelector("#tab-quiz .tab-badge");
+    if(badge) badge.textContent = String(activeQuestions().length);
   }
 
   function render(){
     if(!host) return;
+    paintTabBadge();
     if(view === "run") renderRun();
     else if(view === "result" && (shared || result || Object.keys(answers).length)) renderResult();
     else renderIntro();
@@ -794,6 +901,8 @@
     init: init,
     render: render,
     result: function(){ return result; },
+    mode: function(){ return mode; },
+    questions: activeQuestions,
     ranking: ranking,
     quadrant: quadrant,
     scoreOf: scoreOf,
@@ -801,6 +910,7 @@
     contributions: contributions,
     encodeAnswers: encodeAnswers,
     decodeAnswers: decodeAnswers,
+    decodeMode: decodeMode,
     shareURL: shareURL,
     openShared: openShared,
     history: function(){ return history.slice(); },

@@ -204,8 +204,10 @@
         quadrant: PC.quiz.quadrant(res.x, res.y),
         answered: res.answered,
         takenAt: res.ts ? new Date(res.ts).toISOString() : null,
+        version: res.mode === "short" ? "short" : "full",
+        statements: res.total || null,
         subAxes: PC.quiz.subScoreOf(PC.store.getJSON("pc-quiz-answers", {}) || {}),
-        permalink: PC.quiz.shareURL(PC.store.getJSON("pc-quiz-answers", {}) || {}),
+        permalink: PC.quiz.shareURL(PC.store.getJSON("pc-quiz-answers", {}) || {}, res.mode),
         ranking: PC.quiz.ranking(res).map(function(r){
           return { id:r.p.id, name:L(r.p, "name"), match:r.match, distance:Number(r.d.toFixed(2)) };
         })
@@ -223,6 +225,7 @@
                 [t("csv.x"), num(res.x.toFixed(2))],
                 [t("csv.y"), num(res.y.toFixed(2))],
                 [t("csv.quadrant"), PC.quiz.quadrant(res.x, res.y)],
+                [t("csv.version"), t(res.mode === "short" ? "quiz.mode.short.n" : "quiz.mode.full.n")],
                 [t("csv.answered"), res.answered],
                 []];
     rows.push([t("csv.subaxis"), t("csv.score")]);

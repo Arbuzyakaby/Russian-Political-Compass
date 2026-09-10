@@ -216,3 +216,136 @@ test("ссылка на результат ведёт на маршрут, ко�
   assert.ok(m, `адрес не похож на маршрут результата: ${url}`);
   assert.deepEqual({ ...PC.quiz.decodeAnswers(m[1]) }, { ...answers });
 });
+
+/* ---------- короткая версия ----------
+   Короткая версия имеет смысл, только если её результат лежит на той же
+   шкале, что и результат полной. Иначе это не «тест побыстрее», а второй
+   тест с теми же подписями, и сравнивать два прохождения в истории
+   нельзя. Отсюда проверяется не «двадцать вопросов есть», а свойства,
+   от которых зависит сопоставимость. */
+const SHORT = PC.QUIZ.SHORT;
+
+test("короткая версия: половина вопросов, отобранных, а не первых подряд", () => {
+  assert.equal(SHORT.length, 20);
+  assert.equal(SHORT.length * 2, Q.length, "короткая версия — ровно половина полной");
+  for(const q of SHORT){
+    assert.ok(Q.includes(q), `${q.id} есть в короткой версии, но не в полной`);
+  }
+  /* «первые двадцать» — это e1..e10 и a1..a10; выборка обязана
+     отличаться, иначе конец анкеты не представлен вовсе */
+  const firstTwenty = Q.slice(0, 20).map(q => q.id).join(",");
+  assert.notEqual(SHORT.map(q => q.id).join(","), firstTwenty);
+  assert.ok(SHORT.some(q => Q.indexOf(q) >= 30), "хвост анкеты должен быть представлен");
+});
+
+test("короткая версия: оси, под-оси и ключевые утверждения на месте", () => {
+  for(const axis of ["x", "y"]){
+    assert.equal(SHORT.filter(q => q.axis === axis).length, 10,
+      `ось ${axis} представлена не половиной вопросов`);
+  }
+  for(const ax of PC.SUBAXES){
+    const n = SHORT.filter(q => q.sub === ax.id).length;
+    assert.ok(n >= 2, `под-ось ${ax.id} покрыта только ${n} утверждением — луч радара будет шумом`);
+  }
+  for(const q of Q.filter(q => q.w > 1)){
+    assert.ok(SHORT.includes(q), `ключевое утверждение ${q.id} потеряно в короткой версии`);
+  }
+});
+
+/* Самое важное свойство: перекос по направлению внутри оси. Если в
+   короткой версии согласие тянет преимущественно в одну сторону сильнее,
+   чем в полной, то «соглашаюсь со всем» даст в двух версиях разные
+   точки, и результаты перестанут лежать на одной шкале. */
+test("короткая версия: перекос по направлению такой же, как в полной", () => {
+  const skew = (list, axis) => {
+    const pos = list.filter(q => q.axis === axis && q.dir > 0).reduce((s, q) => s + q.w, 0);
+    const neg = list.filter(q => q.axis === axis && q.dir < 0).reduce((s, q) => s + q.w, 0);
+    return (pos - neg) / (pos + neg);
+  };
+  for(const axis of ["x", "y"]){
+    const diff = Math.abs(skew(SHORT, axis) - skew(Q, axis));
+    assert.ok(diff < 0.06,
+      `ось ${axis}: перекос короткой версии отличается от полной на ${(diff * 100).toFixed(1)} п.п.`);
+  }
+});
+
+test("нормировка идёт по пройденной выборке, а не по всем сорока", () => {
+  /* Крайние ответы обязаны выводить на полюс в обеих версиях. Если бы
+     короткая делилась на максимум полной, тот же ответ давал бы вдвое
+     меньшую координату — ровно та ошибка, ради которой scoreOf принимает
+     выборку вторым аргументом. */
+  const extreme = {};
+  SHORT.forEach(q => { extreme[q.id] = q.dir * 2; });
+
+  const short = PC.quiz.scoreOf(extreme, SHORT);
+  assert.equal(short.x, 10);
+  assert.equal(short.y, 10);
+  assert.equal(short.mode, "short");
+  assert.equal(short.total, SHORT.length);
+
+  /* те же ответы, посчитанные по полной выборке, дают заметно меньше —
+     и это не альтернативная норма, а именно ошибка, которую мы избегаем */
+  const asFull = PC.quiz.scoreOf(extreme, Q);
+  assert.ok(asFull.x < short.x, "по полной выборке те же ответы должны дать меньше");
+  assert.equal(asFull.mode, "full");
+});
+
+test("нейтральный ответ даёт центр в обеих версиях", () => {
+  const neutral = {};
+  Q.forEach(q => { neutral[q.id] = 0; });
+  for(const list of [Q, SHORT]){
+    const pt = PC.quiz.scoreOf(neutral, list);
+    assert.equal(pt.x, 0);
+    assert.equal(pt.y, 0);
+  }
+});
+
+/* Согласие со всем подряд — самый простой способ поймать расхождение
+   между версиями: если выборка сбалансирована так же, как полная,
+   обе дают близкие точки. */
+test("«соглашаюсь со всем» даёт в двух версиях близкие точки", () => {
+  const agree = {};
+  Q.forEach(q => { agree[q.id] = 1; });
+  const full = PC.quiz.scoreOf(agree, Q);
+  const short = PC.quiz.scoreOf(agree, SHORT);
+  assert.ok(Math.abs(full.x - short.x) < 0.6,
+    `экономика разошлась: полная ${full.x.toFixed(2)}, короткая ${short.x.toFixed(2)}`);
+  assert.ok(Math.abs(full.y - short.y) < 0.6,
+    `государство разошлось: полная ${full.y.toFixed(2)}, короткая ${short.y.toFixed(2)}`);
+});
+
+test("под-оси короткой версии тоже нормируются по своей выборке", () => {
+  const extreme = {};
+  SHORT.forEach(q => { extreme[q.id] = q.dir * 2; });
+  const sub = PC.quiz.subScoreOf(extreme, SHORT);
+  for(const ax of PC.SUBAXES){
+    assert.ok(sub[ax.id] > 5,
+      `под-ось ${ax.id} при крайних ответах осталась на ${sub[ax.id].toFixed(1)}`);
+  }
+});
+
+test("ссылка помечает короткую версию, а полная остаётся совместимой", () => {
+  const answers = {};
+  SHORT.forEach(q => { answers[q.id] = 1; });
+
+  const shortCode = PC.quiz.encodeAnswers(answers, "short");
+  assert.equal(shortCode.charAt(0), "s");
+  assert.equal(shortCode.length, Q.length + 1);
+  assert.equal(PC.quiz.decodeMode(shortCode), "short");
+  assert.deepEqual({ ...PC.quiz.decodeAnswers(shortCode) }, { ...answers });
+
+  const fullCode = PC.quiz.encodeAnswers(answers, "full");
+  assert.equal(fullCode.length, Q.length, "полный код прежней длины — старые ссылки живут");
+  assert.match(fullCode, /^[a-e-]+$/);
+  assert.equal(PC.quiz.decodeMode(fullCode), "full");
+  assert.deepEqual({ ...PC.quiz.decodeAnswers(fullCode) }, { ...answers });
+
+  /* и главное: по метке в ссылке результат восстанавливается тот же,
+     что был показан отправителю */
+  const pt = PC.quiz.scoreOf(PC.quiz.decodeAnswers(shortCode), SHORT);
+  assert.equal(pt.mode, "short");
+  assert.deepEqual(
+    [pt.x.toFixed(4), pt.y.toFixed(4)],
+    [PC.quiz.scoreOf(answers, SHORT).x.toFixed(4), PC.quiz.scoreOf(answers, SHORT).y.toFixed(4)]
+  );
+});
