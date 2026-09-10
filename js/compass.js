@@ -2,6 +2,7 @@
 (function(PC){
   "use strict";
   var G = PC.geom, U = PC.utils;
+  var t = PC.t, L = PC.L;
   var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, radius = G.radius, el = U.el;
 
   var svg, cross, defs, trails;
@@ -126,13 +127,13 @@
 
   function drawCaptions(){
     svg.appendChild(el("text", { x:C, y:PAD - 30, class:"axis-cap", "text-anchor":"middle" },
-      "АВТОРИТАРИЗМ · ЭТАТИЗМ"));
+      t("cap.top")));
     svg.appendChild(el("text", { x:C, y:SIZE - PAD + 42, class:"axis-cap", "text-anchor":"middle" },
-      "ЛИБЕРТАРИАНСТВО · СВОБОДА"));
+      t("cap.bottom")));
     svg.appendChild(el("text", { class:"axis-cap", "text-anchor":"middle", x:PAD - 40, y:C + 4,
-      transform:"rotate(-90 " + (PAD - 40) + " " + C + ")" }, "ЛЕВЫЕ · СОЦИАЛИЗМ"));
+      transform:"rotate(-90 " + (PAD - 40) + " " + C + ")" }, t("cap.left")));
     svg.appendChild(el("text", { class:"axis-cap", "text-anchor":"middle", x:SIZE - PAD + 40, y:C + 4,
-      transform:"rotate(90 " + (SIZE - PAD + 40) + " " + C + ")" }, "ПРАВЫЕ · РЫНОК"));
+      transform:"rotate(90 " + (SIZE - PAD + 40) + " " + C + ")" }, t("cap.right")));
 
     obstacles = [
       /* повёрнутые подписи осей: getBBox отдаёт размеры до поворота,
@@ -144,10 +145,10 @@
       if(!t.getAttribute("transform")) obstacles.push(rectOf(t, 0, 0, 5));
     });
 
-    [{ x:PAD + 16,        y:PAD + 22,        t:"лево · государство",  a:"start" },
-     { x:SIZE - PAD - 16, y:PAD + 22,        t:"право · государство", a:"end" },
-     { x:PAD + 16,        y:SIZE - PAD - 16, t:"лево · свобода",      a:"start" },
-     { x:SIZE - PAD - 16, y:SIZE - PAD - 16, t:"право · свобода",     a:"end" }
+    [{ x:PAD + 16,        y:PAD + 22,        t:t("quad.lt"), a:"start" },
+     { x:SIZE - PAD - 16, y:PAD + 22,        t:t("quad.rt"), a:"end" },
+     { x:PAD + 16,        y:SIZE - PAD - 16, t:t("quad.lb"), a:"start" },
+     { x:SIZE - PAD - 16, y:SIZE - PAD - 16, t:t("quad.rb"), a:"end" }
     ].forEach(function(q){
       var t = el("text", { x:q.x, y:q.y, class:"quad-cap", "text-anchor":q.a }, q.t);
       svg.appendChild(t);
@@ -237,13 +238,13 @@
         function enter(){
           PC.tip.showHTML(
             '<div class="tip-top"><span class="tip-dot" style="background:' + U.esc(p.color) + '"></span>' +
-            '<span class="tip-name">' + U.esc(p.name) + ' · ' + pt.step.year + '</span></div>' +
-            '<div class="tip-ideo">' + U.esc(pt.step.note) + '</div>' +
+            '<span class="tip-name">' + U.esc(L(p, "name")) + ' · ' + pt.step.year + '</span></div>' +
+            '<div class="tip-ideo">' + U.esc(L(pt.step, "note")) + '</div>' +
             '<div class="tip-meta">' +
-              '<span>Экономика <b>' + U.fmt(pt.step.x) + '</b></span>' +
-              '<span>Гос. контроль <b>' + U.fmt(pt.step.y) + '</b></span>' +
+              '<span>' + U.esc(t("side.econ")) + ' <b>' + U.fmt(pt.step.x) + '</b></span>' +
+              '<span>' + U.esc(t("side.state")) + ' <b>' + U.fmt(pt.step.y) + '</b></span>' +
             '</div>' +
-            '<div class="tip-hint">Точка траектории · сейчас ' + U.fmt(p.x) + " / " + U.fmt(p.y) + '</div>',
+            '<div class="tip-hint">' + U.esc(t("tip.trail", { x:U.fmt(p.x), y:U.fmt(p.y) })) + '</div>',
             pt.sx, pt.sy);
         }
         dot.addEventListener("mouseenter", enter);
@@ -303,14 +304,14 @@
         var p = item.p, seats = item.seats, c = px(p.x, p.y), r = radius(seats);
         var g = el("g", {
           "class":"node", "data-id":p.id, tabindex:"0", role:"button",
-          "aria-label":p.name + ", " + U.seatsLabel(seats),
+          "aria-label":L(p, "name") + ", " + U.seatsLabel(seats),
           transform:"translate(" + c.sx + "," + c.sy + ")"
         });
         g.appendChild(el("circle", { "class":"pulse", r:14, stroke:p.color }));
         g.appendChild(el("circle", { "class":"ring", r:r + 8, stroke:p.color }));
         g.appendChild(el("circle", { "class":"dot", r:0, fill:p.color, filter:"url(#glow)" }));
 
-        var tag  = el("text", { "class":"tag" }, p.tag);
+        var tag  = el("text", { "class":"tag" }, L(p, "tag"));
         /* «нет мандатов» на экране всплывает по наведению, а в экспортной
            картинке висела бы постоянно у половины партий — отмечаем такие
            строки классом, чтобы экспорт мог их скрыть */
@@ -354,15 +355,14 @@
     var c = px(res.x, res.y), r = 9;
     var g = el("g", {
       "class":"node you", tabindex:"0", role:"button",
-      "aria-label":"Ваша позиция по результатам теста: экономика " + U.fmt(res.x) +
-                   ", отношение к государству " + U.fmt(res.y),
+      "aria-label":t("node.youAria", { x:U.fmt(res.x), y:U.fmt(res.y) }),
       transform:"translate(" + c.sx + "," + c.sy + ")"
     });
     g.appendChild(el("circle", { "class":"you-halo", r:r + 9 }));
     g.appendChild(el("path", { "class":"you-mark",
       d:"M0 -11 L3.1 -3.6 L11 -3.4 L4.8 1.6 L7 9.2 L0 4.8 L-7 9.2 L-4.8 1.6 L-11 -3.4 L-3.1 -3.6 Z" }));
-    var tag  = el("text", { "class":"tag" }, "Вы");
-    var seat = el("text", { "class":"seat" }, "результат теста");
+    var tag  = el("text", { "class":"tag" }, t("node.you"));
+    var seat = el("text", { "class":"seat" }, t("node.youSeat"));
     g.appendChild(tag);
     g.appendChild(seat);
     layer.appendChild(g);
@@ -372,13 +372,13 @@
       var best = PC.quiz.ranking(res)[0];
       PC.tip.showHTML(
         '<div class="tip-top"><span class="tip-dot you"></span>' +
-        '<span class="tip-name">Ваша позиция</span></div>' +
-        '<div class="tip-ideo">' + U.esc(PC.quiz.quadrant(res.x, res.y)) + ' — по результатам теста</div>' +
+        '<span class="tip-name">' + U.esc(t("tip.you")) + '</span></div>' +
+        '<div class="tip-ideo">' + U.esc(t("tip.youSub", { q:PC.quiz.quadrant(res.x, res.y) })) + '</div>' +
         '<div class="tip-meta">' +
-          '<span>Экономика <b>' + U.fmt(res.x) + '</b></span>' +
-          '<span>Гос. контроль <b>' + U.fmt(res.y) + '</b></span>' +
+          '<span>' + U.esc(t("side.econ")) + ' <b>' + U.fmt(res.x) + '</b></span>' +
+          '<span>' + U.esc(t("side.state")) + ' <b>' + U.fmt(res.y) + '</b></span>' +
         '</div>' +
-        '<div class="tip-hint">Ближе всего — ' + U.esc(best.p.name) + ' · ' + best.match + '% совпадения</div>',
+        '<div class="tip-hint">' + U.esc(t("tip.youBest", { name:L(best.p, "name"), m:best.match })) + '</div>',
         c.sx, c.sy);
       showCross(c.sx, c.sy);
     }

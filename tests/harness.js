@@ -67,15 +67,20 @@ function makeStorage(){
 }
 
 const DEFAULT_FILES = [
-  "js/data.js", "js/utils.js", "js/quiz-data.js", "js/quiz.js",
-  "js/charts.js", "js/export.js"
+  "js/data.js", "js/utils.js", "js/i18n.js", "js/quiz-data.js", "js/quiz.js",
+  "js/votes.js", "js/charts.js", "js/export.js"
 ];
 
 /* Собирает окружение и исполняет в нём перечисленные файлы проекта
    в том же порядке, в каком их подключает index.html. Возвращает
    { PC, window, storage } — дальше тест работает с настоящим кодом. */
-function loadApp(files = DEFAULT_FILES){
+/* seed — значения, которые должны лежать в хранилище ДО исполнения
+   модулей. Нужно локализации: язык выбирается один раз на этапе загрузки
+   js/i18n.js, поэтому «запустить приложение по-английски» иначе никак
+   не выразить. */
+function loadApp(files = DEFAULT_FILES, seed = null){
   const storage = makeStorage();
+  if(seed) for(const [k, v] of Object.entries(seed)) storage.setItem(k, v);
   const documentElement = makeNode("html");
 
   const document = {
@@ -98,8 +103,12 @@ function loadApp(files = DEFAULT_FILES){
     Date, Math, JSON, isFinite, parseInt, parseFloat,
     document,
     localStorage: storage,
-    location: { origin:"https://example.org", pathname:"/compass/", host:"example.org", hash:"" },
-    navigator: { userAgent:"node" },
+    location: { origin:"https://example.org", pathname:"/compass/", host:"example.org",
+                search:"", hash:"" },
+    /* язык не задан намеренно: js/i18n.js должен уметь выбрать умолчание
+       сам, а тесты обязаны идти по той же ветке, что и обычный посетитель
+       с неизвестным браузеру языком */
+    navigator: { userAgent:"node", language:"", languages:[] },
     history: { replaceState(){} },
     matchMedia: q => ({ matches:false, media:q, addEventListener(){}, addListener(){} }),
     requestAnimationFrame: fn => setTimeout(() => fn(Date.now()), 0),

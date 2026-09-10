@@ -1,0 +1,55 @@
+/* ============ ДИАГРАММА-ПАУК ПО ПОД-ОСЯМ ============
+   Две наложенные фигуры одного размера различаются только цветом и
+   характером контура, поэтому у накладываемой серии штриховая обводка:
+   в чёрно-белой печати и при дальтонизме она остаётся отличимой, когда
+   цвет перестаёт работать. ============ */
+
+.radar-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:6px;}
+.radar{display:block;width:100%;max-width:360px;height:auto;overflow:visible;}
+
+/* кольца шкалы: −10, −5, 0, +5, +10 */
+.rad-ring{fill:none;stroke:var(--chart-grid);stroke-width:1;}
+/* нулевое кольцо — единственная линия, относительно которой знак
+   значения читается без подсчёта колец, поэтому оно заметно плотнее */
+.rad-zero{fill:none;stroke:var(--chart-axis);stroke-width:1.6;stroke-dasharray:3 3;}
+.rad-spoke{stroke:var(--chart-grid);stroke-width:1;}
+.rad-cap{font-size:9.5px;font-weight:650;fill:var(--muted);letter-spacing:.01em;}
+
+.rad-fill{fill-opacity:.14;stroke-width:2;stroke-linejoin:round;}
+.rad-series.dashed .rad-fill{stroke-dasharray:6 4;fill-opacity:.10;}
+.rad-dot{stroke:var(--chart-surface);stroke-width:1.5;}
+.rad-series{transition:opacity var(--dur-2,.28s) ease;}
+
+.rad-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;}
+.rad-legend .rl{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);}
+.rad-legend .rl i{width:10px;height:10px;border-radius:3px;flex:none;}
+.rad-legend .rl.dashed i{border-radius:3px;
+  background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.35) 0 2px,transparent 2px 4px);}
+
+.rad-note{font-size:10.5px;color:var(--muted-2);text-align:center;line-height:1.45;max-width:44ch;}
+.rad-summary{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:10px;text-align:center;}
+
+@media(max-width:520px){
+  .rad-cap{font-size:8.5px;}
+  .radar{max-width:100%;}
+}
+
+/* ============ КАРТОЧКА РАДАРА ВО ВСЮ ШИРИНУ ============
+   На широком экране диаграмма стоит рядом с текстом, а не под ним:
+   растягивать сам радар бессмысленно — он квадратный и от ширины
+   карточки не выигрывает, зато пояснение рядом с ним читается вместе
+   с картинкой, а не после неё. */
+@media(min-width:900px){
+  /* Третья строка объявлена как 1fr намеренно: диаграмма справа выше
+     всего левого столбца, и без этого лишняя высота растеклась бы
+     поровну по трём строкам — между заголовком и выпадающим списком
+     появилась бы дыра в полсотни пикселей. Так весь остаток забирает
+     последняя строка, а её содержимое прижато к верху. */
+  .radar-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);
+    grid-template-rows:auto auto 1fr;gap:14px 32px;}
+  .radar-card .chart-head{grid-area:1 / 1;margin-bottom:0;}
+  .radar-card .chart-toolbar{grid-area:2 / 1;justify-self:start;margin:0;}
+  .radar-card .rad-summary{grid-area:3 / 1;align-self:start;
+    text-align:left;margin-top:0;max-width:52ch;}
+  .radar-card .radar-wrap{grid-area:1 / 2 / 4 / 3;margin-top:0;}
+}

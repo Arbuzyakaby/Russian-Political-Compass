@@ -6,26 +6,40 @@
    устойчиво выраженной позиции — иначе крайние точки были бы практически
    недостижимы и все результаты сползали бы к центру.
 
-   Ответы и итог хранятся в localStorage: тест на 40 вопросов не должен
-   пропадать от случайного обновления страницы. ============ */
+   Тот же ответ считается дважды: один раз в общую сумму по оси, второй —
+   в свою узкую под-ось. Под-оси ничего не меняют в итоговых координатах,
+   они объясняют их: две точки могут совпасть на компасе и разойтись на
+   радаре, и это интереснее самой точки.
+
+   Ответы, итог и история прохождений хранятся в localStorage: тест на
+   40 вопросов не должен пропадать от случайного обновления страницы,
+   а взгляды меняются, и направление сдвига говорит больше, чем одна
+   точка на поле. ============ */
 (function(PC){
   "use strict";
   var U = PC.utils, esc = U.esc, fmt = U.fmt, clamp = U.clamp;
   var Q = PC.QUIZ.QUESTIONS, SCALE = PC.QUIZ.SCALE;
+  var t = PC.t, L = PC.L;
 
-  var KEY_ANS = "pc-quiz-answers";
-  var KEY_RES = "pc-quiz-result";
+  var KEY_ANS  = "pc-quiz-answers";
+  var KEY_RES  = "pc-quiz-result";
+  var KEY_HIST = "pc-quiz-history";
 
   /* доля от максимума, при которой ось выходит на полюс */
   var REACH = 0.7;
   /* расстояние на компасе, при котором совпадение считается нулевым */
   var MAX_DIST = 20;
+  /* сколько прошлых прохождений держим: длиннее — уже не история, а лог */
+  var HIST_MAX = 12;
 
   var host;                       /* контейнер вкладки */
   var answers = {};               /* id вопроса -> −2…+2 */
   var result = null;              /* { x, y, answered, ts } */
+  var history = [];               /* прошлые результаты, от старых к новым */
   var idx = 0;                    /* текущий вопрос */
   var view = "intro";             /* intro | run | result */
+  var shared = null;              /* результат, открытый по чужой ссылке */
+  var breakdownOpen = false;
 
   /* ---------- счёт ---------- */
   function axisMax(axis){
@@ -33,9 +47,14 @@
   }
   var MAX_X = axisMax("x"), MAX_Y = axisMax("y");
 
+  var SUB_MAX = {};
+  PC.SUBAXES.forEach(function(ax){
+    SUB_MAX[ax.id] = Q.reduce(function(s, q){ return q.sub === ax.id ? s + q.w * 2 : s; }, 0);
+  });
+
   /* Чистая функция: по набору ответов даёт координаты. Вынесена из
      состояния модуля, чтобы её можно было посчитать для произвольных
-     ответов — этим пользуются тесты. */
+     ответов — этим пользуются тесты, разбор результата и ссылки. */
   function scoreOf(src){
     var sx = 0, sy = 0, answered = 0;
     Q.forEach(function(q){
@@ -54,6 +73,35 @@
   }
   function score(){ return scoreOf(answers); }
 
+  /* Те же ответы в разрезе шести узких шкал. Нормировка та же, что и
+     у главных осей, поэтому значения сравнимы с партийными sub напрямую. */
+  function subScoreOf(src){
+    var out = {};
+    PC.SUBAXES.forEach(function(ax){
+      var sum = 0;
+      Q.forEach(function(q){
+        if(q.sub !== ax.id) return;
+        var a = src[q.id];
+        if(a === undefined) return;
+        sum += a * q.dir * q.w;
+      });
+      var max = SUB_MAX[ax.id] * REACH;
+      out[ax.id] = max ? clamp(sum / max * 10, -10, 10) : 0;
+    });
+    return out;
+  }
+
+  /* Вклад каждого утверждения в свою ось — то, из чего сложилась
+     координата. Пропущенные утверждения возвращаются с нулём, а не
+     выбрасываются: в разборе важно видеть и то, что не сыграло. */
+  function contributions(src){
+    return Q.map(function(q){
+      var a = src[q.id];
+      var answered = a !== undefined;
+      return { q:q, answer: answered ? a : null, value: answered ? a * q.dir * q.w : 0 };
+    });
+  }
+
   /* Партии, отсортированные по близости к точке пользователя.
      Совпадение считается от расстояния: 0 — точное попадание, MAX_DIST и
      дальше — 0%. Диагональ поля длиннее MAX_DIST, поэтому у совсем
@@ -66,11 +114,43 @@
     }).sort(function(a, b){ return a.d - b.d; });
   }
 
+  /* ---------- кодирование результата в ссылку ---------- */
+  /* Один символ на утверждение: a…e — ответы от −2 до +2, дефис —
+     без ответа. Сорок символов вместо base64 от JSON выбраны намеренно:
+     код читается глазами, не содержит символов, требующих экранирования
+     в адресе, и не ломается, если мессенджер обрежет ссылку — короткий
+     хвост просто не декодируется, а не даёт неверный результат. */
+  var CODE = "abcde";
+
+  function encodeAnswers(src){
+    return Q.map(function(q){
+      var a = src[q.id];
+      return a === undefined ? "-" : CODE.charAt(a + 2);
+    }).join("");
+  }
+  function decodeAnswers(code){
+    if(typeof code !== "string") return null;
+    var clean = code.replace(/[^a-e-]/g, "");
+    if(clean.length !== Q.length) return null;
+    var out = {}, any = false;
+    Q.forEach(function(q, i){
+      var v = CODE.indexOf(clean.charAt(i));
+      if(v > -1){ out[q.id] = v - 2; any = true; }
+    });
+    return any ? out : null;
+  }
+  function shareURL(src){
+    return location.origin + location.pathname + location.search +
+           "#/result/" + encodeAnswers(src);
+  }
+
   /* ---------- сохранение ---------- */
   function save(){
     PC.store.setJSON(KEY_ANS, answers);
     if(result) PC.store.setJSON(KEY_RES, result); else PC.store.remove(KEY_RES);
   }
+  function saveHistory(){ PC.store.setJSON(KEY_HIST, history); }
+
   function load(){
     var a = PC.store.getJSON(KEY_ANS, null);
     if(a && typeof a === "object"){
@@ -84,24 +164,51 @@
       result = { x:clamp(r.x, -10, 10), y:clamp(r.y, -10, 10),
                  answered:r.answered || 0, ts:r.ts || 0 };
     }
+    var h = PC.store.getJSON(KEY_HIST, null);
+    if(Array.isArray(h)){
+      history = h.filter(function(e){
+        return e && typeof e.x === "number" && typeof e.y === "number";
+      }).map(function(e){
+        return { x:clamp(e.x, -10, 10), y:clamp(e.y, -10, 10),
+                 answered:e.answered || 0, ts:e.ts || 0, code:typeof e.code === "string" ? e.code : null };
+      }).slice(-HIST_MAX);
+    }
+  }
+
+  /* Повторное прохождение с теми же ответами историю не засоряет:
+     запись добавляется, только если координаты заметно изменились или
+     прошло больше минуты — иначе кнопка «Показать результат», нажатая
+     дважды, порождала бы две одинаковые точки. */
+  function pushHistory(pt){
+    var last = history[history.length - 1];
+    if(last){
+      var same = Math.abs(last.x - pt.x) < .05 && Math.abs(last.y - pt.y) < .05;
+      if(same && pt.ts - last.ts < 60000) return;
+    }
+    history.push({ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts, code:encodeAnswers(answers) });
+    if(history.length > HIST_MAX) history = history.slice(-HIST_MAX);
+    saveHistory();
   }
 
   /* ---------- словесные ярлыки позиции ---------- */
   function econWord(x){
-    return x <= -6 ? "последовательно левые" : x <= -2 ? "умеренно левые"
-         : x <   2 ? "центристские" : x < 6 ? "умеренно правые" : "последовательно правые";
+    return t(x <= -6 ? "w.econ.farleft" : x <= -2 ? "w.econ.left"
+           : x <   2 ? "w.econ.centre"  : x <   6 ? "w.econ.right" : "w.econ.farright");
   }
   function stateWord(y){
-    return y <= -6 ? "выраженно либертарианские" : y <= -2 ? "скорее за личные свободы"
-         : y <   2 ? "центристские" : y < 6 ? "скорее за сильное государство" : "выраженно этатистские";
+    return t(y <= -6 ? "w.state.lib"    : y <= -2 ? "w.state.freedom"
+           : y <   2 ? "w.state.centre" : y <   6 ? "w.state.strong" : "w.state.statist");
   }
   function quadrant(x, y){
-    if(x < 0 && y >= 0) return "левый этатизм";
-    if(x >= 0 && y >= 0) return "правый этатизм";
-    if(x < 0) return "левое либертарианство";
-    return "правое либертарианство";
+    if(x < 0 && y >= 0) return t("q.leftstat");
+    if(x >= 0 && y >= 0) return t("q.rightstat");
+    if(x < 0) return t("q.leftlib");
+    return t("q.rightlib");
   }
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function scaleLabel(s){ return s.key ? t(s.key) : s.label; }
+  function questionText(q){ return L(q, "t"); }
 
   /* ---------- мини-компас с точкой пользователя ---------- */
   function miniCompass(pt){
@@ -121,16 +228,16 @@
 
     /* полюса подписаны прямо на поле: без них мини-компас читается
        как абстрактная россыпь точек */
-    parts.push('<text x="' + C + '" y="' + (P - 9) + '" class="mc-cap" text-anchor="middle">ЭТАТИЗМ</text>');
-    parts.push('<text x="' + C + '" y="' + (S - P + 17) + '" class="mc-cap" text-anchor="middle">СВОБОДЫ</text>');
+    parts.push('<text x="' + C + '" y="' + (P - 9) + '" class="mc-cap" text-anchor="middle">' + esc(t("cap.mini.top")) + '</text>');
+    parts.push('<text x="' + C + '" y="' + (S - P + 17) + '" class="mc-cap" text-anchor="middle">' + esc(t("cap.mini.bottom")) + '</text>');
     parts.push('<text x="' + (P - 8) + '" y="' + C + '" class="mc-cap" text-anchor="middle" transform="rotate(-90 ' +
-      (P - 8) + ' ' + C + ')">ПЛАН</text>');
+      (P - 8) + ' ' + C + ')">' + esc(t("cap.mini.left")) + '</text>');
     parts.push('<text x="' + (S - P + 8) + '" y="' + C + '" class="mc-cap" text-anchor="middle" transform="rotate(90 ' +
-      (S - P + 8) + ' ' + C + ')">РЫНОК</text>');
+      (S - P + 8) + ' ' + C + ')">' + esc(t("cap.mini.right")) + '</text>');
 
     PC.PARTIES.forEach(function(p){
       parts.push('<circle cx="' + X(p.x).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) + '" r="5" class="mc-party" fill="' +
-        esc(p.color) + '"><title>' + esc(p.name) + '</title></circle>');
+        esc(p.color) + '"><title>' + esc(L(p, "name")) + '</title></circle>');
     });
 
     var ux = X(pt.x).toFixed(1), uy = Y(pt.y).toFixed(1);
@@ -138,10 +245,11 @@
     parts.push('<line x1="' + ux + '" y1="' + C + '" x2="' + ux + '" y2="' + uy + '" class="mc-lead"/>');
     parts.push('<circle cx="' + ux + '" cy="' + uy + '" r="11" class="mc-you-halo"/>');
     parts.push('<circle cx="' + ux + '" cy="' + uy + '" r="6" class="mc-you"/>');
-    parts.push('<text x="' + ux + '" y="' + (Number(uy) - 16) + '" class="mc-you-label" text-anchor="middle">Вы</text>');
+    parts.push('<text x="' + ux + '" y="' + (Number(uy) - 16) + '" class="mc-you-label" text-anchor="middle">' +
+      esc(t("node.you")) + '</text>');
 
-    return '<svg class="mini-compass" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="Ваша позиция: экономика ' +
-      fmt(pt.x) + ', отношение к государству ' + fmt(pt.y) + '">' + parts.join("") + '</svg>';
+    return '<svg class="mini-compass" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="' +
+      esc(t("node.youAria", { x:fmt(pt.x), y:fmt(pt.y) })) + '">' + parts.join("") + '</svg>';
   }
 
   /* ---------- экран 1: описание ---------- */
@@ -149,25 +257,22 @@
     var done = Object.keys(answers).length;
     host.innerHTML =
       '<div class="quiz-intro">' +
-        '<span class="eyebrow">Тест · ' + Q.length + " " +
-          U.word(Q.length, ["утверждение", "утверждения", "утверждений"]) + '</span>' +
-        '<h2>Где вы на компасе?</h2>' +
-        '<p class="quiz-lede">Оцените согласие с ' + Q.length + ' утверждениями о российской экономике и ' +
-          'устройстве власти. В конце получите две координаты по тем же шкалам, что и у партий, — ' +
-          'и увидите, рядом с кем оказались.</p>' +
+        '<span class="eyebrow">' + esc(t("quiz.eyebrow", { n:Q.length, statements:PC.i18n.pl(Q.length, "word.statement") })) + '</span>' +
+        '<h2>' + esc(t("quiz.h")) + '</h2>' +
+        '<p class="quiz-lede">' + esc(t("quiz.lede", { n:Q.length })) + '</p>' +
         '<ul class="quiz-facts">' +
-          '<li data-reveal><b>' + (Q.length / 2) + ' + ' + (Q.length / 2) + '</b> утверждений: экономика и роль государства</li>' +
-          '<li data-reveal><b>5–7 минут</b> — примерное время прохождения</li>' +
-          '<li data-reveal><b>Ничего не отправляется</b> — ответы остаются в вашем браузере</li>' +
+          '<li data-reveal>' + t("quiz.fact1", { a:Q.length / 2, b:Q.length / 2 }) + '</li>' +
+          '<li data-reveal>' + t("quiz.fact2") + '</li>' +
+          '<li data-reveal>' + t("quiz.fact3") + '</li>' +
         '</ul>' +
         '<div class="quiz-actions">' +
           '<button type="button" class="btn primary" id="quizStart">' +
-            (done && done < Q.length ? "Продолжить · вопрос " + (firstUnanswered() + 1) : "Начать тест") + '</button>' +
-          (result ? '<button type="button" class="btn" id="quizShowResult">Показать прошлый результат</button>' : "") +
-          (done ? '<button type="button" class="btn ghost" id="quizReset">Сбросить ответы</button>' : "") +
+            esc(done && done < Q.length ? t("quiz.continue", { n:firstUnanswered() + 1 }) : t("quiz.start")) + '</button>' +
+          (result ? '<button type="button" class="btn" id="quizShowResult">' + esc(t("quiz.showPrev")) + '</button>' : "") +
+          (done ? '<button type="button" class="btn ghost" id="quizReset">' + esc(t("quiz.reset")) + '</button>' : "") +
         '</div>' +
-        '<p class="quiz-note">Две оси — упрощение: они не описывают внешнюю политику, национальный вопрос ' +
-          'и личное доверие к политикам. Результат — повод разобраться в позициях, а не диагноз и не агитация.</p>' +
+        (history.length > 1 ? historyBlock(null) : "") +
+        '<p class="quiz-note">' + esc(t("quiz.note")) + '</p>' +
       '</div>';
 
     document.getElementById("quizStart").addEventListener("click", function(){
@@ -179,6 +284,7 @@
     if(showRes) showRes.addEventListener("click", function(){ view = "result"; render(); });
     var reset = document.getElementById("quizReset");
     if(reset) reset.addEventListener("click", resetAll);
+    bindHistory();
   }
 
   function firstUnanswered(){
@@ -195,29 +301,34 @@
     host.innerHTML =
       '<div class="quiz-run">' +
         '<div class="quiz-top">' +
-          '<button type="button" class="btn ghost small" id="quizBack">← К описанию</button>' +
+          '<button type="button" class="btn ghost small" id="quizBack">' + esc(t("quiz.back")) + '</button>' +
           '<span class="quiz-counter">' + (idx + 1) + ' / ' + Q.length + '</span>' +
         '</div>' +
         '<div class="quiz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + Q.length +
-          '" aria-valuenow="' + done + '" aria-label="Отвечено вопросов">' +
+          '" aria-valuenow="' + done + '" aria-label="' + esc(t("quiz.answered")) + '">' +
           '<i style="width:' + (done / Q.length * 100).toFixed(1) + '%"></i></div>' +
-        '<div class="quiz-tagline">' + (q.axis === "x" ? "Экономика" : "Государство и общество") + '</div>' +
-        '<p class="quiz-q">' + esc(q.t) + '</p>' +
-        '<div class="quiz-scale" role="group" aria-label="Ваш ответ">' +
+        '<div class="quiz-tagline">' +
+          '<span class="qt-axis">' + esc(t(q.axis === "x" ? "quiz.tag.x" : "quiz.tag.y")) + '</span>' +
+          '<span class="qt-sub">' + esc(t("quiz.subOf", { name:t("sub." + q.sub) })) + '</span>' +
+          (q.w > 1 ? '<span class="qt-weight" title="' + esc(t("quiz.weightHint")) + '">' +
+            esc(t("quiz.weight", { w:q.w.toFixed(1) })) + '</span>' : "") +
+        '</div>' +
+        '<p class="quiz-q">' + esc(questionText(q)) + '</p>' +
+        '<div class="quiz-scale" role="group" aria-label="' + esc(t("quiz.answer")) + '">' +
           SCALE.map(function(s, i){
             return '<button type="button" class="qopt' + (cur === s.v ? " on" : "") + '" data-v="' + s.v +
               '" aria-pressed="' + (cur === s.v) + '">' +
-              '<span class="dot"></span><span class="lbl">' + esc(s.label) + '</span>' +
+              '<span class="dot"></span><span class="lbl">' + esc(scaleLabel(s)) + '</span>' +
               '<kbd>' + (i + 1) + '</kbd></button>';
           }).join("") +
         '</div>' +
         '<div class="quiz-nav">' +
-          '<button type="button" class="btn" id="quizPrev"' + (idx === 0 ? " disabled" : "") + '>← Назад</button>' +
-          '<button type="button" class="btn ghost" id="quizSkip">Пропустить</button>' +
+          '<button type="button" class="btn" id="quizPrev"' + (idx === 0 ? " disabled" : "") + '>' + esc(t("quiz.prev")) + '</button>' +
+          '<button type="button" class="btn ghost" id="quizSkip">' + esc(t("quiz.skip")) + '</button>' +
           '<button type="button" class="btn primary" id="quizNext"' + (cur === undefined ? " disabled" : "") + '>' +
-            (idx === Q.length - 1 ? "Показать результат" : "Дальше →") + '</button>' +
+            esc(idx === Q.length - 1 ? t("quiz.finish") : t("quiz.next")) + '</button>' +
         '</div>' +
-        '<div class="quiz-hint">Клавиши <kbd>1</kbd>…<kbd>5</kbd> — ответ, <kbd>←</kbd> <kbd>→</kbd> — переход между вопросами.</div>' +
+        '<div class="quiz-hint">' + t("quiz.keys") + '</div>' +
       '</div>';
 
     host.querySelectorAll(".qopt").forEach(function(b){
@@ -257,7 +368,9 @@
   function finish(){
     result = score();
     save();
+    pushHistory(result);
     view = "result";
+    shared = null;
     render();
     /* точка пользователя появляется и на большом компасе */
     if(PC.compass) PC.compass.redraw();
@@ -268,19 +381,245 @@
     result = null;
     idx = 0;
     view = "intro";
+    shared = null;
     PC.store.remove(KEY_ANS);
     PC.store.remove(KEY_RES);
     render();
     if(PC.compass) PC.compass.redraw();
   }
 
+  /* ---------- разбор: как ответы сложились в координаты ---------- */
+  function axisBreakdown(src, axis){
+    var rows = contributions(src).filter(function(c){ return c.q.axis === axis; });
+    var sum = rows.reduce(function(s, c){ return s + c.value; }, 0);
+    var max = axis === "x" ? MAX_X : MAX_Y;
+    var coord = clamp(sum / (max * REACH) * 10, -10, 10);
+    return { rows:rows, sum:sum, max:max, coord:coord };
+  }
+
+  function poleName(axis, positive){
+    if(axis === "x") return t(positive ? "ch.spec.market" : "ch.spec.planned");
+    return t(positive ? "ch.spec.statism" : "ch.spec.liberty");
+  }
+
+  function breakdownTable(axis){
+    var b = axisBreakdown(shared ? shared.answers : answers, axis);
+    var rows = b.rows.slice().sort(function(a, c){ return Math.abs(c.value) - Math.abs(a.value); });
+    return '<div class="bd-axis">' +
+      '<h4>' + esc(t(axis === "x" ? "res.break.axisX" : "res.break.axisY")) + '</h4>' +
+      '<p class="bd-sum">' + esc(t("res.break.sum", {
+        s:(b.sum > 0 ? "+" : "") + b.sum.toFixed(1),
+        m:(b.max * REACH).toFixed(1),
+        c:fmt(b.coord)
+      })) + '</p>' +
+      '<table class="data-table bd-table">' +
+        '<thead><tr>' +
+          '<th scope="col">' + esc(t("res.break.stmt")) + '</th>' +
+          '<th scope="col">' + esc(t("res.break.answer")) + '</th>' +
+          '<th scope="col">' + esc(t("res.break.weight")) + '</th>' +
+          '<th scope="col">' + esc(t("res.break.contrib")) + '</th>' +
+        '</tr></thead><tbody>' +
+        rows.map(function(c){
+          var s = SCALE.filter(function(x){ return x.v === c.answer; })[0];
+          var cls = c.value > 0 ? "up" : c.value < 0 ? "down" : "flat";
+          return '<tr><th scope="row">' + esc(questionText(c.q)) + "</th>" +
+            "<td>" + esc(c.answer === null ? "—" : scaleLabel(s)) + "</td>" +
+            "<td>" + c.q.w.toFixed(1) + "</td>" +
+            '<td class="' + cls + '">' + (c.value > 0 ? "+" : "") + c.value.toFixed(1) + "</td></tr>";
+        }).join("") +
+      "</tbody></table></div>";
+  }
+
+  function breakdownBlock(src){
+    var all = contributions(src).filter(function(c){ return c.value !== 0; })
+      .sort(function(a, b){ return Math.abs(b.value) - Math.abs(a.value); })
+      .slice(0, 5);
+
+    return '<section class="qr-block bd-block" data-reveal aria-label="' + esc(t("res.break.h")) + '">' +
+      '<h3>' + esc(t("res.break.h")) + '</h3>' +
+      '<p class="qr-block-p">' + esc(t("res.break.p")) + '</p>' +
+      '<div class="bd-top"><h4>' + esc(t("res.break.top")) + '</h4><ol>' +
+        all.map(function(c){
+          var pole = poleName(c.q.axis, c.value > 0);
+          return "<li><span class=\"bt-q\">" + esc(questionText(c.q)) + "</span>" +
+            '<span class="bt-v ' + (c.value > 0 ? "up" : "down") + '">' +
+            esc(t("res.break.pull", { pole:pole, v:Math.abs(c.value).toFixed(1) })) + "</span></li>";
+        }).join("") +
+      "</ol></div>" +
+      '<button type="button" class="data-toggle" id="bdToggle" aria-expanded="' + breakdownOpen + '">' +
+        esc(breakdownOpen ? t("res.break.hide") : t("res.break.show")) + '</button>' +
+      '<div class="data-wrap bd-wrap"' + (breakdownOpen ? "" : " hidden") + '>' +
+        breakdownTable("x") + breakdownTable("y") +
+        '<p class="qr-block-p">' + esc(t("res.break.reach", { p:Math.round(REACH * 100) })) + '</p>' +
+      '</div>' +
+    '</section>';
+  }
+
+  /* ---------- история прохождений ---------- */
+  /* Две линии на общем поле −10…+10: экономика и отношение к государству
+     по номеру прохождения. График намеренно маленький и без осей — он
+     отвечает на один вопрос, «куда вы сдвинулись», а точные числа стоят
+     подписями рядом. */
+  function historyChart(list){
+    var W = 460, H = 150, pl = 30, pr = 14, pt = 12, pb = 24;
+    var iw = W - pl - pr, ih = H - pt - pb;
+    var n = list.length;
+    function X(i){ return pl + (n === 1 ? iw / 2 : iw * i / (n - 1)); }
+    function Y(v){ return pt + ih - (v + 10) / 20 * ih; }
+
+    function line(key, color){
+      var d = list.map(function(e, i){ return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(e[key]).toFixed(1); }).join("");
+      var dots = list.map(function(e, i){
+        return '<circle class="hc-dot" cx="' + X(i).toFixed(1) + '" cy="' + Y(e[key]).toFixed(1) +
+          '" r="3.6" fill="' + color + '"><title>' + esc(fmt(e[key])) + "</title></circle>";
+      }).join("");
+      return '<path class="hc-line" d="' + d + '" stroke="' + color + '"/>' + dots;
+    }
+
+    return '<svg class="hist-chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' +
+      esc(t("res.hist.aria")) + '">' +
+      '<line class="hc-zero" x1="' + pl + '" y1="' + Y(0) + '" x2="' + (W - pr) + '" y2="' + Y(0) + '"/>' +
+      '<text class="hc-tick" x="' + (pl - 6) + '" y="' + (Y(10) + 3) + '" text-anchor="end">+10</text>' +
+      '<text class="hc-tick" x="' + (pl - 6) + '" y="' + (Y(0) + 3) + '" text-anchor="end">0</text>' +
+      '<text class="hc-tick" x="' + (pl - 6) + '" y="' + (Y(-10) + 3) + '" text-anchor="end">−10</text>' +
+      line("x", "var(--accent)") + line("y", "var(--accent-2)") +
+      list.map(function(e, i){
+        var label = i === n - 1 ? t("res.hist.now") : String(i + 1);
+        return '<text class="hc-tick" x="' + X(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' +
+          esc(label) + "</text>";
+      }).join("") +
+    "</svg>";
+  }
+
+  function historyBlock(pt){
+    var list = history.slice();
+    if(pt && (!list.length || list[list.length - 1].ts !== pt.ts)){
+      /* показанный результат может быть ещё не записан (открыт из
+         сохранённого прошлого прохождения) — рисуем его как последнюю
+         точку, не трогая хранилище */
+      var last = list[list.length - 1];
+      if(!last || Math.abs(last.x - pt.x) > .05 || Math.abs(last.y - pt.y) > .05){
+        list = list.concat([{ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts, code:null }]);
+      }
+    }
+    if(list.length < 2){
+      return '<section class="qr-block hist-block" data-reveal aria-label="' + esc(t("res.hist.h")) + '">' +
+        '<h3>' + esc(t("res.hist.h")) + '</h3>' +
+        '<p class="qr-block-p">' + esc(t("res.hist.empty")) + '</p></section>';
+    }
+
+    var first = list[0], now = list[list.length - 1];
+    function delta(v){ return (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(1); }
+
+    return '<section class="qr-block hist-block" data-reveal aria-label="' + esc(t("res.hist.h")) + '">' +
+      '<h3>' + esc(t("res.hist.h")) + '</h3>' +
+      '<p class="qr-block-p">' + esc(t("res.hist.p", { n:list.length })) + '</p>' +
+      historyChart(list) +
+      '<div class="rad-legend">' +
+        '<span class="rl"><i style="background:var(--accent)"></i>' + esc(t("res.econ")) + "</span>" +
+        '<span class="rl"><i style="background:var(--accent-2)"></i>' + esc(t("res.state")) + "</span>" +
+      "</div>" +
+      '<p class="hist-note">' + esc(t("res.hist.drift", {
+        dx:delta(now.x - first.x), dy:delta(now.y - first.y)
+      })) + "</p>" +
+      '<div class="hist-runs">' + list.map(function(e, i){
+        var when = e.ts ? new Date(e.ts).toLocaleDateString(PC.i18n.isRu() ? "ru-RU" : "en-GB") : "—";
+        var tag = 'class="hrun" data-code="' + esc(e.code || "") + '"';
+        return "<" + (e.code ? "button type=\"button\" " + tag : "span " + tag) + ">" +
+          '<b>' + (i + 1) + "</b><span>" + esc(when) + "</span>" +
+          '<em>' + fmt(e.x) + " / " + fmt(e.y) + "</em>" +
+          "</" + (e.code ? "button" : "span") + ">";
+      }).join("") + "</div>" +
+      '<button type="button" class="btn ghost small" id="histClear">' + esc(t("res.hist.clear")) + "</button>" +
+    "</section>";
+  }
+
+  function bindHistory(){
+    var clear = document.getElementById("histClear");
+    if(clear) clear.addEventListener("click", function(){
+      history = [];
+      PC.store.remove(KEY_HIST);
+      if(PC.ui) PC.ui.toast(t("res.hist.cleared"));
+      render();
+    });
+    host.querySelectorAll("button.hrun").forEach(function(b){
+      b.title = t("res.hist.open");
+      b.addEventListener("click", function(){
+        var src = decodeAnswers(b.dataset.code);
+        if(!src) return;
+        openShared(b.dataset.code, true);
+      });
+    });
+  }
+
+  /* ---------- ссылка на результат ---------- */
+  function linkBlock(src){
+    var url = shareURL(src);
+    return '<section class="qr-block link-block" data-reveal aria-label="' + esc(t("res.link.h")) + '">' +
+      '<h3>' + esc(t("res.link.h")) + '</h3>' +
+      '<p class="qr-block-p">' + esc(t("res.link.p")) + '</p>' +
+      '<div class="link-row">' +
+        '<input type="text" id="resLink" readonly value="' + esc(url) +
+          '" aria-label="' + esc(t("res.link.aria")) + '" spellcheck="false">' +
+        '<button type="button" class="btn primary" id="resCopy">' + esc(t("res.link.copy")) + '</button>' +
+        '<a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(t("res.link.open")) + '</a>' +
+      "</div>" +
+    "</section>";
+  }
+
+  function bindLink(){
+    var input = document.getElementById("resLink");
+    var btn = document.getElementById("resCopy");
+    if(!input || !btn) return;
+    btn.addEventListener("click", function(){
+      input.focus();
+      input.select();
+      var done = function(){ if(PC.ui) PC.ui.toast(t("res.link.copied")); };
+      var fail = function(){ if(PC.ui) PC.ui.toast(t("res.link.failed"), true); };
+      /* Clipboard API недоступен на http и в части встроенных браузеров —
+         старый execCommand остаётся рабочим запасным путём, а не наследием */
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(input.value).then(done, function(){
+          try{ document.execCommand("copy") ? done() : fail(); }catch(e){ fail(); }
+        });
+      }else{
+        try{ document.execCommand("copy") ? done() : fail(); }catch(e){ fail(); }
+      }
+    });
+  }
+
+  /* ---------- профиль по под-осям ---------- */
+  function subBlock(src, pt){
+    return '<section class="qr-block sub-block" data-reveal aria-label="' + esc(t("res.sub.h")) + '">' +
+      '<h3>' + esc(t("res.sub.h")) + '</h3>' +
+      '<p class="qr-block-p">' + esc(t("res.sub.p")) + '</p>' +
+      '<div class="radar-wrap" id="qrRadar"></div>' +
+      '<p class="rad-summary" id="qrRadarNote"></p>' +
+    "</section>";
+  }
+
+  function mountSubBlock(src, pt){
+    var box = document.getElementById("qrRadar");
+    if(!box || !PC.radar) return;
+    var mine = subScoreOf(src);
+    var best = ranking(pt)[0];
+    PC.radar.render(box, [
+      { label:L(best.p, "short"), color:best.p.color, values:best.p.sub },
+      { label:t("ch.radar.you"), color:"var(--accent)", values:mine, dashed:true }
+    ]);
+    var note = document.getElementById("qrRadarNote");
+    if(note) note.textContent = PC.radar.summary(best.p.sub, mine);
+  }
+
   /* ---------- экран 3: результат ---------- */
   function renderResult(){
-    var pt = result || score();
+    var src = shared ? shared.answers : answers;
+    var pt = shared ? shared.pt : (result || score());
     var rank = ranking(pt);
     var best = rank[0];
     var far  = rank[rank.length - 1];
-    var answered = result ? result.answered : Object.keys(answers).length;
+    var answered = pt.answered !== undefined ? pt.answered : Object.keys(src).length;
     var skipped = Q.length - answered;
 
     function bar(v){
@@ -292,37 +631,40 @@
     host.innerHTML =
       '<div class="quiz-result">' +
         '<div class="qr-main">' +
-          '<span class="eyebrow">Ваш результат</span>' +
+          '<span class="eyebrow">' + esc(shared ? t("res.shared") : t("res.eyebrow")) + '</span>' +
           '<h2>' + esc(capitalize(quadrant(pt.x, pt.y))) + '</h2>' +
+          (shared ? '<p class="qr-shared-note">' + esc(t("res.sharedNote")) +
+            ' <button type="button" class="btn ghost small" id="qrMine">' + esc(t("res.mine")) + '</button></p>' : "") +
           '<div class="qr-coords">' +
-            '<div class="qr-coord" data-reveal><div class="k">Экономика</div><div class="v">' + fmt(pt.x) + '</div>' +
-              '<div class="d">' + esc(econWord(pt.x)) + ' взгляды</div>' + bar(pt.x) +
-              '<div class="qr-poles"><span>плановая</span><span>рыночная</span></div></div>' +
-            '<div class="qr-coord" data-reveal><div class="k">Отношение к государству</div><div class="v">' + fmt(pt.y) + '</div>' +
+            '<div class="qr-coord" data-reveal><div class="k">' + esc(t("res.econ")) + '</div><div class="v">' + fmt(pt.x) + '</div>' +
+              '<div class="d">' + esc(t("res.views", { w:econWord(pt.x) })) + '</div>' + bar(pt.x) +
+              '<div class="qr-poles"><span>' + esc(t("ch.spec.planned")) + '</span><span>' + esc(t("ch.spec.market")) + '</span></div></div>' +
+            '<div class="qr-coord" data-reveal><div class="k">' + esc(t("res.state")) + '</div><div class="v">' + fmt(pt.y) + '</div>' +
               '<div class="d">' + esc(stateWord(pt.y)) + '</div>' + bar(pt.y) +
-              '<div class="qr-poles"><span>свободы</span><span>этатизм</span></div></div>' +
+              '<div class="qr-poles"><span>' + esc(t("ch.spec.liberty")) + '</span><span>' + esc(t("ch.spec.statism")) + '</span></div></div>' +
           '</div>' +
-          '<p class="qr-summary">Ближе всего — <b>' + esc(best.p.name) + '</b>: ' + best.match +
-            '% совпадения, расстояние ' + best.d.toFixed(1) + ' по шкале. Дальше всего — ' + esc(far.p.name) + '.' +
-            (skipped ? ' Без ответа ' + skipped + " " +
-              U.word(skipped, ["утверждение", "утверждения", "утверждений"]) +
-              ' — они не влияют на результат.' : "") + '</p>' +
+          '<p class="qr-summary">' + t("res.summary", {
+              best:esc(L(best.p, "name")), m:best.match, d:best.d.toFixed(1), far:esc(L(far.p, "name"))
+            }) +
+            (skipped ? esc(t("res.skipped", { n:skipped, statements:PC.i18n.pl(skipped, "word.statement") })) : "") + '</p>' +
           '<div class="quiz-actions">' +
-            '<button type="button" class="btn primary" id="qrCompass">Показать на большом компасе</button>' +
-            '<button type="button" class="btn" id="qrReview">Вернуться к вопросам</button>' +
-            '<button type="button" class="btn ghost" id="qrAgain">Пройти заново</button>' +
+            '<button type="button" class="btn primary" id="qrCompass">' + esc(t("res.showCompass")) + '</button>' +
+            '<button type="button" class="btn" id="qrReview">' + esc(t("res.review")) + '</button>' +
+            '<button type="button" class="btn ghost" id="qrAgain">' + esc(t("res.again")) + '</button>' +
           '</div>' +
-          '<p class="quiz-note">Совпадение считается по расстоянию между точками на двух осях: ' +
-            '100% — полное попадание, 0% — ' + MAX_DIST + ' и больше единиц шкалы. Это близость координат, ' +
-            'а не рекомендация голосовать.</p>' +
-          '<section class="qr-share" id="qrShareBlock" data-reveal aria-label="Карточка результата"></section>' +
+          '<p class="quiz-note">' + esc(t("res.matchNote", { n:MAX_DIST })) + '</p>' +
+          subBlock(src, pt) +
+          breakdownBlock(src) +
+          linkBlock(src) +
+          (shared ? "" : historyBlock(pt)) +
+          '<section class="qr-share" id="qrShareBlock" data-reveal aria-label="' + esc(t("res.shareBlock")) + '"></section>' +
         '</div>' +
         '<div class="qr-side">' + miniCompass(pt) +
           '<div class="qr-rank">' +
             rank.map(function(r){
               return '<button type="button" class="qr-row" data-reveal data-id="' + esc(r.p.id) + '">' +
                 '<i style="background:' + esc(r.p.color) + '"></i>' +
-                '<span class="n">' + esc(r.p.short) + '</span>' +
+                '<span class="n">' + esc(L(r.p, "short")) + '</span>' +
                 '<span class="track"><span class="fill" data-w="' + r.match + '" style="background:' +
                   esc(r.p.color) + '"></span></span>' +
                 '<span class="m">' + r.match + '%</span></button>';
@@ -332,12 +674,35 @@
       '</div>';
 
     if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt);
+    mountSubBlock(src, pt);
 
     document.getElementById("qrAgain").addEventListener("click", resetAll);
-    document.getElementById("qrReview").addEventListener("click", function(){ idx = 0; view = "run"; render(); });
+    document.getElementById("qrReview").addEventListener("click", function(){
+      shared = null; idx = 0; view = "run"; render();
+    });
     document.getElementById("qrCompass").addEventListener("click", function(){
       if(PC.nav) PC.nav.go("compass");
     });
+    var mine = document.getElementById("qrMine");
+    if(mine) mine.addEventListener("click", function(){
+      shared = null;
+      if(location.hash.indexOf("#/result/") === 0) history_replace("#/quiz");
+      view = result ? "result" : "intro";
+      render();
+    });
+
+    var bdToggle = document.getElementById("bdToggle");
+    if(bdToggle) bdToggle.addEventListener("click", function(){
+      var wrap = host.querySelector(".bd-wrap");
+      breakdownOpen = wrap.hasAttribute("hidden");
+      if(breakdownOpen) wrap.removeAttribute("hidden"); else wrap.setAttribute("hidden", "");
+      bdToggle.setAttribute("aria-expanded", String(breakdownOpen));
+      bdToggle.textContent = breakdownOpen ? t("res.break.hide") : t("res.break.show");
+    });
+
+    bindLink();
+    bindHistory();
+
     host.querySelectorAll(".qr-row").forEach(function(b){
       b.addEventListener("click", function(){
         PC.select(b.dataset.id);
@@ -357,10 +722,36 @@
     });
   }
 
+  function history_replace(hash){
+    if(window.history && window.history.replaceState) window.history.replaceState(null, "", hash);
+    else location.hash = hash;
+  }
+
+  /* ---------- результат по ссылке ---------- */
+  /* Чужой результат не трогает ваши ответы: он живёт в отдельном поле
+     shared и исчезает по кнопке «вернуться к моему тесту». Иначе переход
+     по ссылке из мессенджера молча затирал бы сорок собственных ответов —
+     ровно то, ради сохранности чего они и лежат в localStorage. */
+  function openShared(code, silentHash){
+    var src = decodeAnswers(code);
+    if(!src) return false;
+    var pt = scoreOf(src);
+    shared = { answers:src, pt:pt, code:code };
+    view = "result";
+    if(!silentHash) history_replace("#/result/" + code);
+    render();
+    return true;
+  }
+
+  function hashCode(){
+    var m = /^#\/?result\/([a-e-]+)/.exec(location.hash || "");
+    return m ? m[1] : null;
+  }
+
   function render(){
     if(!host) return;
     if(view === "run") renderRun();
-    else if(view === "result" && (result || Object.keys(answers).length)) renderResult();
+    else if(view === "result" && (shared || result || Object.keys(answers).length)) renderResult();
     else renderIntro();
     /* экраны теста строятся заново на каждом шаге — заново регистрируем
        их элементы у наблюдателя появления */
@@ -388,6 +779,11 @@
     host = document.getElementById("quiz");
     if(!host) return;
     load();
+    var code = hashCode();
+    if(code && openShared(code, true)){
+      document.addEventListener("keydown", onKey);
+      return;
+    }
     if(result) view = "result";
     idx = firstUnanswered();
     render();
@@ -401,6 +797,13 @@
     ranking: ranking,
     quadrant: quadrant,
     scoreOf: scoreOf,
+    subScoreOf: subScoreOf,
+    contributions: contributions,
+    encodeAnswers: encodeAnswers,
+    decodeAnswers: decodeAnswers,
+    shareURL: shareURL,
+    openShared: openShared,
+    history: function(){ return history.slice(); },
     /* словесные ярлыки нужны карточке для соцсетей — считаются здесь,
        чтобы формулировка на сайте и на картинке не разъезжались */
     words: function(pt){ return { econ:econWord(pt.x), state:stateWord(pt.y) }; }

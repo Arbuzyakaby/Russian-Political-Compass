@@ -9,9 +9,9 @@
   var KEY = "pc-theme";
   var ORDER = ["system", "light", "dark"];
   var META = {
-    system: { icon:"🖥️", label:"Тема: системная" },
-    light:  { icon:"☀️", label:"Тема: светлая" },
-    dark:   { icon:"🌙", label:"Тема: тёмная" }
+    system: { icon:"🖥️", key:"theme.system" },
+    light:  { icon:"☀️", key:"theme.light" },
+    dark:   { icon:"🌙", key:"theme.dark" }
   };
   var root = document.documentElement;
   var listeners = [];
@@ -39,10 +39,11 @@
 
     function paint(){
       var m = META[pref()];
+      var label = PC.t(m.key);
       if(icon) icon.textContent = m.icon;
       if(btn){
-        btn.title = m.label + " · нажмите, чтобы переключить";
-        btn.setAttribute("aria-label", m.label);
+        btn.title = label + " · " + PC.t("theme.hint");
+        btn.setAttribute("aria-label", label);
       }
     }
     paint();

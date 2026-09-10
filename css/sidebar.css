@@ -117,3 +117,45 @@
   .leader{flex-direction:column;align-items:flex-start;gap:2px;}
   .leader .v{text-align:left;}
 }
+
+
+/* ============ РАЗБОР ПО ПОД-ОСЯМ ============
+   Полоса растёт от центра к полюсу — та же механика, что у спектра
+   в аналитике и у шкал результата теста. Три блока на одном экране
+   обязаны двигаться одинаково, иначе читатель считает их разными
+   величинами. */
+.sub-group{margin-bottom:14px;}
+.sub-group:last-of-type{margin-bottom:6px;}
+.sub-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);
+  padding-bottom:7px;margin-bottom:9px;border-bottom:1px solid var(--stroke);}
+.sub-head b{font-family:var(--font-display);font-size:14px;font-weight:750;letter-spacing:-.02em;
+  color:var(--text);text-transform:none;}
+.sub-row{margin-bottom:11px;}
+.sub-row:last-child{margin-bottom:0;}
+.sub-lab{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:11.5px;color:var(--body);margin-bottom:4px;}
+.sub-lab b{font-size:11.5px;font-weight:650;color:var(--text);font-variant-numeric:tabular-nums;}
+.sub-row .track{position:relative;height:7px;border-radius:4px;background:var(--surface-2);
+  overflow:hidden;}
+.sub-row .track::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
+  background:var(--chart-axis);z-index:2;}
+.sub-row .fill{position:absolute;top:0;bottom:0;width:0;border-radius:4px;}
+.sub-poles{display:flex;justify-content:space-between;font-size:9px;color:var(--muted-2);margin-top:3px;}
+
+/* ============ СОСЕДИ ПО КОМПАСУ ============ */
+.nb-list{display:flex;flex-direction:column;gap:4px;}
+.nb-row{display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;border-radius:10px;
+  cursor:pointer;font:inherit;text-align:left;
+  background:var(--surface);border:1px solid var(--stroke);color:var(--text);
+  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease,transform var(--dur-1,.16s) ease;}
+.nb-row:hover{background:var(--surface-2);border-color:var(--stroke-2);transform:translateX(2px);}
+.nb-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.nb-row i{width:9px;height:9px;border-radius:3px;flex:none;}
+.nb-row .n{font-size:12px;font-weight:550;flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.nb-row .d{font-size:11.5px;font-weight:650;color:var(--muted);font-variant-numeric:tabular-nums;}
+.nb-row.far .d{color:var(--muted-2);}
+.nb-far{margin-top:9px;padding-top:9px;border-top:1px solid var(--stroke);}
+.nb-far .k{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;
+  color:var(--muted-2);margin-bottom:5px;}

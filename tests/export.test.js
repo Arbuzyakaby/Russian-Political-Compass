@@ -80,13 +80,20 @@ test("Мой результат · CSV: пусто без теста, полон
     assert.equal(rows[1][0], "Экономика (X)");
     assert.equal(rows[1][1], "-3,40");
     assert.equal(rows[3][1], PC.quiz.quadrant(pt.x, pt.y));
-    /* шапка файла: заголовок, четыре показателя, пустая строка-разделитель
-       и заголовок таблицы рейтинга — семь строк, дальше партии */
-    assert.equal(rows.length - 7, PC.PARTIES.length, "после шапки идёт рейтинг всех партий");
+    /* Файл идёт тремя блоками: шапка из заголовка и четырёх показателей,
+       затем разбор по под-осям, затем рейтинг партий. Между блоками —
+       пустая строка и собственный заголовок, поэтому смещение считается
+       от длины PC.SUBAXES, а не прибито числом: добавится седьмая шкала —
+       тест продолжит проверять то же самое. */
+    const head = 5 + 1 + 1 + PC.SUBAXES.length + 1 + 1;
+    assert.equal(rows.length - head, PC.PARTIES.length, "после шапки идёт рейтинг всех партий");
+    assert.ok(rows.some(r => r[0] === PC.t("sub.property")), "разбор по под-осям обязан быть в файле");
 
     const json = JSON.parse(PC.exporter.datasetJSON());
     assert.equal(json.quizResult.answered, 40);
     assert.equal(json.quizResult.ranking.length, PC.PARTIES.length);
+    assert.ok(json.quizResult.permalink.includes("#/result/"),
+      "в JSON должна лежать ссылка, по которой результат воспроизводится");
   }finally{
     PC.quiz.result = real;
   }

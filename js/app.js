@@ -18,7 +18,13 @@
       if(state.filter === "duma" && !seats) return false;
       if(state.filter === "nonduma" && seats) return false;
       if(state.query){
-        var hay = (p.name + " " + p.short + " " + p.tag + " " + p.ideology).toLowerCase();
+        /* Ищем сразу по обоим языкам: человек с английским интерфейсом
+           может набрать «КПРФ», а с русским — «Yabloko», и в обоих
+           случаях он имеет в виду одну и ту же партию. */
+        var hay = [p.name, p.short, p.tag, p.ideology,
+                   p.en && p.en.name, p.en && p.en.short,
+                   p.en && p.en.tag, p.en && p.en.ideology]
+                  .filter(Boolean).join(" ").toLowerCase();
         if(hay.indexOf(state.query) === -1) return false;
       }
       return true;
@@ -124,7 +130,7 @@
     var convSelect = document.getElementById("convSelect");
     if(convSelect){
       convSelect.innerHTML = PC.CONVOCATIONS.map(function(c){
-        return '<option value="' + c.id + '">' + c.label + " · " + c.years + "</option>";
+        return '<option value="' + c.id + '">' + PC.L(c, "label") + " · " + c.years + "</option>";
       }).join("");
       convSelect.value = String(state.convocation);
       convSelect.addEventListener("change", function(){ setConvocation(convSelect.value); });
@@ -173,11 +179,16 @@
 
   /* ---------- запуск ---------- */
   function init(){
+    /* Язык — самым первым: словарь подменяет текст готовой разметки, а
+       все остальные модули строят свою разметку уже через t(). Если бы
+       i18n стартовал позже, шапка успела бы показаться по-русски и
+       мигнуть на английский. */
+    PC.i18n.init();
+
     /* подписи, зависящие от данных, — чтобы число партий не расходилось с массивом */
     var n = PC.PARTIES.length;
     var lead = document.getElementById("lead");
-    if(lead) lead.textContent = n + " " + PC.utils.word(n, ["партия", "партии", "партий"]) +
-      " на двух осях: экономика и отношение к власти государства";
+    if(lead) lead.textContent = PC.t("brand.lead", { n:n, parties:PC.i18n.pl(n, "word.party") });
 
     PC.nav.init();
     PC.theme.init();
@@ -192,6 +203,9 @@
        результат, и при обратном порядке точка «Вы» появлялась бы на поле
        только после первого переключения вкладок */
     PC.quiz.init();
+    /* после теста: карточка партии показывает блок голосований, а
+       модуль голосований ничего не знает про состояние компаса */
+    PC.votes.init();
     PC.compass.onDraw(syncNodes);
     PC.compass.draw();
     syncNodes();

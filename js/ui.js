@@ -83,8 +83,8 @@
     topBtn = document.createElement("button");
     topBtn.type = "button";
     topBtn.className = "to-top";
-    topBtn.title = "Наверх";
-    topBtn.setAttribute("aria-label", "Вернуться к началу страницы");
+    topBtn.title = PC.t("ui.top");
+    topBtn.setAttribute("aria-label", PC.t("ui.topAria"));
     topBtn.innerHTML = '<span aria-hidden="true">↑</span>';
     topBtn.addEventListener("click", function(){
       window.scrollTo({ top:0, behavior:reduced() ? "auto" : "smooth" });

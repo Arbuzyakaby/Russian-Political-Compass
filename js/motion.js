@@ -29,14 +29,24 @@
   }
 
   /* ---------- счётчик ---------- */
-  /* data-count — целевое число; data-count-fmt="signed" печатает знак и
-     десятую долю через общий форматтер, чтобы «+7.1» в плитке центра
-     тяжести выглядел так же, как везде на странице. */
+  /* data-count — целевое число; data-count-fmt задаёт печать:
+     "signed"  — знак и десятая доля через общий форматтер, чтобы «+7.1»
+                 в плитке центра тяжести выглядел так же, как везде;
+     "fixed1"  — одна десятая без знака (поляризация палаты);
+     "fixed2"  — две десятых (эффективное число фракций, где разница
+                 между 1.62 и 1.68 содержательна);
+     без атрибута — целое. */
+  var PRINTERS = {
+    signed: function(v){ return U.fmt(v); },
+    fixed1: function(v){ return v.toFixed(1); },
+    fixed2: function(v){ return v.toFixed(2); }
+  };
   function countUp(node){
     var target = Number(node.dataset.count);
     if(!isFinite(target)) return;
-    var signed = node.dataset.countFmt === "signed";
-    var print = function(v){ node.textContent = signed ? U.fmt(v) : String(Math.round(v)); };
+    var printer = PRINTERS[node.dataset.countFmt] ||
+                  function(v){ return String(Math.round(v)); };
+    var print = function(v){ node.textContent = printer(v); };
 
     if(reduced() || !window.requestAnimationFrame){ print(target); return; }
 

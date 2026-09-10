@@ -1,0 +1,196 @@
+/* ============ СЛОЙ ДВИЖЕНИЯ ============
+
+   Отдельный файл, а не россыпь transition по остальным: движение — это
+   такая же система, как палитра, и она должна быть согласована. Пять
+   кривых на весь проект вместо двух десятков случайных cubic-bezier;
+   одна длительность для мелких состояний, другая для появления блоков.
+
+   Подключается последним: часть правил намеренно уточняет уже описанное
+   в layout.css и charts.css (появление при прокрутке, подъём карточек),
+   и делать это через !important или раздутую специфичность было бы хуже,
+   чем просто встать в каскаде позже.
+
+   Общий принцип: анимируются только transform и opacity — их браузер
+   считает на композиторе и не пересобирает раскладку. Единственные
+   исключения — filter: blur() при появлении и stroke-dashoffset у линий
+   графика: они дают тот эффект, ради которого всё и делается, а живут
+   на отдельных слоях и короткое время.
+
+   Всё содержимое файла — украшение. При prefers-reduced-motion блок
+   в конце снимает движение целиком, и страница остаётся полностью
+   работоспособной: ни одно правило здесь не отвечает за видимость
+   содержимого само по себе. ============ */
+
+:root{
+  /* Разгон и торможение. Названия по смыслу, а не по числам: в коде
+     ниже читается «выезд», а не «.22,1,.36,1». */
+  --ease-out:cubic-bezier(.22,1,.36,1);          /* мягкая остановка, основная */
+  --ease-out-soft:cubic-bezier(.25,.85,.35,1);   /* та же, но спокойнее в конце */
+  --ease-in-out:cubic-bezier(.65,0,.35,1);       /* симметричная, для переездов */
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);    /* с лёгким перелётом, для нажатий */
+  --ease-swift:cubic-bezier(.4,0,.2,1);          /* материальная, для мелких состояний */
+
+  --dur-1:.16s;    /* наведение, нажатие */
+  --dur-2:.28s;    /* смена состояния элемента */
+  --dur-3:.55s;    /* появление блока */
+  --dur-4:.85s;    /* прорисовка графика */
+}
+
+/* ============ ПОЯВЛЕНИЕ ПРИ ПРОКРУТКЕ ============
+   К сдвигу добавлены расфокус и лёгкое приближение: блок не просто
+   выезжает, а «наводится на резкость». Расфокус снимается первым и
+   быстрее остального — иначе текст читался бы размытым дольше, чем
+   нужно, и это раздражает при быстрой прокрутке. */
+[data-reveal]{
+  opacity:0;
+  transform:translate3d(0,20px,0) scale(.985);
+  filter:blur(6px);
+  transition:
+    opacity var(--dur-3) var(--ease-out),
+    transform var(--dur-3) var(--ease-out),
+    filter calc(var(--dur-3) * .7) var(--ease-out);
+  transition-delay:calc(var(--i,0) * var(--reveal-step,60ms));
+  will-change:transform,opacity;
+}
+[data-reveal].in-view{
+  opacity:1;transform:none;filter:none;
+  /* подсказка композитору снимается после въезда: постоянный will-change
+     на десятке карточек держит их слои в памяти всё время жизни страницы */
+  will-change:auto;
+}
+
+/* ============ КАРТОЧКИ ============
+   Пятно света под курсором целиком описано в css/ui.css вместе с его
+   слоем (z-index:-1 внутри isolation:isolate) — здесь оно намеренно не
+   повторяется: вторая копия ::after без отрицательного индекса легла бы
+   поверх содержимого. Отсюда карточка получает только подъём и тень,
+   и они синхронизированы с общей кривой движения. */
+.card{
+  transition:
+    background .45s var(--ease-swift),
+    border-color .45s var(--ease-swift),
+    box-shadow var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+@media(hover:hover) and (pointer:fine){
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift);}
+}
+
+/* ============ ВКЛАДКИ ============
+   Бегунок под активной вкладкой. Его положение и ширину ставит js/nav.js
+   по реальным размерам кнопки; переезд между вкладками — единственная
+   анимация, которая связывает два состояния в одно действие, поэтому
+   она заметно длиннее наведения. */
+.tabs{position:relative;}
+.tab-indicator{
+  position:absolute;left:0;top:5px;bottom:5px;z-index:0;
+  border-radius:10px;background:var(--accent-soft);
+  box-shadow:inset 0 0 0 1px var(--accent-line);
+  opacity:0;
+  transition:transform .42s var(--ease-out),width .42s var(--ease-out),opacity var(--dur-2) ease;
+}
+/* фон активной вкладки теперь рисует бегунок — у самой кнопки остаётся
+   только цвет текста, иначе подсветка была бы двойной */
+.tab{position:relative;z-index:1;}
+.tab[aria-selected="true"]{background:transparent;box-shadow:none;}
+.tab .tab-badge{transition:color var(--dur-2) var(--ease-swift),border-color var(--dur-2) var(--ease-swift);}
+
+/* Панель въезжает мягче и с тем же расфокусом, что и блоки при прокрутке:
+   переключение вкладки и появление содержимого — одно движение. */
+.panel-enter{animation:panelIn .5s var(--ease-out) both;}
+@keyframes panelIn{
+  from{opacity:0;transform:translate3d(0,14px,0);filter:blur(5px);}
+  to{opacity:1;transform:none;filter:none;}
+}
+
+/* ============ КНОПКИ И ЧИПЫ ============ */
+.btn{transition:
+  background var(--dur-1) var(--ease-swift),
+  border-color var(--dur-1) var(--ease-swift),
+  transform var(--dur-1) var(--ease-spring),
+  opacity var(--dur-1) linear;}
+.btn:active:not(:disabled){transform:scale(.96);}
+.chip{transition:
+  background var(--dur-1) var(--ease-swift),
+  border-color var(--dur-1) var(--ease-swift),
+  color var(--dur-1) var(--ease-swift),
+  transform var(--dur-1) var(--ease-spring);}
+
+/* Бегущий блик по главной кнопке. Он не мигает и не зацикливается
+   бесконечно: анимация запускается только при наведении, поэтому
+   на экране результата ничто не дёргается само по себе. */
+.btn.primary{position:relative;overflow:hidden;isolation:isolate;}
+.btn.primary::after{
+  content:"";position:absolute;inset:0;z-index:-1;transform:translateX(-120%);
+  background:linear-gradient(105deg,transparent 30%,
+    color-mix(in srgb,var(--accent) 30%,transparent) 50%,transparent 70%);
+}
+@media(hover:hover) and (pointer:fine){
+  .btn.primary:hover::after{animation:sheen .85s var(--ease-out) forwards;}
+}
+@keyframes sheen{to{transform:translateX(120%);}}
+
+/* ============ KPI-ПЛИТКИ ============
+   Цветная полоска у нижнего края «наливается» слева направо, когда
+   плитка появилась: у числа есть свой счётчик, у плитки — своя. */
+.stat::after{transform-origin:left center;transform:scaleX(0);
+  transition:transform var(--dur-4) var(--ease-out) .1s;}
+[data-reveal].in-view.stat::after,.in-view .stat::after,.stat.in-view::after{transform:scaleX(1);}
+.stat{transition:transform var(--dur-2) var(--ease-out),border-color var(--dur-2) var(--ease-swift);}
+@media(hover:hover) and (pointer:fine){
+  .stat:hover{transform:translateY(-2px);border-color:var(--stroke-2);}
+}
+
+/* ============ ЛИНИЯ-РАЗДЕЛИТЕЛЬ ЗАГОЛОВКА ============
+   Тянется от заголовка вправо при появлении секции. */
+.section-head .rule{transform-origin:left center;transform:scaleX(0);
+  transition:transform var(--dur-4) var(--ease-out) .12s;}
+.section-head.in-view .rule{transform:scaleX(1);}
+
+/* ============ ТОЧКИ КОМПАСА ============
+   Класс .in вешает js/compass.js с нарастающей задержкой. Перелёт
+   у кривой --ease-spring делает появление точки «упругим»: она
+   проскакивает конечный радиус на пару процентов и возвращается. */
+.node{transition:opacity var(--dur-3) var(--ease-out),transform var(--dur-3) var(--ease-out);}
+.node .dot{transition:r .5s var(--ease-spring),fill var(--dur-2) linear;}
+.node .tag,.node .seat{transition:opacity var(--dur-2) var(--ease-swift),transform var(--dur-2) var(--ease-out);}
+
+/* ============ ПОЛОСЫ И ЗАЛИВКИ ============
+   Всё, что «растёт» из нуля, растёт по одной кривой и за одно время:
+   полосы спектра, полосы под-осей, шкалы результата теста, доля мандатов
+   в карточке партии. Разнобой в этих четырёх местах читался бы как
+   небрежность, потому что они видны на одном экране. */
+.spectrum .fill,.sub-row .fill,.qr-bar i,.qr-row .fill,.mandate-box .bar i{
+  transition:width var(--dur-4) var(--ease-out),left var(--dur-4) var(--ease-out);
+}
+.hist .bar-v{transition:height var(--dur-4) var(--ease-out);}
+
+/* ============ ПОДСКАЗКИ ============ */
+.tip,.c-tip{transition:opacity var(--dur-1) var(--ease-swift),
+  transform var(--dur-2) var(--ease-spring);}
+
+/* ============ УВЕДОМЛЕНИЯ ============ */
+.toast{animation:toastIn .34s var(--ease-spring) both;}
+@keyframes toastIn{
+  from{opacity:0;transform:translate3d(0,14px,0) scale(.96);}
+  to{opacity:1;transform:none;}
+}
+
+/* ============ РЕЖИМ УМЕНЬШЕННОГО ДВИЖЕНИЯ ============
+   Не «покороче», а «никак»: содержимое сразу в конечном состоянии.
+   Правило намеренно грубое — в этом файле нет ни одной анимации,
+   без которой страница теряет смысл. */
+@media(prefers-reduced-motion:reduce){
+  [data-reveal]{opacity:1;transform:none;filter:none;}
+  .tab-indicator{transition:none;}
+  .stat::after,.section-head .rule{transform:none;}
+  .btn.primary::after{display:none;}
+  *,*::before,*::after{
+    animation-duration:.001s!important;animation-iteration-count:1!important;
+    transition-duration:.001s!important;scroll-behavior:auto!important;
+  }
+}
+@media print{
+  [data-reveal]{opacity:1!important;transform:none!important;filter:none!important;}
+  .stat::after,.section-head .rule{transform:none!important;}
+}

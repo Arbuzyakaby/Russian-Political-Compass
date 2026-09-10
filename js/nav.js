@@ -6,18 +6,26 @@
    компаса подписчики пересобирают отрисовку. ============ */
 (function(PC){
   "use strict";
-  var TABS = ["compass", "quiz", "about"];
+  var TABS = ["compass", "quiz", "votes", "about"];
   var TITLES = {
-    compass: "Политический компас партий РФ",
-    quiz:    "Тест: где вы на компасе — Политический компас партий РФ",
-    about:   "О проекте — Политический компас партий РФ"
+    compass: "doc.title.compass",
+    quiz:    "doc.title.quiz",
+    votes:   "doc.title.votes",
+    about:   "doc.title.about"
   };
   var current = "compass";
   var listeners = [];
   var buttons = [];
+  var indicator = null;
 
+  /* Ссылка на результат теста — тоже адрес вкладки, просто с полезной
+     нагрузкой: #/result/<код> открывает вкладку теста и передаёт код
+     самому тесту. Держать это знание здесь, а не в quiz.js, необходимо —
+     иначе неизвестный хеш откатывался бы на компас, и ссылка из
+     мессенджера открывала бы не то, что обещала. */
   function fromHash(){
     var h = (location.hash || "").replace(/^#\/?/, "");
+    if(/^result\//.test(h)) return "quiz";
     return TABS.indexOf(h) === -1 ? "compass" : h;
   }
 
@@ -55,7 +63,23 @@
       var bar = document.querySelector(".topbar");
       if(bar) bar.classList.toggle("topbar-solo", solo);
     }
-    document.title = TITLES[current] || TITLES.compass;
+    document.title = PC.t(TITLES[current] || TITLES.compass);
+    moveIndicator();
+  }
+
+  /* ---------- бегунок под активной вкладкой ----------
+     Полоса едет от вкладки к вкладке вместо того, чтобы мигать в новом
+     месте: движение показывает, откуда и куда переключились, и связывает
+     два состояния в одно действие. Считается по реальным размерам кнопки,
+     потому что ширина вкладок зависит от языка — «Голосования» и «Votes»
+     занимают разное место. */
+  function moveIndicator(){
+    if(!indicator) return;
+    var active = buttons.filter(function(b){ return b.dataset.tab === current; })[0];
+    if(!active || !active.offsetWidth) return;
+    indicator.style.width = active.offsetWidth + "px";
+    indicator.style.transform = "translateX(" + active.offsetLeft + "px)";
+    indicator.style.opacity = "1";
   }
 
   function go(name, opts){
@@ -63,7 +87,10 @@
     var changed = name !== current;
     current = name;
     paint();
-    if(!(opts && opts.silent)){
+    /* Хеш переписывается, только если он ведёт на другую вкладку: иначе
+       переход по #/result/<код> тут же затирал бы код на «#/quiz», и
+       обновление страницы теряло бы открытый результат. */
+    if(!(opts && opts.silent) && fromHash() !== name){
       var hash = "#/" + name;
       if(location.hash !== hash) history.replaceState(null, "", hash);
     }
@@ -77,6 +104,16 @@
 
   function init(){
     buttons = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+
+    var bar = document.querySelector(".tabs");
+    if(bar){
+      indicator = document.createElement("span");
+      indicator.className = "tab-indicator";
+      indicator.setAttribute("aria-hidden", "true");
+      bar.appendChild(indicator);
+      window.addEventListener("resize", moveIndicator, { passive:true });
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
+    }
     buttons.forEach(function(b, i){
       b.addEventListener("click", function(){ go(b.dataset.tab); });
       /* стрелки перемещают фокус по вкладкам — поведение роли tablist */

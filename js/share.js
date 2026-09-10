@@ -15,6 +15,7 @@
    это две ветки одной функции, а не один «резиновый» макет. ============ */
 (function(PC){
   "use strict";
+  var t = PC.t, L = PC.L;
 
   /* Раскладка задана числами, а не долями стороны: у квадрата и широкого
      формата разный порядок блоков, и «резиновые» коэффициенты в прошлой
@@ -22,7 +23,7 @@
      холста, то есть в системе координат самой картинки. */
   var FORMATS = {
     square: {
-      w:1080, h:1080, label:"1:1", title:"Квадрат · лента",
+      w:1080, h:1080, label:"1:1", titleKey:"res.fmt.square",
       pad:80, colW:920,
       eyebrow:{ size:21, y:112 }, title:{ size:60, y:180 }, sub:{ size:23, y:222 },
       compass:{ x:340, y:250, size:400 },
@@ -31,7 +32,7 @@
       foot:{ line:1018, text:1050, size:17 }
     },
     wide:   {
-      w:1920, h:1080, label:"16:9", title:"Широкая · превью ссылки",
+      w:1920, h:1080, label:"16:9", titleKey:"res.fmt.wide",
       pad:100, colW:880,
       eyebrow:{ size:23, y:224 }, title:{ size:84, y:316 }, sub:{ size:30, y:368 },
       compass:{ x:1000, y:130, size:820 },
@@ -142,15 +143,15 @@
     ctx.fillStyle = INK.faint;
     ctx.font = font(size * 0.028, 700);
     ctx.textBaseline = "middle";
-    tracked(ctx, "ЭТАТИЗМ", x + c, y + pad * 0.5, size * 0.006, "center");
-    tracked(ctx, "СВОБОДЫ", x + c, y + size - pad * 0.5, size * 0.006, "center");
+    tracked(ctx, t("cap.mini.top"), x + c, y + pad * 0.5, size * 0.006, "center");
+    tracked(ctx, t("cap.mini.bottom"), x + c, y + size - pad * 0.5, size * 0.006, "center");
     ctx.save();
     ctx.translate(x + pad * 0.46, y + c); ctx.rotate(-Math.PI / 2);
-    tracked(ctx, "ПЛАН", 0, 0, size * 0.006, "center");
+    tracked(ctx, t("cap.mini.left"), 0, 0, size * 0.006, "center");
     ctx.restore();
     ctx.save();
     ctx.translate(x + size - pad * 0.46, y + c); ctx.rotate(Math.PI / 2);
-    tracked(ctx, "РЫНОК", 0, 0, size * 0.006, "center");
+    tracked(ctx, t("cap.mini.right"), 0, 0, size * 0.006, "center");
     ctx.restore();
 
     /* точки партий: тройка ближайших — с белым кольцом */
@@ -205,7 +206,7 @@
     ctx.fillStyle = INK.accent;
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText("Вы", ux, uy - size * 0.052);
+    ctx.fillText(t("node.you"), ux, uy - size * 0.052);
 
     ctx.restore();
   }
@@ -271,7 +272,7 @@
     var pctW = h * 1.5, barW = w * 0.22;
     ctx.font = font(h * 0.4, 700);
     ctx.fillStyle = INK.text;
-    ctx.fillText(ellipsis(ctx, r.p.short, w - (nameX - x) - pctW - barW - h * 0.5), nameX, cy);
+    ctx.fillText(ellipsis(ctx, L(r.p, "short"), w - (nameX - x) - pctW - barW - h * 0.5), nameX, cy);
 
     var bx = x + w - pctW - barW, bh = h * 0.17;
     roundRect(ctx, bx, cy - bh / 2, barW, bh, bh / 2);
@@ -332,7 +333,7 @@
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = INK.accent;
     ctx.font = font(F.eyebrow.size, 700);
-    tracked(ctx, "ПОЛИТИЧЕСКИЙ КОМПАС ПАРТИЙ РФ", x, F.eyebrow.y, F.eyebrow.size * 0.22, "left");
+    tracked(ctx, t("card.eyebrow"), x, F.eyebrow.y, F.eyebrow.size * 0.22, "left");
 
     ctx.fillStyle = INK.text;
     ctx.font = font(F.title.size, 800);
@@ -341,20 +342,23 @@
 
     ctx.fillStyle = INK.body;
     ctx.font = font(F.sub.size, 500);
-    var sub = words.econ.charAt(0).toUpperCase() + words.econ.slice(1) + " взгляды · " + words.state;
+    var sub = t("card.sub", {
+      econ: words.econ.charAt(0).toUpperCase() + words.econ.slice(1),
+      state: words.state
+    });
     ctx.fillText(ellipsis(ctx, sub, colW), x, F.sub.y);
 
     /* --- координаты --- */
     var tileW = (colW - F.tiles.gap) / 2;
-    drawCoord(ctx, x, F.tiles.y, tileW, F.tiles.h, "Экономика", PC.utils.fmt(pt.x),
-      "плановая", "рыночная", pt.x);
-    drawCoord(ctx, x + tileW + F.tiles.gap, F.tiles.y, tileW, F.tiles.h, "Государство",
-      PC.utils.fmt(pt.y), "свободы", "этатизм", pt.y);
+    drawCoord(ctx, x, F.tiles.y, tileW, F.tiles.h, t("res.econ"), PC.utils.fmt(pt.x),
+      t("ch.spec.planned"), t("ch.spec.market"), pt.x);
+    drawCoord(ctx, x + tileW + F.tiles.gap, F.tiles.y, tileW, F.tiles.h, t("card.state"),
+      PC.utils.fmt(pt.y), t("ch.spec.liberty"), t("ch.spec.statism"), pt.y);
 
     /* --- ближайшие партии --- */
     ctx.fillStyle = INK.muted;
     ctx.font = font(F.list.head, 700);
-    tracked(ctx, "БЛИЖЕ ВСЕГО", x, F.list.headY, F.list.head * 0.22, "left");
+    tracked(ctx, t("card.closest"), x, F.list.headY, F.list.head * 0.22, "left");
 
     top3.forEach(function(r, i){
       drawParty(ctx, x, F.list.y + i * (F.list.rowH + F.list.gap), colW, F.list.rowH, r, i + 1);
@@ -371,9 +375,9 @@
     ctx.fillStyle = INK.faint;
     ctx.font = font(F.foot.size, 600);
     ctx.textAlign = "left";
-    ctx.fillText("Тест на 40 утверждений · " + siteLabel(), F.pad, F.foot.text);
+    ctx.fillText(t("card.foot1", { n:PC.QUIZ.QUESTIONS.length, site:siteLabel() }), F.pad, F.foot.text);
     ctx.textAlign = "right";
-    ctx.fillText("Координаты — экспертная оценка, не агитация", W - F.pad, F.foot.text);
+    ctx.fillText(t("card.foot2"), W - F.pad, F.foot.text);
     ctx.textAlign = "left";
 
     return canvas;
@@ -404,25 +408,29 @@
     var fmt = PC.store.get("pc-share-format", "square");
     if(!FORMATS[fmt]) fmt = "square";
 
+    function fmtNote(k){
+      return t("res.fmtNote", { label:FORMATS[k].label, w:FORMATS[k].w, h:FORMATS[k].h });
+    }
+
     host.innerHTML =
       '<div class="qr-share-head">' +
-        '<h3>Карточка результата</h3>' +
-        '<p>Картинка собирается прямо в браузере — можно сохранить или отправить как есть.</p>' +
+        '<h3>' + PC.utils.esc(t("res.shareBlock")) + '</h3>' +
+        '<p>' + PC.utils.esc(t("res.cardP")) + '</p>' +
       '</div>' +
       '<div class="qr-share-tools">' +
-        '<div class="fmt-group" role="group" aria-label="Формат картинки">' +
+        '<div class="fmt-group" role="group" aria-label="' + PC.utils.esc(t("res.fmt")) + '">' +
           Object.keys(FORMATS).map(function(k){
             return '<button type="button" class="fmt" data-fmt="' + k + '" title="' +
-              PC.utils.esc(FORMATS[k].title) + '" aria-pressed="' + (k === fmt) + '">' +
+              PC.utils.esc(t(FORMATS[k].titleKey)) + '" aria-pressed="' + (k === fmt) + '">' +
               FORMATS[k].label + '</button>';
           }).join("") +
         '</div>' +
-        '<button type="button" class="btn primary" id="shareSave">Сохранить картинку</button>' +
-        (canShareFiles() ? '<button type="button" class="btn" id="shareSend">Поделиться</button>' : "") +
+        '<button type="button" class="btn primary" id="shareSave">' + PC.utils.esc(t("res.save")) + '</button>' +
+        (canShareFiles() ? '<button type="button" class="btn" id="shareSend">' + PC.utils.esc(t("res.send")) + '</button>' : "") +
       '</div>' +
-      '<div class="qr-share-preview"><canvas id="shareCanvas" aria-label="Предпросмотр карточки результата" role="img"></canvas></div>' +
-      '<p class="qr-share-note" id="shareNote">Формат <b>' + FORMATS[fmt].label + '</b> · ' +
-        FORMATS[fmt].w + '×' + FORMATS[fmt].h + ' px</p>';
+      '<div class="qr-share-preview"><canvas id="shareCanvas" aria-label="' +
+        PC.utils.esc(t("res.preview")) + '" role="img"></canvas></div>' +
+      '<p class="qr-share-note" id="shareNote">' + fmtNote(fmt) + '</p>';
 
     var canvas = host.querySelector("#shareCanvas");
     var note = host.querySelector("#shareNote");
@@ -430,8 +438,7 @@
     function paint(){
       render(canvas, pt, fmt);
       canvas.classList.toggle("wide", fmt === "wide");
-      note.innerHTML = "Формат <b>" + FORMATS[fmt].label + "</b> · " +
-        FORMATS[fmt].w + "×" + FORMATS[fmt].h + " px";
+      note.innerHTML = fmtNote(fmt);
     }
     paint();
     /* веб-шрифт может доехать позже — тогда карточку рисуем ещё раз,
@@ -452,12 +459,12 @@
     host.querySelector("#shareSave").addEventListener("click", function(){
       canvas.toBlob(function(blob){
         if(!blob){
-          if(PC.ui) PC.ui.toast("Не удалось собрать картинку", true);
+          if(PC.ui) PC.ui.toast(t("res.cardFail"), true);
           return;
         }
         var name = fileNameFor(fmt);
         PC.exporter.download(blob, name);
-        if(PC.ui) PC.ui.toast("Карточка сохранена: " + name);
+        if(PC.ui) PC.ui.toast(t("res.saved", { name:name }));
       }, "image/png");
     });
 
@@ -468,9 +475,14 @@
         var file = new File([blob], fileNameFor(fmt), { type:"image/png" });
         navigator.share({
           files:[file],
-          title:"Мой политический компас",
-          text:"Мой результат: " + PC.quiz.quadrant(pt.x, pt.y) + " · экономика " +
-               PC.utils.fmt(pt.x) + ", государство " + PC.utils.fmt(pt.y)
+          title:t("card.shareTitle"),
+          /* ссылка на результат уходит вместе с картинкой: картинку
+             в ленте видно, но по ней нельзя открыть разбор ответов */
+          url:PC.quiz.shareURL(PC.store.getJSON("pc-quiz-answers", {}) || {}),
+          text:t("card.shareText", {
+            q:PC.quiz.quadrant(pt.x, pt.y),
+            x:PC.utils.fmt(pt.x), y:PC.utils.fmt(pt.y)
+          })
         }).catch(function(){ /* пользователь закрыл системное окно — это не ошибка */ });
       }, "image/png");
     });

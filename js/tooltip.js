@@ -2,6 +2,7 @@
 (function(PC){
   "use strict";
   var fmt = PC.utils.fmt, esc = PC.utils.esc;
+  var t = PC.t, L = PC.L;
   var tip, plot, svg;
 
   function init(){
@@ -53,16 +54,16 @@
     var conv = PC.convocationInfo();
     showHTML(
       '<div class="tip-top"><span class="tip-dot" style="background:' + esc(p.color) + '"></span>' +
-      '<span class="tip-name">' + esc(p.name) + '</span></div>' +
-      '<div class="tip-ideo">' + esc(p.ideology) + '</div>' +
+      '<span class="tip-name">' + esc(L(p, "name")) + '</span></div>' +
+      '<div class="tip-ideo">' + esc(L(p, "ideology")) + '</div>' +
       '<div class="tip-meta">' +
-        '<span>Экономика <b>' + fmt(p.x) + '</b></span>' +
-        '<span>Гос. контроль <b>' + fmt(p.y) + '</b></span>' +
-        '<span>Госдума ' + esc(conv.label) + ' <b>' + seats + '</b> / ' + PC.TOTAL_SEATS + '</span>' +
+        '<span>' + esc(t("side.econ")) + ' <b>' + fmt(p.x) + '</b></span>' +
+        '<span>' + esc(t("side.state")) + ' <b>' + fmt(p.y) + '</b></span>' +
+        '<span>' + esc(t("side.duma", { conv:L(conv, "label") })) + ' <b>' + seats + '</b> / ' + PC.TOTAL_SEATS + '</span>' +
       '</div>' +
       '<div class="tip-hint">' +
-        (seats ? "Есть представительство в Госдуме" : "Нет мандатов в Госдуме " + esc(conv.label)) +
-        " · клик — подробнее</div>",
+        esc(seats ? t("tip.hasSeats") : t("tip.noSeats", { conv:L(conv, "label") })) +
+        esc(t("tip.more")) + "</div>",
       sx, sy);
   }
 

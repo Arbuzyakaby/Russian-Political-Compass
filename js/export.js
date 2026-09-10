@@ -16,6 +16,7 @@
 (function(PC){
   "use strict";
   var U = PC.utils;
+  var t = PC.t, L = PC.L;
 
   var SEP = ";";
   var SIZE = PC.geom.SIZE;
@@ -48,9 +49,9 @@
   /* Пустой набор данных не сохраняем: пустой файл в загрузках выглядит
      как молчаливая поломка, а не как «нечего выгружать». */
   function downloadText(text, name, mime){
-    if(text == null){ note("Не удалось собрать файл", true); return; }
+    if(text == null){ note(t("ex.failed"), true); return; }
     download(new Blob([text], { type:mime + ";charset=utf-8" }), name);
-    note("Файл сохранён: " + name);
+    note(t("ex.saved", { name:name }));
   }
 
   function note(text, bad){
@@ -76,12 +77,13 @@
 
   function partiesCSV(){
     var convs = convsAsc();
-    var head = ["id", "Партия", "Краткое название", "Идеология", "Лидер",
-                "Экономика (X)", "Отношение к государству (Y)"];
-    convs.forEach(function(c){ head.push("Мандаты · " + c.label); });
+    var head = [t("csv.id"), t("csv.party"), t("csv.short"), t("csv.ideology"), t("csv.leader"),
+                t("csv.x"), t("csv.y")];
+    convs.forEach(function(c){ head.push(t("csv.seatsIn", { conv:L(c, "label") })); });
     var rows = [head];
     PC.PARTIES.forEach(function(p){
-      var row = [p.id, p.name, p.short, p.ideology, p.leader, num(p.x.toFixed(1)), num(p.y.toFixed(1))];
+      var row = [p.id, L(p, "name"), L(p, "short"), L(p, "ideology"), L(p, "leader"),
+                 num(p.x.toFixed(1)), num(p.y.toFixed(1))];
       convs.forEach(function(c){
         var s = PC.seatsAt(p, c.id);
         row.push(s === null ? "—" : s);
@@ -94,12 +96,13 @@
   /* «Длинная» таблица: одна строка — партия в созыве. Для сводных таблиц
      и графиков это удобнее широкой матрицы. */
   function seatsCSV(){
-    var rows = [["Созыв", "Годы", "id", "Партия", "Мандаты", "Доля палаты, %"]];
+    var rows = [[t("csv.conv"), t("csv.years"), t("csv.id"), t("csv.party"),
+                 t("csv.seats"), t("csv.share")]];
     convsAsc().forEach(function(c){
       PC.PARTIES.forEach(function(p){
         var s = PC.seatsAt(p, c.id);
         if(s === null) return;
-        rows.push([c.label, c.years, p.id, p.name, s,
+        rows.push([L(c, "label"), c.years, p.id, L(p, "name"), s,
                    num((s / PC.TOTAL_SEATS * 100).toFixed(2))]);
       });
     });
@@ -107,12 +110,44 @@
   }
 
   function trajectoriesCSV(){
-    var rows = [["id", "Партия", "Год", "Экономика (X)", "Отношение к государству (Y)", "Что изменилось"]];
+    var rows = [[t("csv.id"), t("csv.party"), t("csv.year"), t("csv.x"), t("csv.y"), t("csv.changed")]];
     PC.PARTIES.forEach(function(p){
       if(!p.history) return;
       p.history.forEach(function(h){
-        rows.push([p.id, p.name, h.year, num(h.x.toFixed(1)), num(h.y.toFixed(1)), h.note]);
+        rows.push([p.id, L(p, "name"), h.year, num(h.x.toFixed(1)), num(h.y.toFixed(1)), L(h, "note")]);
       });
+    });
+    return toCSV(rows);
+  }
+
+  /* «Длинная» таблица под-осей: строка на пару «партия × шкала». Широкая
+     матрица здесь читалась бы хуже — шесть колонок с длинными русскими
+     заголовками не помещаются в экран сводной таблицы. */
+  function subaxesCSV(){
+    var rows = [[t("csv.id"), t("csv.party"), t("csv.subaxis"), t("csv.score")]];
+    PC.PARTIES.forEach(function(p){
+      if(!p.sub) return;
+      PC.SUBAXES.forEach(function(ax){
+        rows.push([p.id, L(p, "name"), t("sub." + ax.id), num(p.sub[ax.id].toFixed(1))]);
+      });
+    });
+    return toCSV(rows);
+  }
+
+  function votesCSV(){
+    var parties = PC.PARTIES;
+    var head = [t("csv.date"), t("csv.conv"), t("csv.bill")];
+    parties.forEach(function(p){ head.push(L(p, "short")); });
+    var rows = [head];
+    PC.VOTES.forEach(function(v){
+      var conv = PC.CONVOCATIONS.filter(function(c){ return c.id === v.conv; })[0];
+      var row = [v.date, conv ? L(conv, "label") : v.conv, L(v, "title")];
+      parties.forEach(function(p){
+        var st = PC.voteStance(v, p);
+        var meta = PC.votes && PC.votes.STANCE[st];
+        row.push(meta ? t(meta.key) : st);
+      });
+      rows.push(row);
     });
     return toCSV(rows);
   }
@@ -130,6 +165,19 @@
       convocations: PC.CONVOCATIONS.map(function(c){
         return { id:c.id, label:c.label, years:c.years };
       }),
+      subAxes: PC.SUBAXES.map(function(ax){
+        return { id:ax.id, axis:ax.axis, name:t("sub." + ax.id), about:t("sub." + ax.id + ".d") };
+      }),
+      votes: PC.VOTES.map(function(v){
+        var stances = {};
+        PC.PARTIES.forEach(function(p){
+          var st = PC.voteStance(v, p);
+          if(st !== "absent") stances[p.id] = st;
+        });
+        return { id:v.id, date:v.date, convocation:v.conv, topic:v.topic, axis:v.axis,
+                 title:L(v, "title"), summary:L(v, "summary"), tally:L(v, "tally"),
+                 why:L(v, "why"), stances:stances };
+      }),
       parties: PC.PARTIES.map(function(p){
         var seats = {};
         convsAsc().forEach(function(c){
@@ -137,10 +185,15 @@
           if(s !== null) seats[c.id] = s;
         });
         var out = {
-          id:p.id, name:p.name, short:p.short, ideology:p.ideology, leader:p.leader,
-          color:p.color, x:p.x, y:p.y, seats:seats, theses:p.theses, why:p.why
+          id:p.id, name:L(p, "name"), short:L(p, "short"), ideology:L(p, "ideology"),
+          leader:L(p, "leader"), color:p.color, x:p.x, y:p.y, seats:seats,
+          subAxes:p.sub, theses:L(p, "theses"), why:L(p, "why")
         };
-        if(p.history) out.history = p.history;
+        if(p.history){
+          out.history = p.history.map(function(h){
+            return { year:h.year, x:h.x, y:h.y, note:L(h, "note") };
+          });
+        }
         return out;
       })
     };
@@ -151,8 +204,10 @@
         quadrant: PC.quiz.quadrant(res.x, res.y),
         answered: res.answered,
         takenAt: res.ts ? new Date(res.ts).toISOString() : null,
+        subAxes: PC.quiz.subScoreOf(PC.store.getJSON("pc-quiz-answers", {}) || {}),
+        permalink: PC.quiz.shareURL(PC.store.getJSON("pc-quiz-answers", {}) || {}),
         ranking: PC.quiz.ranking(res).map(function(r){
-          return { id:r.p.id, name:r.p.name, match:r.match, distance:Number(r.d.toFixed(2)) };
+          return { id:r.p.id, name:L(r.p, "name"), match:r.match, distance:Number(r.d.toFixed(2)) };
         })
       };
     }
@@ -162,14 +217,22 @@
   function quizCSV(){
     var res = PC.quiz && PC.quiz.result();
     if(!res) return null;
-    var rows = [["Показатель", "Значение"],
-                ["Экономика (X)", num(res.x.toFixed(2))],
-                ["Отношение к государству (Y)", num(res.y.toFixed(2))],
-                ["Квадрант", PC.quiz.quadrant(res.x, res.y)],
-                ["Отвечено утверждений", res.answered],
-                [], ["Партия", "Совпадение, %", "Расстояние"]];
+    var answers = PC.store.getJSON("pc-quiz-answers", {}) || {};
+    var sub = PC.quiz.subScoreOf(answers);
+    var rows = [[t("csv.metric"), t("csv.value")],
+                [t("csv.x"), num(res.x.toFixed(2))],
+                [t("csv.y"), num(res.y.toFixed(2))],
+                [t("csv.quadrant"), PC.quiz.quadrant(res.x, res.y)],
+                [t("csv.answered"), res.answered],
+                []];
+    rows.push([t("csv.subaxis"), t("csv.score")]);
+    PC.SUBAXES.forEach(function(ax){
+      rows.push([t("sub." + ax.id), num(sub[ax.id].toFixed(2))]);
+    });
+    rows.push([]);
+    rows.push([t("csv.party"), t("csv.match"), t("csv.distance")]);
     PC.quiz.ranking(res).forEach(function(r){
-      rows.push([r.p.name, r.match, num(r.d.toFixed(2))]);
+      rows.push([L(r.p, "name"), r.match, num(r.d.toFixed(2))]);
     });
     return toCSV(rows);
   }
@@ -246,7 +309,7 @@
 
   function compassPNG(scale, done){
     var svgText = compassSVG();
-    if(!svgText){ note("Компас ещё не отрисован", true); if(done) done(); return; }
+    if(!svgText){ note(t("ex.noCompass"), true); if(done) done(); return; }
     var img = new Image();
     img.onload = function(){
       var px = SIZE * scale;
@@ -260,31 +323,35 @@
         if(blob){
           var name = fileName("compas-" + convSlug(), "png");
           download(blob, name);
-          note("Файл сохранён: " + name);
-        }else note("Не удалось собрать картинку", true);
+          note(t("ex.saved", { name:name }));
+        }else note(t("ex.noImage"), true);
         if(done) done();
       }, "image/png");
     };
-    img.onerror = function(){ note("Не удалось собрать картинку", true); if(done) done(); };
+    img.onerror = function(){ note(t("ex.noImage"), true); if(done) done(); };
     /* data: вместо blob: — так холст гарантированно не помечается tainted */
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgText);
   }
 
   /* ---------- меню ---------- */
   var ITEMS = [
-    { id:"png",   label:"Компас · PNG",            hint:"картинка 1320×1320, текущий созыв и фильтр",
+    { id:"png",   label:"ex.png",   hint:"ex.png.h",
       run:function(){ compassPNG(2); } },
-    { id:"svg",   label:"Компас · SVG",            hint:"вектор, открывается в редакторе",
+    { id:"svg",   label:"ex.svg",   hint:"ex.svg.h",
       run:function(){ downloadText(compassSVG(), fileName("compas-" + convSlug(), "svg"), "image/svg+xml"); } },
-    { id:"csv",   label:"Партии · CSV",            hint:"координаты, лидеры и мандаты по всем созывам",
+    { id:"csv",   label:"ex.csv",   hint:"ex.csv.h",
       run:function(){ downloadText(partiesCSV(), fileName("partii", "csv"), "text/csv"); } },
-    { id:"seats", label:"Мандаты по созывам · CSV", hint:"длинная таблица: партия × созыв",
+    { id:"seats", label:"ex.seats", hint:"ex.seats.h",
       run:function(){ downloadText(seatsCSV(), fileName("mandaty", "csv"), "text/csv"); } },
-    { id:"traj",  label:"Траектории · CSV",        hint:"как двигались позиции партий по годам",
+    { id:"traj",  label:"ex.traj",  hint:"ex.traj.h",
       run:function(){ downloadText(trajectoriesCSV(), fileName("traektorii", "csv"), "text/csv"); } },
-    { id:"json",  label:"Всё · JSON",              hint:"полный набор данных, включая тезисы и обоснования",
+    { id:"sub",   label:"ex.sub",   hint:"ex.sub.h",
+      run:function(){ downloadText(subaxesCSV(), fileName("pod-osi", "csv"), "text/csv"); } },
+    { id:"votes", label:"ex.votes", hint:"ex.votes.h",
+      run:function(){ downloadText(votesCSV(), fileName("golosovaniya", "csv"), "text/csv"); } },
+    { id:"json",  label:"ex.json",  hint:"ex.json.h",
       run:function(){ downloadText(datasetJSON(), fileName("dannye", "json"), "application/json"); } },
-    { id:"quiz",  label:"Мой результат · CSV",     hint:"координаты и совпадение с партиями",
+    { id:"quiz",  label:"ex.quiz",  hint:"ex.quiz.h",
       when:function(){ return !!(PC.quiz && PC.quiz.result()); },
       run:function(){ downloadText(quizCSV(), fileName("moy-rezultat", "csv"), "text/csv"); } }
   ];
@@ -295,8 +362,8 @@
     menu.innerHTML = ITEMS.filter(function(it){ return !it.when || it.when(); })
       .map(function(it){
         return '<button type="button" class="export-item" role="menuitem" data-id="' + it.id + '">' +
-          '<span class="ei-label">' + U.esc(it.label) + '</span>' +
-          '<span class="ei-hint">' + U.esc(it.hint) + '</span></button>';
+          '<span class="ei-label">' + U.esc(t(it.label)) + '</span>' +
+          '<span class="ei-hint">' + U.esc(t(it.hint)) + '</span></button>';
       }).join("");
     menu.querySelectorAll(".export-item").forEach(function(b){
       b.addEventListener("click", function(){
@@ -362,6 +429,7 @@
     init:init, download:download,
     compassSVG:compassSVG, compassPNG:compassPNG,
     partiesCSV:partiesCSV, seatsCSV:seatsCSV, trajectoriesCSV:trajectoriesCSV,
+    subaxesCSV:subaxesCSV, votesCSV:votesCSV,
     datasetJSON:datasetJSON, quizCSV:quizCSV
   };
 })(window.PC = window.PC || {});

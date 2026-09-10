@@ -155,3 +155,15 @@
   .tab{padding:9px 6px;font-size:12px;}
   .tab-badge{display:none;}
 }
+
+
+/* ============ ПОЯСНЕНИЕ ПОД ГРАФИКОМ ============
+   Подпись в .chart-head отвечает на вопрос «что здесь нарисовано»,
+   а этот блок — на вопрос «и что с того». Он намеренно отделён
+   линией и стоит под самим графиком: читатель сначала смотрит,
+   потом читает вывод, а не наоборот. */
+.chart-why{
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--stroke);
+  font-size:12px;line-height:1.6;color:var(--muted);
+}
+.chart-why::first-line{color:var(--body);}

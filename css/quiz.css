@@ -120,3 +120,86 @@
   .qopt kbd{display:none;}
   .quiz-hint{display:none;}
 }
+
+
+/* ============ ПОДЗАГОЛОВОК ВОПРОСА ============
+   Кроме оси теперь показывается под-ось и, у ключевых утверждений, вес.
+   Всё три — служебные пометки, поэтому они стоят одной строкой мелким
+   кеглем и не спорят с самим утверждением. */
+.quiz-tagline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.qt-sub{font-size:9.5px;letter-spacing:.1em;color:var(--muted-2);text-transform:uppercase;}
+.qt-weight{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  padding:2px 7px;border-radius:999px;cursor:help;
+  color:var(--accent-2);border:1px solid color-mix(in srgb,var(--accent-2) 40%,var(--stroke));
+  background:color-mix(in srgb,var(--accent-2) 10%,transparent);}
+
+/* ============ БЛОКИ ЭКРАНА РЕЗУЛЬТАТА ============
+   Разбор, профиль по под-осям, ссылка и история — четыре независимых
+   блока под основной сводкой. У них общая рамка и общий ритм заголовков,
+   чтобы длинный экран не расползался на четыре разных документа. */
+.qr-block{margin:22px 0;padding:18px 20px;border-radius:16px;
+  background:var(--surface);border:1px solid var(--stroke);}
+.qr-block h3{font-family:var(--font-display);font-size:14.5px;font-weight:750;
+  letter-spacing:-.02em;margin-bottom:6px;}
+.qr-block-p{font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:14px;}
+.qr-block h4{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);
+  font-weight:650;margin-bottom:9px;}
+
+/* ---------- разбор ответов ---------- */
+.bd-top ol{list-style:none;counter-reset:bt;display:flex;flex-direction:column;gap:8px;}
+.bd-top li{counter-increment:bt;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;
+  padding:9px 12px 9px 34px;border-radius:11px;position:relative;
+  background:var(--surface-2);border:1px solid var(--stroke);}
+.bd-top li::before{content:counter(bt);position:absolute;left:12px;top:9px;
+  font-family:var(--font-display);font-size:12px;font-weight:750;color:var(--muted-2);}
+.bd-top .bt-q{flex:1;min-width:min(100%,220px);font-size:12.5px;line-height:1.5;color:var(--body);}
+.bd-top .bt-v{font-size:11px;font-weight:650;white-space:nowrap;}
+.bd-top .bt-v.up{color:#22c55e;}
+.bd-top .bt-v.down{color:#f97316;}
+
+.bd-wrap{margin-top:12px;}
+.bd-axis{margin-bottom:20px;}
+.bd-axis:last-of-type{margin-bottom:8px;}
+.bd-sum{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:6px;}
+.bd-table th[scope="row"]{font-weight:450;color:var(--body);line-height:1.4;
+  max-width:34ch;white-space:normal;}
+.bd-table td.up{color:#22c55e;font-weight:650;}
+.bd-table td.down{color:#f97316;font-weight:650;}
+.bd-table td.flat{color:var(--muted-2);}
+
+/* ---------- ссылка на результат ---------- */
+.link-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.link-row input{flex:1;min-width:min(100%,220px);height:42px;padding:0 14px;font:inherit;font-size:12px;
+  border-radius:11px;background:var(--surface-2);border:1px solid var(--stroke);color:var(--body);
+  outline:none;text-overflow:ellipsis;
+  transition:border-color .18s,box-shadow .18s;}
+.link-row input:focus{border-color:var(--accent-line);box-shadow:0 0 0 4px var(--accent-soft);color:var(--text);}
+.link-row .btn{white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;}
+
+/* ---------- история прохождений ---------- */
+.hist-chart{display:block;width:100%;height:auto;max-width:520px;margin:4px auto 10px;overflow:visible;}
+.hc-line{fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;}
+.hc-dot{stroke:var(--chart-surface);stroke-width:1.6;}
+.hc-zero{stroke:var(--chart-axis);stroke-width:1;stroke-dasharray:3 3;}
+.hc-tick{font-size:9px;fill:var(--muted-2);}
+.hist-block .hist-note{font-size:11.5px;color:var(--muted);margin-top:8px;text-align:center;}
+.hist-runs{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 12px;}
+.hrun{display:inline-flex;align-items:baseline;gap:7px;font:inherit;font-size:11px;
+  padding:6px 11px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);
+  color:var(--muted);
+  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease,transform var(--dur-1,.16s) ease;}
+button.hrun{cursor:pointer;}
+button.hrun:hover{background:var(--surface-3);border-color:var(--stroke-2);color:var(--text);transform:translateY(-1px);}
+button.hrun:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.hrun b{font-family:var(--font-display);font-weight:750;color:var(--text);}
+.hrun em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--muted-2);}
+
+/* ---------- чужой результат, открытый по ссылке ---------- */
+.qr-shared-note{font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:16px;
+  padding:11px 14px;border-radius:12px;border:1px dashed var(--stroke-2);background:var(--surface);}
+.qr-shared-note .btn{margin-left:6px;vertical-align:baseline;}
+
+@media(max-width:720px){
+  .qr-block{padding:15px 16px;margin:18px 0;}
+  .link-row input{min-width:100%;}
+}

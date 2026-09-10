@@ -6,7 +6,12 @@
    числом. Зазор в 2px цветом полотна отделяет соседние заливки. ============ */
 
 /* ---------- KPI-плитки ---------- */
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px;}
+/* Шесть плиток вместо четырёх: три «про партии» и три «про палату».
+   Раскладка идёт по три в ряд, а не по шесть: при шести колонках
+   подпись «Эффективное число фракций» переносится на четыре строки
+   и ломает высоту всего ряда. */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px;}
+@media(min-width:1240px){.stats{grid-template-columns:repeat(6,minmax(0,1fr));}}
 .stat{position:relative;padding:14px 16px;border-radius:var(--radius-sm);
   background:linear-gradient(168deg,
     var(--card-a) 0%,

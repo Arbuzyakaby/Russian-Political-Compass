@@ -1,0 +1,98 @@
+/* ============ ВКЛАДКА «ГОЛОСОВАНИЯ» ============
+   Позиция фракции кодируется тремя способами сразу: цветом фона, знаком
+   (✓ ✕ ~ ± ? —) и подписью в title. Цвет здесь особенно нельзя оставлять
+   единственным кодом — «за» и «против» в этой таблице стоят рядом, и
+   ошибка в их различении меняет смысл на противоположный. ============ */
+
+.votes{max-width:1000px;margin:0 auto;}
+.votes-lede{font-size:14.5px;line-height:1.65;color:var(--body);margin-bottom:12px;}
+.votes-disclaimer{font-size:11.5px;line-height:1.55;color:var(--muted-2);
+  padding:10px 14px;border-left:2px solid var(--stroke-2);border-radius:0 10px 10px 0;
+  background:var(--surface);margin-bottom:22px;}
+.votes-filter{margin-bottom:16px;}
+.votes-hint{font-size:11px;color:var(--muted-2);margin:4px 2px 26px;}
+
+/* ---------- карточка голосования ---------- */
+.vote-list{display:flex;flex-direction:column;gap:14px;margin-bottom:26px;}
+.vote-card{padding:18px 20px;}
+.vote-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;}
+.vote-meta span{font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 8px;border-radius:999px;border:1px solid var(--stroke);color:var(--muted-2);
+  background:var(--surface);}
+.vote-meta .vaxis{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft);}
+.vote-head h3{font-family:var(--font-display);font-size:16px;font-weight:750;letter-spacing:-.02em;
+  line-height:1.25;}
+.vote-sum{font-size:13px;color:var(--body);line-height:1.55;margin-top:6px;}
+.vote-tally{font-size:11.5px;color:var(--muted);margin-top:8px;}
+.vote-tally b{color:var(--muted-2);font-weight:650;text-transform:uppercase;letter-spacing:.08em;font-size:10px;}
+
+.vote-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+.vchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
+  padding:5px 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--surface);
+  color:var(--muted);white-space:nowrap;}
+.vchip i{width:8px;height:8px;border-radius:2px;flex:none;}
+.vchip .vs{font-weight:750;font-size:12px;line-height:1;}
+
+/* Оттенки берутся не из фирменных цветов партий, а из семантики: зелёный —
+   поддержал, красный — не поддержал, серый — не участвовал. Цвет партии
+   при этом остаётся квадратиком слева, поэтому обе кодировки видны сразу. */
+.vchip.st-for{border-color:color-mix(in srgb,#22c55e 45%,var(--stroke));
+  background:color-mix(in srgb,#22c55e 12%,transparent);color:var(--text);}
+.vchip.st-against{border-color:color-mix(in srgb,#ef4444 45%,var(--stroke));
+  background:color-mix(in srgb,#ef4444 12%,transparent);color:var(--text);}
+.vchip.st-abstain{border-color:color-mix(in srgb,#eab308 48%,var(--stroke));
+  background:color-mix(in srgb,#eab308 12%,transparent);color:var(--text);}
+.vchip.st-split{border-color:color-mix(in srgb,var(--accent-2) 45%,var(--stroke));
+  background:color-mix(in srgb,var(--accent-2) 12%,transparent);color:var(--text);}
+.vchip.st-unknown{opacity:.72;border-style:dashed;}
+.vchip.st-absent{opacity:.45;}
+
+.vote-toggle{margin-top:14px;}
+.vote-why{margin-top:10px;padding:12px 14px;border-radius:12px;background:var(--surface);
+  border:1px solid var(--stroke);}
+.vote-why[hidden]{display:none;}
+.vote-why p{font-size:12.5px;line-height:1.6;color:var(--body);}
+
+/* ---------- матрица совпадений ---------- */
+.ag-wrap{overflow-x:auto;}
+.ag-table{border-collapse:separate;border-spacing:3px;width:100%;min-width:520px;}
+.ag-table th{font-size:10.5px;font-weight:650;color:var(--muted);padding:4px 6px;}
+/* угловая ячейка — пустое место на пересечении двух шапок; общий стиль
+   ячеек данных превращал бы её в заметный белый прямоугольник */
+.ag-table thead td{background:transparent;border:0;}
+.ag-table thead th{writing-mode:vertical-rl;transform:rotate(180deg);height:74px;
+  vertical-align:bottom;white-space:nowrap;}
+.ag-table thead th span{border-bottom:2px solid var(--c);padding-bottom:3px;}
+.ag-table tbody th{text-align:left;white-space:nowrap;display:flex;align-items:center;gap:6px;
+  min-height:44px;}
+.ag-table tbody th i{width:8px;height:8px;border-radius:2px;flex:none;}
+.ag-table td{text-align:center;border-radius:8px;padding:7px 4px;font-size:12px;
+  background:color-mix(in srgb,var(--accent) calc(var(--ag,0) * 42%),var(--surface));
+  border:1px solid var(--stroke);color:var(--text);}
+.ag-table td b{display:block;font-family:var(--font-display);font-weight:750;font-size:13px;letter-spacing:-.02em;}
+.ag-table td small{display:block;font-size:9.5px;color:var(--muted-2);margin-top:1px;}
+.ag-table td.ag-self{background:transparent;border-color:transparent;color:var(--muted-2);}
+.ag-table td.ag-none{background:var(--surface);color:var(--muted-2);}
+
+/* ---------- сводка в карточке партии ---------- */
+.vote-mini{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.vote-mini li{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:baseline;
+  font-size:11.5px;padding:7px 10px;border-radius:9px;background:var(--surface);
+  border:1px solid var(--stroke);border-left-width:3px;}
+.vote-mini .vt{color:var(--body);line-height:1.35;}
+.vote-mini .vy{color:var(--muted-2);font-size:10.5px;}
+.vote-mini .vv{font-weight:650;color:var(--text);white-space:nowrap;}
+.vote-mini li.st-for{border-left-color:#22c55e;}
+.vote-mini li.st-against{border-left-color:#ef4444;}
+.vote-mini li.st-abstain{border-left-color:#eab308;}
+.vote-mini li.st-split{border-left-color:var(--accent-2);}
+.vote-mini li.st-unknown{border-left-color:var(--stroke-2);opacity:.75;}
+
+@media(max-width:720px){
+  .vote-card{padding:15px 16px;}
+  .vote-head h3{font-size:15px;}
+  .ag-table thead th{height:64px;font-size:9.5px;}
+  .vote-mini li{grid-template-columns:1fr auto;}
+  .vote-mini .vy{grid-column:2;}
+  .vote-mini .vv{grid-column:1 / -1;}
+}
