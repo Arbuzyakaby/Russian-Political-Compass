@@ -85,6 +85,50 @@ test("все id, которые скрипты ищут в разметке, в 
   }
 });
 
+/* Пути к картинкам живут в CSS и ничем не проверяются: опечатка в
+   url() не ломает страницу, а просто оставляет фон пустым — заметить
+   это можно только глазами и только в той теме, где картинка нужна. */
+test("все картинки, на которые ссылается CSS и разметка, существуют", () => {
+  const seen = new Set();
+  for(const name of fs.readdirSync(path.join(ROOT, "css"))){
+    const css = fs.readFileSync(path.join(ROOT, "css", name), "utf8");
+    for(const m of css.matchAll(/url\(\s*["']?(\.\.\/[^"')]+)["']?\s*\)/g)){
+      const rel = m[1].replace(/^\.\.\//, "");
+      seen.add(rel);
+      assert.ok(fs.existsSync(path.join(ROOT, rel)),
+        `css/${name} ссылается на несуществующий ${rel}`);
+    }
+  }
+  for(const m of html.matchAll(/(?:src|href)="(assets\/[^"]+)"/g)){
+    seen.add(m[1]);
+    assert.ok(fs.existsSync(path.join(ROOT, m[1])),
+      `index.html ссылается на несуществующий ${m[1]}`);
+  }
+
+  /* И обратная проверка: лежащий в репозитории, но никем не используемый
+     файл — это либо забытый черновик, либо потерянная ссылка. */
+  for(const name of fs.readdirSync(path.join(ROOT, "assets"))){
+    const rel = "assets/" + name;
+    assert.ok(seen.has(rel) || html.includes(rel),
+      `${rel} лежит в репозитории, но нигде не используется`);
+  }
+});
+
+test("у карточки «О проекте» свой фон в каждой теме", () => {
+  const tokens = fs.readFileSync(path.join(ROOT, "css", "tokens.css"), "utf8");
+  const dark = tokens.slice(tokens.indexOf(":root{"), tokens.indexOf(':root[data-theme="light"]'));
+  const light = tokens.slice(tokens.indexOf(':root[data-theme="light"]'));
+  for(const [name, block] of [["тёмная", dark], ["светлая", light]]){
+    assert.match(block, /--hero-bg:\s*url\(/, `в ${name} тема не задаёт --hero-bg`);
+    assert.match(block, /--hero-veil-a:/, `в ${name} тема не задаёт плотность вуали`);
+  }
+  assert.notEqual(
+    /--hero-bg:\s*url\("([^"]+)"\)/.exec(dark)[1],
+    /--hero-bg:\s*url\("([^"]+)"\)/.exec(light)[1],
+    "у тем должны быть разные картинки, иначе разделять их незачем"
+  );
+});
+
 test("слой движения подключается последним", () => {
   assert.equal(styles[styles.length - 1], "css/motion.css",
     "css/motion.css уточняет правила из других файлов и обязан идти после них");
