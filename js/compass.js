@@ -8,7 +8,11 @@
   var svg, cross, defs, trails;
   var trailsOn = false;
   var obstacles = [];          // занятые зоны: подписи осей, точки, уже размещённые ярлыки
-  var LABEL_PAD = 3;
+  /* 3px хватало на площадь самого текста, но не на его обводку-halo
+     (stroke-width 3–3.4px в compass.css, нужную для читаемости подписи
+     на пёстром фоне): два ярлыка, чьи bbox по этой логике не пересекались,
+     на экране всё равно соприкасались этой обводкой. */
+  var LABEL_PAD = 6;
 
   /* ---------- геометрия прямоугольников ---------- */
   function rectOf(node, dx, dy, pad){
@@ -39,12 +43,17 @@
     right:  { x: 8, y:  4, anchor:"start",  seatY: 16 }
   };
 
-  function applyPos(tag, seat, dx, dy, r, pos){
+  function applyPos(tag, seat, dx, dy, r, pos, extra){
     var o = OFFSETS[pos];
     var vertical = (pos === "top" || pos === "bottom");
-    var x  = o.x === 0 ? 0 : (o.x < 0 ? o.x - r : o.x + r);
-    var y  = vertical ? (o.y < 0 ? o.y - r : o.y + r) : o.y;
-    var sy = vertical ? (o.seatY < 0 ? o.seatY - r : o.seatY + r) : o.seatY;
+    extra = extra || 0;
+    /* extra отодвигает подпись дальше от точки вдоль той же стороны —
+       вертикальные позиции толкает по y, горизонтальные по x. Нужно,
+       когда соседняя точка стоит слишком близко и четыре стандартных
+       места все заняты хоть немного. */
+    var x  = o.x === 0 ? 0 : (o.x < 0 ? o.x - r - (vertical ? 0 : extra) : o.x + r + (vertical ? 0 : extra));
+    var y  = vertical ? (o.y < 0 ? o.y - r - extra : o.y + r + extra) : o.y;
+    var sy = vertical ? (o.seatY < 0 ? o.seatY - r - extra : o.seatY + r + extra) : o.seatY;
 
     tag.setAttribute("x", x);  tag.setAttribute("y", y);   tag.setAttribute("text-anchor", o.anchor);
     seat.setAttribute("x", x); seat.setAttribute("y", sy); seat.setAttribute("text-anchor", o.anchor);
@@ -63,12 +72,28 @@
     });
     var best = null;
     for(var i = 0; i < order.length; i++){
-      var box = applyPos(tag, seat, dx, dy, r, order[i]);
+      var box = applyPos(tag, seat, dx, dy, r, order[i], 0);
       var score = collisions(box) + (inside(box) ? 0 : 100);
-      if(!best || score < best.score) best = { pos:order[i], score:score };
+      if(!best || score < best.score) best = { pos:order[i], score:score, extra:0 };
       if(score === 0) break;
     }
-    return applyPos(tag, seat, dx, dy, r, best.pos);
+    /* Ни одна из четырёх сторон не свободна целиком — на густых участках
+       поля (несколько партий рядом) так и бывает. Прежде чем смириться
+       с пересечением, пробуем отодвинуть выбранную сторону дальше от
+       точки: строка мандатов чаще всего перекрывает подпись соседа
+       именно потому, что стоит впритык, а не потому, что рядом вообще
+       нет свободного места. */
+    if(best.score > 0){
+      for(var step = 10; step <= 40; step += 10){
+        var box2 = applyPos(tag, seat, dx, dy, r, best.pos, step);
+        var score2 = collisions(box2) + (inside(box2) ? 0 : 100);
+        if(score2 < best.score){
+          best = { pos:best.pos, score:score2, extra:step };
+          if(score2 === 0) break;
+        }
+      }
+    }
+    return applyPos(tag, seat, dx, dy, r, best.pos, best.extra);
   }
 
   /* ---------- статичная подложка ---------- */
