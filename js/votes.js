@@ -102,16 +102,39 @@
   /* Цветовая шкала здесь не декоративная: доля совпадений — величина
      непрерывная, и без заливки читателю пришлось бы сравнивать проценты
      глазами по всей таблице. Число всё равно напечатано в каждой ячейке,
-     поэтому цвет остаётся вторым кодом, а не единственным. */
+     поэтому цвет остаётся вторым кодом, а не единственным.
+
+     Шкала расходящаяся (diverging), а не «чем темнее — тем больше
+     совпадений»: та же логика уже занята зелёным/красным у чипов
+     голосования (.st-for/.st-against), и одинаковый смысл обязан
+     выглядеть одинаково на одной и той же вкладке. 50% совпадений —
+     это отсутствие сигнала, поэтому такая ячейка почти не подсвечена;
+     чем ближе к 0% или к 100%, тем гуще цвет. */
+  function agreementColor(ratio){
+    var RED = [4, 72, 55], AMBER = [40, 78, 50], GREEN = [142, 52, 42];
+    var a = ratio <= .5 ? RED : AMBER, b = ratio <= .5 ? AMBER : GREEN;
+    var k = ratio <= .5 ? ratio / .5 : (ratio - .5) / .5;
+    var h = a[0] + (b[0] - a[0]) * k, s = a[1] + (b[1] - a[1]) * k, l = a[2] + (b[2] - a[2]) * k;
+    return "hsl(" + h.toFixed(1) + " " + s.toFixed(1) + "% " + l.toFixed(1) + "%)";
+  }
+
   function agreementCell(a, b){
-    if(a.id === b.id) return '<td class="ag-self" aria-label="—">·</td>';
+    if(a.id === b.id) return '<td class="ag-self" data-col="' + esc(b.id) + '" aria-hidden="true"></td>';
     var r = PC.voteAgreement(a, b);
     if(r.ratio === null){
-      return '<td class="ag-none" title="' + esc(t("votes.noCommon")) + '">—</td>';
+      return '<td class="ag-none" data-col="' + esc(b.id) + '" title="' + esc(t("votes.noCommon")) + '">—</td>';
     }
     var pct = Math.round(r.ratio * 100);
-    return '<td class="ag" style="--ag:' + r.ratio.toFixed(3) + '" title="' +
-      esc(L(a, "short") + " · " + L(b, "short") + ": " + t("votes.ofVotes", { k:r.same, n:r.common })) +
+    var dist = Math.abs(r.ratio - .5) * 2;            /* 0 в середине шкалы, 1 на краях */
+    var mix = (16 + dist * 32).toFixed(1) + "%";
+    /* Мало общих голосований — процент неустойчив: один новый закон
+       мог бы сдвинуть 100% на 2 голосованиях до 50%. Пунктирная рамка
+       честно показывает это прямо на поле, а не только в подсказке. */
+    var thin = r.common <= 3;
+    var titleText = L(a, "short") + " · " + L(b, "short") + ": " + t("votes.ofVotes", { k:r.same, n:r.common }) +
+      (thin ? " — " + t("votes.thinHint") : "");
+    return '<td class="ag' + (thin ? " ag-thin" : "") + '" data-col="' + esc(b.id) +
+      '" style="--ag-color:' + agreementColor(r.ratio) + ';--ag-mix:' + mix + '" title="' + esc(titleText) +
       '"><b>' + pct + '%</b><small>' + r.same + "/" + r.common + "</small></td>";
   }
 
@@ -131,17 +154,45 @@
       '<table class="ag-table"><caption class="sr-only">' + esc(t("votes.agreementAria")) + '</caption>' +
       '<thead><tr><td></td>' +
         parties.map(function(p){
-          return '<th scope="col" title="' + esc(L(p, "short")) + '"><span style="--c:' + esc(p.color) + '">' +
-            esc(headerAbbr(p)) + "</span></th>";
+          return '<th scope="col" data-col="' + esc(p.id) + '" title="' + esc(L(p, "short")) + '">' +
+            '<span style="--c:' + esc(p.color) + '">' + esc(headerAbbr(p)) + "</span></th>";
         }).join("") +
       '</tr></thead><tbody>' +
       parties.map(function(a){
-        return '<tr><th scope="row"><i style="background:' + esc(a.color) + '"></i>' +
+        return '<tr data-row="' + esc(a.id) + '"><th scope="row"><i style="background:' + esc(a.color) + '"></i>' +
           esc(L(a, "short")) + "</th>" +
           parties.map(function(b){ return agreementCell(a, b); }).join("") + "</tr>";
       }).join("") +
       "</tbody></table>" +
-      '<div class="ag-scale"><span>0%</span><i></i><span>100%</span></div>';
+      '<div class="ag-scale">' +
+        '<span>' + esc(t("votes.scaleLow")) + '</span><i></i><span>' + esc(t("votes.scaleHigh")) + '</span>' +
+      '</div>' +
+      '<p class="ag-thin-note">' + esc(t("votes.thinNote")) + '</p>';
+
+    /* Наведение подсвечивает и заголовок строки, и заголовок столбца —
+       без этого в таблице 6×6 легко промахнуться взглядом мимо своей
+       пары при переходе от ячейки к подписям по краям. */
+    var table = matrixHost.querySelector(".ag-table");
+    if(!table) return;
+    var hiHead = null, hiRow = null;
+    function clearHi(){
+      if(hiHead) hiHead.classList.remove("hi");
+      if(hiRow) hiRow.classList.remove("hi");
+      hiHead = hiRow = null;
+    }
+    table.addEventListener("mouseover", function(e){
+      var cell = e.target.closest("td[data-col]");
+      if(!cell) return;
+      var col = cell.dataset.col, tr = cell.closest("tr");
+      clearHi();
+      table.querySelectorAll("thead th[data-col]").forEach(function(th){
+        if(th.dataset.col === col) hiHead = th;
+      });
+      hiRow = tr && tr.querySelector("th[scope=row]");
+      if(hiHead) hiHead.classList.add("hi");
+      if(hiRow) hiRow.classList.add("hi");
+    });
+    table.addEventListener("mouseleave", clearHi);
   }
 
   /* ---------- сборка панели ---------- */

@@ -55,32 +55,51 @@
 
 /* ---------- матрица совпадений ---------- */
 /* Заголовки — инициалы фракции (см. headerAbbr в votes.js), а не полное
-   название: рotированный вертикально текст «Единая Россия» читался
-   плохо и был главной причиной, почему таблица выглядела неряшливо. */
+   название: ротированный вертикально текст «Единая Россия» читался
+   плохо. Колонка и строка одной и той же фракции оформлены как одна
+   и та же «фишка» — цветная точка плюс подпись, — чтобы взгляд не
+   переучивался между шапкой и левым краем таблицы. */
 .ag-wrap{overflow-x:auto;padding-bottom:2px;}
-.ag-table{border-collapse:separate;border-spacing:4px;width:100%;min-width:460px;}
+.ag-table{border-collapse:separate;border-spacing:5px;width:100%;min-width:480px;}
 .ag-table th{font-size:11px;font-weight:650;color:var(--muted);}
 .ag-table thead td{background:transparent;border:0;}
-.ag-table thead th{padding:0 0 8px;text-align:center;vertical-align:bottom;cursor:default;}
-.ag-table thead th span{display:inline-block;min-width:34px;padding:5px 9px;border-radius:999px;
-  border-bottom:2px solid var(--c);background:var(--surface);letter-spacing:.02em;}
-.ag-table tbody th{text-align:left;white-space:nowrap;display:flex;align-items:center;gap:7px;
-  min-height:46px;padding:0 10px 0 2px;font-size:11.5px;}
+.ag-table thead th{padding:0 0 9px;text-align:center;vertical-align:bottom;cursor:default;}
+.ag-table thead th span{display:inline-flex;align-items:center;gap:6px;min-width:30px;
+  padding:6px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--stroke);
+  letter-spacing:.02em;transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease;}
+.ag-table thead th span::before{content:"";width:8px;height:8px;border-radius:3px;flex:none;background:var(--c);}
+.ag-table thead th.hi span{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text);}
+.ag-table tbody th{text-align:left;white-space:nowrap;display:flex;align-items:center;gap:8px;
+  min-height:46px;padding:0 12px;border-radius:10px;font-size:11.5px;
+  background:var(--surface);border:1px solid transparent;
+  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease;}
+.ag-table tbody th.hi{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text);}
 .ag-table tbody th i{width:9px;height:9px;border-radius:3px;flex:none;}
+
+/* Ячейки: цвет расходящийся, а не однонаправленный (см. agreementColor
+   в votes.js) — 50% почти не подсвечены, к краям шкалы цвет густеет.
+   --ag-color и --ag-mix приходят из JS, здесь только правило смешивания
+   с подложкой темы, чтобы ячейка оставалась своей в обеих темах. */
 .ag-table td{text-align:center;border-radius:10px;padding:9px 6px;font-size:12px;
-  background:color-mix(in srgb,var(--accent) calc(var(--ag,0) * 42%),var(--surface));
-  border:1px solid var(--stroke);color:var(--text);transition:transform .15s ease;}
-.ag-table td:not(.ag-self):not(.ag-none):hover{transform:scale(1.06);border-color:var(--accent-line);}
+  border:1px solid var(--stroke);color:var(--text);transition:transform .15s ease,border-color .15s ease;}
+.ag-table td.ag{background:color-mix(in srgb,var(--ag-color) var(--ag-mix,20%),var(--surface));}
+.ag-table td.ag:hover{transform:scale(1.06);border-color:var(--accent-line);}
 .ag-table td b{display:block;font-family:var(--font-display);font-weight:750;font-size:13.5px;letter-spacing:-.02em;}
 .ag-table td small{display:block;font-size:9.5px;color:var(--muted-2);margin-top:2px;}
-.ag-table td.ag-self{background:transparent;border-color:transparent;color:var(--muted-2);}
+/* «сама с собой» — не пустая ячейка и не ошибка, а штриховка: точка
+   в этом месте раньше читалась как потерянные данные */
+.ag-table td.ag-self{background:repeating-linear-gradient(45deg,
+    var(--stroke) 0 5px, transparent 5px 11px);border-color:transparent;}
 .ag-table td.ag-none{background:var(--surface);color:var(--muted-2);}
+/* мало общих голосований — процент неустойчив, пунктир честно это метит */
+.ag-table td.ag-thin{border-style:dashed;border-color:var(--stroke-2);}
 
-/* лёгкая шкала под таблицей: цвет ячеек — не только декоративный код,
-   и явная шкала помогает читать его без наведения на каждую ячейку */
-.ag-scale{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:10.5px;color:var(--muted-2);}
-.ag-scale i{flex:1;height:8px;border-radius:999px;
-  background:linear-gradient(90deg,var(--surface),var(--accent));border:1px solid var(--stroke);}
+/* шкала под таблицей: тот же расходящийся градиент, что и в ячейках,
+   с человеческими подписями по краям вместо голых 0%/100% */
+.ag-scale{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:10.5px;color:var(--muted-2);}
+.ag-scale i{flex:1;height:8px;border-radius:999px;border:1px solid var(--stroke);
+  background:linear-gradient(90deg,hsl(4 72% 55%),hsl(40 78% 50%),hsl(142 52% 42%));}
+.ag-thin-note{font-size:10.5px;color:var(--muted-2);line-height:1.5;margin-top:8px;}
 
 /* ---------- сводка в карточке партии ---------- */
 .vote-mini{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:8px;}
