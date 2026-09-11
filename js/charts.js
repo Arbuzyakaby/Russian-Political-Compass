@@ -861,11 +861,14 @@
     /* переключатель шкалы: абсолютные мандаты или доля палаты. В долях
        созывы сравнимы напрямую — размер Думы менялся по составу фракций,
        но не по числу мест, зато доля читается без деления в уме. */
-    document.querySelectorAll(".trend-mode").forEach(function(b){
+    /* только кнопки со шкалой: класс .trend-mode носят и кнопки песочницы
+       коалиций, и без [data-mode] клик по «Как в жизни» ставил графику
+       шкалу undefined и отмечал кнопки песочницы как нажатые */
+    document.querySelectorAll(".trend-mode[data-mode]").forEach(function(b){
       b.addEventListener("click", function(){
         if(trendMode === b.dataset.mode) return;
         trendMode = b.dataset.mode;
-        document.querySelectorAll(".trend-mode").forEach(function(o){
+        document.querySelectorAll(".trend-mode[data-mode]").forEach(function(o){
           o.setAttribute("aria-pressed", String(o.dataset.mode === trendMode));
         });
         renderTrend();

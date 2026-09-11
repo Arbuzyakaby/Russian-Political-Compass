@@ -226,6 +226,12 @@ test("число голосований одно и то же в данных, �
   assert.equal(Number(badge[1]), n, "ярлык вкладки голосований не совпадает с числом голосований");
 });
 
+test("переключатель шкалы графика не цепляет чужие кнопки с тем же классом", () => {
+  const charts = fs.readFileSync(path.join(ROOT, "js", "charts.js"), "utf8");
+  assert.ok(!/querySelectorAll\("\.trend-mode"\)/.test(charts),
+    "charts.js выбирает все .trend-mode — кнопки песочницы коалиций сломают шкалу графика");
+});
+
 test("голосования в наборе идут по порядку дат", () => {
   const { PC } = require("./harness.js").loadApp();
   /* Array.from — чтобы массив был из этого же контекста: массив из vm
