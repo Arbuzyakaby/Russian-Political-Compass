@@ -304,8 +304,8 @@
 
     /* ===== голосования ===== */
     "votes.h":            ["Ключевые голосования", "Landmark votes"],
-    "votes.lede":         ["Координаты на компасе выведены в том числе из того, как фракции голосуют, а не только из того, что партии пишут в программах. Здесь эти голосования собраны в одну таблицу: десять законопроектов 2004–2022 годов, вокруг которых позиции расходились сильнее всего.",
-                           "The compass coordinates are derived in part from how factions actually vote, not only from what parties write in their platforms. Here those votes are gathered into one table: ten bills from 2004 to 2022 on which positions diverged the most."],
+    "votes.lede":         ["Координаты на компасе выведены в том числе из того, как фракции голосуют, а не только из того, что партии пишут в программах. Здесь эти голосования собраны в одну таблицу: двадцать законопроектов 2004–2024 годов — и те, на которых позиции разошлись сильнее всего, и те, на которых фракции совпали полностью.",
+                           "The compass coordinates are derived in part from how factions actually vote, not only from what parties write in their platforms. Here those votes are gathered into one table: twenty bills from 2004 to 2024 — both those on which positions diverged the most and those on which the factions agreed completely."],
     "votes.note":         ["Позиция фракции — преобладающая: отдельные депутаты голосовали иначе, а по части законопроектов фракция официально не определялась. Партии, которой в том созыве не было в Думе, в строке стоит прочерк.",
                            "A faction's stance is the prevailing one: individual deputies voted differently, and on some bills a faction took no official line. A dash marks a party that was not in the Duma for that convocation."],
     "votes.filterAll":    ["Все голосования", "All votes"],
@@ -604,8 +604,8 @@
                            "The mean of the three sub-axes equals the party's coordinate — a requirement on the data, not a coincidence: the sub-axes must explain the dot on the compass, otherwise they start living a life of their own. The radar chart in the analytics section overlays a party's profile on your quiz result, where the gaps read better than any table of numbers."],
 
     "ab.votes.h":         ["Ключевые голосования", "Landmark votes"],
-    "ab.votes.p":         ["Программу можно написать какой угодно, голосование — уже поступок. Отдельная вкладка собирает десять знаковых законопроектов от монетизации льгот 2004 года до признания ДНР и ЛНР в 2022-м и показывает, как по ним разошлись фракции.",
-                           "A platform can say anything; a vote is an act. A separate tab collects ten landmark bills, from the 2004 monetisation of social benefits to the 2022 recognition of the DPR and LPR, and shows how the factions split on each."],
+    "ab.votes.p":         ["Программу можно написать какой угодно, голосование — уже поступок. Отдельная вкладка собирает двадцать знаковых законопроектов — от монетизации льгот 2004 года до запрета «пропаганды чайлдфри» в 2024-м — и показывает, как по ним разошлись фракции.",
+                           "A platform can say anything; a vote is an act. A separate tab collects twenty landmark bills, from the 2004 monetisation of social benefits to the 2024 ban on “child-free propaganda”, and shows how the factions split on each."],
     "ab.votes.p2":        ["Матрица совпадений под таблицей интереснее самих голосований. Она показывает то, что на компасе видно лишь косвенно: расстояние между точками и разница в поведении — не одно и то же. ЛДПР и «Справедливая Россия» стоят в 6.7 единицы друг от друга — почти втрое дальше, чем ЛДПР от «Единой России», — и при этом совпали во всех общих голосованиях, тогда как с ближайшей «Единой Россией» ЛДПР разошлась по пенсионному возрасту. Расстояние на поле измеряет программы, матрица — поведение, и совпадают они не всегда.",
                            "The agreement matrix beneath the table is more interesting than the votes themselves. It shows what the compass conveys only indirectly: distance between dots and difference in behaviour are not the same thing. The LDPR and A Just Russia sit 6.7 units apart — nearly three times farther than the LDPR is from United Russia — yet they matched on every vote they shared, while the LDPR parted with its nearest neighbour, United Russia, over the retirement age. Distance on the field measures platforms; the matrix measures behaviour, and the two do not always agree."],
     "ab.votes.note":      ["Позиция фракции приведена как преобладающая: отдельные депутаты голосовали иначе. Там, где у фракции не было официальной позиции, стоит «нет данных», а не догадка — единственная ценность этого раздела в том, что ему можно верить.",
@@ -707,7 +707,7 @@
     "ft.data.h":          ["Данные", "Data"],
     "ft.data.l1":         ["Созывы <b>IV–VIII</b>, 2003–2021", "Convocations <b>IV–VIII</b>, 2003–2021"],
     "ft.data.l2":         ["<b>450</b> мандатов в каждом созыве", "<b>450</b> seats in every convocation"],
-    "ft.data.l3":         ["<b>10</b> ключевых голосований", "<b>10</b> landmark votes"],
+    "ft.data.l3":         ["<b>20</b> ключевых голосований", "<b>20</b> landmark votes"],
     "ft.data.l4":         ["Координаты — экспертная оценка", "Coordinates are an expert estimate"],
     "ft.data.l5":         ["Как они выведены", "How they were derived"],
     "ft.proj.h":          ["Проект", "The project"],

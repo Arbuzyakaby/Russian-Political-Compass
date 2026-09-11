@@ -205,6 +205,35 @@ test("CI гоняет тот же npm test, что и локально", () => {
   assert.match(ci, /npm test/);
 });
 
+/* Число голосований записано в трёх местах сразу: в данных, в словаре
+   и в русском тексте разметки, который виден без JavaScript и
+   поисковику. В 1.5 они разошлись — разметка говорила «восемь», словарь
+   «десять», а на ярлыке вкладки стояло 10. Теперь расхождение шумное. */
+test("число голосований одно и то же в данных, словаре и разметке", () => {
+  const { PC } = require("./harness.js").loadApp();
+  const n = PC.VOTES.length;
+  const norm = s => s.replace(/\s+/g, " ").trim();
+  const fallback = (attr, key, tag) =>
+    norm(html.match(new RegExp(attr + '="' + key.replace(/\./g, "\\.") + '">([\\s\\S]*?)</' + tag + ">"))[1]);
+
+  assert.equal(fallback("data-i18n-html", "ft.data.l3", "li"), norm(PC.t("ft.data.l3")),
+    "текст подвала в разметке отстал от словаря");
+  assert.ok(PC.t("ft.data.l3").includes("<b>" + n + "</b>"), `в подвале не ${n} голосований`);
+  for(const key of ["votes.lede", "ab.votes.p"]){
+    assert.equal(fallback("data-i18n", key, "p"), norm(PC.t(key)), `${key}: разметка отстала от словаря`);
+  }
+  const badge = html.match(/id="tab-votes"[\s\S]*?class="tab-badge">(\d+)</);
+  assert.equal(Number(badge[1]), n, "ярлык вкладки голосований не совпадает с числом голосований");
+});
+
+test("голосования в наборе идут по порядку дат", () => {
+  const { PC } = require("./harness.js").loadApp();
+  /* Array.from — чтобы массив был из этого же контекста: массив из vm
+     несёт чужой Array.prototype, и deepStrictEqual счёл бы его другим */
+  const dates = Array.from(PC.VOTES, v => v.date);
+  assert.deepEqual(dates, [...dates].sort(), "новое голосование вставлено не на своё место");
+});
+
 test("внешние ссылки открываются безопасно", () => {
   for(const m of html.matchAll(/<a[^>]+target="_blank"[^>]*>/g)){
     assert.match(m[0], /rel="[^"]*noopener/, `ссылка без noopener: ${m[0]}`);

@@ -207,6 +207,10 @@
     /* после теста: карточка партии показывает блок голосований, а
        модуль голосований ничего не знает про состояние компаса */
     PC.votes.init();
+    /* Число на ярлыке вкладки берётся из данных: написанное в разметке
+       руками отстало бы от набора при первом же новом голосовании. */
+    var votesBadge = document.querySelector("#tab-votes .tab-badge");
+    if(votesBadge) votesBadge.textContent = String(PC.VOTES.length);
     PC.compass.onDraw(syncNodes);
     PC.compass.draw();
     syncNodes();
