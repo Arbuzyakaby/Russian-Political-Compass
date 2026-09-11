@@ -1,0 +1,16 @@
+{
+  "name": "Политический компас партий РФ",
+  "short_name": "Политкомпас",
+  "description": "Партии России на двух независимых осях: экономика и отношение к власти государства.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#06080e",
+  "theme_color": "#06080e",
+  "categories": ["education", "politics"],
+  "icons": [
+    { "src": "assets/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

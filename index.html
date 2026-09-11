@@ -36,6 +36,7 @@
 <meta name="twitter:image" content="https://rupolitcompass.website/assets/og-image.png">
 <link rel="icon" href="assets/icon.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="manifest" href="manifest.json">
 <title>Политический компас партий РФ</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,6 +51,7 @@
 <link rel="stylesheet" href="css/sidebar.css">
 <link rel="stylesheet" href="css/charts.css">
 <link rel="stylesheet" href="css/radar.css">
+<link rel="stylesheet" href="css/coalition.css">
 <link rel="stylesheet" href="css/votes.css">
 <link rel="stylesheet" href="css/quiz.css">
 <link rel="stylesheet" href="css/export.css">
@@ -265,6 +267,30 @@
                 data-i18n="ch.trend.showTable">Показать таблицу данных</button>
         <div class="data-wrap" id="trendTableWrap" hidden><div id="trendTable"></div></div>
         <p class="chart-why" data-i18n="ch.trend.why">Как читать: в абсолютных мандатах видно масштаб фракции, в долях — сравнимость созывов между собой. Резкий обрыв линии почти всегда совпадает не со сменой настроений, а со сменой избирательных правил: барьер, одномандатные округа, порядок регистрации.</p>
+      </section>
+
+      <section class="card chart-card wide co-card" id="coalition" data-reveal aria-label="Песочница коалиций"
+               data-i18n-attr="aria-label:co.h">
+        <div class="chart-head">
+          <h3 data-i18n="co.h">Песочница коалиций</h3>
+          <p data-i18n="co.p">Соберите коалицию из фракций выбранного созыва и проверьте, проходит ли она порог большинства. Центр тяжести, эффективное число партнёров и разброс позиций пересчитываются на лету по тем же формулам, что и плитки палаты.</p>
+        </div>
+        <div class="chart-toolbar">
+          <button type="button" class="trend-mode" id="coReset" data-i18n="co.reset"
+                  title="Вернуть реальный расклад: все фракции созыва" data-i18n-attr="title:co.resetTitle">Как в жизни</button>
+          <button type="button" class="trend-mode" id="coClear" data-i18n="co.clear">Снять все</button>
+          <span class="co-real" id="coReal" data-i18n="co.real">реальный состав</span>
+        </div>
+        <div class="co-togs" id="coTogs" role="group" aria-label="Фракции в коалиции"
+             data-i18n-attr="aria-label:co.toggles"></div>
+        <div class="co-head">
+          <span class="co-num"><span id="coSeats">0</span><small id="coTotal"></small></span>
+          <span class="co-verdict" id="coVerdict" role="status" aria-live="polite"></span>
+        </div>
+        <div class="co-bar" id="coBar" role="img" aria-label="Мандаты коалиции относительно порога большинства"
+             data-i18n-attr="aria-label:co.bar"></div>
+        <div class="co-metrics" id="coMetrics"></div>
+        <p class="chart-why" data-i18n="co.why">Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Это модель на координатах компаса, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.</p>
       </section>
 
       <section class="card chart-card wide" data-reveal aria-label="Идеологический спектр партий">
@@ -607,6 +633,7 @@
 <script src="js/compass.js"></script>
 <script src="js/radar.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/coalition.js"></script>
 <script src="js/votes.js"></script>
 <script src="js/sidebar.js"></script>
 <script src="js/quiz-data.js"></script>

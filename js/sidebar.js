@@ -155,8 +155,17 @@
     var conv = PC.convocationInfo();
     var pct = seats / PC.TOTAL_SEATS * 100;
 
+    /* Положение на шкале −10…+10 полосой от нуля к полюсу — та же
+       механика, что у спектра и у результата теста: число читается
+       вместе с направлением и расстоянием до края, а не отдельно. */
+    function pos(v){
+      var w = Math.abs(v) / 10 * 50, l = v < 0 ? 50 - w : 50;
+      return '<div class="coord-bar" aria-hidden="true"><i style="left:' + l.toFixed(2) + '%;width:' +
+             Math.max(1.5, w).toFixed(2) + '%;background:' + esc(p.color) + '"></i></div>';
+    }
+
     body.innerHTML =
-      '<div class="detail' + (animate === false ? " no-anim" : "") + '">' +
+      '<div class="detail' + (animate === false ? " no-anim" : "") + '" style="--party:' + esc(p.color) + '">' +
         '<button type="button" class="back" id="back">' + esc(t("side.back")) + '</button>' +
         '<div class="d-head">' +
           '<div class="d-badge" style="background:' + esc(p.color) + ';--glow:' + esc(p.color) + '">' +
@@ -167,9 +176,9 @@
           esc(L(p, "leader")) + '</span></div>' +
         '<div class="coords">' +
           '<div class="coord"><div class="k">' + esc(t("side.econ")) + '</div><div class="v">' + fmt(p.x) + '</div>' +
-            '<div class="d">' + esc(econLabel(p.x)) + '</div></div>' +
+            '<div class="d">' + esc(econLabel(p.x)) + '</div>' + pos(p.x) + '</div>' +
           '<div class="coord"><div class="k">' + esc(t("side.state")) + '</div><div class="v">' + fmt(p.y) + '</div>' +
-            '<div class="d">' + esc(stateLabel(p.y)) + '</div></div>' +
+            '<div class="d">' + esc(stateLabel(p.y)) + '</div>' + pos(p.y) + '</div>' +
         '</div>' +
         '<div class="mandate-box">' +
           '<div class="mandate-top">' +

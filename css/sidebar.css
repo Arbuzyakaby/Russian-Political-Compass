@@ -143,6 +143,40 @@
 .sub-row .fill{position:absolute;top:0;bottom:0;width:0;border-radius:4px;}
 .sub-poles{display:flex;justify-content:space-between;font-size:9px;color:var(--muted-2);margin-top:3px;}
 
+/* ============ КАРТОЧКА ПАРТИИ: ИЕРАРХИЯ ============
+   Три яруса по важности: кто это (шапка с бейджем), где она на поле
+   (координаты — крупно, с полосой положения), что она говорит (тезисы
+   и обоснование). Цвет партии приходит в --party и работает только
+   акцентом — кромка шапки, маркеры тезисов, полосы, — а не заливкой:
+   фирменные цвета слишком разные, чтобы красить ими фон. */
+.detail .d-head{position:relative;padding:14px;margin:0 0 14px;border-radius:16px;
+  border:1px solid var(--stroke);
+  background:linear-gradient(135deg,
+    color-mix(in srgb,var(--party,var(--accent)) 14%,var(--surface)) 0%,
+    var(--surface) 62%);
+  overflow:hidden;}
+.detail .d-head::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--party,var(--accent));}
+.detail .d-badge{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 0 0 3px var(--chart-surface),
+  0 10px 24px -8px var(--glow,transparent);}
+.detail .d-head h3{font-family:var(--font-display);font-weight:750;letter-spacing:-.025em;}
+
+.detail .coord{position:relative;padding:12px 13px 11px;
+  background:linear-gradient(168deg,var(--surface-2) 0%,var(--surface) 100%);}
+.detail .coord .v{font-family:var(--font-display);font-size:24px;font-weight:750;letter-spacing:-.035em;
+  line-height:1.05;margin-top:4px;}
+.coord-bar{position:relative;height:5px;margin-top:9px;border-radius:3px;background:var(--surface-2);
+  overflow:hidden;}
+.coord-bar::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
+  background:var(--chart-axis);z-index:1;}
+.coord-bar i{position:absolute;top:0;bottom:0;border-radius:3px;}
+
+.detail .sect h4{display:flex;align-items:center;gap:8px;}
+.detail .sect h4::after{content:"";flex:1;height:1px;background:var(--stroke);}
+.detail .sect li::before{background:var(--party,currentColor);opacity:.9;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--party,currentColor) 20%,transparent);}
+.detail .note{border-left:3px solid color-mix(in srgb,var(--party,var(--accent)) 70%,transparent);}
+
 /* ============ СОСЕДИ ПО КОМПАСУ ============ */
 .nb-list{display:flex;flex-direction:column;gap:4px;}
 .nb-row{display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;border-radius:10px;

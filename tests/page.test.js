@@ -51,6 +51,8 @@ test("порядок скриптов: зависимости раньше по�
   }
   assert.ok(at("utils.js") < at("i18n.js"), "i18n.js опирается на PC.utils");
   assert.ok(at("radar.js") < at("charts.js"), "аналитика рисует радар");
+  assert.ok(at("charts.js") < at("coalition.js"), "песочница коалиций берёт формулы из charts.js");
+  assert.ok(at("i18n.js") < at("coalition.js"));
   assert.equal(at("app.js"), scripts.length - 1, "app.js запускает всё — он последний");
   assert.ok(at("quiz-data.js") < at("quiz.js"));
   assert.ok(at("ui.js") < at("app.js"));
@@ -72,6 +74,9 @@ const STATIC_IDS = [
   "sidebar.js:sideBody", "sidebar.js:sideTitle", "sidebar.js:count",
   "export.js:exportWrap", "export.js:exportBtn", "export.js:exportMenu",
   "votes.js:votesHost", "votes.js:votesMatrix",
+  "coalition.js:coalition", "coalition.js:coTogs", "coalition.js:coBar", "coalition.js:coSeats",
+  "coalition.js:coTotal", "coalition.js:coVerdict", "coalition.js:coMetrics",
+  "coalition.js:coReset", "coalition.js:coClear", "coalition.js:coReal",
   "quiz.js:quiz"
 ];
 
@@ -171,6 +176,33 @@ test("вкладки и панели связаны атрибутами дос�
     assert.ok(html.includes(`aria-controls="panel-${tab}"`), `вкладка ${tab} не связана с панелью`);
     assert.ok(html.includes(`aria-labelledby="tab-${tab}"`), `панель ${tab} не связана с вкладкой`);
   }
+});
+
+test("манифест подключён, разбирается и ссылается на существующие иконки", () => {
+  assert.match(html, /<link rel="manifest" href="manifest\.json">/);
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8"));
+  for(const field of ["name", "short_name", "start_url", "display", "theme_color", "background_color"]){
+    assert.ok(manifest[field], `в манифесте нет ${field}`);
+  }
+  assert.ok(manifest.icons && manifest.icons.length, "в манифесте нет иконок");
+  for(const icon of manifest.icons){
+    assert.ok(fs.existsSync(path.join(ROOT, icon.src)), `иконка ${icon.src} не найдена`);
+  }
+});
+
+test("лицензия одна и та же в LICENSE, package.json и разметке", () => {
+  const license = fs.readFileSync(path.join(ROOT, "LICENSE"), "utf8");
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+  assert.equal(pkg.license, "CC-BY-4.0");
+  assert.match(license, /Attribution 4\.0 International/);
+  assert.match(license, /creativecommons\.org\/licenses\/by\/4\.0/);
+  assert.match(html, /creativecommons\.org\/licenses\/by\/4\.0/);
+});
+
+test("CI гоняет тот же npm test, что и локально", () => {
+  const ci = fs.readFileSync(path.join(ROOT, ".github", "workflows", "test.yml"), "utf8");
+  assert.match(ci, /pull_request/);
+  assert.match(ci, /npm test/);
 });
 
 test("внешние ссылки открываются безопасно", () => {

@@ -104,6 +104,34 @@
     return g;
   }
 
+  /* Перетекание фигуры: вершины многоугольника и точки на лучах
+     проходят путь от старых значений к новым за одно движение. */
+  function morph(g, from, to, axes){
+    var poly = g.querySelector(".rad-fill");
+    var dots = g.querySelectorAll(".rad-dot");
+    var n = axes.length;
+    function apply(e){
+      var vals = {};
+      axes.forEach(function(ax){
+        var a = from[ax.id], b = to[ax.id];
+        vals[ax.id] = (typeof a === "number" && typeof b === "number") ? a + (b - a) * e : b;
+      });
+      poly.setAttribute("points", polygon(vals, axes));
+      axes.forEach(function(ax, i){
+        var p = point(i, n, vals[ax.id]);
+        if(dots[i]){ dots[i].setAttribute("cx", p.x.toFixed(1)); dots[i].setAttribute("cy", p.y.toFixed(1)); }
+      });
+    }
+    apply(0);
+    var t0 = null, DUR = 620;
+    requestAnimationFrame(function frame(ts){
+      if(t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / DUR);
+      apply(1 - Math.pow(1 - p, 3));
+      if(p < 1) requestAnimationFrame(frame);
+    });
+  }
+
   /* ---------- сборка ---------- */
   /* series: [{ label, color, values:{subId:number}, dashed }].
      Первая серия рисуется снизу — заливка второй ложится поверх, поэтому
@@ -123,23 +151,43 @@
     var groups = series.map(function(s, i){ return drawSeries(svg, s, axes, i); });
     box.appendChild(svg);
 
-    /* Прорисовка: контуры проявляются вместе с лёгким раскрытием от
+    /* Прежние профили в этом же контейнере: если серия на этом месте
+       уже была (сменили партию в списке), фигура перетекает из старой
+       формы в новую, а не исчезает и появляется заново. */
+    var prev = box._radar || [];
+    box._radar = series.map(function(s){ return s.values; });
+
+    /* Прорисовка новых серий: контур проявляется с мягким раскрытием от
        центра. Масштабирование делается через transform на группе, а не
-       на самом svg, — иначе вместе с фигурой поехали бы и подписи. */
+       на самом svg, — иначе вместе с фигурой поехали бы и подписи.
+       Накладываемый профиль (результат теста) выходит заметно позже
+       основного и медленнее: он ложится поверх уже прочитанной фигуры,
+       а не спорит с ней за внимание. */
     if(PC.motion && !PC.motion.reduced() && window.requestAnimationFrame){
+      var entering = [];
       groups.forEach(function(g, i){
+        if(prev[i]) morph(g, prev[i], series[i].values, axes);
+        else entering.push(g);
+      });
+      entering.forEach(function(g, k){
+        var delay = k * 260;
         g.style.opacity = "0";
         g.style.transformOrigin = C + "px " + C + "px";
-        g.style.transform = "scale(.72)";
-        g.style.transition = "opacity .5s ease " + (i * 120) + "ms, transform .72s cubic-bezier(.22,1,.36,1) " + (i * 120) + "ms";
+        g.style.transform = "scale(.84)";
+        g.style.transition = "opacity .7s var(--ease-out-soft) " + delay + "ms, " +
+                             "transform .95s var(--ease-out-soft) " + delay + "ms";
       });
       var run = function(){
         requestAnimationFrame(function(){
-          groups.forEach(function(g){ g.style.opacity = "1"; g.style.transform = "none"; });
+          requestAnimationFrame(function(){
+            entering.forEach(function(g){ g.style.opacity = "1"; g.style.transform = "none"; });
+          });
         });
       };
-      if(PC.motion.whenRevealed) PC.motion.whenRevealed(box.closest(".card") || box, run);
-      else run();
+      if(entering.length){
+        if(PC.motion.whenRevealed) PC.motion.whenRevealed(box.closest(".card") || box, run);
+        else run();
+      }
     }
 
     /* Легенда: без неё две наложенные фигуры одного размера неразличимы,

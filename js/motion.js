@@ -50,16 +50,22 @@
 
     if(reduced() || !window.requestAnimationFrame){ print(target); return; }
 
+    /* data-count-from — прежнее значение того же числа: при смене созыва
+       счётчик доезжает от него, а не отсчитывает всё заново от нуля */
+    var from = Number(node.dataset.countFrom);
+    if(!isFinite(from)) from = 0;
+    if(from === target){ print(target); return; }
+
     var t0 = null;
     function frame(ts){
       if(t0 === null) t0 = ts;
       var p = Math.min(1, (ts - t0) / COUNT_MS);
       var eased = 1 - Math.pow(1 - p, 3);          /* ease-out-cubic */
-      print(target * eased);
+      print(from + (target - from) * eased);
       if(p < 1) requestAnimationFrame(frame);
       else print(target);                          /* точное значение в конце */
     }
-    print(0);
+    print(from);
     requestAnimationFrame(frame);
   }
 

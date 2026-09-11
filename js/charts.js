@@ -84,13 +84,25 @@
      она отвечает на вопрос, спорят ли в палате вообще, тогда как центр
      тяжести отвечает только на вопрос, о чём договорились. */
   function houseMetrics(c){
-    var duma = inDuma(c);
+    return groupMetrics(inDuma(c), c, PC.TOTAL_SEATS);
+  }
+
+  /* Те же три числа для произвольного набора фракций — на них стоит
+     песочница коалиций. denom — знаменатель долей в индексе Лааксо —
+     Таагеперы: для палаты это 450 мест (депутаты вне фракций тоже
+     «размывают» власть), для коалиции — её собственные мандаты, иначе
+     одна «Единая Россия» получала бы почти две эффективные фракции
+     вместо одной. Центр тяжести и поляризация от знаменателя не
+     зависят: они взвешены по мандатам участников. */
+  function groupMetrics(list, c, denom){
+    var duma = list.filter(function(p){ return seatsAt(p,c) > 0; });
     var total = duma.reduce(function(s, p){ return s + seatsAt(p,c); }, 0);
     if(!total) return { total:0, wx:0, wy:0, enp:0, polar:0, topShare:0 };
+    denom = denom || total;
 
     var wx = 0, wy = 0, sumSq = 0;
     duma.forEach(function(p){
-      var s = seatsAt(p,c), share = s / PC.TOTAL_SEATS;
+      var s = seatsAt(p,c), share = s / denom;
       wx += p.x*s; wy += p.y*s;
       sumSq += share*share;
     });
@@ -129,13 +141,21 @@
              (signed ? fmt(v) : v) + '</span>';
     }
 
-    var tiles = [
+    /* Прежние значения счётчиков: при смене созыва число доезжает от
+       старого к новому, а не отсчитывается заново от нуля — так видно,
+       в какую сторону и насколько сдвинулась палата. */
+    var prev = Array.prototype.map.call(host.stats.querySelectorAll("[data-count]"),
+      function(n){ return n.dataset.count; });
+
+    var partyTiles = [
       { k:t("an.parties"), v:num(PC.PARTIES.length),
         d:t("an.partiesD", { n:existing(c).length }) },
       { k:t("an.factions"), v:num(duma.length), d:L(conv, "label") + " · " + conv.years },
       { k:t("an.largest"), v:num(top ? seatsAt(top,c) : 0),
         vs:" / " + PC.TOTAL_SEATS,
-        d:(top ? t("an.largestD", { name:esc(L(top, "short")), p:m.topShare.toFixed(1) }) : t("an.noData")) },
+        d:(top ? t("an.largestD", { name:esc(L(top, "short")), p:m.topShare.toFixed(1) }) : t("an.noData")) }
+    ];
+    var houseTiles = [
       { k:t("an.centre"),
         body:'<div class="stat-dual">' +
                '<div><span class="lbl">' + esc(t("side.state")) + '</span><span class="num">' + num(Number(wy.toFixed(1)), true) + '</span></div>' +
@@ -149,11 +169,25 @@
         v:'<span data-count="' + m.polar.toFixed(1) + '" data-count-fmt="fixed1">' + m.polar.toFixed(1) + '</span>',
         d:t("an.polarizationD") }
     ];
-    host.stats.innerHTML = tiles.map(function(t){
-      return '<div class="stat" data-reveal><div class="k">' + t.k + '</div>' +
-             (t.body ? t.body : '<div class="v">' + t.v + (t.vs ? '<small>' + t.vs + '</small>' : '') + '</div>') +
-             '<div class="d">' + t.d + '</div></div>';
-    }).join("");
+    function tile(x){
+      return '<div class="stat" data-reveal><div class="k">' + x.k + '</div>' +
+             (x.body ? x.body : '<div class="v">' + x.v + (x.vs ? '<small>' + x.vs + '</small>' : '') + '</div>') +
+             '<div class="d">' + x.d + '</div></div>';
+    }
+    /* Две группы явной вёрсткой, а не только порядком: три плитки
+       описывают партии, три — палату как целое, и это разные вопросы. */
+    function group(cls, title, list){
+      return '<section class="stat-group ' + cls + '" aria-label="' + esc(title) + '">' +
+             '<h3 class="stat-group-h">' + esc(title) + '</h3>' +
+             '<div class="stat-row">' + list.map(tile).join("") + '</div></section>';
+    }
+    host.stats.innerHTML = group("sg-parties", t("an.groupParties"), partyTiles) +
+                           group("sg-house", t("an.groupHouse"), houseTiles);
+    if(statsShown){
+      host.stats.querySelectorAll("[data-count]").forEach(function(n, i){
+        if(prev[i] !== undefined) n.dataset.countFrom = prev[i];
+      });
+    }
     /* Первая отрисовка проявляется по прокрутке, все последующие (смена
        созыва, выбор партии) — сразу: блок уже на экране, и повторный
        въезд выглядел бы как мигание. */
@@ -215,6 +249,12 @@
     var svg = el("svg", { viewBox:"0 0 " + W + " " + H, width:W, height:H,
       role:"img", "aria-label":t("ch.hemi.aria", { conv:L(conv, "label"), n:PC.TOTAL_SEATS }) });
 
+    /* Цвета мест прошлой отрисовки — в порядке мест, а не узлов: узлы
+       разложены по группам фракций, и их порядок в документе другой. */
+    var oldFill = (box._seatDots && box._seatDots.length === pts.length && box.dataset.conv !== String(c))
+      ? box._seatDots.map(function(d){ return d.getAttribute("fill"); }) : null;
+    var dots = [];
+
     var groups = {};
     pts.forEach(function(pt, i){
       var p = owners[i];
@@ -223,6 +263,7 @@
         fill:p ? chartColor(p.color) : "var(--chart-empty)",
         stroke:"var(--chart-surface)", "stroke-width":1.2        /* зазор между соседними местами */
       });
+      dots.push(dot);
       if(p){
         var g = groups[p.id] || (groups[p.id] = el("g", { "data-id":p.id, class:"seat-group" }));
         g.appendChild(dot);
@@ -259,6 +300,27 @@
 
     box.innerHTML = "";
     box.appendChild(svg);
+    box._seatDots = dots;
+    box.dataset.conv = String(c);
+
+    /* Смена созыва перекрашивает места, а не пересобирает дугу на
+       глазах: каждое место плавно меняет цвет со старого на новый,
+       волной слева направо — видно, какие части спектра перешли
+       к другой фракции. */
+    if(oldFill && window.requestAnimationFrame && PC.motion && !PC.motion.reduced()){
+      dots.forEach(function(d, i){ d.style.fill = oldFill[i]; });
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          dots.forEach(function(d, i){
+            d.style.transition = "fill .62s var(--ease-out-soft) " + Math.round(pts[i].x / W * 280) + "ms";
+            d.style.fill = "";
+          });
+          setTimeout(function(){
+            dots.forEach(function(d){ d.style.transition = ""; });
+          }, 1000);
+        });
+      });
+    }
 
     var hero = document.createElement("div");
     hero.className = "hemi-center";
@@ -354,6 +416,7 @@
      можно спросить только у элемента в документе, поэтому вызов идёт
      после вставки svg в контейнер. */
   var trendDrawn = false;
+  var bandX = null, bandW0 = null;   /* где стояла полоса созыва и при какой ширине */
   function drawIn(lines, marks, card){
     if(trendDrawn) return;
     /* график, построенный в скрытой вкладке, имеет нулевые размеры:
@@ -451,10 +514,23 @@
       var bandW = convs.length > 1 ? iw/(convs.length-1) : iw;
       var bx1 = Math.max(pl, X(pickedIdx) - bandW/2);
       var bx2 = Math.min(pl + iw, X(pickedIdx) + bandW/2);
-      svg.appendChild(el("rect", {
+      var band = el("rect", {
         x:bx1.toFixed(1), y:pt, width:(bx2 - bx1).toFixed(1), height:ih,
         fill:"var(--accent-soft)", rx:6
-      }));
+      });
+      svg.appendChild(band);
+      /* полоса переезжает к новому созыву, а не появляется на новом месте */
+      if(bandX !== null && Math.abs(bandX - bx1) > .5 && bandW0 === W &&
+         window.requestAnimationFrame && PC.motion && !PC.motion.reduced()){
+        band.style.transform = "translateX(" + (bandX - bx1).toFixed(1) + "px)";
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            band.style.transition = "transform .5s var(--ease-out)";
+            band.style.transform = "none";
+          });
+        });
+      }
+      bandX = bx1; bandW0 = W;
     }
 
     /* сетка и ось Y */
@@ -678,6 +754,7 @@
       }).join("") +
       '<div class="spec-scale"><span>−10</span><span>0</span><span>+10</span></div></div>';
   }
+  var spectrumGrown = false;
   function renderSpectrum(){
     host.spectrum.innerHTML =
       specColumn("x", t("ch.spec.econ"), t("ch.spec.planned"), t("ch.spec.market")) +
@@ -689,13 +766,19 @@
     /* Полосы разъезжаются не сразу, а когда блок попал в вид: спектр
        лежит в самом низу страницы, и без привязки к появлению вся
        анимация проигрывалась бы за экраном. */
-    var grow = function(){
-      requestAnimationFrame(function(){
-        host.spectrum.querySelectorAll(".fill").forEach(function(f){
-          f.style.left = f.dataset.left + "%";
-          f.style.width = Math.max(1.5, Number(f.dataset.w)) + "%";
-        });
+    var apply = function(){
+      host.spectrum.querySelectorAll(".fill").forEach(function(f){
+        f.style.left = f.dataset.left + "%";
+        f.style.width = Math.max(1.5, Number(f.dataset.w)) + "%";
       });
+    };
+    /* Координаты от созыва и выбора партии не зависят: разъезд полос
+       проигрывается один раз, а на повторных отрисовках они сразу стоят
+       на месте — иначе каждый клик по партии заново «выращивал» спектр. */
+    if(spectrumGrown){ apply(); return; }
+    var grow = function(){
+      spectrumGrown = true;
+      requestAnimationFrame(apply);
     };
     var card = host.spectrum.closest(".chart-card");
     if(PC.motion && PC.motion.whenRevealed && card) PC.motion.whenRevealed(card, grow); else grow();
@@ -770,7 +853,7 @@
       toggle.addEventListener("click", function(){
         var open = wrap.hasAttribute("hidden");
         if(open) wrap.removeAttribute("hidden"); else wrap.setAttribute("hidden", "");
-        toggle.textContent = open ? "Скрыть таблицу данных" : "Показать таблицу данных";
+        toggle.textContent = t(open ? "ch.trend.hideTable" : "ch.trend.showTable");
         toggle.setAttribute("aria-expanded", String(open));
       });
     }
@@ -814,15 +897,19 @@
     renderTrend();
     renderSpectrum();
     renderRadar();
+    if(PC.coalition) PC.coalition.render();
   }
 
   /* Сброс кэша: после возврата на вкладку компаса размеры контейнеров
      изменились, хотя ключ состояния прежний. */
-  function invalidate(){ lastKey = null; }
+  function invalidate(){
+    lastKey = null;
+    if(PC.coalition) PC.coalition.invalidate();
+  }
 
   /* niceScale и hemiSeats — чистые функции без DOM: раскладка мест
      и шаг сетки проверяются тестами напрямую, без браузера. */
   PC.charts = { init:init, render:render, invalidate:invalidate,
                 chartColor:chartColor, niceScale:niceScale, hemiSeats:hemiSeats,
-                houseMetrics:houseMetrics };
+                houseMetrics:houseMetrics, groupMetrics:groupMetrics };
 })(window.PC = window.PC || {});

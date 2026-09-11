@@ -6,12 +6,34 @@
    числом. Зазор в 2px цветом полотна отделяет соседние заливки. ============ */
 
 /* ---------- KPI-плитки ---------- */
-/* Шесть плиток вместо четырёх: три «про партии» и три «про палату».
-   Раскладка идёт по три в ряд, а не по шесть: при шести колонках
-   подпись «Эффективное число фракций» переносится на четыре строки
-   и ломает высоту всего ряда. */
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px;}
-@media(min-width:1240px){.stats{grid-template-columns:repeat(6,minmax(0,1fr));}}
+/* Шесть плиток в двух явных группах: три «про партии» и три «про
+   палату». Группа — это рамка с собственным заголовком, а не просто
+   порядок: иначе шесть одинаковых блоков подряд читаются как один
+   список, хотя отвечают на два разных вопроса. Внутри группы плитки
+   идут по три в ряд — при шести колонках подпись «Эффективное число
+   фракций» переносилась на четыре строки и ломала высоту ряда. */
+.stats{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-bottom:20px;}
+@media(min-width:1240px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.stat-group{position:relative;padding:12px;border-radius:calc(var(--radius-sm) + 6px);
+  border:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--surface) 55%,transparent);}
+.stat-group-h{display:flex;align-items:center;gap:10px;margin:2px 4px 11px;
+  font-size:10px;font-weight:650;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);}
+.stat-group-h::before{content:"";width:6px;height:6px;border-radius:2px;background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 18%,transparent);}
+.stat-group-h::after{content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,var(--stroke-2),transparent);}
+.sg-house .stat-group-h{color:var(--accent-2);}
+.sg-house .stat::after{background:linear-gradient(90deg,
+    var(--accent-2) 0%,
+    color-mix(in srgb,var(--accent-2) 55%, transparent) 34%,
+    color-mix(in srgb,var(--accent-2) 18%, transparent) 62%,
+    transparent 100%);}
+.stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+@media(max-width:560px){
+  .stat-row{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .stat-row .stat:last-child:nth-child(odd){grid-column:1 / -1;}
+}
 .stat{position:relative;padding:14px 16px;border-radius:var(--radius-sm);
   background:linear-gradient(168deg,
     var(--card-a) 0%,
@@ -137,7 +159,7 @@
   .stats{gap:10px;}
 }
 @media(max-width:720px){
-  .stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .stat-group{padding:10px;}
   .chart-card{padding:14px;}
   .spectrum{grid-template-columns:1fr;gap:22px;}
   .hemi-center{width:min(72%,220px);}

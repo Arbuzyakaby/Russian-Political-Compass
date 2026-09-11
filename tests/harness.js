@@ -68,7 +68,7 @@ function makeStorage(){
 
 const DEFAULT_FILES = [
   "js/data.js", "js/utils.js", "js/i18n.js", "js/quiz-data.js", "js/quiz.js",
-  "js/votes.js", "js/charts.js", "js/export.js"
+  "js/votes.js", "js/charts.js", "js/coalition.js", "js/export.js"
 ];
 
 /* Собирает окружение и исполняет в нём перечисленные файлы проекта

@@ -226,6 +226,29 @@ button.hrun:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 .short-note{margin:-8px 0 16px;}
 
+/* ============ ЭКРАН РЕЗУЛЬТАТА: ПОЛИРОВКА ============
+   Координаты — главное число экрана, поэтому плитки получают свой
+   объём (градиент, блик по верхней кромке и акцентную полосу), а первая
+   строка рейтинга — рамку: это ответ на вопрос «кто ближе всех», и он
+   не должен теряться в списке. Блоки разбора получают метку слева от
+   заголовка — длинный экран размечен одинаково сверху донизу. */
+.qr-coord{position:relative;overflow:hidden;
+  background:linear-gradient(168deg,var(--card-a) 0%,
+    color-mix(in srgb,var(--card-a) 55%,var(--card-b)) 52%,var(--card-b) 100%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 7%,transparent),var(--shadow);}
+.qr-coord::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent-2) 60%,transparent),transparent);
+  opacity:.75;}
+.qr-rank .qr-row:first-child{background:var(--accent-soft);border-color:var(--accent-line);
+  padding-block:9px;}
+.qr-rank .qr-row:first-child .n{font-weight:700;}
+.qr-block{background:linear-gradient(180deg,var(--surface) 0%,
+  color-mix(in srgb,var(--surface) 50%,transparent) 100%);}
+.qr-block h3{display:flex;align-items:center;gap:9px;}
+.qr-block h3::before{content:"";width:4px;height:15px;border-radius:2px;flex:none;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));}
+.mini-compass{box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 6%,transparent),var(--shadow);}
+
 /* Версия, по которой получен результат: без этой строки два прохождения
    в истории выглядят как одно и то же измерение, хотя за одной точкой
    стоит вдвое меньше утверждений. */
