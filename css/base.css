@@ -6,6 +6,17 @@
    зерна .grain, добивающий остатки полос. ============ */
 *{box-sizing:border-box;margin:0;padding:0;}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+/* scroll-behavior:smooth на html здесь сознательно НЕ ставится. Проект
+   и так прокручивает плавно там, где это его решение (js/nav.js при смене
+   вкладки, js/ui.js для кнопки «наверх»), и делает это через параметр
+   behavior — то есть с возможностью отключить по prefers-reduced-motion.
+   Глобальное правило вдобавок к этому перехватывает каждый программный
+   window.scrollTo на странице, включая служебные: в 1.6 оно на полчаса
+   сломало половину визуальных тестов, потому что элементы переставали
+   быть «стабильными», а наблюдатель появления блоков не срабатывал. */
+/* Заголовки набираются с балансировкой строк: у двухстрочного заголовка
+   строки получаются соизмеримыми, а не «девять слов и одно». */
+h1,h2,h3,h4{text-wrap:balance;}
 body{
   min-height:100vh;color:var(--text);
   background:
@@ -22,7 +33,11 @@ body{
       var(--bg-deep) 100%);
   background-attachment:fixed;
   font-family:var(--font-body);
-  font-size:15px;line-height:1.5;position:relative;overflow-x:hidden;
+  font-size:15px;line-height:1.55;position:relative;overflow-x:hidden;
+  /* Висячая строка из одного слова — самый заметный дефект набора на
+     узких колонках, а их здесь много: карточка партии, подписи настроек,
+     колонки подвала. */
+  text-wrap:pretty;
   font-variant-numeric:tabular-nums;
   transition:background .45s ease,color .45s ease;
 }

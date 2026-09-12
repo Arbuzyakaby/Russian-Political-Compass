@@ -1,9 +1,13 @@
 /* ============ Тема: системная / светлая / тёмная ============
    По умолчанию тема системная — берётся из prefers-color-scheme и меняется
-   вместе с настройкой ОС на лету. Кнопка в шапке перебирает три состояния
-   по кругу и запоминает выбор; вернувшись к «системной», приложение снова
-   слушает ОС. Разрешённое значение лежит в data-theme на <html> — на него
-   опираются и стили, и вычисление цветов на графиках. */
+   вместе с настройкой ОС на лету. Разрешённое значение лежит в data-theme
+   на <html> — на него опираются и стили, и вычисление цветов на графиках.
+
+   До 1.6 переключателем была одна кнопка в шапке, перебиравшая три
+   состояния по кругу. У кругового перебора есть неустранимый изъян:
+   чтобы узнать, в каком ты состоянии, надо посмотреть на иконку, а
+   чтобы попасть в нужное — нажимать наугад до двух раз. В меню настроек
+   все три положения видны сразу, и выбор занимает одно нажатие. */
 (function(PC){
   "use strict";
   var KEY = "pc-theme";
@@ -13,6 +17,8 @@
     light:  { icon:"☀️", key:"theme.light" },
     dark:   { icon:"🌙", key:"theme.dark" }
   };
+  /* Сегментированный переключатель в настройках: #themeSeg — контейнер
+     роли radiogroup, кнопки внутри помечены data-val. */
   var root = document.documentElement;
   var listeners = [];
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
@@ -34,31 +40,35 @@
   function onChange(fn){ listeners.push(fn); }
 
   function init(){
-    var btn  = document.getElementById("themeBtn");
-    var icon = document.getElementById("themeIcon");
+    var seg = document.getElementById("themeSeg");
+    var items = seg ? Array.prototype.slice.call(seg.querySelectorAll("[data-val]")) : [];
 
     function paint(){
-      var m = META[pref()];
-      var label = PC.t(m.key);
-      if(icon) icon.textContent = m.icon;
-      if(btn){
-        btn.title = label + " · " + PC.t("theme.hint");
-        btn.setAttribute("aria-label", label);
-      }
-    }
-    paint();
-
-    if(btn && icon){
-      btn.addEventListener("click", function(){
-        var next = ORDER[(ORDER.indexOf(pref()) + 1) % ORDER.length];
-        icon.style.transform = "rotate(180deg) scale(.3)";
-        apply(next);
-        setTimeout(function(){
-          paint();
-          icon.style.transform = "none";
-        }, 170);
+      var now = pref();
+      items.forEach(function(b){
+        var on = b.dataset.val === now;
+        b.setAttribute("aria-checked", String(on));
+        b.tabIndex = on ? 0 : -1;
       });
     }
+
+    items.forEach(function(b, i){
+      b.addEventListener("click", function(){
+        apply(b.dataset.val);
+        paint();
+      });
+      b.addEventListener("keydown", function(e){
+        var step = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1
+                 : e.key === "ArrowLeft"  || e.key === "ArrowUp"   ? -1 : 0;
+        if(!step) return;
+        e.preventDefault();
+        var next = items[(i + step + items.length) % items.length];
+        apply(next.dataset.val);
+        paint();
+        next.focus({ preventScroll:true });
+      });
+    });
+    paint();
 
     /* системная тема сменилась в ОС — подхватываем, пока пользователь
        не выбрал конкретную тему вручную */
@@ -73,5 +83,5 @@
     }
   }
 
-  PC.theme = { init:init, onChange:onChange, current:resolved, pref:pref, set:apply };
+  PC.theme = { init:init, onChange:onChange, current:resolved, pref:pref, set:apply, META:META };
 })(window.PC = window.PC || {});

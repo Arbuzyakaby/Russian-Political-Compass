@@ -4,7 +4,7 @@
    С выравниванием по верху под короткой карточкой оставался случайный
    хвост высотой в разницу с соседкой — отступы выглядели разными. */
 .about{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);
   counter-reset:about-sec;
 }
 .about-card{
@@ -22,11 +22,11 @@
   opacity:.75;
 }
 .about-card:not(.about-hero):nth-of-type(6n+2){--rail:var(--accent);--rail-2:var(--accent-2);}
-.about-card:not(.about-hero):nth-of-type(6n+3){--rail:var(--accent-2);--rail-2:#f0a5c8;}
-.about-card:not(.about-hero):nth-of-type(6n+4){--rail:#f0a5c8;--rail-2:var(--accent);}
-.about-card:not(.about-hero):nth-of-type(6n+5){--rail:var(--accent);--rail-2:#f0a5c8;}
+.about-card:not(.about-hero):nth-of-type(6n+3){--rail:var(--accent-2);--rail-2:var(--note);}
+.about-card:not(.about-hero):nth-of-type(6n+4){--rail:var(--note);--rail-2:var(--accent);}
+.about-card:not(.about-hero):nth-of-type(6n+5){--rail:var(--accent);--rail-2:var(--note);}
 .about-card:not(.about-hero):nth-of-type(6n+6){--rail:var(--accent-2);--rail-2:var(--accent);}
-.about-card:not(.about-hero):nth-of-type(6n+7){--rail:#f0a5c8;--rail-2:var(--accent-2);}
+.about-card:not(.about-hero):nth-of-type(6n+7){--rail:var(--note);--rail-2:var(--accent-2);}
 
 /* Номер раздела перед заголовком — типографский приём редакционных
    лонгридов, задаёт ритм длинному списку карточек и помогает

@@ -41,7 +41,11 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap">
+<!-- Переменные начертания, а не набор статических: в стилях проекта
+     давно стоят промежуточные веса (550, 650, 750), и со статическими
+     файлами браузер округлял их до ближайшего из четырёх — половина
+     задуманной градации иерархии пропадала. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&display=swap">
 
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
@@ -57,6 +61,8 @@
 <link rel="stylesheet" href="css/export.css">
 <link rel="stylesheet" href="css/about.css">
 <link rel="stylesheet" href="css/footer.css">
+<link rel="stylesheet" href="css/select.css">
+<link rel="stylesheet" href="css/settings.css">
 <link rel="stylesheet" href="css/ui.css">
 <!-- слой движения подключается последним: часть его правил намеренно
      уточняет уже описанное выше, и каскад решает это без !important -->
@@ -158,11 +164,13 @@
         <button type="button" class="clear" id="clearBtn" title="Очистить" aria-label="Очистить поиск"
                 data-i18n-attr="title:search.clear;aria-label:search.clear">✕</button>
       </div>
-      <button type="button" class="lang-btn" id="langBtn" title="Switch to English" aria-label="Switch to English">
-        <span class="lang-code" aria-hidden="true">EN</span>
-      </button>
-      <button type="button" class="theme-btn" id="themeBtn" title="Переключить тему" aria-label="Переключить тему">
-        <span id="themeIcon" aria-hidden="true">🖥️</span>
+      <button type="button" class="gear-btn" id="settingsBtn" aria-haspopup="dialog" aria-expanded="false"
+              title="Настройки" aria-label="Настройки"
+              data-i18n-attr="title:set.title;aria-label:set.title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.1"/>
+          <path d="M19.4 14.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V21a2 2 0 1 1-4 0v-.12a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H3a2 2 0 1 1 0-4h.12a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.55V3a2 2 0 1 1 4 0v.12a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1.03H21a2 2 0 1 1 0 4h-.12a1.7 1.7 0 0 0-1.48 1.03z"/>
+        </svg>
       </button>
     </div>
   </header>
@@ -587,8 +595,156 @@
 
 </div>
 
+<!-- ============ МЕНЮ НАСТРОЕК ============
+     Разметка лежит здесь, а не строится скриптом: переключатели темы и
+     языка обязаны существовать к моменту, когда theme.js и i18n.js
+     ищут свои узлы, — то есть до первой отрисовки чего бы то ни было.
+     Логику панели ведёт js/settings.js. -->
+<div class="sheet-scrim" id="setScrim" hidden></div>
+<aside class="sheet" id="setSheet" role="dialog" aria-modal="true" aria-labelledby="setTitle" hidden>
+  <header class="sheet-head">
+    <div>
+      <span class="eyebrow" data-i18n="set.eyebrow">Интерфейс</span>
+      <h2 id="setTitle" data-i18n="set.title">Настройки</h2>
+    </div>
+    <button type="button" class="sheet-close" id="setClose" aria-label="Закрыть настройки"
+            data-i18n-attr="aria-label:set.close">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+    </button>
+  </header>
+
+  <div class="sheet-body">
+    <section class="set-group">
+      <h3 data-i18n="set.look">Оформление</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.theme">Тема</b>
+          <small data-i18n="set.theme.d">Системная следует за настройкой операционной системы</small></span>
+        <div class="seg" id="themeSeg" role="radiogroup" aria-label="Тема"
+             data-i18n-attr="aria-label:set.theme">
+          <button type="button" role="radio" data-val="system" aria-checked="true"
+                  data-i18n="set.theme.system">Система</button>
+          <button type="button" role="radio" data-val="light" aria-checked="false" tabindex="-1"
+                  data-i18n="set.theme.light">Светлая</button>
+          <button type="button" role="radio" data-val="dark" aria-checked="false" tabindex="-1"
+                  data-i18n="set.theme.dark">Тёмная</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.lang">Язык</b>
+          <small data-i18n="set.lang.d">Переключение перезагружает страницу; ответы теста сохраняются</small></span>
+        <div class="seg" id="langSeg" role="radiogroup" aria-label="Язык интерфейса"
+             data-i18n-attr="aria-label:lang.label">
+          <button type="button" role="radio" data-val="ru" aria-checked="true">Русский</button>
+          <button type="button" role="radio" data-val="en" aria-checked="false" tabindex="-1">English</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.density">Плотность</b>
+          <small data-i18n="set.density.d">Компактный режим поджимает отступы, не уменьшая кегль текста</small></span>
+        <div class="seg" data-set-seg="density" role="radiogroup" aria-label="Плотность"
+             data-i18n-attr="aria-label:set.density">
+          <button type="button" role="radio" data-val="cozy" aria-checked="true"
+                  data-i18n="set.density.cozy">Просторно</button>
+          <button type="button" role="radio" data-val="compact" aria-checked="false" tabindex="-1"
+                  data-i18n="set.density.compact">Компактно</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.motion">Движение и фон</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.anim">Анимации</b>
+          <small data-i18n="set.anim.d">Появление блоков, переходы вкладок, рост полос на графиках</small></span>
+        <button type="button" class="sw" data-set-switch="motion" role="switch" aria-checked="true"
+                aria-label="Анимации" data-i18n-attr="aria-label:set.anim"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.grain">Фоновое свечение и зерно</b>
+          <small data-i18n="set.grain.d">Цветное пятно под подвалом и плёночное зерно поверх фона</small></span>
+        <button type="button" class="sw" data-set-switch="grain" role="switch" aria-checked="true"
+                aria-label="Фоновое свечение и зерно" data-i18n-attr="aria-label:set.grain"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.spot">Подсветка под курсором</b>
+          <small data-i18n="set.spot.d">Мягкое пятно света, которое следует за указателем по карточке</small></span>
+        <button type="button" class="sw" data-set-switch="spotlight" role="switch" aria-checked="true"
+                aria-label="Подсветка под курсором" data-i18n-attr="aria-label:set.spot"><i></i></button>
+      </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.compass">Компас</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="trails.btn">Траектории</b>
+          <small data-i18n="set.trails.d">Слой стрелок: как позиции партий смещались во времени</small></span>
+        <button type="button" class="sw" id="setTrails" role="switch" aria-checked="false"
+                aria-label="Траектории" data-i18n-attr="aria-label:trails.btn"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.labels">Подписи партий</b>
+          <small data-i18n="set.labels.d">Без них поле читается как облако точек — названия в подсказке</small></span>
+        <button type="button" class="sw" data-set-switch="labels" role="switch" aria-checked="true"
+                aria-label="Подписи партий" data-i18n-attr="aria-label:set.labels"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.quads">Подсветка квадрантов</b>
+          <small data-i18n="set.quads.d">Цветная заливка четвертей поля под точками партий</small></span>
+        <button type="button" class="sw" data-set-switch="quads" role="switch" aria-checked="true"
+                aria-label="Подсветка квадрантов" data-i18n-attr="aria-label:set.quads"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.grid">Мелкая сетка</b>
+          <small data-i18n="set.grid.d">Линии через одно деление; крупная сетка и оси остаются всегда</small></span>
+        <button type="button" class="sw" data-set-switch="grid" role="switch" aria-checked="true"
+                aria-label="Мелкая сетка" data-i18n-attr="aria-label:set.grid"><i></i></button>
+      </div>
+    </section>
+
+    <footer class="set-foot">
+      <p data-i18n="set.note">Настройки хранятся только в вашем браузере и никуда не отправляются.</p>
+      <button type="button" class="btn small" id="setReset" data-i18n="set.reset">Сбросить настройки</button>
+    </footer>
+  </div>
+</aside>
+
 <footer class="site-footer">
   <div class="foot-inner">
+    <!-- Закрывающая полоса: последнее, что видит читатель, — не список
+         ссылок, а одно предложение и два действия. -->
+    <section class="foot-call" data-reveal>
+      <div class="foot-call-t">
+        <span class="eyebrow" data-i18n="ft.call.eyebrow">Дальше</span>
+        <h2 data-i18n="ft.call.h">Посмотрите, где на этой сетке стоите вы</h2>
+        <p data-i18n="ft.call.p">Сорок утверждений или короткая версия на двадцать — и ваша точка появится
+          на том же поле, рядом с партиями, вместе с разбором каждого ответа.</p>
+      </div>
+      <div class="foot-call-a">
+        <a class="btn primary" href="#/quiz" data-i18n="ft.call.quiz">Пройти тест</a>
+        <a class="btn ghost" href="#/about" data-i18n="ft.call.method">Как считаются координаты</a>
+      </div>
+    </section>
+
+    <!-- Три числа, на которых держится весь проект. Вынесены отдельной
+         строкой, потому что в колонке ссылок они читались как пункты
+         списка, а это не ссылки, а масштаб набора данных. -->
+    <dl class="foot-figures" data-reveal>
+      <div><dt data-i18n="ft.fig.parties">Партий на поле</dt><dd id="footParties">11</dd></div>
+      <div><dt data-i18n="ft.fig.convs">Созывов Госдумы</dt><dd>5</dd></div>
+      <div><dt data-i18n="ft.fig.votes">Ключевых голосований</dt><dd id="footVotes">20</dd></div>
+      <div><dt data-i18n="ft.fig.sub">Под-осей у каждой партии</dt><dd>6</dd></div>
+    </dl>
+
     <div class="foot-grid">
       <div class="foot-brand" data-reveal>
         <div class="foot-mark" aria-hidden="true"><img src="assets/icon.png" alt=""></div>
@@ -633,7 +789,12 @@
 
     <div class="foot-bottom">
       <p data-i18n="ft.legal">Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–VIII, 2003–2021, всего 450 мест); переключить созыв можно над компасом. Координаты и лидеры партий — экспертная оценка и данные на текущий момент; материал не является агитацией.</p>
-      <span class="foot-meta">2026 · CC BY 4.0 · <span class="foot-version" data-i18n-attr="title:foot.version.tip" title="Две пятёрки подряд — слишком круглое число, чтобы портить его версией 1.5.6 в тот же день">v1.5.5</span></span>
+      <span class="foot-meta">
+        <span>2026</span>
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
+        <span class="foot-version" data-i18n-attr="title:foot.version.tip"
+              title="Версия 1.6: новое оформление, сводки о партиях, меню настроек и переделанные траектории">v1.6</span>
+      </span>
     </div>
   </div>
 </footer>
@@ -642,11 +803,13 @@
 <script src="js/utils.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/select.js"></script>
 <script src="js/motion.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/tooltip.js"></script>
 <script src="js/compass.js"></script>
+<script src="js/settings.js"></script>
 <script src="js/radar.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/coalition.js"></script>

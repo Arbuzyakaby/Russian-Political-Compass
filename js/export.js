@@ -269,11 +269,17 @@
       ".node.you .you-halo{fill:" + v("accent") + ";opacity:.14;}",
       ".node.you .tag{fill:" + v("accent") + ";}",
       ".trails{opacity:1;}",
-      ".trail-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" +
-        "stroke-dasharray:7 5;opacity:.62;}",
-      ".trail-dot{opacity:.7;}",
-      ".trail-year{font-size:8.5px;font-weight:650;fill:" + v("muted") +
-        ";paint-order:stroke;stroke:" + v("tag-halo") + ";stroke-width:3px;stroke-linejoin:round;}",
+      ".trail-casing{fill:none;stroke:" + v("tag-halo") +
+        ";stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round;opacity:.9;}",
+      ".trail-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;" +
+        "stroke-dasharray:9 6;opacity:.72;}",
+      ".trail-dot{opacity:.9;stroke:" + v("tag-halo") + ";stroke-width:1.6;}",
+      ".trail-year{font-size:9.5px;font-weight:700;fill:" + v("body") +
+        ";paint-order:stroke;stroke:" + v("tag-halo") + ";stroke-width:3.4px;stroke-linejoin:round;}",
+      /* в файле нет наведения: годы, которые на экране проявляются
+         только в фокусе, в картинке скрыты совсем — иначе экспорт
+         отдавал бы то, чего на экране никогда не видно разом */
+      ".trail-year.dim{display:none;}",
       /* перекрестие и пульсация — состояния наведения, в файле им не место */
       ".cross,.node .pulse,.node .ring,.node .seat.empty{display:none;}",
       ".node.muted,.trail.muted{display:none;}"

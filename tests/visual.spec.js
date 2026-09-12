@@ -44,9 +44,30 @@ async function scrollThrough(page){
   });
 }
 
+/* Поле считается готовым не тогда, когда узлы появились в разметке, а
+   тогда, когда у них есть радиус. Разница принципиальна: точки въезжают
+   анимацией (setTimeout в js/compass.js), а раскладка подписей заново
+   пересчитывается, когда доедет веб-шрифт, — и этот пересчёт заново
+   обнуляет радиусы. Проверка, начинавшаяся сразу после появления узлов,
+   попадала то до анимации, то в середину пересчёта, и падала на пустом
+   месте: то «радиус 0», то «клик перехватила линия сетки», потому что у
+   точки нулевого радиуса нет площади для попадания.
+
+   Шрифты ждём отдельно и первыми: они тянутся из сети, и на медленном
+   канале пересчёт приходит уже после того, как тест всё проверил. */
+async function compassReady(page){
+  await page.waitForFunction(() => window.PC && document.querySelectorAll("#svg .node").length > 0);
+  await page.evaluate(() => (document.fonts && document.fonts.ready) || null).catch(() => {});
+  await page.waitForFunction(() => {
+    const dots = document.querySelectorAll("#svg .node .dot");
+    return dots.length > 0 &&
+      Array.prototype.every.call(dots, d => Number(d.getAttribute("r")) > 0);
+  });
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.waitForFunction(() => window.PC && document.querySelectorAll("#svg .node").length > 0);
+  await compassReady(page);
 });
 
 test("компас отрисован: сетка, подписи осей и точка на каждую партию", async ({ page }) => {
@@ -122,7 +143,11 @@ test("спектр и радар: полосы выросли, у радара �
 });
 
 test("выбор партии открывает карточку с обоснованием координат", async ({ page }) => {
-  await page.locator('#svg .node[data-id="kprf"]').click();
+  /* Кликаем по самому кружку, а не по группе: в группу входят ещё и
+     подписи, её габаритный прямоугольник смещён относительно точки, и
+     центр этого прямоугольника у КПРФ приходится ровно на линию сетки —
+     она и перехватывает нажатие. */
+  await page.locator('#svg .node[data-id="kprf"] .dot').click();
   const side = page.locator("#sideBody");
   await expect(side.locator(".detail")).toBeVisible();
   await expect(side.locator(".sub-sect .sub-row")).toHaveCount(6);
@@ -133,7 +158,11 @@ test("выбор партии открывает карточку с обосн�
 test("вкладка голосований: карточки и матрица совпадений", async ({ page }) => {
   await page.locator("#tab-votes").click();
   await expect(page.locator("#panel-votes")).toBeVisible();
-  await expect(page.locator("#votesHost .vote-card")).toHaveCount(8);
+  /* Число голосований берётся из данных: записанное в тесте руками, оно
+     отставало от набора при каждом пополнении — так восемь и осталось
+     в проверке, когда голосований стало двадцать. */
+  const voteCount = await page.evaluate(() => window.PC.VOTES.length);
+  await expect(page.locator("#votesHost .vote-card")).toHaveCount(voteCount);
 
   /* матрица квадратная: сколько строк, столько и столбцов данных */
   const rows = await page.locator("#votesMatrix tbody tr").count();
@@ -166,7 +195,10 @@ test("тест проходится до результата, и результ
 
 test("результат открывается по ссылке и не трогает чужие ответы", async ({ page }) => {
   const code = "a".repeat(20) + "e".repeat(20);
-  await page.goto("/#/result/" + code);
+  /* Запрос в адресе делает переход полноценной загрузкой: код результата
+     разбирается при инициализации теста, а смена одного лишь хеша на уже
+     открытой странице до этого разбора не доходит. */
+  await page.goto("/?shared=1#/result/" + code);
   await page.waitForFunction(() => document.querySelector(".quiz-result"));
 
   await expect(page.locator("#panel-quiz")).toBeVisible();
@@ -177,9 +209,12 @@ test("результат открывается по ссылке и не тро
 });
 
 test("переключение языка меняет и разметку, и содержимое компаса", async ({ page }) => {
-  await page.locator("#langBtn").click();
+  /* Переключатель языка живёт в меню настроек: с 1.6 в шапке остаётся
+     одна кнопка, открывающая панель. */
+  await page.locator("#settingsBtn").click();
+  await page.locator('#langSeg [data-val="en"]').click();
   await page.waitForFunction(() => document.documentElement.lang === "en");
-  await page.waitForFunction(() => document.querySelectorAll("#svg .node").length > 0);
+  await compassReady(page);
 
   await expect(page.locator("#tab-about")).toHaveText(/About/);
   await expect(page.locator(".legend")).not.toContainText(/[а-яА-Я]/);
@@ -188,11 +223,19 @@ test("переключение языка меняет и разметку, и �
   for(const cap of caps){
     expect(cap, `подпись оси осталась на русском: ${cap}`).not.toMatch(/[а-яА-Я]/);
   }
-  await expect(page.locator("#langBtn .lang-code")).toHaveText("RU");
+  /* панель закрылась вместе с перезагрузкой — открываем заново и
+     убеждаемся, что переключатель показывает выбранный язык */
+  await page.locator("#settingsBtn").click();
+  await expect(page.locator('#langSeg [data-val="en"]')).toHaveAttribute("aria-checked", "true");
 });
 
 test("тёмная и светлая темы дают разный фон и обе рисуют компас", async ({ page }) => {
-  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  /* Фон страницы собран из градиентов, то есть лежит в background-image;
+     backgroundColor у неё прозрачен в обеих темах, и прежнее сравнение
+     сводилось к «rgba(0,0,0,0) не равно rgba(0,0,0,0)». Сравниваем сам
+     токен фона — именно он и переопределяется темой. */
+  const bg = () => page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--bg").trim());
 
   await page.evaluate(() => window.PC.theme.set("dark"));
   const dark = await bg();
@@ -216,4 +259,72 @@ test("снимки экрана для отчёта", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);
   await page.screenshot({ path: "test-results/compass-mobile.png", fullPage: true });
+});
+
+test("меню настроек: открывается, переключает плотность и запирает фокус", async ({ page }) => {
+  await page.locator("#settingsBtn").click();
+  await expect(page.locator("#setSheet")).toBeVisible();
+
+  await page.locator('[data-set-seg="density"] [data-val="compact"]').click();
+  await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
+
+  /* Выключение слоя не перерисовывает поле: точки обязаны остаться
+     на месте, исчезают только подписи. */
+  const before = await page.locator("#svg .node").count();
+  await page.locator('[data-set-switch="labels"]').click();
+  await expect(page.locator("html")).toHaveAttribute("data-labels", "off");
+  expect(await page.locator("#svg .node").count()).toBe(before);
+  await expect(page.locator("#svg .node .tag").first()).toBeHidden();
+
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#setSheet")).toBeHidden();
+
+  /* Выбор переживает перезагрузку — иначе настройка была бы не настройкой,
+     а разовым действием. */
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
+});
+
+test("кастомный список созывов меняет созыв на всей странице", async ({ page }) => {
+  /* на странице два кастомных списка (созыв и партия для радара) —
+     привязываемся к тому, внутри которого лежит нужный <select> */
+  const trigger = page.locator(".xs:has(#convSelect) .xs-btn");
+  await expect(trigger).toBeVisible();
+  /* нативный select остаётся в разметке хранилищем состояния, но с глаз
+     и из дерева доступности убран */
+  await expect(page.locator("#convSelect")).toHaveAttribute("aria-hidden", "true");
+
+  await trigger.click();
+  await expect(page.locator(".xs:has(#convSelect) .xs-pop")).toBeVisible();
+  await page.locator('.xs:has(#convSelect) .xs-opt', { hasText: /^IV/ }).click();
+
+  await expect(page.locator("#convSelect")).toHaveValue("4");
+  await expect(trigger).toContainText("IV");
+  await expect(page.locator(".xs:has(#convSelect) .xs-pop")).toBeHidden();
+  await page.waitForFunction(() => document.querySelectorAll("#svg .node").length > 0);
+});
+
+test("траектории: подложка под линией и фокус на одном маршруте", async ({ page }) => {
+  await page.locator("#trailBtn").click();
+  await expect(page.locator("#svg")).toHaveClass(/show-trails/);
+
+  const trails = page.locator("#svg .trail");
+  expect(await trails.count()).toBeGreaterThan(1);
+  /* у каждой траектории есть подложка цветом полотна: без неё
+     пересечения читаются как штриховка */
+  expect(await page.locator("#svg .trail-casing").count()).toBe(await trails.count());
+
+  await trails.first().hover();
+  await expect(page.locator("#svg .trails")).toHaveClass(/has-focus/);
+  await expect(trails.first()).toHaveClass(/is-focus/);
+});
+
+test("карточка партии открывается со сводкой о партии", async ({ page }) => {
+  await page.locator(".pitem").first().click();
+  const summary = page.locator(".detail .d-summary");
+  await expect(summary).toBeVisible();
+  /* сводка стоит выше координат: пока неясно, что это за партия,
+     числа на шкале ни о чём не говорят */
+  const y = async (sel) => (await page.locator(sel).boundingBox()).y;
+  expect(await y(".detail .d-summary")).toBeLessThan(await y(".detail .coords"));
 });

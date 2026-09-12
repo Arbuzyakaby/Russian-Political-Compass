@@ -69,6 +69,52 @@
     "lang.toggle":        ["Switch to English", "Переключить на русский"],
     "lang.label":         ["Язык интерфейса", "Interface language"],
 
+    /* ===== меню настроек ===== */
+    "set.eyebrow":        ["Интерфейс", "Interface"],
+    "set.title":          ["Настройки", "Settings"],
+    "set.close":          ["Закрыть настройки", "Close settings"],
+    "set.look":           ["Оформление", "Appearance"],
+    "set.theme":          ["Тема", "Theme"],
+    "set.theme.d":        ["Системная следует за настройкой операционной системы",
+                           "System follows your operating system setting"],
+    "set.theme.system":   ["Система", "System"],
+    "set.theme.light":    ["Светлая", "Light"],
+    "set.theme.dark":     ["Тёмная", "Dark"],
+    "set.lang":           ["Язык", "Language"],
+    "set.lang.d":         ["Переключение перезагружает страницу; ответы теста сохраняются",
+                           "Switching reloads the page; your quiz answers are kept"],
+    "set.density":        ["Плотность", "Density"],
+    "set.density.d":      ["Компактный режим поджимает отступы, не уменьшая кегль текста",
+                           "Compact tightens the spacing without shrinking the type"],
+    "set.density.cozy":   ["Просторно", "Cozy"],
+    "set.density.compact":["Компактно", "Compact"],
+    "set.motion":         ["Движение и фон", "Motion and background"],
+    "set.anim":           ["Анимации", "Animations"],
+    "set.anim.d":         ["Появление блоков, переходы вкладок, рост полос на графиках",
+                           "Blocks appearing, tab transitions, bars growing on the charts"],
+    "set.grain":          ["Фоновое свечение и зерно", "Background glow and grain"],
+    "set.grain.d":        ["Цветное пятно под подвалом и плёночное зерно поверх фона",
+                           "The colour wash behind the footer and the film grain over the background"],
+    "set.spot":           ["Подсветка под курсором", "Cursor spotlight"],
+    "set.spot.d":         ["Мягкое пятно света, которое следует за указателем по карточке",
+                           "A soft pool of light that follows the pointer across a card"],
+    "set.compass":        ["Компас", "Compass"],
+    "set.trails.d":       ["Слой стрелок: как позиции партий смещались во времени",
+                           "A layer of arrows: how party positions shifted over time"],
+    "set.labels":         ["Подписи партий", "Party labels"],
+    "set.labels.d":       ["Без них поле читается как облако точек — названия остаются в подсказке",
+                           "Without them the board reads as a cloud of dots — names stay in the tooltip"],
+    "set.quads":          ["Подсветка квадрантов", "Quadrant tint"],
+    "set.quads.d":        ["Цветная заливка четвертей поля под точками партий",
+                           "The colour wash filling each quarter of the board beneath the dots"],
+    "set.grid":           ["Мелкая сетка", "Minor grid"],
+    "set.grid.d":         ["Линии через одно деление; крупная сетка и оси остаются всегда",
+                           "Lines at every single step; the major grid and the axes always stay"],
+    "set.note":           ["Настройки хранятся только в вашем браузере и никуда не отправляются.",
+                           "Settings live in your browser only and are never sent anywhere."],
+    "set.reset":          ["Сбросить настройки", "Reset settings"],
+    "set.resetDone":      ["Настройки сброшены к исходным", "Settings restored to their defaults"],
+
     /* ===== вкладки ===== */
     "tabs.label":         ["Разделы", "Sections"],
     "tab.compass":        ["Компас", "Compass"],
@@ -463,8 +509,8 @@
     "res.hist.now":       ["сейчас", "now"],
     "res.hist.drift":     ["С первого прохождения: экономика {dx}, отношение к государству {dy}.",
                            "Since your first attempt: economy {dx}, attitude to the state {dy}."],
-    "res.hist.five":      ["Пятое прохождение — ровно как в номере версии сайта. Совпадение, но приятное.",
-                           "Fifth attempt — matches the site's version number exactly. A coincidence, but a nice one."],
+    "res.hist.five":      ["Пятое прохождение. Ровно столько созывов Госдумы лежит в данных проекта — совпадение, но приятное.",
+                           "Fifth attempt. Exactly as many Duma convocations as the project holds data for — a coincidence, but a nice one."],
     "res.hist.clear":     ["Очистить историю", "Clear history"],
     "res.hist.cleared":   ["История прохождений очищена", "Attempt history cleared"],
     "res.hist.aria":      ["График ваших прошлых результатов", "Chart of your past results"],
@@ -714,6 +760,17 @@
                            "The source is open: <a href=\"https://github.com/Arbuzyakaby/Russian-Political-Compass\" target=\"_blank\" rel=\"noopener noreferrer\">github.com/Arbuzyakaby/Russian-Political-Compass</a>. Objections to the coordinates, the data or the wording of the questions go through issues."],
 
     /* ===== подвал ===== */
+    "ft.call.eyebrow":    ["Дальше", "Next"],
+    "ft.call.h":          ["Посмотрите, где на этой сетке стоите вы",
+                           "See where you stand on this grid"],
+    "ft.call.p":          ["Сорок утверждений или короткая версия на двадцать — и ваша точка появится на том же поле, рядом с партиями, вместе с разбором каждого ответа.",
+                           "Forty statements, or a short version of twenty, and your own point appears on the same board next to the parties, with every answer broken down."],
+    "ft.call.quiz":       ["Пройти тест", "Take the quiz"],
+    "ft.call.method":     ["Как считаются координаты", "How the coordinates are derived"],
+    "ft.fig.parties":     ["Партий на поле", "Parties on the board"],
+    "ft.fig.convs":       ["Созывов Госдумы", "Duma convocations"],
+    "ft.fig.votes":       ["Ключевых голосований", "Landmark votes"],
+    "ft.fig.sub":         ["Под-осей у каждой партии", "Sub-axes per party"],
     "ft.about":           ["Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по пяти созывам Госдумы.",
                            "Russian parties on two independent axes: the economy and attitude to state power. With the reasoning behind every coordinate and data for five Duma convocations."],
     "ft.l.compass":       ["Компас и аналитика", "Compass and analytics"],
@@ -752,8 +809,8 @@
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Две пятёрки подряд — слишком круглое число, чтобы портить его версией 1.5.6 в тот же день",
-                           "Two fives in a row — too round a number to spoil with a 1.5.6 the same day"]
+    "foot.version.tip":   ["Версия 1.6: новое оформление, сводки о партиях, меню настроек и переделанные траектории",
+                           "Version 1.6: a new look, party summaries, a settings menu and rebuilt trajectories"]
   };
 
   /* ---------- состояние ---------- */
@@ -880,15 +937,26 @@
   }
   function toggle(){ set(lang === "ru" ? "en" : "ru"); }
 
+  /* Переключатель языка живёт в меню настроек и устроен так же, как
+     переключатель темы: не кнопка «другой язык», а два видимых
+     положения. Кнопка «EN» в шапке до 1.6 не показывала текущий выбор,
+     а только предлагала противоположный — по ней нельзя было понять,
+     на каком языке ты сейчас, не прочитав саму страницу. */
   function initSwitch(){
-    var btn = document.getElementById("langBtn");
-    if(!btn) return;
-    var other = lang === "ru" ? "EN" : "RU";
-    var label = btn.querySelector(".lang-code");
-    if(label) label.textContent = other;
-    btn.title = t("lang.toggle");
-    btn.setAttribute("aria-label", t("lang.toggle"));
-    btn.addEventListener("click", toggle);
+    var seg = document.getElementById("langSeg");
+    if(!seg) return;
+    seg.querySelectorAll("[data-val]").forEach(function(b){
+      var on = b.dataset.val === lang;
+      b.setAttribute("aria-checked", String(on));
+      b.tabIndex = on ? 0 : -1;
+      b.addEventListener("click", function(){ set(b.dataset.val); });
+      b.addEventListener("keydown", function(e){
+        if(e.key !== "ArrowRight" && e.key !== "ArrowLeft" &&
+           e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+        e.preventDefault();
+        set(lang === "ru" ? "en" : "ru");
+      });
+    });
   }
 
   /* Метаданные страницы: язык документа влияет на переносы, синтез речи

@@ -30,10 +30,10 @@
 .co-num small{font-size:13px;font-weight:500;letter-spacing:0;color:var(--muted-2);margin-left:4px;}
 .co-verdict{font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid;
   transition:color var(--dur-2,.28s) ease,background var(--dur-2,.28s) ease,border-color var(--dur-2,.28s) ease;}
-.co-verdict.yes{color:#22c55e;border-color:color-mix(in srgb,#22c55e 40%,transparent);
-  background:color-mix(in srgb,#22c55e 10%,transparent);}
-.co-verdict.no{color:#f97316;border-color:color-mix(in srgb,#f97316 40%,transparent);
-  background:color-mix(in srgb,#f97316 10%,transparent);}
+.co-verdict.yes{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent);
+  background:color-mix(in srgb,var(--ok) 10%,transparent);}
+.co-verdict.no{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);
+  background:color-mix(in srgb,var(--warn) 10%,transparent);}
 .co-verdict.none{color:var(--muted-2);border-color:var(--stroke);}
 
 /* полоса и пороги */

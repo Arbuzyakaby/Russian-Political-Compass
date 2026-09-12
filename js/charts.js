@@ -799,10 +799,14 @@
     var sel = host.radarPick;
     if(sel && !sel.options.length){
       sel.innerHTML = list.map(function(o){
-        return '<option value="' + esc(o.id) + '">' + esc(L(o, "short")) + "</option>";
+        return '<option value="' + esc(o.id) + '" data-color="' + esc(o.color) + '">' +
+               esc(L(o, "short")) + "</option>";
       }).join("");
     }
-    if(sel) sel.value = radarPick;
+    if(sel && sel.value !== radarPick){
+      sel.value = radarPick;
+      if(PC.dropdown) PC.dropdown.sync(sel);
+    }
 
     var series = [{ label:L(p, "short"), color:chartColor(p.color), values:p.sub }];
     var res = PC.quiz && PC.quiz.result();

@@ -2,10 +2,18 @@
    Тёмная тема — значения по умолчанию, светлая переопределяет их
    через [data-theme="light"] на <html>.
 
-   Шкала оттенков строится вокруг «обсидиан + аврора» в тёмной теме и
-   «слоновая кость + чернила» в светлой: фон почти нейтральный, цвет
+   Шкала оттенков строится вокруг «обсидиан + янтарь» в тёмной теме и
+   «слоновая кость + жжёная охра» в светлой: фон почти нейтральный, цвет
    приходит из мягких свечений, а не из заливок — так данные на графиках
    остаются самым ярким на экране.
+
+   До версии 1.6 акцентной парой была бирюза с лиловым. Пара сменена
+   сознательно: холодная бирюза спорила с синим цветом «Единой России»
+   и голубыми линиями графиков, а сочетание «голубой → фиолетовый»
+   стало самым узнаваемым штампом машинно сгенерированных интерфейсов.
+   Тёплый янтарь на почти чёрном фоне не встречается ни в одном цвете
+   партий и потому читается как голос интерфейса, а не как ещё одни
+   данные.
 
    --blob-3 — единственное цветное пятно фона (внизу по центру): пятна
    в верхних углах убраны, верх подсвечивает ореол в background у body.
@@ -13,13 +21,13 @@
    Градиенты «акцент → второй акцент» в коде объявляются дважды: сначала
    в sRGB, следом в oklab. Браузеры без поддержки интерполяции игнорируют
    вторую строку, поддерживающие получают переход без грязной середины
-   между бирюзовым и лиловым. ============ */
+   между янтарём и терракотой. ============ */
 :root{
   color-scheme:dark;
 
-  --bg:#06080e;
-  --bg-deep:#04060b;
-  --blob-3:rgba(20,184,166,.15);
+  --bg:#08090d;
+  --bg-deep:#050609;
+  --blob-3:rgba(240,178,95,.13);
 
   --surface:rgba(255,255,255,.035);
   --surface-2:rgba(255,255,255,.065);
@@ -30,15 +38,46 @@
   --stroke-2:rgba(255,255,255,.17);
   --hairline:rgba(255,255,255,.42);   /* верхний блик на карточках */
 
-  --text:#f4f7fd;
-  --body:#cfd6e6;
-  --muted:#8d97b0;
-  --muted-2:#6a7388;
+  --text:#f6f5f2;
+  --body:#d6d4cd;
+  --muted:#9a968c;
+  --muted-2:#74706a;
 
-  --accent:#6ee7f9;
-  --accent-2:#a78bfa;
-  --accent-soft:rgba(110,231,249,.13);
-  --accent-line:rgba(110,231,249,.42);
+  --accent:#f0b25f;
+  --accent-2:#e07a5f;
+  --accent-soft:rgba(240,178,95,.13);
+  --accent-line:rgba(240,178,95,.42);
+
+  /* ---------- семантические цвета ----------
+     До 1.6 зелёный «за», красный «против» и оранжевый «воздержались»
+     были вписаны прямо в css/votes.css, css/quiz.css и css/coalition.css
+     разными хексами: один и тот же смысл выглядел в трёх местах
+     по-разному, а в светлой теме половина из них теряла контраст.
+     Теперь смысл один, значение одно, и у каждой темы своё. */
+  --ok:#5ec98a;
+  --ok-soft:rgba(94,201,138,.14);
+  --warn:#e8a33d;
+  --warn-soft:rgba(232,163,61,.14);
+  --bad:#f0736b;
+  --bad-soft:rgba(240,115,107,.14);
+  --info:#79a6e8;
+  --info-soft:rgba(121,166,232,.14);
+  --note:#b79bf0;
+  --note-soft:rgba(183,155,240,.14);
+
+  /* ---------- тон раздела ----------
+     Вкладки перестали быть четырьмя одинаковыми экранами: у каждой свой
+     оттенок, которым подсвечиваются бегунок вкладки, заголовки разделов
+     и активные элементы внутри. Значение подставляется в --tone по
+     data-section на <html> (см. js/nav.js) — так ни один виджет не
+     обязан знать, в какой вкладке он живёт. */
+  --tone-compass:#f0b25f;
+  --tone-quiz:#79a6e8;
+  --tone-votes:#5ec98a;
+  --tone-about:#b79bf0;
+  --tone:var(--tone-compass);
+  --tone-soft:color-mix(in srgb,var(--tone) 13%,transparent);
+  --tone-line:color-mix(in srgb,var(--tone) 42%,transparent);
 
   --line-minor:rgba(255,255,255,.035);
   --line-major:rgba(255,255,255,.085);
@@ -48,12 +87,12 @@
   --cap:rgba(255,255,255,.66);
   --quad-cap:rgba(255,255,255,.30);
   --tag:rgba(255,255,255,.86);
-  --tag-halo:rgba(6,8,14,.92);
+  --tag-halo:rgba(8,9,13,.92);
   --dot-stroke:rgba(255,255,255,.9);
   --quad-op:1;
 
   /* графики: цвет полотна для зазоров между марками и колец на пересечениях */
-  --chart-surface:#0a0d16;
+  --chart-surface:#0c0d12;
   --chart-grid:rgba(255,255,255,.07);
   --chart-axis:rgba(255,255,255,.16);
   --chart-empty:rgba(255,255,255,.09);
@@ -70,57 +109,113 @@
   --hero-veil-a:var(--card-a);
   --hero-veil-b:var(--card-b);
 
-  --tip-bg:rgba(11,14,22,.94);
+  --tip-bg:rgba(14,15,20,.94);
   --shadow:0 24px 70px -20px rgba(0,0,0,.75);
   --shadow-lift:0 34px 90px -28px rgba(0,0,0,.85);
-  --radius:18px;
+
+  /* ---------- радиусы ----------
+     Не один размер на всё: контейнер мягче вложенного в него элемента,
+     иначе вложение читается как наклейка поверх карточки. */
+  --radius-xs:8px;
   --radius-sm:12px;
+  --radius:18px;
+  --radius-lg:24px;
+  --radius-pill:999px;
+
+  /* ---------- плотность интерфейса ----------
+     Переключается в настройках (js/settings.js ставит data-density
+     на <html>). Просторный режим — значение по умолчанию; компактный
+     поджимает вертикальные отступы и радиусы, не трогая размер текста:
+     уменьшать кегль ради плотности значит выигрывать место за счёт
+     читаемости. */
+  --gap:18px;
+  --gap-lg:26px;
+  --pad-card:18px;
+  --sect-gap:52px;
 
   --font-body:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
   --font-display:"Manrope","Inter","Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+
+  /* ---------- слои ----------
+     Раньше индексы назначались на глаз и расходились между файлами;
+     здесь весь порядок перекрытий виден одним списком. */
+  --z-base:1;
+  --z-sticky:25;
+  --z-float:55;
+  --z-bar:60;
+  --z-toast:70;
+  --z-sheet:80;
+  --z-skip:100;
 }
+
+:root[data-density="compact"]{
+  --gap:13px;
+  --gap-lg:18px;
+  --pad-card:14px;
+  --sect-gap:34px;
+  --radius:14px;
+  --radius-lg:18px;
+}
+
 :root[data-theme="light"]{
   color-scheme:light;
 
-  --bg:#eceff6;
-  --bg-deep:#e3e7f0;
-  --blob-3:rgba(16,185,129,.12);
+  --bg:#f1efea;
+  --bg-deep:#e7e4dd;
+  --blob-3:rgba(224,122,95,.11);
 
   --surface:rgba(255,255,255,.72);
   --surface-2:rgba(255,255,255,.95);
   --surface-3:rgba(255,255,255,1);
   --card-a:rgba(255,255,255,.88);
   --card-b:rgba(255,255,255,.68);
-  --stroke:rgba(16,24,48,.10);
-  --stroke-2:rgba(16,24,48,.20);
+  --stroke:rgba(38,30,22,.10);
+  --stroke-2:rgba(38,30,22,.20);
   --hairline:rgba(255,255,255,.95);
 
-  --text:#0f172a;
-  --body:#334155;
-  --muted:#59637a;
-  --muted-2:#87909f;
+  --text:#1c1a17;
+  --body:#413d37;
+  --muted:#6b655c;
+  --muted-2:#928b81;
 
-  --accent:#0e7490;
-  --accent-2:#7c3aed;
-  --accent-soft:rgba(14,116,144,.10);
-  --accent-line:rgba(14,116,144,.40);
+  --accent:#a1541c;
+  --accent-2:#9c4221;
+  --accent-soft:rgba(161,84,28,.10);
+  --accent-line:rgba(161,84,28,.40);
 
-  --line-minor:rgba(16,24,48,.05);
-  --line-major:rgba(16,24,48,.12);
-  --line-axis:rgba(16,24,48,.32);
-  --line-frame:rgba(16,24,48,.16);
-  --tick:rgba(16,24,48,.38);
-  --cap:rgba(16,24,48,.62);
-  --quad-cap:rgba(16,24,48,.34);
-  --tag:rgba(15,23,42,.92);
+  --ok:#15803d;
+  --ok-soft:rgba(21,128,61,.11);
+  --warn:#a16207;
+  --warn-soft:rgba(161,98,7,.11);
+  --bad:#b3261e;
+  --bad-soft:rgba(179,38,30,.10);
+  --info:#1d4ed8;
+  --info-soft:rgba(29,78,216,.10);
+  --note:#6d28d9;
+  --note-soft:rgba(109,40,217,.10);
+
+  --tone-compass:#a1541c;
+  --tone-quiz:#1d4ed8;
+  --tone-votes:#15803d;
+  --tone-about:#6d28d9;
+
+  --line-minor:rgba(38,30,22,.05);
+  --line-major:rgba(38,30,22,.12);
+  --line-axis:rgba(38,30,22,.32);
+  --line-frame:rgba(38,30,22,.16);
+  --tick:rgba(38,30,22,.38);
+  --cap:rgba(38,30,22,.62);
+  --quad-cap:rgba(38,30,22,.34);
+  --tag:rgba(28,26,23,.92);
   --tag-halo:rgba(255,255,255,.95);
   --dot-stroke:rgba(255,255,255,.95);
   --quad-op:.72;
 
   --chart-surface:#ffffff;
-  --chart-grid:rgba(16,24,48,.08);
-  --chart-axis:rgba(16,24,48,.20);
-  --chart-empty:rgba(16,24,48,.10);
+  --chart-grid:rgba(38,30,22,.08);
+  --chart-axis:rgba(38,30,22,.20);
+  --chart-empty:rgba(38,30,22,.10);
   --chart-lift:0;
 
   --hero-bg:url("../assets/hero-bg-white.png");
@@ -131,6 +226,13 @@
   --hero-veil-b:rgba(255,255,255,.46);
 
   --tip-bg:rgba(255,255,255,.97);
-  --shadow:0 22px 60px -22px rgba(15,23,42,.32);
-  --shadow-lift:0 30px 80px -26px rgba(15,23,42,.40);
+  /* Тень тонирована цветом фона, а не чистым чёрным: серая тень на
+     тёплой подложке выглядит грязным пятном, а не глубиной. */
+  --shadow:0 22px 60px -22px rgba(58,42,28,.30);
+  --shadow-lift:0 30px 80px -26px rgba(58,42,28,.38);
 }
+
+/* ---------- тон активного раздела ---------- */
+:root[data-section="quiz"]{ --tone:var(--tone-quiz); }
+:root[data-section="votes"]{ --tone:var(--tone-votes); }
+:root[data-section="about"]{ --tone:var(--tone-about); }

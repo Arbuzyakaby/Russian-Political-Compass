@@ -3,3 +3,7 @@
 node_modules/
 test-results/
 playwright-report/
+# Playwright ставится отдельной командой и в зависимости проекта не
+# входит (см. playwright.config.js): страница обещает работать без сборки,
+# и lock-файл от разовой установки тестового движка этому противоречил бы.
+package-lock.json

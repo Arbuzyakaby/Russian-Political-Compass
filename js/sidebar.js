@@ -172,6 +172,11 @@
             esc(L(p, "name").trim().charAt(0)) + '</div>' +
           '<div><h3>' + esc(L(p, "name")) + '</h3><div class="ideo">' + esc(L(p, "ideology")) + '</div></div>' +
         '</div>' +
+        /* Сводка стоит выше координат сознательно: пока читатель не знает,
+           что это за партия, числа «−8.0 / 4.8» ему не о чем. */
+        (L(p, "summary")
+          ? '<p class="d-summary">' + esc(L(p, "summary")) + '</p>'
+          : "") +
         '<div class="leader"><span class="k">' + esc(t("side.leader")) + '</span><span class="v">' +
           esc(L(p, "leader")) + '</span></div>' +
         '<div class="coords">' +

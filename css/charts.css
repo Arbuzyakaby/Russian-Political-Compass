@@ -12,7 +12,7 @@
    список, хотя отвечают на два разных вопроса. Внутри группы плитки
    идут по три в ряд — при шести колонках подпись «Эффективное число
    фракций» переносилась на четыре строки и ломала высоту ряда. */
-.stats{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-bottom:20px;}
+.stats{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--gap);margin-bottom:var(--gap-lg);}
 @media(min-width:1240px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .stat-group{position:relative;padding:12px;border-radius:calc(var(--radius-sm) + 6px);
   border:1px solid var(--stroke);
@@ -58,7 +58,7 @@
 .stat-dual .num{font-family:var(--font-display);font-size:clamp(15px,1.7vw,18px);font-weight:750;letter-spacing:-.02em;white-space:nowrap;}
 
 /* ---------- сетка карточек ---------- */
-.charts{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start;}
+.charts{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--gap-lg);align-items:start;}
 .chart-card{padding:18px;position:relative;min-width:0;}
 .chart-card.wide{grid-column:1 / -1;}
 .chart-head{margin-bottom:14px;}
@@ -186,8 +186,8 @@
 .c-tip .r.on{color:var(--text);background:var(--surface);border-radius:6px;
   margin:0 -4px;padding:0 4px;}
 .c-tip .r u{margin-left:8px;font-size:9.5px;text-decoration:none;font-variant-numeric:tabular-nums;flex:none;}
-.c-tip .r u.up{color:#3fb950;}
-.c-tip .r u.down{color:#f85149;}
+.c-tip .r u.up{color:var(--ok);}
+.c-tip .r u.down{color:var(--bad);}
 .c-tip .r u.flat,.c-tip .r u.new{color:var(--muted-2);}
 .c-tip .f{margin-top:7px;padding-top:6px;border-top:1px solid var(--stroke);
   font-size:9.5px;color:var(--muted-2);}

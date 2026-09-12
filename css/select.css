@@ -1,0 +1,87 @@
+/* ============ КАСТОМНЫЙ ВЫПАДАЮЩИЙ СПИСОК ============
+   Разметку строит js/select.js поверх нативного <select>. Здесь только
+   оформление: кнопка выглядит как остальные переключатели страницы
+   (правила для них общие и лежат в css/ui.css), а всплывающий список —
+   как подсказка компаса: плотный фон, размытие подложки, тонкая рамка.
+
+   Нативный select остаётся в разметке хранилищем состояния и убирается
+   из потока. Не display:none: скрытый так элемент в некоторых браузерах
+   перестаёт отдавать offsetWidth, а сам select ещё участвует в
+   восстановлении формы при возврате «назад». ============ */
+.xs{position:relative;display:inline-flex;}
+.xs-native{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;
+  clip-path:inset(50%);}
+
+/* ---------- кнопка ---------- */
+.xs-btn{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  height:32px;padding:0 10px 0 12px;border-radius:var(--radius-sm);
+  font:inherit;font-size:12px;font-weight:600;letter-spacing:-.005em;
+  color:var(--body);background:var(--surface);border:1px solid var(--stroke);
+  white-space:nowrap;
+  transition:background var(--dur-1,.16s) var(--ease-swift,ease),
+             border-color var(--dur-1,.16s) var(--ease-swift,ease),
+             color var(--dur-1,.16s) var(--ease-swift,ease),
+             transform var(--dur-1,.16s) var(--ease-spring,ease);
+}
+.xs-btn:hover{background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);}
+.xs-btn:active{transform:scale(.97);}
+.xs-btn:focus-visible{outline:2px solid var(--tone);outline-offset:2px;
+  box-shadow:0 0 0 5px var(--tone-soft);}
+.xs.is-open .xs-btn{background:var(--surface-2);border-color:var(--tone-line);color:var(--text);}
+
+.xs-note{font-size:11px;font-weight:500;color:var(--muted-2);font-variant-numeric:tabular-nums;}
+.xs-note:empty{display:none;}
+.xs-caret{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;opacity:.6;margin-left:2px;
+  transition:transform var(--dur-2,.28s) var(--ease-spring,ease),opacity .16s ease;}
+.xs.is-open .xs-caret{transform:rotate(180deg);opacity:1;}
+
+/* цветная метка партии — та же, что в списке слева */
+.xs-dot{width:9px;height:9px;border-radius:3px;flex:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);}
+.xs-dot[hidden]{display:none;}
+
+/* ---------- всплывающий список ---------- */
+.xs-pop{
+  position:absolute;z-index:var(--z-float,55);top:calc(100% + 7px);right:0;min-width:100%;
+  max-height:min(340px,60vh);overflow-y:auto;overscroll-behavior:contain;
+  display:flex;flex-direction:column;gap:2px;padding:6px;
+  border-radius:var(--radius);border:1px solid var(--stroke-2);
+  background:color-mix(in srgb,var(--tip-bg) 96%,transparent);
+  box-shadow:var(--shadow-lift);
+  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
+  animation:xs-in .18s var(--ease-out,cubic-bezier(.2,.8,.3,1)) both;
+}
+/* display:flex выигрывает у браузерного [hidden]{display:none} — оба
+   правила одной специфичности, и побеждает объявленное позже. Без этой
+   строки список стоял бы раскрытым с самой загрузки страницы. */
+.xs-pop[hidden]{display:none;}
+.xs.drop-up .xs-pop{top:auto;bottom:calc(100% + 7px);transform-origin:bottom right;
+  animation-name:xs-in-up;}
+@keyframes xs-in{from{opacity:0;transform:translateY(-6px) scale(.98);}to{opacity:1;transform:none;}}
+@keyframes xs-in-up{from{opacity:0;transform:translateY(6px) scale(.98);}to{opacity:1;transform:none;}}
+
+.xs-opt{
+  display:flex;align-items:center;gap:9px;width:100%;cursor:pointer;text-align:left;
+  padding:8px 10px;border-radius:var(--radius-xs);border:1px solid transparent;
+  font:inherit;font-size:12.5px;font-weight:550;color:var(--body);background:transparent;
+  transition:background .12s ease,color .12s ease;
+}
+.xs-opt:hover{background:var(--surface-2);color:var(--text);}
+.xs-opt:focus-visible{outline:none;background:var(--surface-2);color:var(--text);
+  border-color:var(--tone-line);}
+.xs-opt[aria-selected="true"]{background:var(--tone-soft);color:var(--tone);}
+.xs-opt-t{flex:1;white-space:nowrap;}
+.xs-opt-n{font-size:11px;font-weight:500;color:var(--muted-2);font-variant-numeric:tabular-nums;}
+.xs-tick{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .12s ease;}
+.xs-opt[aria-selected="true"] .xs-tick{opacity:1;}
+
+/* На узком экране список раскрывается во всю ширину своей карточки:
+   выпадашка шириной в кнопку на телефоне даёт две строки на вариант. */
+@media(max-width:520px){
+  .xs{width:100%;}
+  .xs-btn{width:100%;justify-content:space-between;height:38px;}
+  .xs-pop{left:0;right:0;}
+}

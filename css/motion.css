@@ -84,11 +84,14 @@
 .tabs{position:relative;}
 .tab-indicator{
   position:absolute;left:0;top:5px;bottom:5px;z-index:0;
-  border-radius:10px;background:var(--accent-soft);
-  box-shadow:inset 0 0 0 1px var(--accent-line);
+  border-radius:10px;background:var(--tone-soft);
+  box-shadow:inset 0 0 0 1px var(--tone-line);
   opacity:0;
+  /* цвет едет вместе с бегунком: у каждой вкладки свой тон (см.
+     --tone-* в css/tokens.css), и переход между ними должен быть
+     таким же непрерывным, как само движение */
   transition:transform var(--dur-3) var(--ease-out-soft),width var(--dur-3) var(--ease-out-soft),
-    opacity var(--dur-2) ease;
+    opacity var(--dur-2) ease,background var(--dur-3) ease,box-shadow var(--dur-3) ease;
 }
 /* фон активной вкладки теперь рисует бегунок — у самой кнопки остаётся
    только цвет текста, иначе подсветка была бы двойной */

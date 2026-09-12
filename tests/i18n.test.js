@@ -116,7 +116,7 @@ test("L(): английское поле подменяет русское и о
 });
 
 test("данные партий переведены целиком", () => {
-  const TEXT = ["name", "short", "tag", "ideology", "leader", "why"];
+  const TEXT = ["name", "short", "tag", "ideology", "summary", "leader", "why"];
   for(const p of en.PARTIES){
     assert.ok(p.en, `у партии ${p.id} нет английского блока`);
     for(const field of TEXT){

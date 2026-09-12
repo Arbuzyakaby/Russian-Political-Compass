@@ -97,8 +97,8 @@
 .toast::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
   margin-right:9px;vertical-align:1px;background:var(--accent);
   box-shadow:0 0 0 3px var(--accent-soft);}
-.toast.bad{border-color:color-mix(in srgb,#f85149 45%,var(--stroke-2));}
-.toast.bad::before{background:#f85149;box-shadow:0 0 0 3px rgba(248,81,73,.18);}
+.toast.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--stroke-2));}
+.toast.bad::before{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft);}
 .toast.out{animation:toast-out .3s ease both;}
 @keyframes toast-in{from{opacity:0;transform:translateY(14px) scale(.96);}to{opacity:1;transform:none;}}
 @keyframes toast-out{to{opacity:0;transform:translateY(8px) scale(.97);}}
@@ -113,8 +113,8 @@
 }
 
 /* ---------- единые состояния переключателей ----------
-   Кнопки темы и языка, чипы фильтров, выбор созыва, переключатели
-   шкалы графика и фракций песочницы раньше вели себя по-разному:
+   Чипы фильтров, переключатели шкалы графика и фракций песочницы
+   раньше вели себя по-разному:
    одни поднимались на 2px, другие на 1px, третьи не поднимались вовсе,
    у кого-то при наведении менялся фон, у кого-то только рамка. Здесь
    один набор правил на всех: наведение — светлее фон и рамка, текст
@@ -122,23 +122,20 @@
    акцентная подложка с внутренним бликом; фокус — кольцо акцента.
    Файл подключён после header.css и layout.css, поэтому уточняет их
    без повышения специфичности. */
-.theme-btn,.lang-btn,.chip,.conv-select select,.trend-mode,.data-toggle,.co-tog{
+.chip,.trend-mode,.data-toggle,.co-tog{
   transition:background var(--dur-1,.16s) var(--ease-swift,ease),
              border-color var(--dur-1,.16s) var(--ease-swift,ease),
              color var(--dur-1,.16s) var(--ease-swift,ease),
              box-shadow var(--dur-2,.28s) var(--ease-out,ease),
              transform var(--dur-1,.16s) var(--ease-spring,ease);}
-.theme-btn:hover,.lang-btn:hover,.chip:hover,.conv-select select:hover,
-.trend-mode:hover:not(:disabled),.data-toggle:hover{
+.chip:hover,.trend-mode:hover:not(:disabled),.data-toggle:hover{
   background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);
   transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(0,0,0,.45);}
-.theme-btn:active,.lang-btn:active,.chip:active,.trend-mode:active:not(:disabled),
-.data-toggle:active{transform:translateY(0) scale(.95);box-shadow:none;}
+.chip:active,.trend-mode:active:not(:disabled),.data-toggle:active{transform:translateY(0) scale(.95);box-shadow:none;}
 .chip[aria-pressed="true"],.trend-mode[aria-pressed="true"]{
   background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);
   box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 10%,transparent);}
-.theme-btn:focus-visible,.lang-btn:focus-visible,.chip:focus-visible,
-.conv-select select:focus-visible,.trend-mode:focus-visible,.data-toggle:focus-visible{
+.chip:focus-visible,.trend-mode:focus-visible,.data-toggle:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px;box-shadow:0 0 0 5px var(--accent-soft);}
 .trend-mode:disabled{opacity:.45;cursor:default;}
 
@@ -148,8 +145,9 @@
    на белом, ссылки раскрываются адресами. */
 @media print{
   .grain,.read-bar,.to-top,.toasts,.tools,.tabs,.tabs-sentinel,
-  .chips,.trail-chip,.export-wrap,.conv-select,.data-toggle,.co-card .chart-toolbar,
-  .foot-col,.tip,.c-tip,.hemi-center{display:none!important;}
+  .chips,.trail-chip,.export-wrap,.conv-select,.xs,.sheet,.sheet-scrim,
+  .data-toggle,.co-card .chart-toolbar,
+  .foot-col,.foot-call,.foot-figures,.tip,.c-tip,.hemi-center{display:none!important;}
   body{background:#fff!important;color:#000;}
   body::after{display:none!important;}
   .shell{max-width:none;padding:0;}

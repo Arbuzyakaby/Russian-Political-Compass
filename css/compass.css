@@ -91,18 +91,44 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;}
 /* ---- траектории партий во времени (необязательный слой) ---- */
 /* Слой всегда есть в DOM: включение — смена прозрачности, а не перерисовка.
    pointer-events отключены у выключенного слоя, иначе невидимые узлы
-   маршрута перехватывали бы наведение на партийные точки. */
+   маршрута перехватывали бы наведение на партийные точки.
+
+   Главная задача оформления здесь — развести восемь маршрутов, которые
+   в правой верхней четверти поля идут почти по одному месту. Работают
+   три приёма: подложка цветом полотна под каждой линией (пересечения
+   читаются как развязка, а не как штриховка), режим фокуса (наведение
+   на маршрут или на точку партии гасит остальные) и годы, которые
+   проявляются только у маршрута в фокусе. */
 .trails{opacity:0;pointer-events:none;transition:opacity .4s ease;}
 svg.compass.show-trails .trails{opacity:1;pointer-events:auto;}
 .trail{transition:opacity .3s ease;}
 .trail.muted{opacity:.08;pointer-events:none;}
-.trail-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:7 5;opacity:.62;transition:opacity .25s ease,stroke-width .25s ease;}
-.trail-dot{opacity:.7;cursor:pointer;transition:r .2s cubic-bezier(.34,1.5,.5,1),opacity .2s ease;}
-.trail-dot:hover{r:5;opacity:1;}
-.trail-year{font-size:8.5px;font-weight:650;fill:var(--muted);pointer-events:none;
-  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3px;stroke-linejoin:round;}
-.trail.active .trail-line,.trail:hover .trail-line{opacity:1;stroke-width:2.6;}
+
+/* подложка: тот же путь, но шире и цветом фона поля */
+.trail-casing{fill:none;stroke:var(--tag-halo);stroke-width:6.5;stroke-linecap:round;
+  stroke-linejoin:round;opacity:.9;transition:stroke-width .25s ease;}
+.trail-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:9 6;opacity:.72;transition:opacity .25s ease,stroke-width .25s ease;}
+.trail-dot{opacity:.9;cursor:pointer;stroke-width:1.6;
+  transition:r .2s cubic-bezier(.34,1.5,.5,1),opacity .2s ease;}
+.trail-dot:hover{r:6.4;opacity:1;}
+.trail-year{font-size:9.5px;font-weight:700;fill:var(--body);pointer-events:none;
+  font-variant-numeric:tabular-nums;
+  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3.4px;stroke-linejoin:round;
+  transition:opacity .22s ease;}
+/* промежуточные годы и год финиша — только у маршрута в фокусе */
+.trail-year.dim{opacity:0;}
+.trail.is-focus .trail-year.dim{opacity:1;}
+
+/* ---- режим фокуса ----
+   Пока курсор на одном маршруте, остальные почти гаснут: сравнивать
+   восемь траекторий разом всё равно невозможно, а вопрос у читателя
+   всегда про одну партию. */
+.trails.has-focus .trail:not(.is-focus){opacity:.1;}
+.trails.has-focus .trail:not(.is-focus) .trail-casing{opacity:0;}
+.trail.is-focus .trail-line,.trail.active .trail-line{opacity:1;stroke-width:3.1;}
+.trail.is-focus .trail-casing,.trail.active .trail-casing{stroke-width:8;}
+
 svg.compass.show-trails .trails .trail-line{animation:trail-run 18s linear infinite;}
 @keyframes trail-run{to{stroke-dashoffset:-240;}}
 @media(prefers-reduced-motion:reduce){

@@ -19,6 +19,51 @@
 }
 .foot-inner{max-width:1440px;margin:0 auto;padding:34px 0 26px;}
 
+/* ---------- закрывающая полоса ----------
+   Подвал, который начинается сразу со списка ссылок, читается как
+   служебный хвост. Первое, что здесь стоит, — одно предложение и два
+   действия: страница заканчивается предложением, а не оглавлением. */
+.foot-call{
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;
+  padding:clamp(22px,3vw,34px);margin-bottom:26px;border-radius:var(--radius-lg);
+  border:1px solid var(--stroke);
+  background:
+    radial-gradient(520px 300px at 8% -30%,var(--accent-soft) 0%,transparent 72%),
+    linear-gradient(160deg,var(--card-a) 0%,var(--card-b) 100%);
+}
+/* тёплая нить по верхней кромке: единственное место в подвале, где
+   акцентная пара показана градиентом целиком */
+.foot-call::before{
+  content:"";position:absolute;inset:0 0 auto;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent) 22%,var(--accent-2) 78%,transparent);
+  background:linear-gradient(90deg in oklab,transparent,var(--accent) 22%,var(--accent-2) 78%,transparent);
+  opacity:.8;
+}
+.foot-call-t{min-width:min(100%,30ch);flex:1;}
+.foot-call h2{font-family:var(--font-display);font-size:clamp(19px,2.2vw,27px);font-weight:750;
+  letter-spacing:-.035em;line-height:1.14;margin-top:7px;text-wrap:balance;}
+.foot-call p{font-size:13px;line-height:1.6;color:var(--muted);margin-top:9px;max-width:52ch;
+  text-wrap:pretty;}
+.foot-call-a{display:flex;gap:10px;flex-wrap:wrap;flex:none;}
+.foot-call-a .btn{text-decoration:none;}
+
+/* ---------- три числа ----------
+   Масштаб набора данных числами, а не пунктами списка. Цифра набрана
+   кеглем заголовка: она здесь главное, подпись — уточнение. */
+.foot-figures{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-bottom:30px;
+  border-radius:var(--radius);overflow:hidden;background:var(--stroke);
+  border:1px solid var(--stroke);
+}
+.foot-figures > div{
+  display:flex;flex-direction:column-reverse;gap:5px;
+  padding:15px 16px;background:color-mix(in srgb,var(--surface) 70%,transparent);
+}
+.foot-figures dd{font-family:var(--font-display);font-size:clamp(20px,2.4vw,27px);font-weight:750;
+  letter-spacing:-.04em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+.foot-figures dt{font-size:10.5px;line-height:1.35;color:var(--muted-2);letter-spacing:.01em;}
+
 .foot-grid{display:grid;grid-template-columns:1.6fr repeat(3,minmax(0,1fr));gap:28px 30px;}
 
 /* ---------- бренд ---------- */
@@ -57,19 +102,34 @@
 .foot-bottom{margin-top:30px;padding-top:18px;border-top:1px solid var(--stroke);
   display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;}
 .foot-bottom p{font-size:11px;color:var(--muted-2);line-height:1.6;max-width:82ch;}
-.foot-bottom .foot-meta{font-size:11px;color:var(--muted-2);white-space:nowrap;}
-/* Подчёркивание пунктиром намекает, что у номера версии есть подсказка —
-   иначе title у инлайн-текста ничем не отличается от обычной строки. */
-.foot-version{cursor:help;border-bottom:1px dotted var(--muted-2);}
+.foot-bottom .foot-meta{display:flex;align-items:center;gap:9px;flex:none;
+  font-size:11px;color:var(--muted-2);white-space:nowrap;}
+/* разделители точками рисуются псевдоэлементом, а не набираются руками:
+   при смене состава строки их не приходится переставлять */
+.foot-meta > * + *::before{content:"·";margin-right:9px;color:var(--stroke-2);}
+.foot-meta a{color:var(--muted-2);text-decoration:none;border-bottom:1px solid transparent;}
+.foot-meta a:hover{color:var(--accent);border-bottom-color:var(--accent-line);}
+/* Номер версии — не строка текста, а плашка: у него есть подсказка, и
+   пунктирное подчёркивание для этого читалось слишком робко. */
+.foot-version{
+  cursor:help;padding:3px 8px;border-radius:var(--radius-pill);
+  font-weight:650;font-variant-numeric:tabular-nums;color:var(--accent);
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+}
 
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:900px){
   .foot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 22px;}
   .foot-brand{grid-column:1 / -1;}
+  .foot-figures{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 @media(max-width:520px){
   .site-footer{margin-top:36px;}
   .foot-inner{padding:26px 0 22px;}
+  .foot-call{padding:20px;margin-bottom:20px;}
+  .foot-call-a{width:100%;}
+  .foot-call-a .btn{flex:1;text-align:center;justify-content:center;}
+  .foot-figures{margin-bottom:22px;}
   .foot-grid{grid-template-columns:1fr;gap:22px;}
   .foot-bottom{margin-top:22px;}
 }

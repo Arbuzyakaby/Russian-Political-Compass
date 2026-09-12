@@ -43,7 +43,10 @@
     if(state.active && seatsOf(PC.partyById(state.active)) === null) state.active = null;
 
     var sel = document.getElementById("convSelect");
-    if(sel && sel.value !== String(id)) sel.value = String(id);   /* созыв можно выбрать и с графика */
+    if(sel && sel.value !== String(id)){
+      sel.value = String(id);              /* созыв можно выбрать и с графика */
+      if(PC.dropdown) PC.dropdown.sync(sel);   /* подпись на кнопке списка отстаёт без этого */
+    }
 
     PC.compass.draw();
     syncNodes();
@@ -130,10 +133,12 @@
     var convSelect = document.getElementById("convSelect");
     if(convSelect){
       convSelect.innerHTML = PC.CONVOCATIONS.map(function(c){
-        return '<option value="' + c.id + '">' + PC.L(c, "label") + " · " + c.years + "</option>";
+        return '<option value="' + c.id + '" data-note="' + c.years + '">' +
+               PC.L(c, "label") + " · " + c.years + "</option>";
       }).join("");
       convSelect.value = String(state.convocation);
       convSelect.addEventListener("change", function(){ setConvocation(convSelect.value); });
+      if(PC.dropdown) PC.dropdown.sync(convSelect);
     }
 
     /* Слой траекторий: выбор запоминается, потому что это режим просмотра,
@@ -211,12 +216,27 @@
        руками отстало бы от набора при первом же новом голосовании. */
     var votesBadge = document.querySelector("#tab-votes .tab-badge");
     if(votesBadge) votesBadge.textContent = String(PC.VOTES.length);
+    /* Те же два числа стоят в подвале. Написанные руками, они разошлись
+       бы с набором при первой же новой партии или голосовании — а подвал
+       читают как справку о масштабе данных, и врать ему нельзя. */
+    var footParties = document.getElementById("footParties");
+    if(footParties) footParties.textContent = String(n);
+    var footVotes = document.getElementById("footVotes");
+    if(footVotes) footVotes.textContent = String(PC.VOTES.length);
     PC.compass.onDraw(syncNodes);
     PC.compass.draw();
     syncNodes();
     renderSide(true);
     PC.charts.render(state.active);
     initControls();
+    /* После initControls: переключатель траекторий в настройках зеркалит
+       состояние чипа над компасом, а чип поднимает это состояние из
+       хранилища именно там. */
+    PC.settings.init();
+    /* Нативные списки подменяются своими только после того, как модули
+       разложили в них варианты: до этого оформленной оказалась бы пустая
+       кнопка, а варианты доехали бы в скрытый <select>. */
+    PC.dropdown.init();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
        цвета марок — графики пересобираем. */
@@ -245,10 +265,10 @@
     }
 
     /* Единственная строка, которая когда-либо уходит в консоль: в проекте
-       нет аналитики и внешних запросов, но две пятёрки подряд в номере
-       версии — слишком круглое совпадение, чтобы пройти мимо молча. */
-    console.log("%c1.5.5%c — две пятёрки подряд, версия сама себя не отредактирует",
-      "font:700 13px monospace;color:#6ee7f9;", "color:inherit;");
+       нет ни аналитики, ни внешних запросов, и заглянувшему сюда стоит
+       сказать об этом прямо. */
+    console.log("%c1.6%c — ни счётчиков, ни запросов наружу; всё, что видно, посчитано здесь",
+      "font:700 13px monospace;color:#f0b25f;", "color:inherit;");
   }
 
   PC.select = select;

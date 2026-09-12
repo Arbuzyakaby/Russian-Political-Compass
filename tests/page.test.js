@@ -63,8 +63,10 @@ test("порядок скриптов: зависимости раньше по�
    входят: их id живут в том же файле, что и их разметка. */
 const STATIC_IDS = [
   "app.js:q", "app.js:clearBtn", "app.js:convSelect", "app.js:trailBtn", "app.js:lead",
-  "theme.js:themeBtn", "theme.js:themeIcon",
-  "i18n.js:langBtn",
+  "theme.js:themeSeg",
+  "i18n.js:langSeg",
+  "settings.js:setSheet", "settings.js:setScrim", "settings.js:settingsBtn",
+  "settings.js:setClose", "settings.js:setReset", "settings.js:setTrails",
   "tooltip.js:tip", "tooltip.js:plot", "tooltip.js:svg",
   "compass.js:svg",
   "charts.js:stats", "charts.js:hemi", "charts.js:hemiLegend", "charts.js:trend",

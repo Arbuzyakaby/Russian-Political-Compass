@@ -106,8 +106,16 @@
       { at:"0%",   o:".20" }, { at:"38%", o:".13" },
       { at:"64%",  o:".075" }, { at:"84%", o:".045" }, { at:"100%", o:".03" }
     ];
-    [{ id:"gq1", c:"#ef4444" }, { id:"gq2", c:"#a855f7" },
-     { id:"gq3", c:"#38bdf8" }, { id:"gq4", c:"#fbbf24" }].forEach(function(q){
+    /* Оттенки квадрантов до 1.6 были набором «красный, фиолетовый,
+       голубой, жёлтый» без внутренней логики. Теперь цвет следует за
+       смыслом четверти и читается парами: верх — принуждение (тёплые
+       тона), низ — свобода (холодные); слева плановая экономика,
+       справа рыночная. */
+    [{ id:"gq1", c:"#d9534f" },   /* лево + государство */
+     { id:"gq2", c:"#d99a3f" },   /* право + государство */
+     { id:"gq3", c:"#4e9e72" },   /* лево + свобода */
+     { id:"gq4", c:"#5b86d6" }    /* право + свобода */
+    ].forEach(function(q){
       var g = el("radialGradient", { id:q.id });
       QUAD_STOPS.forEach(function(s){
         g.appendChild(el("stop", { offset:s.at, "stop-color":q.c, "stop-opacity":s.o }));
@@ -186,7 +194,30 @@
      к нынешней, со стрелкой на конце. Рисуется под точками, чтобы не
      перекрывать их, и не участвует в раскладке подписей — линия тонкая,
      ярлыкам она не мешает, а вот считать её препятствием значило бы
-     разогнать половину подписей на пустое место при выключенном слое. */
+     разогнать половину подписей на пустое место при выключенном слое.
+
+     В 1.5 слой был честным, но нечитаемым: все маршруты рисовались в
+     полную силу одновременно, восемь тонких пунктиров сходились в правом
+     верхнем углу поля (там, где стоит половина партий) и превращались
+     в штриховку, узлы радиусом 3.4 терялись под точками партий, а год
+     был подписан только у первой точки — то есть направление движения
+     приходилось угадывать.
+
+     Исправлено тремя вещами, каждая из которых решает свою половину
+     жалобы «перекрываются и мелкие»:
+
+     1. Подложка. Под цветной линией лежит второй, более широкий штрих
+        цветом фона поля. Там, где два маршрута пересекаются, верхний
+        прорезает нижний, и глаз видит, какая линия идёт поверх, —
+        приём из картографии, где так разводят дороги на развязках.
+     2. Фокус. Наведение на маршрут или на точку партии приглушает все
+        остальные маршруты. Восемь траекторий сразу читать невозможно
+        и не нужно: вопрос у читателя всегда про одну партию.
+     3. Масштаб. Узлы крупнее и с собственной обводкой, годы подписаны
+        у первой и последней точки постоянно, у остальных — в фокусе.
+        Порог растяжки короткого маршрута поднят: 46 экранных единиц
+        едва превышали диаметр крупной точки, и «Единая Россия» с её
+        пятью шагами внутри одного кружка выглядела кляксой. */
   function trailPath(pts, endR){
     var d = "M" + pts[0].sx.toFixed(1) + "," + pts[0].sy.toFixed(1);
     for(var i = 1; i < pts.length - 1; i++){
@@ -222,7 +253,7 @@
          маршрут веерно растягивается от текущей точки — форма и порядок
          остаются те же, только масштаб на глаз, а точные цифры остаются
          в подписи года при наведении. */
-      var MIN_TRAIL_SPAN = 46;
+      var MIN_TRAIL_SPAN = 74;
       (function(){
         var last = pts[pts.length - 1];
         var maxD = 0;
@@ -247,20 +278,42 @@
       defs.appendChild(marker);
 
       var g = el("g", { "class":"trail", "data-id":p.id });
+      var d = trailPath(pts, radius(seats));
+      /* подложка идёт первой и цветом полотна: она не видна как линия,
+         но выгрызает зазор вокруг маршрута там, где его пересекает
+         чужой */
+      g.appendChild(el("path", { "class":"trail-casing", d:d }));
       g.appendChild(el("path", {
-        "class":"trail-line", d:trailPath(pts, radius(seats)),
+        "class":"trail-line", d:d,
         stroke:p.color, "marker-end":"url(#arw-" + p.id + ")"
       }));
 
+      /* Наведение на любую часть маршрута переводит весь слой в режим
+         фокуса: CSS приглушает соседние траектории, а эта поднимается
+         над ними. Класс вешается на сам слой, а не на документ, — на
+         странице может не быть компаса вовсе. */
+      function focusOn(){ trails.classList.add("has-focus"); g.classList.add("is-focus"); }
+      function focusOff(){ trails.classList.remove("has-focus"); g.classList.remove("is-focus"); }
+      g.addEventListener("mouseenter", focusOn);
+      g.addEventListener("mouseleave", focusOff);
+
       /* узлы маршрута: год и объяснение сдвига по наведению */
+      var last = pts.length - 1;
       pts.slice(0, -1).forEach(function(pt, i){
-        var dot = el("circle", { "class":"trail-dot", cx:pt.sx, cy:pt.sy, r:3.4, fill:p.color });
+        var dot = el("circle", { "class":"trail-dot", cx:pt.sx, cy:pt.sy, r:4.6,
+                                 fill:p.color, stroke:"var(--tag-halo)" });
         g.appendChild(dot);
-        if(i === 0){
-          g.appendChild(el("text", { "class":"trail-year", x:pt.sx, y:pt.sy - 8, "text-anchor":"middle" },
-            String(pt.step.year)));
-        }
+        /* Год виден постоянно только у начала маршрута: он отвечает на
+           вопрос «откуда», а «куда» показывает стрелка. Остальные годы
+           проявляются в фокусе — пять подписей на маршрут, помноженные
+           на восемь маршрутов, это сорок чисел поверх поля, на котором
+           всего одиннадцать точек. */
+        g.appendChild(el("text", {
+          "class":"trail-year" + (i === 0 ? "" : " dim"),
+          x:pt.sx, y:pt.sy - 10, "text-anchor":"middle"
+        }, String(pt.step.year)));
         function enter(){
+          focusOn();
           PC.tip.showHTML(
             '<div class="tip-top"><span class="tip-dot" style="background:' + U.esc(p.color) + '"></span>' +
             '<span class="tip-name">' + U.esc(L(p, "name")) + ' · ' + pt.step.year + '</span></div>' +
@@ -273,8 +326,16 @@
             pt.sx, pt.sy);
         }
         dot.addEventListener("mouseenter", enter);
-        dot.addEventListener("mouseleave", function(){ PC.tip.hide(); });
+        dot.addEventListener("mouseleave", function(){ PC.tip.hide(); focusOff(); });
       });
+
+      /* год текущей позиции — у самой точки партии, чтобы у маршрута
+         был виден не только старт, но и финиш */
+      var end = pts[last];
+      g.appendChild(el("text", {
+        "class":"trail-year trail-year-end dim", x:end.sx, y:end.sy + radius(seats) + 15,
+        "text-anchor":"middle"
+      }, String(h[h.length - 1].year)));
 
       trails.appendChild(g);
     });
@@ -347,8 +408,18 @@
 
         obstacles.push(placeLabel(tag, seat, c.sx, c.sy, r, p.lp));
 
-        function enter(){ PC.tip.show(p, c.sx, c.sy); showCross(c.sx, c.sy); }
-        function leave(){ PC.tip.hide(); hideCross(); }
+        /* Наведение на партию подсвечивает и её траекторию: вопрос
+           «куда эта партия двигалась» задают, глядя на точку, а не на
+           клубок пунктиров. */
+        function focusTrail(on){
+          if(!trails) return;
+          var line = trails.querySelector('.trail[data-id="' + p.id + '"]');
+          if(!line) return;
+          trails.classList.toggle("has-focus", on);
+          line.classList.toggle("is-focus", on);
+        }
+        function enter(){ PC.tip.show(p, c.sx, c.sy); showCross(c.sx, c.sy); focusTrail(true); }
+        function leave(){ PC.tip.hide(); hideCross(); focusTrail(false); }
         g.addEventListener("mouseenter", enter);
         g.addEventListener("mouseleave", leave);
         g.addEventListener("focus", enter);

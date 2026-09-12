@@ -64,6 +64,11 @@
       if(bar) bar.classList.toggle("topbar-solo", solo);
     }
     document.title = PC.t(TITLES[current] || TITLES.compass);
+    /* Тон раздела: с 1.6 у каждой вкладки свой оттенок акцента, и
+       подхватывают его через --tone все элементы внутри — бегунок,
+       заголовки групп настроек, активные варианты списков. Знание о
+       цвете живёт в css/tokens.css, здесь только имя текущего раздела. */
+    document.documentElement.dataset.section = current;
     moveIndicator();
   }
 

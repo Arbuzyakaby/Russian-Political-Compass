@@ -154,8 +154,8 @@
   font-family:var(--font-display);font-size:12px;font-weight:750;color:var(--muted-2);}
 .bd-top .bt-q{flex:1;min-width:min(100%,220px);font-size:12.5px;line-height:1.5;color:var(--body);}
 .bd-top .bt-v{font-size:11px;font-weight:650;white-space:nowrap;}
-.bd-top .bt-v.up{color:#22c55e;}
-.bd-top .bt-v.down{color:#f97316;}
+.bd-top .bt-v.up{color:var(--ok);}
+.bd-top .bt-v.down{color:var(--warn);}
 
 .bd-wrap{margin-top:12px;}
 .bd-axis{margin-bottom:20px;}
@@ -163,8 +163,8 @@
 .bd-sum{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:6px;}
 .bd-table th[scope="row"]{font-weight:450;color:var(--body);line-height:1.4;
   max-width:34ch;white-space:normal;}
-.bd-table td.up{color:#22c55e;font-weight:650;}
-.bd-table td.down{color:#f97316;font-weight:650;}
+.bd-table td.up{color:var(--ok);font-weight:650;}
+.bd-table td.down{color:var(--warn);font-weight:650;}
 .bd-table td.flat{color:var(--muted-2);}
 
 /* ---------- ссылка на результат ---------- */
