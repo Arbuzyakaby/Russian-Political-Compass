@@ -125,6 +125,30 @@
     t.addEventListener("click", kill);
   }
 
+  /* ---------- пасхалка ----------
+     1.6 в Minecraft — Horse Update (см. подсказку у номера версии в
+     подвале), и здесь у неё есть тихий аналог: набор символов на любой
+     вкладке ищет последнее слово в кольцевом буфере, а не привязан
+     к конкретному полю ввода, — поэтому пасхалку можно найти где угодно
+     на странице, а не только в поле поиска. Само поле поиска и другие
+     поля ввода исключены явно: иначе буквы «horse» внутри обычного
+     запроса включали бы уведомление без всякой причины. */
+  function initEasterEgg(){
+    var WORDS = ["horse", "конь"];
+    var span = Math.max.apply(null, WORDS.map(function(w){ return w.length; }));
+    var buf = "";
+    document.addEventListener("keydown", function(e){
+      if(e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+      var tag = (e.target && e.target.tagName || "").toLowerCase();
+      if(tag === "input" || tag === "textarea" || (e.target && e.target.isContentEditable)) return;
+      buf = (buf + e.key.toLowerCase()).slice(-span);
+      if(WORDS.some(function(w){ return buf.slice(-w.length) === w; })){
+        buf = "";
+        toast(PC.t("egg.horse"));
+      }
+    });
+  }
+
   function init(){
     bar = document.createElement("div");
     bar.className = "read-bar";
@@ -135,6 +159,7 @@
     initToasts();
     initSticky();
     initSpotlight();
+    initEasterEgg();
 
     window.addEventListener("scroll", onScroll, { passive:true });
     window.addEventListener("resize", onScroll, { passive:true });

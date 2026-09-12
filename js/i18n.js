@@ -88,6 +88,12 @@
                            "Compact tightens the spacing without shrinking the type"],
     "set.density.cozy":   ["Просторно", "Cozy"],
     "set.density.compact":["Компактно", "Compact"],
+    "set.font":           ["Шрифт", "Typeface"],
+    "set.font.d":         ["Меняются заголовки, цифры и подписи; основной текст остаётся Inter",
+                           "Changes headings, numbers and labels; body text stays Inter"],
+    "set.font.modern":    ["Современный", "Modern"],
+    "set.font.compact":   ["Компактный", "Compact"],
+    "set.font.creative":  ["Творческий", "Creative"],
     "set.motion":         ["Движение и фон", "Motion and background"],
     "set.anim":           ["Анимации", "Animations"],
     "set.anim.d":         ["Появление блоков, переходы вкладок, рост полос на графиках",
@@ -99,8 +105,6 @@
     "set.spot.d":         ["Мягкое пятно света, которое следует за указателем по карточке",
                            "A soft pool of light that follows the pointer across a card"],
     "set.compass":        ["Компас", "Compass"],
-    "set.trails.d":       ["Слой стрелок: как позиции партий смещались во времени",
-                           "A layer of arrows: how party positions shifted over time"],
     "set.labels":         ["Подписи партий", "Party labels"],
     "set.labels.d":       ["Без них поле читается как облако точек — названия остаются в подсказке",
                            "Without them the board reads as a cloud of dots — names stay in the tooltip"],
@@ -809,8 +813,10 @@
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Версия 1.6: новое оформление, сводки о партиях, меню настроек и переделанные траектории",
-                           "Version 1.6: a new look, party summaries, a settings menu and rebuilt trajectories"]
+    "foot.version.tip":   ["Версия 1.6.1: починки и три шрифта в настройках — и да, 1.6 совпадает с Horse Update в Minecraft",
+                           "Version 1.6.1: fixes and three typefaces in Settings — and yes, 1.6 lines up with Minecraft's Horse Update"],
+    "egg.horse":          ["Пасхалка найдена: версия 1.6 — это ещё и Horse Update в Minecraft",
+                           "Egg found: version 1.6 is also Minecraft's Horse Update"]
   };
 
   /* ---------- состояние ---------- */

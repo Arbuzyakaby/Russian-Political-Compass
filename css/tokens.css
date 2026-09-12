@@ -158,6 +158,18 @@
   --radius-lg:18px;
 }
 
+/* ---------- шрифт заголовков ----------
+   Переключается в настройках (data-font на <html>). Меняется только
+   --font-display — заголовки, крупные цифры, ярлыки вкладок; основной
+   текст остаётся Inter в любом режиме, потому что сорок утверждений
+   теста и абзацы «О проекте» набраны для чтения, а не для образа. */
+:root[data-font="compact"]{
+  --font-display:"IBM Plex Sans Condensed","Inter","Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;
+}
+:root[data-font="creative"]{
+  --font-display:"Fraunces","Manrope","Inter","Segoe UI",-apple-system,BlinkMacSystemFont,serif;
+}
+
 :root[data-theme="light"]{
   color-scheme:light;
 

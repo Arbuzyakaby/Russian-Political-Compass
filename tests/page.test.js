@@ -66,7 +66,7 @@ const STATIC_IDS = [
   "theme.js:themeSeg",
   "i18n.js:langSeg",
   "settings.js:setSheet", "settings.js:setScrim", "settings.js:settingsBtn",
-  "settings.js:setClose", "settings.js:setReset", "settings.js:setTrails",
+  "settings.js:setClose", "settings.js:setReset",
   "tooltip.js:tip", "tooltip.js:plot", "tooltip.js:svg",
   "compass.js:svg",
   "charts.js:stats", "charts.js:hemi", "charts.js:hemiLegend", "charts.js:trend",

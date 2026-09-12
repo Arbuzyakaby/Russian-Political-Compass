@@ -143,23 +143,29 @@
 
     /* Слой траекторий: выбор запоминается, потому что это режим просмотра,
        а не разовое действие — вернувшись, человек ожидает увидеть поле
-       таким, каким оставил. */
+       таким, каким оставил. applyTrails — общая точка входа: ею же
+       пользуется PC.resetTrails, чтобы «Сбросить настройки» гасило слой
+       и на самом компасе, а не только в localStorage. */
     var trailBtn = document.getElementById("trailBtn");
+    var trailsOn = false;
+    function applyTrails(on){
+      trailsOn = on;
+      PC.store.set("pc-trails", on ? "1" : "0");
+      PC.compass.setTrails(on);
+      if(trailBtn) trailBtn.setAttribute("aria-pressed", String(on));
+    }
     if(trailBtn){
       if(!PC.compass.hasTrails()){
         trailBtn.hidden = true;
       }else{
-        var trailsOn = PC.store.get("pc-trails", "0") === "1";
-        PC.compass.setTrails(trailsOn);
-        trailBtn.setAttribute("aria-pressed", String(trailsOn));
-        trailBtn.addEventListener("click", function(){
-          trailsOn = !trailsOn;
-          PC.store.set("pc-trails", trailsOn ? "1" : "0");
-          PC.compass.setTrails(trailsOn);
-          trailBtn.setAttribute("aria-pressed", String(trailsOn));
-        });
+        applyTrails(PC.store.get("pc-trails", "0") === "1");
+        trailBtn.addEventListener("click", function(){ applyTrails(!trailsOn); });
       }
     }
+    PC.resetTrails = function(){
+      PC.store.remove("pc-trails");
+      applyTrails(false);
+    };
 
     PC.exporter.init();
 
@@ -229,9 +235,6 @@
     renderSide(true);
     PC.charts.render(state.active);
     initControls();
-    /* После initControls: переключатель траекторий в настройках зеркалит
-       состояние чипа над компасом, а чип поднимает это состояние из
-       хранилища именно там. */
     PC.settings.init();
     /* Нативные списки подменяются своими только после того, как модули
        разложили в них варианты: до этого оформленной оказалась бы пустая

@@ -44,8 +44,14 @@
 <!-- Переменные начертания, а не набор статических: в стилях проекта
      давно стоят промежуточные веса (550, 650, 750), и со статическими
      файлами браузер округлял их до ближайшего из четырёх — половина
-     задуманной градации иерархии пропадала. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&display=swap">
+     задуманной градации иерархии пропадала.
+
+     IBM Plex Sans Condensed и Fraunces обслуживают настройку «Шрифт»
+     (js/settings.js, data-font на <html>): они заменяют --font-display
+     в компактном и творческом режиме, а Inter как основной текст не
+     трогают — длинные абзацы «О проекте» не обязаны подстраиваться
+     под заголовочное начертание. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&family=IBM+Plex+Sans+Condensed:wght@400..700&family=Fraunces:wght@400..800&display=swap">
 
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
@@ -652,6 +658,20 @@
                   data-i18n="set.density.compact">Компактно</button>
         </div>
       </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.font">Шрифт</b>
+          <small data-i18n="set.font.d">Меняются заголовки, цифры и подписи; основной текст остаётся Inter</small></span>
+        <div class="seg" data-set-seg="font" role="radiogroup" aria-label="Шрифт"
+             data-i18n-attr="aria-label:set.font">
+          <button type="button" role="radio" data-val="modern" aria-checked="true"
+                  data-i18n="set.font.modern">Современный</button>
+          <button type="button" role="radio" data-val="compact" aria-checked="false" tabindex="-1"
+                  data-i18n="set.font.compact">Компактный</button>
+          <button type="button" role="radio" data-val="creative" aria-checked="false" tabindex="-1"
+                  data-i18n="set.font.creative">Творческий</button>
+        </div>
+      </div>
     </section>
 
     <section class="set-group">
@@ -681,13 +701,6 @@
 
     <section class="set-group">
       <h3 data-i18n="set.compass">Компас</h3>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="trails.btn">Траектории</b>
-          <small data-i18n="set.trails.d">Слой стрелок: как позиции партий смещались во времени</small></span>
-        <button type="button" class="sw" id="setTrails" role="switch" aria-checked="false"
-                aria-label="Траектории" data-i18n-attr="aria-label:trails.btn"><i></i></button>
-      </div>
 
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.labels">Подписи партий</b>
@@ -793,7 +806,7 @@
         <span>2026</span>
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 1.6: новое оформление, сводки о партиях, меню настроек и переделанные траектории">v1.6</span>
+              title="Версия 1.6.1: починки и три шрифта в настройках — и да, 1.6 совпадает с Horse Update в Minecraft">v1.6.1</span>
       </span>
     </div>
   </div>

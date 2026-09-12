@@ -28,6 +28,7 @@
      ничего не меняет. */
   var DEFAULTS = {
     density:  "cozy",   /* cozy | compact */
+    font:     "modern", /* modern | compact | creative — см. --font-display в css/tokens.css */
     motion:   "on",
     grain:    "on",
     spotlight:"on",
@@ -53,6 +54,7 @@
      подписей или сетки не требует перерисовки поля. */
   function apply(){
     root.dataset.density   = state.density;
+    root.dataset.font      = state.font;
     root.dataset.motion    = state.motion;
     root.dataset.grain     = state.grain;
     root.dataset.spotlight = state.spotlight;
@@ -136,7 +138,11 @@
   function reset(){
     PC.store.remove(KEY);
     PC.store.remove("pc-theme");
-    PC.store.remove("pc-trails");
+    /* Слой траекторий живёт своим ключом и своим переключателем (чип
+       над компасом, не эта панель) — сброс обязан погасить его в самом
+       компасе, а не только стереть запись в хранилище, иначе после
+       клика поле остаётся с траекториями, будто сброса не было. */
+    if(PC.resetTrails) PC.resetTrails(); else PC.store.remove("pc-trails");
     load();
     apply();
     paint();
@@ -187,30 +193,6 @@
 
     var resetBtn = document.getElementById("setReset");
     if(resetBtn) resetBtn.addEventListener("click", reset);
-
-    /* Слой траекторий управляется и чипом над компасом, и переключателем
-       здесь: это одно состояние в двух местах, и они обязаны сходиться. */
-    var trailSwitch = document.getElementById("setTrails");
-    if(trailSwitch){
-      var syncTrails = function(){
-        trailSwitch.setAttribute("aria-checked", String(PC.compass.trailsOn()));
-      };
-      trailSwitch.addEventListener("click", function(){
-        var next = !PC.compass.trailsOn();
-        PC.store.set("pc-trails", next ? "1" : "0");
-        PC.compass.setTrails(next);
-        var chip = document.getElementById("trailBtn");
-        if(chip) chip.setAttribute("aria-pressed", String(next));
-        syncTrails();
-      });
-      var chipBtn = document.getElementById("trailBtn");
-      if(chipBtn) chipBtn.addEventListener("click", function(){ setTimeout(syncTrails, 0); });
-      if(!PC.compass.hasTrails()){
-        var row = trailSwitch.closest(".set-row");
-        if(row) row.hidden = true;
-      }
-      syncTrails();
-    }
 
     document.addEventListener("keydown", function(e){
       if(sheet.hidden) return;
