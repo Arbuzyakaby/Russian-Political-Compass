@@ -1,20 +1,46 @@
 /* ============ ПЕСОЧНИЦА КОАЛИЦИЙ ============
-   Три яруса: переключатели фракций, полоса мандатов с порогами и три
-   метрики. Полоса — главный элемент: её длина и есть ответ на вопрос
-   «хватает ли», поэтому пороги нарисованы на ней, а не рядом. ============ */
+   Четыре яруса: готовые расклады, переключатели фракций, полоса мандатов
+   с порогами и сетка метрик. Полоса — главный элемент: её длина и есть
+   ответ на вопрос «хватает ли», поэтому пороги нарисованы на ней, а не
+   рядом.
+
+   Метрик в 2.0 стало восемь, и они намеренно не равноправны. Центр
+   тяжести занимает двойную ячейку и стоит первым: это единственная
+   величина, которую читатель сравнивает с палатой целиком. Остальные
+   семь — обычные плитки в общей сетке, и порядок в ней от главного
+   к уточняющему: тип коалиции и незаменимые отвечают на вопрос
+   «работает ли», сплочённость и разлом — «о чём будут спорить». ============ */
 
 .co-card .chart-toolbar{flex-wrap:wrap;align-items:center;gap:6px;}
 .co-real{font-size:10px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted-2);
   margin-left:auto;padding:3px 9px;border-radius:999px;border:1px dashed var(--stroke-2);}
 
+/* ---------- готовые расклады ----------
+   Вторичные кнопки, поэтому мельче и суше переключателей фракций:
+   они подставляют состав, а решение остаётся за переключателями. */
+.co-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.co-preset{
+  font:inherit;font-size:11px;font-weight:600;letter-spacing:var(--track-body);cursor:pointer;
+  padding:5px 11px;border-radius:var(--radius-pill);
+  background:transparent;border:1px dashed var(--stroke-2);color:var(--muted);
+  transition:color var(--dur-2) var(--ease-out),border-color var(--dur-2) var(--ease-out),
+             background var(--dur-2) var(--ease-out),transform var(--dur-1) var(--ease-out);
+}
+.co-preset:hover{color:var(--text);border-color:var(--tone);border-style:solid;}
+.co-preset:active{transform:scale(.95);}
+.co-preset[aria-pressed="true"]{
+  color:var(--tone);border-style:solid;border-color:var(--tone-line);background:var(--tone-soft);
+}
+.co-preset:focus-visible{outline:2px solid var(--tone);outline-offset:2px;}
+
 .co-togs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;}
 .co-tog{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:12px;font-weight:550;
   padding:7px 12px 7px 10px;border-radius:999px;cursor:pointer;
   background:var(--surface);border:1px solid var(--stroke);color:var(--muted);
-  transition:background var(--dur-1,.16s) var(--ease-swift,ease),border-color var(--dur-1,.16s) var(--ease-swift,ease),
-             color var(--dur-1,.16s) var(--ease-swift,ease),transform var(--dur-1,.16s) var(--ease-spring,ease),
-             opacity var(--dur-2,.28s) ease;}
-.co-tog i{width:10px;height:10px;border-radius:3px;flex:none;transition:transform var(--dur-2,.28s) var(--ease-spring,ease);}
+  transition:background var(--dur-1) var(--ease-out),border-color var(--dur-1) var(--ease-out),
+             color var(--dur-1) var(--ease-out),transform var(--dur-1) var(--ease-spring),
+             opacity var(--dur-2) ease;}
+.co-tog i{width:10px;height:10px;border-radius:3px;flex:none;transition:transform var(--dur-2) var(--ease-spring);}
 .co-tog b{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
 .co-tog:hover{color:var(--text);border-color:var(--stroke-2);background:var(--surface-2);}
 .co-tog:active{transform:scale(.96);}
@@ -23,13 +49,22 @@
 .co-tog[aria-pressed="false"]{opacity:.55;}
 .co-tog[aria-pressed="false"] i{transform:scale(.6);}
 .co-tog[aria-pressed="false"] b{color:var(--muted-2);text-decoration:line-through;}
+/* Метка незаменимости: стоит на самой фракции, потому что решение
+   «убрать эту» принимается здесь, и цену надо знать до клика. */
+.co-tog .co-key{
+  font-style:normal;font-size:8.5px;font-weight:750;text-transform:uppercase;
+  letter-spacing:var(--track-caps);text-decoration:none;
+  padding:2px 6px;border-radius:var(--radius-pill);
+  color:var(--warn);background:var(--warn-soft);
+}
+.co-tog .co-key[hidden]{display:none;}
 
 .co-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px;}
 .co-num{font-family:var(--font-display);font-size:clamp(26px,3.4vw,36px);font-weight:750;
   letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;}
 .co-num small{font-size:13px;font-weight:500;letter-spacing:0;color:var(--muted-2);margin-left:4px;}
 .co-verdict{font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid;
-  transition:color var(--dur-2,.28s) ease,background var(--dur-2,.28s) ease,border-color var(--dur-2,.28s) ease;}
+  transition:color var(--dur-2) ease,background var(--dur-2) ease,border-color var(--dur-2) ease;}
 .co-verdict.yes{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent);
   background:color-mix(in srgb,var(--ok) 10%,transparent);}
 .co-verdict.no{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);
@@ -41,7 +76,7 @@
 .co-track{display:flex;height:22px;border-radius:8px;overflow:hidden;
   background:var(--surface-2);border:1px solid var(--stroke);}
 .co-seg{display:block;height:100%;flex:none;box-shadow:inset -2px 0 0 var(--chart-surface);
-  transition:width .55s var(--ease-out,ease);}
+  transition:width .55s var(--ease-out);}
 .co-seg.off{box-shadow:none;}
 .co-mark{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px solid var(--text);pointer-events:none;}
 .co-mark.super{border-left:2px dashed var(--muted);}
@@ -57,8 +92,23 @@
 .co-mark.super em{left:0;text-align:left;color:var(--muted-2);}
 
 /* метрики */
-.co-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
-.co-metric{padding:13px 15px;border-radius:var(--radius-sm,12px);background:var(--surface);border:1px solid var(--stroke);}
+.co-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+.co-metric{padding:13px 15px;border-radius:var(--radius-sm);background:var(--surface);
+  border:1px solid var(--stroke);
+  transition:border-color var(--dur-2) var(--ease-out);}
+.co-metric:hover{border-color:var(--stroke-2);}
+/* Центр тяжести шире остальных: в нём два числа, а не одно, и он
+   единственный сравнивается с палатой целиком. */
+.co-metric--wide{grid-column:span 2;}
+/* Словесное значение набирается тем же кеглем, что числовое, но не
+   моноширинно и не так тесно: «минимальная выигрышная» в трекинге,
+   рассчитанном на цифры, читается как набор слогов. */
+.co-metric .v.v-word{font-size:clamp(15px,1.5vw,18px);letter-spacing:var(--track-title);
+  font-variant-numeric:normal;line-height:1.25;}
+.co-metric .kind-minimal{color:var(--ok);}
+.co-metric .kind-surplus{color:var(--info);}
+.co-metric .kind-minority{color:var(--warn);}
+.co-metric .kind-empty{color:var(--muted-2);}
 .co-metric .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);}
 .co-metric .v{font-family:var(--font-display);font-size:clamp(20px,2.3vw,26px);font-weight:750;
   letter-spacing:-.03em;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums;}
@@ -69,8 +119,12 @@
 .co-dual .num{font-family:var(--font-display);font-size:17px;font-weight:750;letter-spacing:-.02em;
   font-variant-numeric:tabular-nums;}
 
+@media(max-width:1020px){
+  .co-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
 @media(max-width:720px){
   .co-metrics{grid-template-columns:1fr;}
+  .co-metric--wide{grid-column:span 1;}
   .co-mark em{font-size:9px;}
   .co-real{margin-left:0;}
 }

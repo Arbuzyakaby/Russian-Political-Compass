@@ -36,7 +36,22 @@
 (function(PC){
   "use strict";
 
+/* Единственное место, где записан номер версии в коде. Его печатает
+   строка приветствия в консоли, им подписан подвал и по нему сверяется
+   package.json — раньше номер жил в трёх местах и расходился при каждом
+   выпуске. */
+var VERSION = "2.0";
+
+/* Созывы, от нового к старому — в этом порядке они и стоят в списке
+   над компасом. Необязательное поле draft означает, что созыв заведён
+   заранее и данных по нему ещё нет: такой созыв не попадает ни в
+   список, ни на график динамики, ни в выгрузки. Он существует только
+   для того, чтобы после выборов правка сводилась к снятию одного флага
+   и подстановке мандатов, а не к поиску всех мест, где число созывов
+   зашито в код. Подробный порядок действий — в разделе README
+   «Как внести новый созыв». */
 var CONVOCATIONS = [
+  { id:9, label:"IX созыв", years:"2026–2031", draft:true, en:{ label:"IX convocation" } },
   { id:8, label:"VIII созыв", years:"2021–2026", en:{ label:"VIII convocation" } },
   { id:7, label:"VII созыв",  years:"2016–2021", en:{ label:"VII convocation" } },
   { id:6, label:"VI созыв",   years:"2011–2016", en:{ label:"VI convocation" } },
@@ -217,19 +232,19 @@ var PARTIES = [
   },
   {
     id:"nl", name:"Новые люди", short:"Новые люди", tag:"Новые люди", lp:"top",
-    seats:13, color:"#f43f5e", x:6.0, y:-3.2,
+    seats:13, color:"#f43f5e", x:6.0, y:-2.9,
     ideology:"Либеральный центризм, про-предпринимательский прагматизм",
     summary:"Самая молодая партия в Думе: основана в 2020 году владельцем косметической компании Faberlic Алексеем Нечаевым и с первой попытки взяла мандаты. Обращается к малому бизнесу и городским профессионалам, а не к идеологизированному избирателю.",
     leader:"Алексей Нечаев",
     sub:{ property:5.0, redistribution:6.5, regulation:6.5,
-          civil:-5.0, centralization:-2.0, tradition:-2.6 },
+          civil:-4.7, centralization:-1.7, tradition:-2.3 },
     theses:[
       "Снижение налоговой и административной нагрузки на малый и средний бизнес",
       "Ставка на цифровую экономику, стартапы и креативные индустрии",
       "Критика избыточного регулирования, проверок и бюрократии",
       "Осторожная риторика о свободе интернета и гуманизации законодательства"
     ],
-    why:"Самая прорыночная позиция в списке: дерегулирование, поддержка частной инициативы и снижение налогов. Ниже нуля по вертикали — партия последовательно выступает за сокращение вмешательства государства в бизнес и частную жизнь, хотя остаётся системной и не оспаривает политическое устройство.",
+    why:"Самая прорыночная позиция в списке: дерегулирование, поддержка частной инициативы и снижение налогов. Ниже нуля по вертикали — партия выступает за сокращение вмешательства государства в бизнес и частную жизнь. С 2.0 точка чуть поднята: за три года во фракции риторика о свободах стала осторожнее, а голосования по охранительным законам — ближе к линии большинства, и прежняя оценка переоценивала дистанцию.",
     en:{
       name:"New People", short:"New People", tag:"New People",
       ideology:"Liberal centrism, pro-business pragmatism",
@@ -241,7 +256,7 @@ var PARTIES = [
         "Criticism of excessive regulation, inspections and bureaucracy",
         "Cautious rhetoric about internet freedom and a more humane legal code"
       ],
-      why:"The most pro-market position on the board: deregulation, support for private initiative and lower taxes. Below zero on the vertical — the party consistently argues for less state interference in business and private life, while remaining systemic and not contesting the political order."
+      why:"The most pro-market position on the board: deregulation, support for private initiative and lower taxes. Below zero on the vertical — the party argues for less state interference in business and private life. Since 2.0 the point sits slightly higher: over three years the faction's rhetoric about freedoms has grown more careful and its votes on restrictive laws have moved closer to the majority line, so the earlier estimate overstated the distance."
     }
   },
   {
@@ -752,9 +767,16 @@ function partyById(id){
   return null;
 }
 
+/* Созывы, по которым есть данные. Единственная точка, через которую
+   интерфейс узнаёт о наборе созывов: заготовка будущего созыва живёт
+   в CONVOCATIONS, но до снятия флага draft её не видит никто. */
+function convocations(){
+  return CONVOCATIONS.filter(function(c){ return !c.draft; });
+}
+
 /* созывы от старого к новому — порядок оси X на графике динамики */
 function convsAsc(){
-  return CONVOCATIONS.slice().sort(function(a, b){ return a.id - b.id; });
+  return convocations().sort(function(a, b){ return a.id - b.id; });
 }
 
 /* Позиция фракции по голосованию в виде, пригодном для отрисовки.
@@ -783,14 +805,17 @@ function voteAgreement(a, b){
   return { same:same, common:common, ratio: common ? same / common : null };
 }
 
+PC.VERSION = VERSION;
 PC.PARTIES = PARTIES;
 PC.TOTAL_SEATS = TOTAL_SEATS;
-PC.CONVOCATIONS = CONVOCATIONS;
+PC.CONVOCATIONS = convocations();
+PC.CONVOCATIONS_ALL = CONVOCATIONS;
 PC.CURRENT_CONVOCATION = CURRENT_CONVOCATION;
 PC.SUBAXES = SUBAXES;
 PC.VOTES = VOTES;
 PC.seatsAt = seatsAt;
 PC.partyById = partyById;
+PC.convocations = convocations;
 PC.convsAsc = convsAsc;
 PC.voteStance = voteStance;
 PC.voteAgreement = voteAgreement;

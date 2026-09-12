@@ -328,3 +328,163 @@ test("карточка партии открывается со сводкой �
   const y = async (sel) => (await page.locator(sel).boundingBox()).y;
   expect(await y(".detail .d-summary")).toBeLessThan(await y(".detail .coords"));
 });
+
+
+/* ============ НОВОЕ В 2.0 ============ */
+
+/* Шесть тем — это шесть наборов токенов, и сравнивать их попиксельно
+   бессмысленно. Проверяется то, из-за чего тема ломается молча: что
+   подложка действительно сменилась, что светлота выставлена отдельным
+   атрибутом (на неё смотрит расчёт цвета марок на графиках), что компас
+   продолжает рисоваться и что выбор переживает перезагрузку. */
+test("шесть тем: подложка меняется, светлота выставляется, выбор запоминается", async ({ page }) => {
+  const themes = await page.evaluate(() => Object.keys(window.PC.theme.SCHEME));
+  expect(themes.length).toBe(6);
+
+  const backgrounds = new Set();
+  for(const name of themes){
+    await page.evaluate(t => window.PC.theme.set(t), name);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", name);
+
+    const expected = await page.evaluate(t => window.PC.theme.SCHEME[t], name);
+    await expect(page.locator("html")).toHaveAttribute("data-scheme", expected);
+
+    const bg = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue("--bg").trim());
+    expect(bg, `тема ${name} не задаёт подложку`).toBeTruthy();
+    backgrounds.add(bg);
+
+    expect(await page.locator("#svg .node").count()).toBe(PARTIES);
+  }
+  /* у всех шести подложка своя — совпадение означало бы, что блок
+     токенов какой-то темы не подхватился и она показывается чужой */
+  expect(backgrounds.size).toBe(themes.length);
+
+  await page.evaluate(() => window.PC.theme.set("neon"));
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
+  await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
+});
+
+/* Стекло — единственная настройка, которую нельзя проверить по наличию
+   узла: она меняет вычисленное значение свойства. Выключение обязано
+   снять размытие со всех поверхностей разом, а не с половины — ради
+   этого оно и собрано в один слой. */
+test("выключатель стекла снимает размытие со всех поверхностей", async ({ page }) => {
+  const blur = () => page.evaluate(() =>
+    [".card", ".to-top", ".tip"]
+      .map(sel => document.querySelector(sel))
+      .filter(Boolean)
+      .map(n => {
+        const cs = getComputedStyle(n);
+        return cs.backdropFilter || cs.webkitBackdropFilter || "none";
+      }));
+
+  const on = await blur();
+  expect(on.some(v => /blur/.test(v)),
+    "при включённом стекле хоть одна поверхность обязана быть размыта").toBe(true);
+
+  await page.locator("#settingsBtn").click();
+  await page.locator('[data-set-switch="glass"]').click();
+  await expect(page.locator("html")).toHaveAttribute("data-glass", "off");
+
+  const off = await blur();
+  expect(off.every(v => !/blur/.test(v)), `размытие осталось: ${off.join(" | ")}`).toBe(true);
+});
+
+/* Размер текста и скругление действуют множителями на всю шкалу сразу.
+   Проверяется не выставленный атрибут, а вычисленные значения: атрибут
+   без правила в CSS — это переключатель, который ничего не делает. */
+test("размер текста и скругление меняют вычисленные значения", async ({ page }) => {
+  const probe = () => page.evaluate(() => ({
+    font: parseFloat(getComputedStyle(document.body).fontSize),
+    radius: parseFloat(getComputedStyle(document.querySelector(".card")).borderTopLeftRadius)
+  }));
+
+  const base = await probe();
+  await page.locator("#settingsBtn").click();
+
+  await page.locator('[data-set-seg="textsize"] [data-val="large"]').click();
+  await page.locator('[data-set-seg="corners"] [data-val="sharp"]').click();
+  const changed = await probe();
+  expect(changed.font).toBeGreaterThan(base.font);
+  expect(changed.radius).toBeLessThan(base.radius);
+
+  await page.locator('[data-set-seg="textsize"] [data-val="small"]').click();
+  expect((await probe()).font).toBeLessThan(base.font);
+});
+
+/* Расширенная версия теста. Девяносто вопросов вручную не кликает никто:
+   ответы кладутся прямо в хранилище — заодно проверяется, что оно их
+   переживает, — а тест смотрит на то, ради чего версия добавлена. */
+test("расширенная версия теста: 90 вопросов, свой ярлык и метка в ссылке", async ({ page }) => {
+  await page.locator("#tab-quiz").click();
+  await expect(page.locator(".quiz-modes .qmode")).toHaveCount(3);
+
+  await page.locator('.qmode[data-mode="long"]').click();
+  await expect(page.locator("#tab-quiz .tab-badge")).toHaveText("90");
+
+  await page.locator("#quizStart").click();
+  await expect(page.locator(".quiz-counter")).toHaveText("1 / 90");
+
+  const url = await page.evaluate(() => {
+    const src = {};
+    window.PC.QUIZ.QUESTIONS.forEach(q => { src[q.id] = 1; });
+    localStorage.setItem("pc-quiz-answers", JSON.stringify(src));
+    localStorage.setItem("pc-quiz-mode", "long");
+    return window.PC.quiz.shareURL(src, "long");
+  });
+  /* метка версии обязательна: без неё девяносто ответов не отличить
+     от стандартного прохождения с пропусками */
+  expect(url).toMatch(/#\/result\/x[a-e-]{90}$/);
+
+  /* Запрос в адресе делает переход полноценной загрузкой: код результата
+     разбирается при инициализации теста, а смена одного лишь хеша на уже
+     открытой странице до этого разбора не доходит. */
+  await page.goto(url.replace("#/result/", "?shared=1#/result/"));
+  await page.waitForFunction(() => document.querySelector(".quiz-result"));
+  await expect(page.locator(".qr-version")).toContainText("90");
+
+  /* сохранённые ответы пережили перезагрузку и остались расширенными */
+  await page.goto("/#/quiz");
+  await expect(page.locator("#tab-quiz .tab-badge")).toHaveText("90");
+});
+
+/* Ссылки версий 1.x обязаны открываться и означать то же самое. Это
+   не вежливость к прошлому: код стандартной версии — сорок символов
+   без метки, и любая перестановка утверждений тихо сломала бы все
+   ссылки, которыми люди уже поделились. */
+test("ссылка стандартной версии остаётся сорока символами без метки", async ({ page }) => {
+  const code = "a".repeat(20) + "e".repeat(20);
+  await page.goto("/?legacy=1#/result/" + code);
+  await page.waitForFunction(() => document.querySelector(".quiz-result"));
+  await expect(page.locator(".qr-version")).toContainText("40");
+});
+
+/* Песочница коалиций: заготовка «минимальная» обязана дать большинство,
+   а метка незаменимости — стоять на самой фракции, потому что решение
+   «убрать эту» принимается там, а не в сводке. */
+test("песочница коалиций: заготовка, тип коалиции и метка незаменимости", async ({ page }) => {
+  await scrollThrough(page);
+  await expect(page.locator("#coalition")).toBeVisible();
+
+  await page.locator('.co-preset[data-preset="min"]').click();
+  await expect(page.locator('#coMetrics [data-m="kind"]')).toHaveText("минимальная выигрышная");
+  await expect(page.locator("#coVerdict")).not.toHaveClass(/\bno\b|\bnone\b/);
+
+  /* число незаменимых в сводке и число меток на фракциях — одно и то же */
+  const pivots = Number(await page.locator('#coMetrics [data-m="pivot"]').textContent());
+  expect(pivots).toBeGreaterThan(0);
+  await expect(page.locator(".co-tog .co-key:not([hidden])")).toHaveCount(pivots);
+
+  /* «Снять все»: коалиции нет, и ни один показатель не выдумывает числа */
+  await page.locator("#coClear").click();
+  await expect(page.locator('#coMetrics [data-m="kind"]')).toHaveText("пусто");
+  await expect(page.locator('#coMetrics [data-m="wx"]')).toHaveText("—");
+  await expect(page.locator('#coMetrics [data-m="coh"]')).toHaveText("—");
+
+  /* «Как в жизни» возвращает реальный расклад */
+  await page.locator("#coReset").click();
+  await expect(page.locator("#coReal")).toBeVisible();
+  await expect(page.locator('.co-tog[aria-pressed="false"]')).toHaveCount(0);
+});

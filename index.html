@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII, ключевые голосования и тест на 40 утверждений.">
+<meta name="description" content="Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII, ключевые голосования и тест на 90 утверждений в трёх версиях.">
 <meta name="color-scheme" content="light dark">
 <!-- цвет строки браузера на мобильных: свой для каждой темы, иначе
      панель остаётся белой над тёмной страницей -->
@@ -26,13 +26,13 @@
 <meta property="og:site_name" content="Политический компас партий РФ">
 <meta property="og:url" content="https://rupolitcompass.website/">
 <meta property="og:title" content="Интерактивный политический компас партий РФ">
-<meta property="og:description" content="Партии России на двух независимых осях: экономика и отношение к власти государства. Мандаты по созывам IV–VIII, ключевые голосования и тест на 40 утверждений.">
+<meta property="og:description" content="Партии России на двух независимых осях: экономика и отношение к власти государства. Мандаты по созывам IV–VIII, ключевые голосования и тест на 90 утверждений.">
 <meta property="og:image" content="https://rupolitcompass.website/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="674">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Интерактивный политический компас партий РФ">
-<meta name="twitter:description" content="Партии России на двух независимых осях, мандаты по созывам IV–VIII и тест на 40 утверждений.">
+<meta name="twitter:description" content="Партии России на двух независимых осях, мандаты по созывам IV–VIII и тест на 90 утверждений.">
 <meta name="twitter:image" content="https://rupolitcompass.website/assets/og-image.png">
 <link rel="icon" href="assets/icon.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/icon.png">
@@ -70,6 +70,8 @@
 <link rel="stylesheet" href="css/select.css">
 <link rel="stylesheet" href="css/settings.css">
 <link rel="stylesheet" href="css/ui.css">
+<!-- стекло уточняет поверхности, описанные выше, поэтому идёт после них -->
+<link rel="stylesheet" href="css/glass.css">
 <!-- слой движения подключается последним: часть его правил намеренно
      уточняет уже описанное выше, и каскад решает это без !important -->
 <link rel="stylesheet" href="css/motion.css">
@@ -112,7 +114,8 @@
         "Разложение позиции на шесть под-осей",
         "Мандаты в Госдуме по созывам IV–VIII",
         "Ключевые голосования и матрица совпадений фракций",
-        "Тест на 40 утверждений с разбором ответов и короткая версия на 20",
+        "Тест на 90 утверждений с разбором ответов, стандартная версия на 40 и короткая на 20",
+        "Шесть тем оформления и настройки интерфейса",
         "Песочница коалиций: порог большинства и метрики палаты на лету",
         "Экспорт данных в CSV, JSON, PNG и SVG"
       ],
@@ -288,7 +291,7 @@
                data-i18n-attr="aria-label:co.h">
         <div class="chart-head">
           <h3 data-i18n="co.h">Песочница коалиций</h3>
-          <p data-i18n="co.p">Соберите коалицию из фракций выбранного созыва и проверьте, проходит ли она порог большинства. Центр тяжести, эффективное число партнёров и разброс позиций пересчитываются на лету по тем же формулам, что и плитки палаты.</p>
+          <p data-i18n="co.p">Соберите коалицию из фракций выбранного созыва и проверьте, проходит ли она порог большинства. Восемь показателей пересчитываются на лету: центр тяжести и разброс — по тем же формулам, что и плитки палаты, сплочённость — по поимённым голосованиям этого созыва, а тип коалиции и список незаменимых фракций — по одной только арифметике мандатов.</p>
         </div>
         <div class="chart-toolbar">
           <button type="button" class="trend-mode" id="coReset" data-i18n="co.reset"
@@ -296,6 +299,8 @@
           <button type="button" class="trend-mode" id="coClear" data-i18n="co.clear">Снять все</button>
           <span class="co-real" id="coReal" data-i18n="co.real">реальный состав</span>
         </div>
+        <div class="co-presets" id="coPresets" role="group" aria-label="Готовые расклады"
+             data-i18n-attr="aria-label:co.presets"></div>
         <div class="co-togs" id="coTogs" role="group" aria-label="Фракции в коалиции"
              data-i18n-attr="aria-label:co.toggles"></div>
         <div class="co-head">
@@ -305,7 +310,7 @@
         <div class="co-bar" id="coBar" role="img" aria-label="Мандаты коалиции относительно порога большинства"
              data-i18n-attr="aria-label:co.bar"></div>
         <div class="co-metrics" id="coMetrics"></div>
-        <p class="chart-why" data-i18n="co.why">Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Это модель на координатах компаса, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.</p>
+        <p class="chart-why" data-i18n="co.why">Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Сплочённость — единственный показатель здесь, который считается не по координатам, а по тому, как фракции голосовали на самом деле, и потому он вправе спорить с остальными. Это модель, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.</p>
       </section>
 
       <section class="card chart-card wide" data-reveal aria-label="Идеологический спектр партий">
@@ -516,8 +521,8 @@
       </article>
 
       <article class="card about-card about-card--wide about-card--feature" data-reveal>
-        <h3 data-i18n="ab.quiz.h">Тест на 40 утверждений</h3>
-        <p data-i18n="ab.quiz.p">Тест ставит на ту же сетку вас. Двадцать утверждений про экономику и двадцать про роль
+        <h3 data-i18n="ab.quiz.h">Тест на 90 утверждений</h3>
+        <p data-i18n="ab.quiz.p">Тест ставит на ту же сетку вас. Сорок пять утверждений про экономику и сорок пять про роль
           государства, ответ по шкале от «полностью не согласен» до «полностью согласен».
           Согласие двигает координату к одному полюсу оси, несогласие — к другому; несколько ключевых
           утверждений весят чуть больше, потому что разводят позиции сильнее остальных.</p>
@@ -528,7 +533,7 @@
           пятёрка ответов, повлиявших сильнее прочих, и профиль по шести под-осям, наложенный на профиль
           ближайшей партии. Формула не прячется — сумма вкладов, достижимый максимум и итоговое число
           показаны прямо в таблице.</p>
-        <p data-i18n="ab.quiz.p4">Рядом — ссылка на результат. В ней закодированы все сорок ответов, поэтому по ссылке
+        <p data-i18n="ab.quiz.p4">Рядом — ссылка на результат. В ней закодированы все ваши ответы, поэтому по ссылке
           результат воспроизводится точь-в-точь, вместе с разбором, а не только картинкой. Ссылка никуда
           не отправляется и нигде не хранится: весь код лежит в самом адресе. Открытый по чужой ссылке
           результат ваши собственные ответы не затирает.</p>
@@ -545,18 +550,22 @@
       </article>
 
       <article class="card about-card about-card--accent2" data-reveal>
-        <span class="about-tag" data-i18n="ab.short.tag">Быстрый путь</span>
-        <h3 data-i18n="ab.short.h">Короткая версия — 20 утверждений</h3>
-        <p data-i18n="ab.short.p">На экране запуска теста есть переключатель режима. Короткая версия — не первые
-          двадцать вопросов из сорока, а отдельная выборка: поровну на каждую ось, все шесть под-осей
-          покрыты и все ключевые утверждения на месте, так что расклад по направлениям такой же, как
-          в полном тесте, только компактнее.</p>
-        <p data-i18n="ab.short.p2">Результат нормируется по своей выборке, а не делится на максимум полного теста —
-          иначе короткая версия систематически поджималась бы к центру. Поэтому обе версии кладут точку
-          на одну и ту же шкалу, и их можно сравнивать напрямую.</p>
-        <p class="about-note" data-i18n="ab.short.note">Ссылка на результат короткого теста помечена отдельным
-          кодом, чтобы двадцать ответов не спутать с двадцатью пропущенными вопросами полного прохождения —
-          обе версии остаются различимыми и воспроизводимыми по ссылке.</p>
+        <span class="about-tag" data-i18n="ab.short.tag">Выбор длины</span>
+        <h3 data-i18n="ab.short.h">Три версии: 90, 40 и 20</h3>
+        <p data-i18n="ab.short.p">На экране запуска теста есть переключатель версии. Это не три разных теста,
+          а три вложенных выборки одного набора: короткая целиком входит в стандартную, стандартная —
+          в расширенную. Ни одна из них не «первые N вопросов»: в каждой поровну утверждений на ось,
+          все шесть под-осей покрыты и все ключевые утверждения на месте.</p>
+        <p data-i18n="ab.short.p2">Результат нормируется по своей выборке, а не делится на максимум расширенной —
+          иначе короткая версия систематически поджималась бы к центру. Поэтому все три кладут точку
+          на одну и ту же шкалу, и прохождения разной длины можно сравнивать в истории напрямую.</p>
+        <p data-i18n="ab.short.p3">Разница между ними — разрешение, а не строгость. В расширенной версии каждая
+          под-ось раскрыта пятнадцатью утверждениями вместо пяти, поэтому луч на диаграмме-пауке перестаёт
+          зависеть от формулировки одного вопроса. Две точки, совпавшие на компасе, расходятся тем заметнее,
+          чем длиннее пройденная версия.</p>
+        <p class="about-note" data-i18n="ab.short.note">Ссылка на результат несёт метку версии, чтобы двадцать
+          ответов не спутать с двадцатью пропущенными вопросами более длинного прохождения. Ссылки, выданные
+          версиями 1.x, продолжают открываться и означают ровно то же, что означали тогда.</p>
       </article>
 
       <article class="card about-card" data-reveal>
@@ -623,18 +632,15 @@
     <section class="set-group">
       <h3 data-i18n="set.look">Оформление</h3>
 
-      <div class="set-row">
+      <!-- Плитки тем строит js/theme.js: список из шести тем живёт там,
+           и вторая его копия в разметке разошлась бы при добавлении
+           седьмой. Контейнер обязан существовать заранее — модуль ищет
+           его по id на этапе инициализации. -->
+      <div class="set-row set-row--block">
         <span class="set-lab"><b data-i18n="set.theme">Тема</b>
           <small data-i18n="set.theme.d">Системная следует за настройкой операционной системы</small></span>
-        <div class="seg" id="themeSeg" role="radiogroup" aria-label="Тема"
-             data-i18n-attr="aria-label:set.theme">
-          <button type="button" role="radio" data-val="system" aria-checked="true"
-                  data-i18n="set.theme.system">Система</button>
-          <button type="button" role="radio" data-val="light" aria-checked="false" tabindex="-1"
-                  data-i18n="set.theme.light">Светлая</button>
-          <button type="button" role="radio" data-val="dark" aria-checked="false" tabindex="-1"
-                  data-i18n="set.theme.dark">Тёмная</button>
-        </div>
+        <div class="theme-picker" id="themeSeg" role="radiogroup" aria-label="Тема"
+             data-i18n-attr="aria-label:set.theme"></div>
       </div>
 
       <div class="set-row">
@@ -649,27 +655,78 @@
 
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.density">Плотность</b>
-          <small data-i18n="set.density.d">Компактный режим поджимает отступы, не уменьшая кегль текста</small></span>
+          <small data-i18n="set.density.d">Меняются отступы, но не кегль текста: он отдельной настройкой ниже</small></span>
         <div class="seg" data-set-seg="density" role="radiogroup" aria-label="Плотность"
              data-i18n-attr="aria-label:set.density">
-          <button type="button" role="radio" data-val="cozy" aria-checked="true"
-                  data-i18n="set.density.cozy">Просторно</button>
           <button type="button" role="radio" data-val="compact" aria-checked="false" tabindex="-1"
-                  data-i18n="set.density.compact">Компактно</button>
+                  data-i18n="set.density.compact">Плотно</button>
+          <button type="button" role="radio" data-val="cozy" aria-checked="true"
+                  data-i18n="set.density.cozy">Обычно</button>
+          <button type="button" role="radio" data-val="airy" aria-checked="false" tabindex="-1"
+                  data-i18n="set.density.airy">Просторно</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.textsize">Размер текста</b>
+          <small data-i18n="set.textsize.d">Меняется базовый кегль, вся остальная шкала подстраивается сама</small></span>
+        <div class="seg" data-set-seg="textsize" role="radiogroup" aria-label="Размер текста"
+             data-i18n-attr="aria-label:set.textsize">
+          <button type="button" role="radio" data-val="small" aria-checked="false" tabindex="-1"
+                  data-i18n="set.textsize.small">Мельче</button>
+          <button type="button" role="radio" data-val="normal" aria-checked="true"
+                  data-i18n="set.textsize.normal">Обычный</button>
+          <button type="button" role="radio" data-val="large" aria-checked="false" tabindex="-1"
+                  data-i18n="set.textsize.large">Крупнее</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.corners">Углы</b>
+          <small data-i18n="set.corners.d">Скругление карточек, кнопок и панелей — вся шкала целиком</small></span>
+        <div class="seg" data-set-seg="corners" role="radiogroup" aria-label="Углы"
+             data-i18n-attr="aria-label:set.corners">
+          <button type="button" role="radio" data-val="sharp" aria-checked="false" tabindex="-1"
+                  data-i18n="set.corners.sharp">Строгие</button>
+          <button type="button" role="radio" data-val="normal" aria-checked="true"
+                  data-i18n="set.corners.normal">Обычные</button>
+          <button type="button" role="radio" data-val="soft" aria-checked="false" tabindex="-1"
+                  data-i18n="set.corners.soft">Мягкие</button>
         </div>
       </div>
 
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.font">Шрифт</b>
-          <small data-i18n="set.font.d">Меняются заголовки, цифры и подписи; основной текст остаётся Inter</small></span>
+          <small data-i18n="set.font.d">Меняются заголовки, цифры и подписи; основной текст остаётся системным</small></span>
         <div class="seg" data-set-seg="font" role="radiogroup" aria-label="Шрифт"
              data-i18n-attr="aria-label:set.font">
           <button type="button" role="radio" data-val="modern" aria-checked="true"
-                  data-i18n="set.font.modern">Современный</button>
+                  data-i18n="set.font.modern">Системный</button>
           <button type="button" role="radio" data-val="compact" aria-checked="false" tabindex="-1"
-                  data-i18n="set.font.compact">Компактный</button>
+                  data-i18n="set.font.compact">Узкий</button>
           <button type="button" role="radio" data-val="creative" aria-checked="false" tabindex="-1"
-                  data-i18n="set.font.creative">Творческий</button>
+                  data-i18n="set.font.creative">Антиква</button>
+          <button type="button" role="radio" data-val="mono" aria-checked="false" tabindex="-1"
+                  data-i18n="set.font.mono">Моноширинный</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.glass">Стекло</b>
+          <small data-i18n="set.glass.d">Полупрозрачные поверхности с размытием; выключение ускоряет прокрутку на слабых машинах</small></span>
+        <button type="button" class="sw" data-set-switch="glass" role="switch" aria-checked="true"
+                aria-label="Стекло" data-i18n-attr="aria-label:set.glass"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.numerals">Цифры</b>
+          <small data-i18n="set.numerals.d">Моноширинные не дрожат при пересчёте: все знаки одной ширины</small></span>
+        <div class="seg" data-set-seg="numerals" role="radiogroup" aria-label="Цифры"
+             data-i18n-attr="aria-label:set.numerals">
+          <button type="button" role="radio" data-val="tabular" aria-checked="true"
+                  data-i18n="set.numerals.tabular">Моноширинные</button>
+          <button type="button" role="radio" data-val="proportional" aria-checked="false" tabindex="-1"
+                  data-i18n="set.numerals.proportional">Пропорциональные</button>
         </div>
       </div>
     </section>
@@ -722,6 +779,38 @@
         <button type="button" class="sw" data-set-switch="grid" role="switch" aria-checked="true"
                 aria-label="Мелкая сетка" data-i18n-attr="aria-label:set.grid"><i></i></button>
       </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.cross">Перекрестие</b>
+          <small data-i18n="set.cross.d">Пунктир от точки под курсором к обеим осям — читать координату на глаз</small></span>
+        <button type="button" class="sw" data-set-switch="crosshair" role="switch" aria-checked="true"
+                aria-label="Перекрестие" data-i18n-attr="aria-label:set.cross"><i></i></button>
+      </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.page">Страница</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.readbar">Полоса прочтения</b>
+          <small data-i18n="set.readbar.d">Тонкая линия под шапкой, показывающая долю прокрученного</small></span>
+        <button type="button" class="sw" data-set-switch="readbar" role="switch" aria-checked="true"
+                aria-label="Полоса прочтения" data-i18n-attr="aria-label:set.readbar"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.sticky">Липкие вкладки</b>
+          <small data-i18n="set.sticky.d">Полоса разделов остаётся у верхней кромки при прокрутке</small></span>
+        <button type="button" class="sw" data-set-switch="sticky" role="switch" aria-checked="true"
+                aria-label="Липкие вкладки" data-i18n-attr="aria-label:set.sticky"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.topbtn">Кнопка «наверх»</b>
+          <small data-i18n="set.topbtn.d">Круглая кнопка в углу после семисот пикселей прокрутки</small></span>
+        <button type="button" class="sw" data-set-switch="topbtn" role="switch" aria-checked="true"
+                aria-label="Кнопка «наверх»" data-i18n-attr="aria-label:set.topbtn"><i></i></button>
+      </div>
     </section>
 
     <footer class="set-foot">
@@ -739,7 +828,7 @@
       <div class="foot-call-t">
         <span class="eyebrow" data-i18n="ft.call.eyebrow">Дальше</span>
         <h2 data-i18n="ft.call.h">Посмотрите, где на этой сетке стоите вы</h2>
-        <p data-i18n="ft.call.p">Сорок утверждений или короткая версия на двадцать — и ваша точка появится
+        <p data-i18n="ft.call.p">Девяносто утверждений, сорок или двадцать — на выбор. Ваша точка появится
           на том же поле, рядом с партиями, вместе с разбором каждого ответа.</p>
       </div>
       <div class="foot-call-a">
@@ -772,7 +861,7 @@
         <h3 data-i18n="tabs.label">Разделы</h3>
         <ul>
           <li><a href="#/compass"><span data-i18n="ft.l.compass">Компас и аналитика</span><span class="arr" aria-hidden="true">→</span></a></li>
-          <li><a href="#/quiz"><span data-i18n="ft.l.quiz">Тест на 40 утверждений</span><span class="arr" aria-hidden="true">→</span></a></li>
+          <li><a href="#/quiz"><span data-i18n="ft.l.quiz">Тест на 90 утверждений</span><span class="arr" aria-hidden="true">→</span></a></li>
           <li><a href="#/votes"><span data-i18n="ft.l.votes">Ключевые голосования</span><span class="arr" aria-hidden="true">→</span></a></li>
           <li><a href="#/about"><span data-i18n="ft.l.about">О проекте и методике</span><span class="arr" aria-hidden="true">→</span></a></li>
         </ul>
@@ -806,7 +895,7 @@
         <span>2026</span>
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 1.6.2: перевод переключателя шрифта на английский и проверка на мобильных">v1.6.2</span>
+              title="Версия 2.0: редизайн со стеклянными поверхностями, шесть тем, тест на 90 утверждений и аналитика коалиций">v2.0</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>

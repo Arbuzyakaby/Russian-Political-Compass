@@ -18,7 +18,7 @@
 .rad-fill{fill-opacity:.14;stroke-width:2;stroke-linejoin:round;}
 .rad-series.dashed .rad-fill{stroke-dasharray:6 4;fill-opacity:.10;}
 .rad-dot{stroke:var(--chart-surface);stroke-width:1.5;}
-.rad-series{transition:opacity var(--dur-2,.28s) ease;}
+.rad-series{transition:opacity var(--dur-2) ease;}
 
 .rad-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;}
 .rad-legend .rl{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);}

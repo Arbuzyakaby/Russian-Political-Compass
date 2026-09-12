@@ -11,7 +11,7 @@
 .pitem{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:12px;cursor:pointer;text-align:left;
   background:transparent;border:1px solid transparent;color:inherit;font:inherit;
   transition:background .15s,border-color .15s,transform .15s;
-  animation:slideIn .4s cubic-bezier(.2,.8,.3,1) both;}
+  animation:slideIn .4s var(--ease-out) both;}
 @keyframes slideIn{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:none;}}
 .pitem:hover{background:var(--surface);border-color:var(--stroke);transform:translateX(3px);}
 .pitem.active{background:var(--accent-soft);border-color:var(--accent-line);}
@@ -24,7 +24,7 @@
 
 /* ============ DETAIL ============ */
 .detail{padding:20px;}
-.detail>*{animation:up .45s cubic-bezier(.2,.8,.3,1) both;}
+.detail>*{animation:up .45s var(--ease-out) both;}
 .detail>*:nth-child(1){animation-delay:.02s}
 .detail>*:nth-child(2){animation-delay:.06s}
 .detail>*:nth-child(3){animation-delay:.10s}
@@ -90,7 +90,7 @@
 .sect p{font-size:13px;line-height:1.62;color:var(--body);}
 .sect ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
 .sect li{font-size:12.5px;line-height:1.55;color:var(--body);padding-left:17px;position:relative;
-  animation:up .4s cubic-bezier(.2,.8,.3,1) both;}
+  animation:up .4s var(--ease-out) both;}
 .sect li:nth-child(1){animation-delay:.18s}.sect li:nth-child(2){animation-delay:.24s}
 .sect li:nth-child(3){animation-delay:.30s}.sect li:nth-child(4){animation-delay:.36s}
 .sect li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;}
@@ -196,7 +196,7 @@
 .nb-row{display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;border-radius:10px;
   cursor:pointer;font:inherit;text-align:left;
   background:var(--surface);border:1px solid var(--stroke);color:var(--text);
-  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease,transform var(--dur-1,.16s) ease;}
+  transition:background var(--dur-1) ease,border-color var(--dur-1) ease,transform var(--dur-1) ease;}
 .nb-row:hover{background:var(--surface-2);border-color:var(--stroke-2);transform:translateX(2px);}
 .nb-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
 .nb-row i{width:9px;height:9px;border-radius:3px;flex:none;}

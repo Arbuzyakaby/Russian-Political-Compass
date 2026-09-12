@@ -76,7 +76,8 @@ const STATIC_IDS = [
   "sidebar.js:sideBody", "sidebar.js:sideTitle", "sidebar.js:count",
   "export.js:exportWrap", "export.js:exportBtn", "export.js:exportMenu",
   "votes.js:votesHost", "votes.js:votesMatrix",
-  "coalition.js:coalition", "coalition.js:coTogs", "coalition.js:coBar", "coalition.js:coSeats",
+  "coalition.js:coalition", "coalition.js:coTogs", "coalition.js:coPresets",
+  "coalition.js:coBar", "coalition.js:coSeats",
   "coalition.js:coTotal", "coalition.js:coVerdict", "coalition.js:coMetrics",
   "coalition.js:coReset", "coalition.js:coClear", "coalition.js:coReal",
   "quiz.js:quiz"
@@ -139,6 +140,67 @@ test("у карточки «О проекте» свой фон в каждой 
 test("слой движения подключается последним", () => {
   assert.equal(styles[styles.length - 1], "css/motion.css",
     "css/motion.css уточняет правила из других файлов и обязан идти после них");
+});
+
+/* Стеклянный слой уточняет поверхности, объявленные компонентами,
+   и делает это каскадом, а не специфичностью: встань он раньше —
+   карточка осталась бы с прежней тенью, а панель настроек с прежним
+   размытием, и выключатель «Стекло» перестал бы действовать на них. */
+test("стекло подключается после компонентов и до слоя движения", () => {
+  const glass = styles.indexOf("css/glass.css");
+  assert.ok(glass > -1, "css/glass.css не подключён");
+  assert.equal(glass, styles.length - 2, "css/glass.css должен идти прямо перед css/motion.css");
+  for(const name of ["css/layout.css", "css/ui.css", "css/settings.css", "css/coalition.css"]){
+    assert.ok(styles.indexOf(name) < glass, `${name} обязан идти раньше css/glass.css`);
+  }
+});
+
+/* Размытие и его кромка объявляются один раз — в css/glass.css и через
+   переменные. Собственный backdrop-filter в файле компонента означает,
+   что эта поверхность не выключается настройкой «Стекло»: до 2.0 их
+   было пять, и каждая со своими числами. */
+test("backdrop-filter объявлен только через переменную стекла", () => {
+  for(const name of fs.readdirSync(path.join(ROOT, "css"))){
+    if(name === "glass.css") continue;
+    /* комментарии вырезаются: слово backdrop-filter встречается
+       в пояснениях, и ловить его там — значит запретить о нём писать */
+    const css = fs.readFileSync(path.join(ROOT, "css", name), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "");
+    for(const m of css.matchAll(/backdrop-filter\s*:\s*([^;}]+)/g)){
+      const value = m[1].trim();
+      /* none разрешено: так размытие снимают — в печати и на карточке
+         с фоновой картинкой, где оно ничего не даёт */
+      if(/^none\b/.test(value)) continue;
+      assert.match(value, /var\(--glass-/,
+        `css/${name}: размытие задано мимо переменной стекла (${value})`);
+    }
+  }
+});
+
+/* Каждый ключ настроек становится атрибутом data-<ключ> на <html>,
+   и на нём должно висеть хотя бы одно правило: настройка, которую
+   не читает ни один селектор, — это переключатель, ничего не делающий.
+   Тема и язык не в счёт: у них свои модули и свои ключи хранения. */
+test("у каждой настройки есть правило, которое её читает", () => {
+  const src = fs.readFileSync(path.join(ROOT, "js", "settings.js"), "utf8");
+  const block = /var DEFAULTS = \{([\s\S]*?)\n  \};/.exec(src);
+  assert.ok(block, "в js/settings.js не найден список настроек");
+  const keys = Array.from(block[1].matchAll(/^\s*(\w+):\s*"/gm), m => m[1]);
+  assert.ok(keys.length >= 10, `настроек подозрительно мало: ${keys.length}`);
+
+  const css = fs.readdirSync(path.join(ROOT, "css"))
+    .map(n => fs.readFileSync(path.join(ROOT, "css", n), "utf8")).join("\n");
+  for(const key of keys){
+    assert.ok(css.includes(`[data-${key}=`),
+      `настройка «${key}» ничего не меняет: ни одно правило не читает data-${key}`);
+  }
+
+  /* И обратно: переключатель для каждой настройки обязан быть
+     в разметке, иначе до неё нельзя добраться из интерфейса. */
+  for(const key of keys){
+    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`),
+      `настройка «${key}» есть в коде, но её нет в панели настроек`);
+  }
 });
 
 test("структурированные данные разбираются и описывают то же, что страница", () => {

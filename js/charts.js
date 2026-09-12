@@ -42,7 +42,9 @@
      дают контраст ниже 3:1 — поднимаем светлоту, сохраняя тон. В светлой
      теме наоборот ограничиваем сверху, чтобы жёлтый не выцветал. */
   function chartColor(hex){
-    var dark = document.documentElement.dataset.theme !== "light";
+    /* Светлота, а не имя темы: тем шесть, и перечислять их здесь
+       значило бы ломать график при добавлении седьмой. */
+    var dark = document.documentElement.dataset.scheme !== "light";
     var hsl = rgbToHsl.apply(null, hexToRgb(hex));
     var l = hsl[2];
     if(dark) l = Math.max(l, .48);
@@ -896,7 +898,14 @@
   function render(active){
     if(!host.stats) return;
     activeId = active || null;
-    var key = PC.convocationInfo().id + "|" + activeId + "|" + document.documentElement.dataset.theme;
+    /* В ключе — всё, от чего зависит готовая картинка: созыв, выбранная
+       партия, тема (она задаёт цвета марок) и плотность с кеглем (они
+       меняют ширину контейнеров, а графики рисуются в пикселях). Без
+       двух последних смена плотности оставляла бы графики нарисованными
+       под прежнюю ширину до первого перехода по вкладкам. */
+    var root = document.documentElement.dataset;
+    var key = [PC.convocationInfo().id, activeId, root.theme,
+               root.density, root.textsize].join("|");
     if(key === lastKey) return;
     lastKey = key;
     renderStats();

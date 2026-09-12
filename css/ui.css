@@ -8,10 +8,10 @@
 /* Первый Tab на странице попадает сюда: клавиатурному пользователю не
    нужно проходить поиск, переключатель темы и три вкладки, чтобы
    добраться до содержимого. Видимой становится только в фокусе. */
-.skip-link{position:fixed;top:10px;left:10px;z-index:100;transform:translateY(-160%);
-  padding:10px 16px;border-radius:10px;font-size:13px;font-weight:650;text-decoration:none;
+.skip-link{position:fixed;top:10px;left:10px;z-index:var(--z-skip);transform:translateY(-160%);
+  padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:650;text-decoration:none;
   background:var(--tip-bg);border:1px solid var(--accent-line);color:var(--accent);
-  box-shadow:var(--shadow);transition:transform .2s cubic-bezier(.2,.8,.3,1);}
+  box-shadow:var(--shadow);transition:transform .2s var(--ease-out);}
 .skip-link:focus{transform:none;outline:2px solid var(--accent);outline-offset:2px;}
 
 /* содержимое строится скриптами: без них честно говорим об этом,
@@ -34,9 +34,7 @@
 .tabs{position:sticky;top:10px;z-index:25;
   transition:background .25s ease,box-shadow .25s ease,border-color .25s ease;}
 .tabs.is-stuck{
-  background:color-mix(in srgb,var(--tip-bg) 92%,transparent);
-  border-color:var(--stroke-2);box-shadow:var(--shadow);
-  backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);}
+  background:var(--glass-bg-2);border-color:var(--stroke-2);}
 /* панель списка партий тоже липкая — опускаем её ниже полосы вкладок,
    иначе карточка партии подъезжала бы под них при прокрутке */
 @media(min-width:1051px){
@@ -69,13 +67,12 @@
 /* ---------- возврат наверх ---------- */
 .to-top{
   position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:55;
-  width:44px;height:44px;border-radius:14px;cursor:pointer;font-size:17px;line-height:1;
+  width:44px;height:44px;border-radius:var(--radius-sm);cursor:pointer;font-size:17px;line-height:1;
   display:grid;place-items:center;
-  background:color-mix(in srgb,var(--tip-bg) 92%,transparent);
-  border:1px solid var(--stroke-2);color:var(--text);box-shadow:var(--shadow);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:var(--glass-bg-2);
+  border:1px solid var(--stroke-2);color:var(--text);
   opacity:0;visibility:hidden;transform:translateY(12px) scale(.9);
-  transition:opacity .25s ease,transform .25s cubic-bezier(.2,.8,.3,1),visibility .25s,
+  transition:opacity .25s ease,transform .25s var(--ease-out),visibility .25s,
              border-color .16s ease,background .16s ease;}
 .to-top.show{opacity:1;visibility:visible;transform:none;}
 .to-top:hover{border-color:var(--accent-line);color:var(--accent);transform:translateY(-2px);}
@@ -88,10 +85,9 @@
   pointer-events:none;width:min(420px,calc(100vw - 32px));}
 .toast{
   pointer-events:auto;cursor:pointer;max-width:100%;
-  padding:11px 16px;border-radius:12px;font-size:12.5px;font-weight:550;line-height:1.4;
-  color:var(--text);background:color-mix(in srgb,var(--tip-bg) 94%,transparent);
-  border:1px solid var(--stroke-2);box-shadow:var(--shadow-lift);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  padding:11px 16px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:550;line-height:1.4;
+  color:var(--text);background:var(--glass-bg-2);
+  border:1px solid var(--stroke-2);
   overflow-wrap:anywhere;text-align:center;
   animation:toast-in .3s cubic-bezier(.2,.9,.3,1) both;}
 .toast::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
@@ -123,11 +119,11 @@
    Файл подключён после header.css и layout.css, поэтому уточняет их
    без повышения специфичности. */
 .chip,.trend-mode,.data-toggle,.co-tog{
-  transition:background var(--dur-1,.16s) var(--ease-swift,ease),
-             border-color var(--dur-1,.16s) var(--ease-swift,ease),
-             color var(--dur-1,.16s) var(--ease-swift,ease),
-             box-shadow var(--dur-2,.28s) var(--ease-out,ease),
-             transform var(--dur-1,.16s) var(--ease-spring,ease);}
+  transition:background var(--dur-1) var(--ease-out),
+             border-color var(--dur-1) var(--ease-out),
+             color var(--dur-1) var(--ease-out),
+             box-shadow var(--dur-2) var(--ease-out),
+             transform var(--dur-1) var(--ease-spring);}
 .chip:hover,.trend-mode:hover:not(:disabled),.data-toggle:hover{
   background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);
   transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(0,0,0,.45);}
@@ -153,7 +149,8 @@
   .shell{max-width:none;padding:0;}
   .panel[hidden]{display:block!important;}
   .card,.stat,.about-card{background:#fff!important;border:1px solid #ccc!important;
-    box-shadow:none!important;backdrop-filter:none!important;break-inside:avoid;}
+    box-shadow:none!important;break-inside:avoid;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
   .card::after,.card::before{display:none!important;}
   .grid,.charts,.about{display:block!important;}
   .card,.stat{margin-bottom:12px;}

@@ -188,7 +188,7 @@
 .hrun{display:inline-flex;align-items:baseline;gap:7px;font:inherit;font-size:11px;
   padding:6px 11px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);
   color:var(--muted);
-  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease,transform var(--dur-1,.16s) ease;}
+  transition:background var(--dur-1) ease,border-color var(--dur-1) ease,transform var(--dur-1) ease;}
 button.hrun{cursor:pointer;}
 button.hrun:hover{background:var(--surface-3);border-color:var(--stroke-2);color:var(--text);transform:translateY(-1px);}
 button.hrun:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
@@ -210,12 +210,17 @@ button.hrun:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
    стоит показать сразу вместе с пояснением. Выбор длины — это первое
    решение, которое человек принимает на этом экране, поэтому кнопки
    крупные и с подписью, а не мелкие чипы в углу. */
-.quiz-modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px;}
+/* Три версии в ряд. auto-fit с минимумом, а не жёсткие три колонки:
+   при мелком экране или крупном кегле «проверенная временем анкета»
+   в колонке шириной 150px рассыпается на шесть строк, и ряд лучше
+   свернуть. */
+.quiz-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;margin:0 0 18px;}
 .qmode{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;
   font:inherit;padding:12px 15px;border-radius:14px;cursor:pointer;
   background:var(--surface);border:1px solid var(--stroke);color:var(--muted);
-  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease,
-             color var(--dur-1,.16s) ease,transform var(--dur-1,.16s) ease;}
+  transition:background var(--dur-1) ease,border-color var(--dur-1) ease,
+             color var(--dur-1) ease,transform var(--dur-1) ease;}
 .qmode:hover{background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);
   transform:translateY(-1px);}
 .qmode:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}

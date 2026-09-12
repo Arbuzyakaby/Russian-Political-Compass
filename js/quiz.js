@@ -6,18 +6,19 @@
    устойчиво выраженной позиции — иначе крайние точки были бы практически
    недостижимы и все результаты сползали бы к центру.
 
-   Версий теста две: полная на 40 утверждений и короткая на 20. Короткая —
-   не «первые двадцать вопросов», а отдельная выборка (поле short в
-   js/quiz-data.js), собранная так, чтобы обе версии измеряли одно и то
-   же: поровну на каждую ось, все шесть под-осей покрыты, все ключевые
-   утверждения сохранены, перекос по направлению внутри оси такой же,
-   как в полной.
+   Версий теста три: расширенная на 90 утверждений, стандартная на 40 и
+   короткая на 20. Это не три анкеты, а три вложенных выборки одного
+   массива (js/quiz-data.js): короткая целиком входит в стандартную,
+   стандартная — в расширенную. Ни одна из них не «первые N вопросов»:
+   выборки собраны так, чтобы все три измеряли одно и то же — поровну
+   на каждую ось, все шесть под-осей покрыты, ключевые утверждения
+   сохранены, перекос по направлению внутри оси совпадает.
 
    Нормировка всегда считается по той выборке, которую человек проходил,
-   а не по всем сорока утверждениям. Это принципиально: делить сумму
-   двадцати ответов на максимум сорока значило бы систематически
-   поджимать короткий результат к центру, и две версии перестали бы
-   лежать на одной шкале.
+   а не по всему массиву. Это принципиально: делить сумму двадцати
+   ответов на максимум девяноста значило бы систематически поджимать
+   короткий результат к центру, и версии перестали бы лежать на одной
+   шкале.
 
    Тот же ответ считается дважды: один раз в общую сумму по оси, второй —
    в свою узкую под-ось. Под-оси ничего не меняют в итоговых координатах,
@@ -25,13 +26,15 @@
    радаре, и это интереснее самой точки.
 
    Ответы, итог и история прохождений хранятся в localStorage: тест на
-   сорок вопросов не должен пропадать от случайного обновления страницы,
+   девяносто вопросов не должен пропадать от случайного обновления страницы,
    а взгляды меняются, и направление сдвига говорит больше, чем одна
    точка на поле. ============ */
 (function(PC){
   "use strict";
   var U = PC.utils, esc = U.esc, fmt = U.fmt, clamp = U.clamp;
-  var ALL = PC.QUIZ.QUESTIONS, SHORT = PC.QUIZ.SHORT, SCALE = PC.QUIZ.SCALE;
+  var ALL = PC.QUIZ.QUESTIONS, STD = PC.QUIZ.STD, SHORT = PC.QUIZ.SHORT;
+  var SCALE = PC.QUIZ.SCALE;
+  var MODES = ["long", "full", "short"];
   var t = PC.t, L = PC.L;
 
   var KEY_ANS  = "pc-quiz-answers";
@@ -52,12 +55,20 @@
   var history = [];               /* прошлые результаты, от старых к новым */
   var idx = 0;                    /* текущий вопрос в активной выборке */
   var view = "intro";             /* intro | run | result */
-  var mode = "full";              /* full | short */
+  var mode = "full";              /* long | full | short */
   var shared = null;              /* результат, открытый по чужой ссылке */
   var breakdownOpen = false;
 
-  /* ---------- выборки ---------- */
-  function questionsFor(m){ return m === "short" ? SHORT : ALL; }
+  /* ---------- выборки ----------
+     Умолчание — стандартная выборка, а не весь массив: «полный тест»
+     в этом проекте исторически означает сорок утверждений, и внешние
+     вызовы (экспорт, тесты, старые ссылки) рассчитывают именно на неё. */
+  function questionsFor(m){
+    return m === "long" ? ALL : m === "short" ? SHORT : STD;
+  }
+  function modeOfList(list){
+    return list === SHORT ? "short" : list === ALL ? "long" : "full";
+  }
   function activeQuestions(){ return questionsFor(mode); }
 
   /* ---------- максимумы ----------
@@ -75,16 +86,17 @@
     return out;
   }
   var MAXES = {
-    full:  { x:axisMaxOf(ALL, "x"),   y:axisMaxOf(ALL, "y"),   sub:subMaxOf(ALL) },
+    long:  { x:axisMaxOf(ALL, "x"),   y:axisMaxOf(ALL, "y"),   sub:subMaxOf(ALL) },
+    full:  { x:axisMaxOf(STD, "x"),   y:axisMaxOf(STD, "y"),   sub:subMaxOf(STD) },
     short: { x:axisMaxOf(SHORT, "x"), y:axisMaxOf(SHORT, "y"), sub:subMaxOf(SHORT) }
   };
-  function maxesFor(list){ return list === SHORT ? MAXES.short : MAXES.full; }
+  function maxesFor(list){ return MAXES[modeOfList(list)]; }
 
   /* Чистая функция: по набору ответов даёт координаты. Второй аргумент —
      выборка, по которой считать; по умолчанию полная, потому что так
      функцию зовут снаружи модуля (тесты, экспорт). */
   function scoreOf(src, list){
-    list = list || ALL;
+    list = list || STD;
     var m = maxesFor(list);
     var sx = 0, sy = 0, answered = 0;
     list.forEach(function(q){
@@ -99,7 +111,7 @@
       y: clamp(sy / (m.y * REACH) * 10, -10, 10),
       answered: answered,
       total: list.length,
-      mode: list === SHORT ? "short" : "full",
+      mode: modeOfList(list),
       ts: Date.now()
     };
   }
@@ -133,7 +145,7 @@
      координата. Пропущенные утверждения возвращаются с нулём, а не
      выбрасываются: в разборе важно видеть и то, что не сыграло. */
   function contributions(src, list){
-    return (list || ALL).map(function(q){
+    return (list || STD).map(function(q){
       var a = src[q.id];
       var answered = a !== undefined;
       return { q:q, answer: answered ? a : null, value: answered ? a * q.dir * q.w : 0 };
@@ -154,35 +166,49 @@
 
   /* ---------- кодирование результата в ссылку ---------- */
   /* Один символ на утверждение: a…e — ответы от −2 до +2, дефис —
-     без ответа. Сорок символов вместо base64 от JSON выбраны намеренно:
+     без ответа. Символ на вопрос вместо base64 от JSON выбран намеренно:
      код читается глазами, не содержит символов, требующих экранирования
      в адресе, и не ломается, если мессенджер обрежет ссылку — короткий
      хвост просто не декодируется, а не даёт неверный результат.
 
-     Короткая версия помечена ведущей «s»: без метки код из двадцати
-     ответов и двадцати прочерков невозможно отличить от полного
-     прохождения, где половина вопросов пропущена, а нормировать их
-     нужно по-разному. Полное прохождение метки не получает — ссылки,
-     выданные до появления короткой версии, продолжают работать. */
+     Ведущая буква — метка версии, и она обязательна по той же причине,
+     по которой нужна сама нормировка: код из двадцати ответов и двадцати
+     прочерков невозможно отличить от стандартного прохождения, где
+     половина вопросов пропущена, а считать их нужно по-разному.
+       «s» — короткая версия (тело кода в порядке STD, 40 символов);
+       «x» — расширенная (тело в порядке всех 90);
+       без метки — стандартная версия, 40 символов.
+     Стандартное прохождение метки не получает намеренно: все ссылки,
+     выданные версиями 1.x, продолжают открываться и означают ровно то
+     же самое. Буквы «s» и «x» в алфавите ответов не встречаются,
+     поэтому метку нельзя спутать с первым ответом. */
   var CODE = "abcde";
 
+  /* выборка, в порядке которой пишется и читается тело кода */
+  function codeList(m){ return m === "long" ? ALL : STD; }
+  function codeTag(m){ return m === "long" ? "x" : m === "short" ? "s" : ""; }
+
   function encodeAnswers(src, m){
-    var body = ALL.map(function(q){
+    var body = codeList(m).map(function(q){
       var a = src[q.id];
       return a === undefined ? "-" : CODE.charAt(a + 2);
     }).join("");
-    return (m === "short" ? "s" : "") + body;
+    return codeTag(m) + body;
   }
   function decodeMode(code){
-    return typeof code === "string" && code.charAt(0) === "s" ? "short" : "full";
+    if(typeof code !== "string") return "full";
+    var c = code.charAt(0);
+    return c === "x" ? "long" : c === "s" ? "short" : "full";
   }
   function decodeAnswers(code){
     if(typeof code !== "string") return null;
-    var body = code.charAt(0) === "s" ? code.slice(1) : code;
+    var m = decodeMode(code);
+    var list = codeList(m);
+    var body = codeTag(m) ? code.slice(1) : code;
     var clean = body.replace(/[^a-e-]/g, "");
-    if(clean.length !== ALL.length) return null;
+    if(clean.length !== list.length) return null;
     var out = {}, any = false;
-    ALL.forEach(function(q, i){
+    list.forEach(function(q, i){
       var v = CODE.indexOf(clean.charAt(i));
       if(v > -1){ out[q.id] = v - 2; any = true; }
     });
@@ -203,7 +229,7 @@
 
   function load(){
     var savedMode = PC.store.get(KEY_MODE, "full");
-    mode = savedMode === "short" ? "short" : "full";
+    mode = MODES.indexOf(savedMode) > -1 ? savedMode : "full";
 
     var a = PC.store.getJSON(KEY_ANS, null);
     if(a && typeof a === "object"){
@@ -214,9 +240,10 @@
     }
     var r = PC.store.getJSON(KEY_RES, null);
     if(r && typeof r.x === "number" && typeof r.y === "number"){
+      var rm = MODES.indexOf(r.mode) > -1 ? r.mode : "full";
       result = { x:clamp(r.x, -10, 10), y:clamp(r.y, -10, 10),
-                 answered:r.answered || 0, total:r.total || ALL.length,
-                 mode:r.mode === "short" ? "short" : "full", ts:r.ts || 0 };
+                 answered:r.answered || 0, total:r.total || questionsFor(rm).length,
+                 mode:rm, ts:r.ts || 0 };
     }
     var h = PC.store.getJSON(KEY_HIST, null);
     if(Array.isArray(h)){
@@ -225,7 +252,7 @@
       }).map(function(e){
         return { x:clamp(e.x, -10, 10), y:clamp(e.y, -10, 10),
                  answered:e.answered || 0, ts:e.ts || 0,
-                 mode:e.mode === "short" ? "short" : "full",
+                 mode:MODES.indexOf(e.mode) > -1 ? e.mode : "full",
                  code:typeof e.code === "string" ? e.code : null };
       }).slice(-HIST_MAX);
     }
@@ -263,7 +290,7 @@
     return t("q.rightlib");
   }
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
-  function modeName(m){ return t(m === "short" ? "quiz.mode.short.n" : "quiz.mode.full.n"); }
+  function modeName(m){ return t("quiz.mode." + (MODES.indexOf(m) > -1 ? m : "full") + ".n"); }
 
   function scaleLabel(s){ return s.key ? t(s.key) : s.label; }
   function questionText(q){ return L(q, "t"); }
@@ -316,7 +343,7 @@
      дописать вопросов на ходу — и то и другое выглядит как поломка. */
   function modeSwitch(){
     return '<div class="quiz-modes" role="group" aria-label="' + esc(t("quiz.mode")) + '">' +
-      ["full", "short"].map(function(m){
+      MODES.map(function(m){
         var list = questionsFor(m);
         return '<button type="button" class="qmode" data-mode="' + m + '" aria-pressed="' + (m === mode) + '">' +
           '<span class="qm-n">' + esc(t("quiz.mode." + m, { n:list.length })) + '</span>' +
@@ -335,10 +362,12 @@
         '<h2>' + esc(t("quiz.h")) + '</h2>' +
         '<p class="quiz-lede">' + esc(t("quiz.lede", { n:list.length })) + '</p>' +
         modeSwitch() +
-        (mode === "short" ? '<p class="quiz-note short-note">' + esc(t("quiz.shortNote", { n:SHORT.length, all:ALL.length })) + '</p>' : "") +
+        (mode === "short" ? '<p class="quiz-note short-note">' + esc(t("quiz.shortNote", { n:SHORT.length, all:STD.length })) + '</p>' : "") +
+        (mode === "long" ? '<p class="quiz-note short-note">' + esc(t("quiz.longNote", { n:ALL.length, std:STD.length })) + '</p>' : "") +
         '<ul class="quiz-facts">' +
           '<li data-reveal>' + t("quiz.fact1", { a:list.length / 2, b:list.length / 2 }) + '</li>' +
-          '<li data-reveal>' + t(mode === "short" ? "quiz.fact2.short" : "quiz.fact2") + '</li>' +
+          '<li data-reveal>' + t(mode === "short" ? "quiz.fact2.short"
+                                : mode === "long" ? "quiz.fact2.long" : "quiz.fact2") + '</li>' +
           '<li data-reveal>' + t("quiz.fact3") + '</li>' +
         '</ul>' +
         '<div class="quiz-actions">' +
@@ -749,7 +778,8 @@
             '<button type="button" class="btn ghost" id="qrAgain">' + esc(t("res.again")) + '</button>' +
           '</div>' +
           '<p class="quiz-note">' + esc(t("res.matchNote", { n:MAX_DIST })) +
-            (runMode === "short" ? " " + esc(t("res.shortNote", { n:SHORT.length, all:ALL.length })) : "") + '</p>' +
+            (runMode === "short" ? " " + esc(t("res.shortNote", { n:SHORT.length, all:STD.length })) : "") +
+            (runMode === "long" ? " " + esc(t("res.longNote", { n:ALL.length })) : "") + '</p>' +
           subBlock() +
           breakdownBlock(src, list) +
           linkBlock(src, runMode) +
@@ -844,7 +874,7 @@
   }
 
   function hashCode(){
-    var m = /^#\/?result\/(s?[a-e-]+)/.exec(location.hash || "");
+    var m = /^#\/?result\/([sx]?[a-e-]+)/.exec(location.hash || "");
     return m ? m[1] : null;
   }
 
@@ -905,6 +935,8 @@
     render: render,
     result: function(){ return result; },
     mode: function(){ return mode; },
+    modes: function(){ return MODES.slice(); },
+    questionsFor: questionsFor,
     questions: activeQuestions,
     ranking: ranking,
     quadrant: quadrant,

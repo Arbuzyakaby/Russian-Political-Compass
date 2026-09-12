@@ -38,8 +38,8 @@
                            "Landmark Duma votes — Russian Political Compass"],
     "doc.title.about":    ["О проекте — Политический компас партий РФ",
                            "About — Russian Political Compass"],
-    "doc.desc":           ["Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII, тест на 40 утверждений.",
-                           "Interactive political compass of Russian parties: positions on the economic and state-authority axes, State Duma seats across convocations IV–VIII, and a 40-statement quiz."],
+    "doc.desc":           ["Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII, тест на 90 утверждений в трёх версиях.",
+                           "Interactive political compass of Russian parties: positions on the economic and state-authority axes, State Duma seats across convocations IV–VIII, and a 90-statement quiz in three lengths."],
 
     "skip":               ["Перейти к содержимому", "Skip to content"],
     "noscript":           ["Компас, графики и тест рисуются в браузере на JavaScript — без него страница остаётся пустой. Включите JavaScript, чтобы увидеть данные.",
@@ -78,22 +78,68 @@
     "set.theme.d":        ["Системная следует за настройкой операционной системы",
                            "System follows your operating system setting"],
     "set.theme.system":   ["Система", "System"],
+    "set.theme.paper":    ["Бумага", "Paper"],
+    "set.theme.alaska":   ["Аляска", "Alaska"],
+    "set.theme.neon":     ["Неон", "Neon"],
+    "set.theme.fireplace":["Камин", "Fireplace"],
     "set.theme.light":    ["Светлая", "Light"],
     "set.theme.dark":     ["Тёмная", "Dark"],
     "set.lang":           ["Язык", "Language"],
     "set.lang.d":         ["Переключение перезагружает страницу; ответы теста сохраняются",
                            "Switching reloads the page; your quiz answers are kept"],
     "set.density":        ["Плотность", "Density"],
-    "set.density.d":      ["Компактный режим поджимает отступы, не уменьшая кегль текста",
-                           "Compact tightens the spacing without shrinking the type"],
-    "set.density.cozy":   ["Просторно", "Cozy"],
-    "set.density.compact":["Компактно", "Compact"],
+    "set.density.d":      ["Меняются отступы, но не кегль текста: он отдельной настройкой ниже",
+                           "Spacing changes, text size does not — that is a separate setting below"],
+    "set.density.compact":["Плотно", "Tight"],
+    "set.density.cozy":   ["Обычно", "Default"],
+    "set.density.airy":   ["Просторно", "Airy"],
+
+    "set.textsize":       ["Размер текста", "Text size"],
+    "set.textsize.d":     ["Меняется базовый кегль, вся остальная шкала подстраивается сама",
+                           "The base size changes and the rest of the scale follows on its own"],
+    "set.textsize.small": ["Мельче", "Smaller"],
+    "set.textsize.normal":["Обычный", "Default"],
+    "set.textsize.large": ["Крупнее", "Larger"],
+
+    "set.corners":        ["Углы", "Corners"],
+    "set.corners.d":      ["Скругление карточек, кнопок и панелей — вся шкала целиком",
+                           "The rounding of cards, buttons and panels — the whole scale at once"],
+    "set.corners.sharp":  ["Строгие", "Crisp"],
+    "set.corners.normal": ["Обычные", "Default"],
+    "set.corners.soft":   ["Мягкие", "Soft"],
+
+    "set.glass":          ["Стекло", "Glass"],
+    "set.glass.d":        ["Полупрозрачные поверхности с размытием; выключение ускоряет прокрутку на слабых машинах",
+                           "Translucent, blurred surfaces; switching them off speeds up scrolling on slower machines"],
+
+    "set.numerals":       ["Цифры", "Numerals"],
+    "set.numerals.d":     ["Моноширинные не дрожат при пересчёте: все знаки одной ширины",
+                           "Tabular figures do not jitter while numbers animate: every digit is the same width"],
+    "set.numerals.tabular":["Моноширинные", "Tabular"],
+    "set.numerals.proportional":["Пропорциональные", "Proportional"],
+
+    "set.cross":          ["Перекрестие", "Crosshair"],
+    "set.cross.d":        ["Пунктир от точки под курсором к обеим осям — читать координату на глаз",
+                           "A dotted line from the hovered point to both axes, for reading the coordinate by eye"],
+
+    "set.page":           ["Страница", "Page"],
+    "set.readbar":        ["Полоса прочтения", "Reading bar"],
+    "set.readbar.d":      ["Тонкая линия под шапкой, показывающая долю прокрученного",
+                           "A thin line under the header showing how far you have scrolled"],
+    "set.sticky":         ["Липкие вкладки", "Sticky tabs"],
+    "set.sticky.d":       ["Полоса разделов остаётся у верхней кромки при прокрутке",
+                           "The section bar stays at the top edge while you scroll"],
+    "set.topbtn":         ["Кнопка «наверх»", "Back-to-top button"],
+    "set.topbtn.d":       ["Круглая кнопка в углу после семисот пикселей прокрутки",
+                           "A round button in the corner after seven hundred pixels of scrolling"],
+
     "set.font":           ["Шрифт", "Typeface"],
-    "set.font.d":         ["Меняются заголовки, цифры и подписи; основной текст остаётся Inter",
-                           "Changes headings, numbers and labels; body text stays Inter"],
-    "set.font.modern":    ["Современный", "Modern"],
-    "set.font.compact":   ["Компактный", "Compact"],
-    "set.font.creative":  ["Творческий", "Creative"],
+    "set.font.d":         ["Меняются заголовки, цифры и подписи; основной текст остаётся системным",
+                           "Changes headings, numbers and labels; body text stays the system face"],
+    "set.font.modern":    ["Системный", "System"],
+    "set.font.compact":   ["Узкий", "Condensed"],
+    "set.font.creative":  ["Антиква", "Serif"],
+    "set.font.mono":      ["Моноширинный", "Monospace"],
     "set.motion":         ["Движение и фон", "Motion and background"],
     "set.anim":           ["Анимации", "Animations"],
     "set.anim.d":         ["Появление блоков, переходы вкладок, рост полос на графиках",
@@ -231,8 +277,8 @@
 
     /* ===== песочница коалиций ===== */
     "co.h":               ["Песочница коалиций", "Coalition sandbox"],
-    "co.p":               ["Соберите коалицию из фракций выбранного созыва и проверьте, проходит ли она порог большинства. Центр тяжести, эффективное число партнёров и разброс позиций пересчитываются на лету по тем же формулам, что и плитки палаты.",
-                           "Assemble a coalition from the factions of the selected convocation and see whether it clears the majority threshold. Centre of gravity, effective number of partners and spread of positions are recalculated on the fly with the same formulas as the chamber tiles."],
+    "co.p":               ["Соберите коалицию из фракций выбранного созыва и проверьте, проходит ли она порог большинства. Восемь показателей пересчитываются на лету: центр тяжести и разброс — по тем же формулам, что и плитки палаты, сплочённость — по поимённым голосованиям этого созыва, а тип коалиции и список незаменимых фракций — по одной только арифметике мандатов.",
+                           "Assemble a coalition from the factions of the selected convocation and see whether it clears the majority threshold. Eight figures are recalculated on the fly: the centre of gravity and the spread use the same formulas as the chamber tiles, cohesion comes from the recorded votes of this convocation, and the kind of coalition and the list of indispensable factions follow from the arithmetic of seats alone."],
     "co.toggles":         ["Фракции в коалиции", "Factions in the coalition"],
     "co.reset":           ["Как в жизни", "As it really is"],
     "co.resetTitle":      ["Вернуть реальный расклад: все фракции созыва", "Restore the actual line-up: every faction of the convocation"],
@@ -251,8 +297,59 @@
     "co.polar":           ["Разброс внутри коалиции", "Spread within the coalition"],
     "co.polarD":          ["среднее расстояние фракции до центра коалиции", "mean distance of a faction to the coalition centre"],
     "co.vsHouse":         ["вся палата: {v}", "whole chamber: {v}"],
-    "co.why":             ["Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Это модель на координатах компаса, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.",
-                           "How to read it: the bar runs along the economic axis, just like the chamber arc. A coalition with a wide spread is built from factions far apart — it has a majority on paper but will have to negotiate every bill. This is a model on compass coordinates, not a forecast: real coalitions also rest on things the axes do not capture."],
+
+    "co.presets":         ["Готовые расклады", "Ready-made line-ups"],
+    "co.preset.real":     ["Как в жизни", "As it is"],
+    "co.preset.min":      ["Минимальная", "Minimal"],
+    "co.preset.left":     ["Левее нуля", "Left of zero"],
+    "co.preset.right":    ["Правее нуля", "Right of zero"],
+    "co.preset.none":     ["Пусто", "Empty"],
+
+    "co.kind":            ["Тип коалиции", "Kind of coalition"],
+    "co.kind.minimal":    ["минимальная выигрышная", "minimal winning"],
+    "co.kind.surplus":    ["избыточная", "surplus"],
+    "co.kind.minority":   ["миноритарная", "minority"],
+    "co.kind.empty":      ["пусто", "empty"],
+    "co.kindD.minimal":   ["{p}% палаты, и убрать нельзя никого: каждый участник держит большинство",
+                           "{p}% of the chamber, and nobody can be dropped: every member holds the majority up"],
+    "co.kindD.surplus":   ["{p}% палаты; {n} участников можно убрать, большинство устоит",
+                           "{p}% of the chamber; {n} members could be dropped and the majority would hold"],
+    "co.kindD.short":     ["не хватает {n} мандатов до простого большинства",
+                           "{n} seats short of a simple majority"],
+    "co.kindD.empty":     ["включите фракции кнопками выше", "switch factions on with the buttons above"],
+
+    "co.pivot":           ["Незаменимых фракций", "Indispensable factions"],
+    "co.pivotD.one":      ["без неё большинства не остаётся: {name}",
+                           "without it there is no majority: {name}"],
+    "co.pivotD.list":     ["без любой из них большинства нет: {list}",
+                           "without any one of them there is no majority: {list}"],
+    "co.pivotD.zero":     ["большинство держится и без любой отдельной фракции",
+                           "the majority holds even without any single faction"],
+    "co.pivotD.none":     ["считается только для коалиции с большинством",
+                           "only computed for a coalition that holds a majority"],
+    "co.pivotMark":       ["Без этой фракции большинства не остаётся",
+                           "Without this faction the majority is gone"],
+    "co.pivotShort":      ["ключ", "key"],
+
+    "co.cohesion":        ["Сплочённость в голосованиях", "Cohesion in votes"],
+    "co.cohD":            ["доля совпавших позиций, усреднённая по {n} парам фракций",
+                           "share of matching positions, averaged over {n} pairs of factions"],
+    "co.cohD.none":       ["в этом созыве слишком мало общих голосований для расчёта",
+                           "too few shared votes in this convocation to compute"],
+
+    "co.fault":           ["Ось разлома", "Line of division"],
+    "co.fault.econ":      ["экономика", "the economy"],
+    "co.fault.state":     ["роль государства", "the role of the state"],
+    "co.faultD":          ["размах {v} деления: от «{lo}» до «{hi}»",
+                           "a span of {v} points: from “{lo}” to “{hi}”"],
+    "co.faultD.none":     ["нужны хотя бы две фракции", "at least two factions are needed"],
+
+    "co.opp":             ["Остальная палата", "The rest of the chamber"],
+    "co.oppD":            ["{n} фракций вне коалиции, их центр {v}",
+                           "{n} factions outside the coalition, their centre at {v}"],
+    "co.oppD.none":       ["в коалиции вся палата", "the coalition is the whole chamber"],
+    "co.why":             ["Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Сплочённость — единственный показатель здесь, который считается не по координатам, а по тому, как фракции голосовали на самом деле, и потому он вправе спорить с остальными. Это модель, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.",
+                           "How to read it: the bar runs along the economic axis, just like the chamber arc. A coalition with a wide spread is built from factions far apart — it has a majority on paper but will have to negotiate every bill. Cohesion is the only figure here computed not from coordinates but from how the factions actually voted, and it is therefore entitled to disagree with the rest. This is a model, not a forecast: real coalitions also rest on things the axes do not capture."],
 
     "an.dominance":       ["Доля крупнейшей фракции", "Largest faction's share"],
     "an.dominanceD":      ["больше 50% — однопартийное большинство", "above 50% means a single-party majority"],
@@ -399,16 +496,26 @@
                            "<b>{a} + {b}</b> statements: the economy and the role of the state"],
     "quiz.fact2":         ["<b>5–7 минут</b> — примерное время прохождения", "<b>5–7 minutes</b> — the usual run time"],
     "quiz.fact2.short":   ["<b>2–3 минуты</b> — примерное время прохождения", "<b>2–3 minutes</b> — the usual run time"],
+    "quiz.fact2.long":    ["<b>12–15 минут</b> — примерное время прохождения", "<b>12–15 minutes</b> — the usual run time"],
 
     "quiz.mode":          ["Версия теста", "Quiz length"],
-    "quiz.mode.full":     ["Полная · {n}", "Full · {n}"],
+    "quiz.mode.long":     ["Расширенная · {n}", "Extended · {n}"],
+    "quiz.mode.full":     ["Стандартная · {n}", "Standard · {n}"],
     "quiz.mode.short":    ["Короткая · {n}", "Short · {n}"],
-    "quiz.mode.fullD":    ["все утверждения, 5–7 минут", "every statement, 5–7 minutes"],
+    "quiz.mode.longD":    ["весь набор, самый точный профиль, 12–15 минут",
+                           "the whole set, the most precise profile, 12–15 minutes"],
+    "quiz.mode.fullD":    ["проверенная временем анкета, 5–7 минут",
+                           "the time-tested questionnaire, 5–7 minutes"],
     "quiz.mode.shortD":   ["ключевые утверждения, 2–3 минуты", "the key statements, 2–3 minutes"],
-    "quiz.mode.full.n":   ["полная", "full"],
+    "quiz.mode.long.n":   ["расширенная", "extended"],
+    "quiz.mode.full.n":   ["стандартная", "standard"],
     "quiz.mode.short.n":  ["короткая", "short"],
     "quiz.shortNote":     ["Короткая версия — не первые {n} вопросов, а отдельная выборка из {all}: поровну на каждую ось, все шесть под-осей покрыты, все ключевые утверждения на месте. Координаты считаются по той же формуле и по той же шкале, поэтому результаты двух версий сравнимы между собой.",
                            "The short version is not the first {n} questions but a separate selection out of {all}: evenly split between the axes, covering all six sub-axes, with every key statement kept. The coordinates use the same formula on the same scale, so results from the two versions are comparable."],
+    "quiz.longNote":      ["Расширенная версия добавляет {std} утверждениям стандартной ещё пятьдесят: те же шесть под-осей, но каждая раскрыта втрое подробнее. Шкала и формула не меняются, поэтому результат на {n} утверждений лежит там же, где результат на {std}, — он просто точнее.",
+                           "The extended version adds fifty statements to the {std} of the standard one: the same six sub-axes, each opened up three times as far. The scale and the formula stay the same, so a result over {n} statements sits on the same board as a result over {std} — it is simply more precise."],
+    "res.longNote":       ["Результат получен по расширенной версии ({n} утверждений) — за каждой координатой стоит вдвое с лишним больше отдельных позиций, чем в стандартной.",
+                           "This result comes from the extended version ({n} statements) — each coordinate rests on more than twice as many separate positions as in the standard one."],
     "res.version":        ["Версия теста: {v} · {n} {statements}", "Quiz length: {v} · {n} {statements}"],
     "res.shortNote":      ["Результат получен по короткой версии ({n} утверждений из {all}) — шкала та же, но отдельных утверждений за координатой стоит вдвое меньше.",
                            "This result comes from the short version ({n} statements out of {all}) — the same scale, but half as many statements stand behind each coordinate."],
@@ -714,15 +821,15 @@
     "ab.seats.p2":        ["Разница между суммой мандатов фракций и 450 местами — это депутаты вне фракций и самовыдвиженцы; на диаграмме состава палаты они показаны серыми точками и отдельной строкой легенды.",
                            "The gap between the sum of faction seats and 450 consists of non-aligned deputies and independents; on the composition chart they appear as grey dots and as a separate legend row."],
 
-    "ab.quiz.h":          ["Тест на 40 утверждений", "The 40-statement quiz"],
-    "ab.quiz.p":          ["Тест ставит на ту же сетку вас. Двадцать утверждений про экономику и двадцать про роль государства, ответ по шкале от «полностью не согласен» до «полностью согласен». Согласие двигает координату к одному полюсу оси, несогласие — к другому; несколько ключевых утверждений весят чуть больше, потому что разводят позиции сильнее остальных.",
-                           "The quiz puts you on the same grid. Twenty statements about the economy and twenty about the role of the state, answered on a scale from strongly disagree to strongly agree. Agreement moves the coordinate toward one pole of the axis and disagreement toward the other; a few key statements weigh slightly more because they separate positions more sharply."],
+    "ab.quiz.h":          ["Тест на 90 утверждений", "The 90-statement quiz"],
+    "ab.quiz.p":          ["Тест ставит на ту же сетку вас. Сорок пять утверждений про экономику и сорок пять про роль государства, ответ по шкале от «полностью не согласен» до «полностью согласен». Согласие двигает координату к одному полюсу оси, несогласие — к другому; несколько ключевых утверждений весят чуть больше, потому что разводят позиции сильнее остальных.",
+                           "The quiz puts you on the same grid. Forty-five statements about the economy and forty-five about the role of the state, answered on a scale from strongly disagree to strongly agree. Agreement moves the coordinate toward one pole of the axis and disagreement toward the other; a few key statements weigh slightly more because they separate positions more sharply."],
     "ab.quiz.p2":         ["Результат — две координаты и список партий, отсортированный по расстоянию до вашей точки. Совпадение в процентах считается именно от расстояния и означает близость координат, а не совет за кого-то голосовать.",
                            "The result is two coordinates and a list of parties sorted by distance from your point. The percentage match is computed from that distance and means closeness of coordinates, not advice on how to vote."],
     "ab.quiz.p3":         ["На экране результата раскрывается разбор: каждое утверждение с его вкладом в координату, пятёрка ответов, повлиявших сильнее прочих, и профиль по шести под-осям, наложенный на профиль ближайшей партии. Формула не прячется — сумма вкладов, достижимый максимум и итоговое число показаны прямо в таблице.",
                            "The result screen opens up a breakdown: every statement with its contribution to the coordinate, the five answers that mattered most, and a six-sub-axis profile overlaid on the profile of the closest party. The formula is not hidden — the total of the contributions, the reachable maximum and the resulting figure are all shown in the table."],
-    "ab.quiz.p4":         ["Рядом — ссылка на результат. В ней закодированы все сорок ответов, поэтому по ссылке результат воспроизводится точь-в-точь, вместе с разбором, а не только картинкой. Ссылка никуда не отправляется и нигде не хранится: весь код лежит в самом адресе. Открытый по чужой ссылке результат ваши собственные ответы не затирает.",
-                           "Next to it is a link to the result. It encodes all forty answers, so the link reproduces the result exactly, breakdown included, rather than as a picture alone. The link is neither sent nor stored anywhere: the whole code sits in the address itself. Opening someone else's link does not overwrite your own answers."],
+    "ab.quiz.p4":         ["Рядом — ссылка на результат. В ней закодированы все ваши ответы, поэтому по ссылке результат воспроизводится точь-в-точь, вместе с разбором, а не только картинкой. Ссылка никуда не отправляется и нигде не хранится: весь код лежит в самом адресе. Открытый по чужой ссылке результат ваши собственные ответы не затирает.",
+                           "Next to it is a link to the result. It encodes every answer you gave, so the link reproduces the result exactly, breakdown included, rather than as a picture alone. The link is neither sent nor stored anywhere: the whole code sits in the address itself. Opening someone else's link does not overwrite your own answers."],
     "ab.quiz.p5":         ["История прохождений хранит последние двенадцать результатов и рисует их линией: взгляды меняются, и направление сдвига говорит больше, чем одна точка. История живёт только в вашем браузере и стирается отдельной кнопкой.",
                            "The attempt history keeps your last twelve results and draws them as a line: views change, and the direction of the shift says more than a single point. The history lives only in your browser and is wiped by a button of its own."],
     "ab.quiz.p6":         ["Ещё на экране результата есть карточка для соцсетей: мини-компас с вашей точкой, координаты, название квадранта и тройка ближайших партий. Она рисуется прямо в браузере через Canvas в двух форматах — квадрат для ленты и 16:9 для превью ссылки, — и её можно сохранить файлом или отправить через системное «Поделиться».",
@@ -730,14 +837,16 @@
     "ab.quiz.note":       ["Ответы никуда не отправляются: они лежат в localStorage вашего браузера, и кнопка «Сбросить ответы» стирает их полностью. Никакой аналитики, счётчиков и внешних запросов в проекте нет — единственный внешний ресурс на странице это шрифты.",
                            "Your answers are sent nowhere: they sit in your browser's localStorage, and the “Clear answers” button erases them completely. There is no analytics, no tracking and no outbound request in the project — the only external resource on the page is the fonts."],
 
-    "ab.short.tag":       ["Быстрый путь", "The quick route"],
-    "ab.short.h":         ["Короткая версия — 20 утверждений", "The short version — 20 statements"],
-    "ab.short.p":         ["На экране запуска теста есть переключатель режима. Короткая версия — не первые двадцать вопросов из сорока, а отдельная выборка: поровну на каждую ось, все шесть под-осей покрыты и все ключевые утверждения на месте, так что расклад по направлениям такой же, как в полном тесте, только компактнее.",
-                           "The quiz's start screen has a mode switch. The short version is not just the first twenty of the forty questions but a separate selection: split evenly between the axes, all six sub-axes covered and every key statement kept, so the spread across directions matches the full quiz, only more compact."],
-    "ab.short.p2":        ["Результат нормируется по своей выборке, а не делится на максимум полного теста — иначе короткая версия систематически поджималась бы к центру. Поэтому обе версии кладут точку на одну и ту же шкалу, и их можно сравнивать напрямую.",
-                           "The result is normalised against its own sample rather than divided by the full quiz's maximum — otherwise the short version would be systematically pulled toward the centre. Both versions therefore place the point on the same scale, and the two are directly comparable."],
-    "ab.short.note":      ["Ссылка на результат короткого теста помечена отдельным кодом, чтобы двадцать ответов не спутать с двадцатью пропущенными вопросами полного прохождения — обе версии остаются различимыми и воспроизводимыми по ссылке.",
-                           "The short quiz's result link carries a distinct code so that twenty answers are never confused with twenty skipped questions from a full run — both versions stay distinguishable and reproducible from their link."],
+    "ab.short.tag":       ["Выбор длины", "Choosing a length"],
+    "ab.short.h":         ["Три версии: 90, 40 и 20", "Three lengths: 90, 40 and 20"],
+    "ab.short.p":         ["На экране запуска теста есть переключатель версии. Это не три разных теста, а три вложенных выборки одного набора: короткая целиком входит в стандартную, стандартная — в расширенную. Ни одна из них не «первые N вопросов»: в каждой поровну утверждений на ось, все шесть под-осей покрыты и все ключевые утверждения на месте.",
+                           "The quiz's start screen has a length switch. These are not three different quizzes but three nested samples of one set: the short one sits entirely inside the standard one, and the standard one inside the extended one. None of them is “the first N questions”: each splits its statements evenly between the axes, covers all six sub-axes and keeps every key statement."],
+    "ab.short.p2":        ["Результат нормируется по своей выборке, а не делится на максимум расширенной — иначе короткая версия систематически поджималась бы к центру. Поэтому все три кладут точку на одну и ту же шкалу, и прохождения разной длины можно сравнивать в истории напрямую.",
+                           "The result is normalised against its own sample rather than divided by the extended quiz's maximum — otherwise the short version would be systematically pulled toward the centre. All three therefore place the point on the same scale, and runs of different lengths can be compared in the history directly."],
+    "ab.short.p3":        ["Разница между ними — разрешение, а не строгость. В расширенной версии каждая под-ось раскрыта пятнадцатью утверждениями вместо пяти, поэтому луч на диаграмме-пауке перестаёт зависеть от формулировки одного вопроса. Две точки, совпавшие на компасе, расходятся тем заметнее, чем длиннее пройденная версия.",
+                           "What differs between them is resolution, not strictness. In the extended version each sub-axis rests on fifteen statements instead of five, so a spoke on the radar stops depending on the wording of a single question. Two points that coincide on the compass drift apart the more clearly the longer the version taken."],
+    "ab.short.note":      ["Ссылка на результат несёт метку версии, чтобы двадцать ответов не спутать с двадцатью пропущенными вопросами более длинного прохождения. Ссылки, выданные версиями 1.x, продолжают открываться и означают ровно то же, что означали тогда.",
+                           "A result link carries a version tag so that twenty answers are never confused with twenty skipped questions from a longer run. Links handed out by versions 1.x still open and mean exactly what they meant then."],
 
     "ab.lang.h":          ["Два языка", "Two languages"],
     "ab.lang.p":          ["Интерфейс, данные партий, формулировки теста и заголовки выгружаемых файлов переведены на английский целиком. Кнопка <b>EN</b> в шапке переключает язык и запоминает выбор; ссылка вида <code>?lang=en</code> открывает английскую версию сразу, минуя настройки браузера.",
@@ -767,8 +876,8 @@
     "ft.call.eyebrow":    ["Дальше", "Next"],
     "ft.call.h":          ["Посмотрите, где на этой сетке стоите вы",
                            "See where you stand on this grid"],
-    "ft.call.p":          ["Сорок утверждений или короткая версия на двадцать — и ваша точка появится на том же поле, рядом с партиями, вместе с разбором каждого ответа.",
-                           "Forty statements, or a short version of twenty, and your own point appears on the same board next to the parties, with every answer broken down."],
+    "ft.call.p":          ["Девяносто утверждений, сорок или двадцать — на выбор. Ваша точка появится на том же поле, рядом с партиями, вместе с разбором каждого ответа.",
+                           "Ninety statements, forty or twenty — your choice. Your own point appears on the same board next to the parties, with every answer broken down."],
     "ft.call.quiz":       ["Пройти тест", "Take the quiz"],
     "ft.call.method":     ["Как считаются координаты", "How the coordinates are derived"],
     "ft.fig.parties":     ["Партий на поле", "Parties on the board"],
@@ -778,7 +887,7 @@
     "ft.about":           ["Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по пяти созывам Госдумы.",
                            "Russian parties on two independent axes: the economy and attitude to state power. With the reasoning behind every coordinate and data for five Duma convocations."],
     "ft.l.compass":       ["Компас и аналитика", "Compass and analytics"],
-    "ft.l.quiz":          ["Тест на 40 утверждений", "The 40-statement quiz"],
+    "ft.l.quiz":          ["Тест на 90 утверждений", "The 90-statement quiz"],
     "ft.l.votes":         ["Ключевые голосования", "Landmark votes"],
     "ft.l.about":         ["О проекте и методике", "About the project and its method"],
     "ft.data.h":          ["Данные", "Data"],
@@ -813,8 +922,8 @@
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Версия 1.6.2: перевод переключателя шрифта на английский и проверка на мобильных",
-                           "Version 1.6.2: an English translation fix for the typeface switch and a mobile pass"],
+    "foot.version.tip":   ["Версия 2.0: редизайн со стеклянными поверхностями, шесть тем, тест на 90 утверждений и аналитика коалиций",
+                           "Version 2.0: a redesign built on glass surfaces, six themes, a 90-statement quiz and coalition analytics"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"]
   };
@@ -832,14 +941,29 @@
   /* Порядок источников от явного к неявному: выбор пользователя важнее
      ссылки, ссылка важнее настроек браузера. */
   function detect(){
-    var stored = safeGet(KEY);
-    if(LANGS.indexOf(stored) > -1) return stored;
+    /* Порядок источников: адрес, сохранённый выбор, язык браузера.
+       Адрес идёт первым, и это не мелочь. На него указывают hreflang
+       в <head>: поисковику обещано, что ?lang=en — это английская
+       версия страницы. Если запомненный выбор перебивает параметр,
+       обещание нарушается для всех, кто уже был на сайте, а ссылка
+       «посмотри английскую версию», отправленная в переписке, молча
+       открывает русскую. Явное указание в ссылке — намерение
+       отправителя, и оно сильнее прошлого выбора получателя.
 
+       Пришедший из адреса язык тут же запоминается: иначе следующая
+       страница без параметра вернула бы прежний, и переключение
+       выглядело бы как сбой. */
     var m = /[?&]lang=([a-z-]+)/i.exec(location.search + location.hash);
     if(m){
       var v = m[1].toLowerCase().slice(0, 2);
-      if(LANGS.indexOf(v) > -1) return v;
+      if(LANGS.indexOf(v) > -1){
+        safeSet(KEY, v);
+        return v;
+      }
     }
+
+    var stored = safeGet(KEY);
+    if(LANGS.indexOf(stored) > -1) return stored;
 
     var nav = (navigator.languages && navigator.languages[0]) || navigator.language || "";
     /* русский интерфейс — умолчание для русскоязычных и для всех, чей

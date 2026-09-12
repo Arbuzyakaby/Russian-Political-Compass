@@ -66,13 +66,13 @@
 .ag-table thead th{padding:0 0 9px;text-align:center;vertical-align:bottom;cursor:default;}
 .ag-table thead th span{display:inline-flex;align-items:center;gap:6px;min-width:30px;
   padding:6px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--stroke);
-  letter-spacing:.02em;transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease;}
+  letter-spacing:.02em;transition:background var(--dur-1) ease,border-color var(--dur-1) ease;}
 .ag-table thead th span::before{content:"";width:8px;height:8px;border-radius:3px;flex:none;background:var(--c);}
 .ag-table thead th.hi span{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text);}
 .ag-table tbody th{text-align:left;white-space:nowrap;display:flex;align-items:center;gap:8px;
   min-height:46px;padding:0 12px;border-radius:10px;font-size:11.5px;
   background:var(--surface);border:1px solid transparent;
-  transition:background var(--dur-1,.16s) ease,border-color var(--dur-1,.16s) ease;}
+  transition:background var(--dur-1) ease,border-color var(--dur-1) ease;}
 .ag-table tbody th.hi{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text);}
 .ag-table tbody th i{width:9px;height:9px;border-radius:3px;flex:none;}
 

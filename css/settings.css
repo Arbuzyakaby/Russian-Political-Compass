@@ -4,23 +4,26 @@
    верхнего угла большого экрана большим пальцем не дотянуться.
 
    Здесь же лежат правила, которыми настройки превращаются во что-то
-   видимое: атрибуты data-motion, data-grain, data-spotlight, data-labels,
-   data-quads и data-grid живут на <html>, и весь их эффект описан одним
-   блоком внизу файла, а не разбросан по остальным. ============ */
+   видимое. Каждый ключ из DEFAULTS в js/settings.js становится атрибутом
+   data-<ключ> на <html>, и весь их эффект описан одним блоком внизу
+   файла, а не разбросан по остальным. Исключение — те настройки, что
+   меняют не видимость элемента, а значение токена (плотность, размер
+   текста, углы, стекло): им место в css/tokens.css рядом с самими
+   токенами. ============ */
 
 /* ---------- кнопка в шапке ---------- */
 .gear-btn{
   width:36px;height:36px;flex:none;display:grid;place-items:center;cursor:pointer;
   border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--stroke);
   color:var(--muted);
-  transition:background var(--dur-1,.16s) var(--ease-swift,ease),
-             border-color var(--dur-1,.16s) var(--ease-swift,ease),
-             color var(--dur-1,.16s) var(--ease-swift,ease),
-             transform var(--dur-2,.28s) var(--ease-spring,ease);
+  transition:background var(--dur-1) var(--ease-out),
+             border-color var(--dur-1) var(--ease-out),
+             color var(--dur-1) var(--ease-out),
+             transform var(--dur-2) var(--ease-spring);
 }
 .gear-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;
   stroke-linecap:round;stroke-linejoin:round;
-  transition:transform var(--dur-3,.5s) var(--ease-spring,cubic-bezier(.2,.8,.3,1));}
+  transition:transform var(--dur-3) var(--ease-spring);}
 .gear-btn:hover{background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);}
 .gear-btn:hover svg{transform:rotate(60deg);}
 .gear-btn:active{transform:scale(.94);}
@@ -34,8 +37,7 @@
 .sheet-scrim{
   position:fixed;inset:0;z-index:var(--z-sheet,80);
   background:color-mix(in srgb,var(--bg-deep) 62%,transparent);
-  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
-  opacity:0;transition:opacity .26s ease;
+  opacity:0;transition:opacity .26s var(--ease-out);
 }
 .sheet-scrim.is-open{opacity:1;}
 
@@ -44,11 +46,9 @@
   top:12px;right:12px;bottom:12px;width:min(410px,calc(100vw - 24px));
   display:flex;flex-direction:column;overflow:hidden;
   border-radius:var(--radius-lg);border:1px solid var(--stroke-2);
-  background:color-mix(in srgb,var(--tip-bg) 94%,transparent);
-  box-shadow:var(--shadow-lift);
-  backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
+  background:var(--glass-bg-2);
   transform:translateX(calc(100% + 20px));opacity:0;
-  transition:transform .3s var(--ease-out,cubic-bezier(.2,.8,.3,1)),opacity .22s ease;
+  transition:transform .3s var(--ease-out),opacity .22s var(--ease-out);
 }
 .sheet.is-open{transform:none;opacity:1;}
 /* верхний блик по кромке — тот же приём, что у карточек: без него
@@ -71,14 +71,14 @@ body.sheet-lock{overflow:hidden;}
   position:relative;z-index:1;
   display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex:none;
   padding:18px 18px 14px;border-bottom:1px solid var(--stroke);
-  background:color-mix(in srgb,var(--tip-bg) 97%,transparent);
+  background:var(--glass-bg-2);
 }
 .sheet-head h2{font-family:var(--font-display);font-size:19px;font-weight:750;letter-spacing:-.03em;
   margin-top:3px;}
 .sheet-close{
   width:30px;height:30px;flex:none;display:grid;place-items:center;cursor:pointer;
   border-radius:50%;background:var(--surface-2);border:1px solid var(--stroke);color:var(--muted);
-  transition:background .16s ease,color .16s ease,transform .16s var(--ease-spring,ease);
+  transition:background .16s ease,color .16s ease,transform .16s var(--ease-spring);
 }
 .sheet-close svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;
   stroke-linecap:round;}
@@ -105,17 +105,66 @@ body.sheet-lock{overflow:hidden;}
 .set-lab b{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
 .set-lab small{font-size:11px;line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
 
+/* ---------- выбор темы ----------
+   Шесть тем сегментированным переключателем не показать: подписи «Неон»
+   и «Камин» ничего не говорят, пока тему не увидишь, а перебирать их
+   по одной, закрывая и открывая панель, — не выбор, а угадывание.
+   Поэтому у каждой темы образец: квадрат её подложки с точкой её
+   акцента. Решение принимается по картинке, подпись только называет. */
+.theme-picker{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;width:100%;
+}
+.theme-chip{
+  display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;
+  padding:9px 6px 8px;border-radius:var(--radius-sm);
+  border:1px solid var(--stroke);background:color-mix(in srgb,var(--surface-2) 70%,transparent);
+  font:inherit;color:var(--muted);
+  transition:border-color var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),
+             background var(--dur-2) var(--ease-out),transform var(--dur-2) var(--ease-spring);
+}
+.theme-chip:hover{color:var(--text);border-color:var(--stroke-2);}
+.theme-chip:active{transform:scale(.96);}
+.theme-chip[aria-checked="true"]{
+  color:var(--text);border-color:var(--tone);
+  background:color-mix(in srgb,var(--tone) 12%,transparent);
+}
+.theme-chip:focus-visible{outline:2px solid var(--tone);outline-offset:2px;}
+/* Образец темы: подложка квадратом, акцент точкой в углу. Точка нужна
+   обязательно — «бумага» и «слоновая кость» по одной подложке почти
+   неразличимы, а по акценту (киноварь против охры) видно сразу. */
+.tc-swatch{
+  position:relative;width:100%;aspect-ratio:8/5;border-radius:calc(var(--radius-xs) * .8);
+  border:1px solid var(--stroke-2);overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+.tc-swatch i{
+  position:absolute;right:7px;bottom:6px;width:11px;height:11px;border-radius:50%;
+  box-shadow:0 0 0 1.5px color-mix(in srgb,#000 18%,transparent);
+}
+.theme-chip[aria-checked="true"] .tc-swatch{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 0 2px var(--tone);
+}
+.tc-name{font-size:11.5px;font-weight:600;letter-spacing:var(--track-body);white-space:nowrap;}
+
+/* ---------- строка на всю ширину ----------
+   Подпись сверху, элемент управления под ней. Нужно там, где элемент
+   сам по себе широкий: сетка тем рядом с подписью в одну строку не
+   помещается ни на одном разумном экране. */
+.set-row--block{flex-direction:column;align-items:stretch;gap:10px;}
+
 /* ---------- сегментированный переключатель ---------- */
 .seg{
   display:inline-flex;flex:none;padding:3px;gap:2px;border-radius:var(--radius-sm);
   background:color-mix(in srgb,var(--surface-2) 80%,transparent);border:1px solid var(--stroke);
 }
 .seg button{
-  font:inherit;font-size:11.5px;font-weight:600;letter-spacing:-.005em;cursor:pointer;
+  font:inherit;font-size:11.5px;font-weight:600;letter-spacing:var(--track-body);cursor:pointer;
   padding:6px 11px;border-radius:calc(var(--radius-sm) - 4px);border:1px solid transparent;
   background:transparent;color:var(--muted);white-space:nowrap;
-  transition:background .18s var(--ease-out,ease),color .18s ease,box-shadow .18s ease;
+  transition:background var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),
+             box-shadow var(--dur-2) var(--ease-out),transform var(--dur-1) var(--ease-out);
 }
+.seg button:active{transform:scale(.96);}
 .seg button:hover{color:var(--text);}
 .seg button[aria-checked="true"]{
   background:var(--surface-3);color:var(--text);border-color:var(--stroke);
@@ -130,12 +179,12 @@ body.sheet-lock{overflow:hidden;}
   position:relative;flex:none;width:44px;height:26px;cursor:pointer;padding:0;
   border-radius:var(--radius-pill);border:1px solid var(--stroke-2);
   background:var(--surface-2);
-  transition:background .24s var(--ease-out,ease),border-color .24s ease;
+  transition:background .24s var(--ease-out),border-color .24s ease;
 }
 .sw i{
   position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
   background:var(--muted);box-shadow:0 2px 6px -2px rgba(0,0,0,.6);
-  transition:transform .26s var(--ease-spring,cubic-bezier(.2,.8,.3,1)),background .24s ease;
+  transition:transform .26s var(--ease-spring),background .24s ease;
 }
 .sw[aria-checked="true"]{
   background:color-mix(in srgb,var(--tone) 68%,transparent);
@@ -179,10 +228,24 @@ body.sheet-lock{overflow:hidden;}
 
 :root[data-spotlight="off"] .card::after{display:none;}
 
-/* Компас: три слоя поля выключаются без перерисовки — точки, оси и
+/* Компас: слои поля выключаются без перерисовки — точки, оси и
    подписи квадрантов остаются на месте, меняется только то, что
    мешает конкретному читателю. */
 :root[data-labels="off"] .compass .tag,
 :root[data-labels="off"] .compass .seat{display:none;}
 :root[data-quads="off"] .compass .quad{display:none;}
 :root[data-grid="off"] .compass .grid-minor{display:none;}
+:root[data-crosshair="off"] .compass .cross{display:none;}
+
+/* Страница: украшения, которые до 2.0 были безусловными. Каждое из них
+   кому-то мешает — полоса прочтения дёргается на коротких страницах,
+   липкие вкладки съедают высоту на ноутбуке, кнопка «наверх» закрывает
+   угол графика, — и ни одно не является содержанием. */
+:root[data-readbar="off"] .read-bar{display:none;}
+:root[data-topbtn="off"] .to-top{display:none;}
+:root[data-sticky="off"] .tabs{position:static;}
+:root[data-sticky="off"] .tabs-sentinel{display:none;}
+
+/* Пропорциональные цифры: у части читателей моноширинные смотрятся
+   разреженно в сплошном тексте. Компромисс — отключаемо. */
+:root[data-numerals="proportional"] body{font-variant-numeric:proportional-nums;}

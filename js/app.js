@@ -270,11 +270,12 @@
     /* Единственная строка, которая когда-либо уходит в консоль: в проекте
        нет ни аналитики, ни внешних запросов, и заглянувшему сюда стоит
        сказать об этом прямо. */
-    console.log("%c1.6%c — ни счётчиков, ни запросов наружу; всё, что видно, посчитано здесь",
+    console.log("%c" + PC.VERSION + "%c — ни счётчиков, ни запросов наружу; всё, что видно, посчитано здесь",
       "font:700 13px monospace;color:#f0b25f;", "color:inherit;");
   }
 
   PC.select = select;
+  PC.activeId = function(){ return state.active; };
   PC.visible = visible;
   PC.seatsOf = seatsOf;
   PC.convocationInfo = convocationInfo;
