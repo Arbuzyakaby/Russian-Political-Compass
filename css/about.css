@@ -3,8 +3,43 @@
    поэтому вертикальный просвет между всеми карточками равен ровно gap.
    С выравниванием по верху под короткой карточкой оставался случайный
    хвост высотой в разницу с соседкой — отступы выглядели разными. */
-.about{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
-.about-card{padding:clamp(18px,2.4vw,28px);display:flex;flex-direction:column;}
+.about{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
+  counter-reset:about-sec;
+}
+.about-card{
+  position:relative;padding:clamp(20px,2.6vw,30px);display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.about-card--wide{grid-column:1 / -1;}
+
+/* Тонкая цветная кромка сверху — у каждой карточки своя, чтобы блок
+   с текстом читался не единым потоком серых плашек, а размеченным
+   набором тем. Ходит по кругу трёх пар акцентов через nth-of-type. */
+.about-card::before{
+  content:"";position:absolute;inset:0 0 auto;height:2px;
+  background:linear-gradient(90deg,transparent 0%,var(--rail,var(--accent)) 18%,var(--rail-2,var(--accent-2)) 82%,transparent 100%);
+  opacity:.75;
+}
+.about-card:not(.about-hero):nth-of-type(6n+2){--rail:var(--accent);--rail-2:var(--accent-2);}
+.about-card:not(.about-hero):nth-of-type(6n+3){--rail:var(--accent-2);--rail-2:#f0a5c8;}
+.about-card:not(.about-hero):nth-of-type(6n+4){--rail:#f0a5c8;--rail-2:var(--accent);}
+.about-card:not(.about-hero):nth-of-type(6n+5){--rail:var(--accent);--rail-2:#f0a5c8;}
+.about-card:not(.about-hero):nth-of-type(6n+6){--rail:var(--accent-2);--rail-2:var(--accent);}
+.about-card:not(.about-hero):nth-of-type(6n+7){--rail:#f0a5c8;--rail-2:var(--accent-2);}
+
+/* Номер раздела перед заголовком — типографский приём редакционных
+   лонгридов, задаёт ритм длинному списку карточек и помогает
+   ориентироваться, не читая каждый заголовок подряд. Живёт в h3::before,
+   а не в ::after самой карточки, чтобы не спорить с пятном подсветки
+   под курсором, которое уже занимает .card::after в css/ui.css. */
+.about-card:not(.about-hero) h3{display:flex;align-items:baseline;gap:9px;}
+.about-card:not(.about-hero) h3::before{
+  counter-increment:about-sec;content:counter(about-sec,decimal-leading-zero);
+  font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:.04em;
+  color:var(--rail,var(--accent));opacity:.65;flex:none;
+}
+
 /* Снимок поля под заголовком раздела. И картинка, и плотность вуали
    приходят из токенов темы — здесь остаётся только раскладка, поэтому
    при смене темы не нужно дублировать всё правило целиком. */
@@ -21,20 +56,51 @@
   background-repeat:no-repeat,no-repeat;
   transition:background-image .45s ease;
 }
-.about-hero h2{font-family:var(--font-display);font-size:clamp(22px,3.4vw,32px);font-weight:750;
-  letter-spacing:-.03em;line-height:1.14;margin:6px 0 14px;}
-.about-lede{font-size:15px;line-height:1.65;color:var(--text);margin-bottom:12px;}
-.about-card h3{font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:-.02em;
+.about-hero::before{display:none;}
+.about-hero .eyebrow{
+  display:inline-flex;align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);padding:5px 12px;border-radius:999px;
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+}
+.about-hero h2{font-family:var(--font-display);font-size:clamp(24px,3.6vw,34px);font-weight:800;
+  letter-spacing:-.03em;line-height:1.12;margin:14px 0 14px;
+  background:linear-gradient(100deg,var(--text) 40%,var(--accent) 78%,var(--accent-2) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.about-lede{font-size:15.5px;line-height:1.68;color:var(--text);margin-bottom:12px;max-width:64ch;}
+.about-card h3{font-family:var(--font-display);font-size:16.5px;font-weight:750;letter-spacing:-.02em;
   margin-bottom:12px;}
 .about-card p{font-size:13.5px;line-height:1.68;color:var(--body);margin-bottom:12px;}
 .about-card p:last-child{margin-bottom:0;}
 .about-note{font-size:12px;color:var(--muted);line-height:1.6;padding:12px 14px;border-radius:12px;
-  background:var(--surface);border:1px solid var(--stroke);}
+  background:var(--surface);border:1px solid var(--stroke);border-left:2px solid var(--rail,var(--accent));}
 .about-card code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;
   background:var(--surface-2);border:1px solid var(--stroke);border-radius:5px;padding:1px 5px;}
 .about-card a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line);}
 .about-card a:hover{border-bottom-color:var(--accent);}
 .about-card a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px;}
+
+/* Маленький ярлык-тег над заголовком у отдельных карточек — акцентирует
+   их как самостоятельную «фичу», а не рядовой пункт методики. */
+.about-tag{
+  display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent-2);padding:4px 10px;border-radius:999px;
+  background:color-mix(in srgb,var(--accent-2) 14%, transparent);
+  border:1px solid color-mix(in srgb,var(--accent-2) 40%, transparent);
+  margin-bottom:12px;
+}
+
+/* Карточка теста — самая длинная в разделе, поэтому получает лёгкую
+   собственную подложку, чтобы визуально держать вес двух колонок. */
+.about-card--feature{
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb,var(--accent) 10%, transparent) 0%, transparent 55%),
+    linear-gradient(168deg,var(--card-a) 0%,color-mix(in srgb,var(--card-a) 55%, var(--card-b)) 52%,var(--card-b) 100%);
+}
+.about-card--accent2{border-color:color-mix(in srgb,var(--accent-2) 30%, var(--stroke));}
+.about-card--tech .about-cta{
+  margin-top:4px;padding:12px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--stroke);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
 
 .about-list{margin:0 0 12px 0;padding-left:20px;display:flex;flex-direction:column;gap:9px;}
 .about-list li{font-size:13px;line-height:1.6;color:var(--body);}
@@ -42,10 +108,12 @@
 .about-list.plain{list-style:none;padding-left:0;}
 .about-list.plain li{position:relative;padding-left:18px;}
 .about-list.plain li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;
-  border-radius:50%;background:var(--accent);opacity:.6;}
+  border-radius:50%;background:var(--rail,var(--accent));opacity:.7;}
 
 .axis-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 14px;}
-.axis-box{padding:14px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--stroke);}
+.axis-box{padding:14px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--stroke);
+  transition:border-color .2s ease,transform .2s ease;}
+.axis-box:hover{border-color:var(--stroke-2);transform:translateY(-1px);}
 .axis-box .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--accent);
   font-weight:650;margin-bottom:8px;}
 .axis-box .poles{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--muted-2);
@@ -53,9 +121,16 @@
 .axis-box p{font-size:12.5px;line-height:1.6;margin:0;}
 .about-cta{font-size:13px;}
 
+/* Карточки заметнее приподнимаются при наведении, чем стандартный .card:
+   раздел справочный и длинный, лёгкая отзывчивость держит внимание. */
+@media(hover:hover) and (pointer:fine){
+  .card.about-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);}
+}
+
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:1050px){
   .about{grid-template-columns:1fr;}
+  .about-card--wide{grid-column:auto;}
 }
 @media(max-width:560px){
   .axis-grid{grid-template-columns:1fr;}

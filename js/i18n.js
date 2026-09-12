@@ -678,6 +678,15 @@
     "ab.quiz.note":       ["Ответы никуда не отправляются: они лежат в localStorage вашего браузера, и кнопка «Сбросить ответы» стирает их полностью. Никакой аналитики, счётчиков и внешних запросов в проекте нет — единственный внешний ресурс на странице это шрифты.",
                            "Your answers are sent nowhere: they sit in your browser's localStorage, and the “Clear answers” button erases them completely. There is no analytics, no tracking and no outbound request in the project — the only external resource on the page is the fonts."],
 
+    "ab.short.tag":       ["Быстрый путь", "The quick route"],
+    "ab.short.h":         ["Короткая версия — 20 утверждений", "The short version — 20 statements"],
+    "ab.short.p":         ["На экране запуска теста есть переключатель режима. Короткая версия — не первые двадцать вопросов из сорока, а отдельная выборка: поровну на каждую ось, все шесть под-осей покрыты и все ключевые утверждения на месте, так что расклад по направлениям такой же, как в полном тесте, только компактнее.",
+                           "The quiz's start screen has a mode switch. The short version is not just the first twenty of the forty questions but a separate selection: split evenly between the axes, all six sub-axes covered and every key statement kept, so the spread across directions matches the full quiz, only more compact."],
+    "ab.short.p2":        ["Результат нормируется по своей выборке, а не делится на максимум полного теста — иначе короткая версия систематически поджималась бы к центру. Поэтому обе версии кладут точку на одну и ту же шкалу, и их можно сравнивать напрямую.",
+                           "The result is normalised against its own sample rather than divided by the full quiz's maximum — otherwise the short version would be systematically pulled toward the centre. Both versions therefore place the point on the same scale, and the two are directly comparable."],
+    "ab.short.note":      ["Ссылка на результат короткого теста помечена отдельным кодом, чтобы двадцать ответов не спутать с двадцатью пропущенными вопросами полного прохождения — обе версии остаются различимыми и воспроизводимыми по ссылке.",
+                           "The short quiz's result link carries a distinct code so that twenty answers are never confused with twenty skipped questions from a full run — both versions stay distinguishable and reproducible from their link."],
+
     "ab.lang.h":          ["Два языка", "Two languages"],
     "ab.lang.p":          ["Интерфейс, данные партий, формулировки теста и заголовки выгружаемых файлов переведены на английский целиком. Кнопка <b>EN</b> в шапке переключает язык и запоминает выбор; ссылка вида <code>?lang=en</code> открывает английскую версию сразу, минуя настройки браузера.",
                            "The interface, the party data, the wording of the quiz and the headers of exported files are translated into English in full. The <b>RU</b> button in the header switches the language and remembers the choice; a link of the form <code>?lang=ru</code> opens the Russian version directly, bypassing browser settings."],
