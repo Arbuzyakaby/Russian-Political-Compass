@@ -58,6 +58,9 @@
   display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;}
 .foot-bottom p{font-size:11px;color:var(--muted-2);line-height:1.6;max-width:82ch;}
 .foot-bottom .foot-meta{font-size:11px;color:var(--muted-2);white-space:nowrap;}
+/* Подчёркивание пунктиром намекает, что у номера версии есть подсказка —
+   иначе title у инлайн-текста ничем не отличается от обычной строки. */
+.foot-version{cursor:help;border-bottom:1px dotted var(--muted-2);}
 
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:900px){

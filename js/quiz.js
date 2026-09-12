@@ -612,6 +612,9 @@
       '<p class="hist-note">' + esc(t("res.hist.drift", {
         dx:delta(now.x - first.x), dy:delta(now.y - first.y)
       })) + "</p>" +
+      /* Пять прохождений — тоже совпадение с номером версии 1.5.5,
+         которое не грех отметить строкой, а не только в чейнджлоге. */
+      (list.length === 5 ? '<p class="hist-note hist-five">' + esc(t("res.hist.five")) + '</p>' : "") +
       '<div class="hist-runs">' + list.map(function(e, i){
         var when = e.ts ? new Date(e.ts).toLocaleDateString(PC.i18n.isRu() ? "ru-RU" : "en-GB") : "—";
         var tag = 'class="hrun' + (e.mode === "short" ? " short" : "") + '" data-code="' + esc(e.code || "") + '"';

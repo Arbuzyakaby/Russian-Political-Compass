@@ -463,6 +463,8 @@
     "res.hist.now":       ["сейчас", "now"],
     "res.hist.drift":     ["С первого прохождения: экономика {dx}, отношение к государству {dy}.",
                            "Since your first attempt: economy {dx}, attitude to the state {dy}."],
+    "res.hist.five":      ["Пятое прохождение — ровно как в номере версии сайта. Совпадение, но приятное.",
+                           "Fifth attempt — matches the site's version number exactly. A coincidence, but a nice one."],
     "res.hist.clear":     ["Очистить историю", "Clear history"],
     "res.hist.cleared":   ["История прохождений очищена", "Attempt history cleared"],
     "res.hist.aria":      ["График ваших прошлых результатов", "Chart of your past results"],
@@ -749,7 +751,9 @@
     "ui.topAria":         ["Вернуться к началу страницы", "Return to the top of the page"],
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
-                           "No trackers, no analytics, no outbound requests"]
+                           "No trackers, no analytics, no outbound requests"],
+    "foot.version.tip":   ["Две пятёрки подряд — слишком круглое число, чтобы портить его версией 1.5.6 в тот же день",
+                           "Two fives in a row — too round a number to spoil with a 1.5.6 the same day"]
   };
 
   /* ---------- состояние ---------- */
