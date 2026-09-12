@@ -96,12 +96,12 @@ body.sheet-lock{overflow:hidden;}
   color:var(--tone);margin-bottom:10px;
 }
 .set-row{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   padding:11px 0;border-top:1px solid color-mix(in srgb,var(--stroke) 55%,transparent);
 }
 .set-group h3 + .set-row{border-top:0;}
 .set-row[hidden]{display:none;}
-.set-lab{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
+.set-lab{display:flex;flex-direction:column;gap:3px;min-width:180px;flex:1;}
 .set-lab b{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
 .set-lab small{font-size:11px;line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
 

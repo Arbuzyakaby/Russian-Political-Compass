@@ -922,8 +922,8 @@
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Версия 2.0: редизайн со стеклянными поверхностями, шесть тем, тест на 90 утверждений и аналитика коалиций",
-                           "Version 2.0: a redesign built on glass surfaces, six themes, a 90-statement quiz and coalition analytics"],
+    "foot.version.tip":   ["Версия 2.0.1: правка бага с переносом текста в настройке шрифта",
+                           "Version 2.0.1: fixed a text-wrapping bug in the font setting"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"]
   };
