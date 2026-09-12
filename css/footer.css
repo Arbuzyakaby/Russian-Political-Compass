@@ -116,6 +116,11 @@
   font-weight:650;font-variant-numeric:tabular-nums;color:var(--accent);
   background:var(--accent-soft);border:1px solid var(--accent-line);
 }
+/* Роза — всё, что осталось от пасхалки про Horse Update (1.6.1): сама
+   шутка снята вместе с клавиатурным триггером, а этот знак — памятная
+   табличка для тех, кто успел её найти или прочитал об этом в истории
+   версий. */
+.foot-rose{cursor:help;font-size:13px;line-height:1;}
 
 /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
 @media(max-width:900px){

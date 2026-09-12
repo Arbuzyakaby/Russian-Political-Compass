@@ -45,9 +45,16 @@
 .co-seg.off{box-shadow:none;}
 .co-mark{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px solid var(--text);pointer-events:none;}
 .co-mark.super{border-left:2px dashed var(--muted);}
-.co-mark em{position:absolute;top:calc(100% + 4px);left:0;transform:translateX(-50%);white-space:nowrap;
+/* Большинство (50%+1) и две трети палаты стоят близко друг к другу —
+   16–17 пунктов шкалы на любой ширине полосы. Подписи, отцентрованные
+   на своей отметке, на узком экране лезли одна на другую посередине.
+   Вместо центровки каждая подпись растёт от своей отметки наружу — влево
+   у большинства, вправо у двух третей, — и промежуток между отметками
+   остаётся пустым, а не общей серединой обеих строк. */
+.co-mark em{position:absolute;top:calc(100% + 4px);white-space:nowrap;
   font-style:normal;font-size:10px;font-weight:650;color:var(--muted);letter-spacing:.02em;}
-.co-mark.super em{color:var(--muted-2);}
+.co-mark.maj em{right:0;text-align:right;}
+.co-mark.super em{left:0;text-align:left;color:var(--muted-2);}
 
 /* метрики */
 .co-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}

@@ -813,10 +813,10 @@
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Версия 1.6.1: починки и три шрифта в настройках — и да, 1.6 совпадает с Horse Update в Minecraft",
-                           "Version 1.6.1: fixes and three typefaces in Settings — and yes, 1.6 lines up with Minecraft's Horse Update"],
-    "egg.horse":          ["Пасхалка найдена: версия 1.6 — это ещё и Horse Update в Minecraft",
-                           "Egg found: version 1.6 is also Minecraft's Horse Update"]
+    "foot.version.tip":   ["Версия 1.6.2: перевод переключателя шрифта на английский и проверка на мобильных",
+                           "Version 1.6.2: an English translation fix for the typeface switch and a mobile pass"],
+    "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
+                           "A Horse Update easter egg used to live here — the rose is what's left of it"]
   };
 
   /* ---------- состояние ---------- */
