@@ -73,6 +73,26 @@ body::after{
   position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
 }
+/* ---------- «Боровляны»: капли и дымка ----------
+   Тема про лес после дождя, и одной зелёной палитры для этого мало:
+   мокрым воздух делают дымка у верхнего края и редкие капли на
+   «стекле» перед страницей. Капли — радиальные градиенты с бликом
+   сверху слева, разложенные по двум несоизмеримым плиткам (173 и
+   241 пиксель), чтобы узор не читался как сетка. Лежат ниже контента
+   и выключаются вместе с зерном. */
+:root[data-theme="borovlyany"] body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(4px 5px at 30% 22%, rgba(255,255,255,.85), rgba(255,255,255,0) 70%),
+    radial-gradient(3px 4px at 72% 64%, rgba(255,255,255,.75), rgba(255,255,255,0) 70%),
+    radial-gradient(6px 7px at 18% 78%, rgba(47,107,76,.16), rgba(47,107,76,0) 72%),
+    radial-gradient(5px 6px at 84% 30%, rgba(47,107,76,.13), rgba(47,107,76,0) 72%),
+    linear-gradient(180deg, rgba(246,251,247,.55) 0%, rgba(246,251,247,0) 32%);
+  background-size:173px 173px,241px 241px,241px 241px,173px 173px,100% 100%;
+  opacity:.9;
+}
+:root[data-theme="borovlyany"][data-grain="off"] body::before{display:none;}
+
 @keyframes drift{
   0%{transform:translate3d(0,0,0) scale(1);}
   50%{transform:translate3d(1.6%,-1.4%,0) scale(1.045);}

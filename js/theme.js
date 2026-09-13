@@ -26,7 +26,8 @@
   var SCHEME = {
     light:"light", dark:"dark",
     paper:"light", alaska:"light",
-    neon:"dark",   fireplace:"dark"
+    neon:"dark",   fireplace:"dark",
+    borovlyany:"light"
   };
 
   /* Порядок в меню: сначала системный режим, затем две исходные темы,
@@ -39,7 +40,8 @@
     { id:"paper",     key:"set.theme.paper",     bg:"#f7f2e6", dot:"#b23a2e" },
     { id:"alaska",    key:"set.theme.alaska",    bg:"#e9eff5", dot:"#0e6e8c" },
     { id:"neon",      key:"set.theme.neon",      bg:"#07060f", dot:"#ff4d9d" },
-    { id:"fireplace", key:"set.theme.fireplace", bg:"#16100c", dot:"#ff8a3d" }
+    { id:"fireplace", key:"set.theme.fireplace", bg:"#16100c", dot:"#ff8a3d" },
+    { id:"borovlyany", key:"set.theme.borovlyany", bg:"linear-gradient(160deg,#eaf1ea 0%,#cfdfd2 100%)", dot:"#2f6b4c" }
   ];
 
   /* Цвет строки браузера на мобильных. В разметке стоят два <meta
@@ -51,13 +53,15 @@
   var BAR = {
     light:"#f1efea", dark:"#08090d",
     paper:"#f7f2e6", alaska:"#e9eff5",
-    neon:"#07060f",  fireplace:"#16100c"
+    neon:"#07060f",  fireplace:"#16100c",
+    borovlyany:"#e3ece4"
   };
 
   var root = document.documentElement;
   var listeners = [];
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
   var barMeta = null;
+  var items = [];
 
   function pref(){
     var p = root.dataset.themePref;
@@ -88,6 +92,19 @@
     root.dataset.themePref = next;
     PC.store.set(KEY, next);
     put(next === "system" ? systemTheme() : next);
+    /* Меню перекрашивается здесь, а не в обработчике клика: тему меняет
+       и «Сбросить настройки» в js/settings.js, и до 2.1.1 после сброса
+       в меню оставалась подсвеченной прежняя тема. */
+    paint();
+  }
+
+  function paint(){
+    var now = pref();
+    items.forEach(function(b){
+      var on = b.dataset.val === now;
+      b.setAttribute("aria-checked", String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
   }
 
   function onChange(fn){ listeners.push(fn); }
@@ -113,16 +130,7 @@
       '</button>';
     }).join("");
 
-    var items = Array.prototype.slice.call(seg.querySelectorAll("[data-val]"));
-
-    function paint(){
-      var now = pref();
-      items.forEach(function(b){
-        var on = b.dataset.val === now;
-        b.setAttribute("aria-checked", String(on));
-        b.tabIndex = on ? 0 : -1;
-      });
-    }
+    items = Array.prototype.slice.call(seg.querySelectorAll("[data-val]"));
 
     items.forEach(function(b, i){
       b.addEventListener("click", function(){

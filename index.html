@@ -140,7 +140,7 @@
         "Мандаты в Госдуме по созывам IV–VIII",
         "Ключевые голосования и матрица совпадений фракций",
         "Тест на 90 утверждений с разбором ответов, стандартная версия на 40 и короткая на 20",
-        "Шесть тем оформления и настройки интерфейса",
+        "Семь тем оформления и настройки интерфейса",
         "Песочница коалиций: порог большинства и метрики палаты на лету",
         "Экспорт данных в CSV, JSON, PNG и SVG"
       ],
@@ -197,6 +197,7 @@
                data-i18n-attr="placeholder:search.placeholder">
         <button type="button" class="clear" id="clearBtn" title="Очистить" aria-label="Очистить поиск"
                 data-i18n-attr="title:search.clear;aria-label:search.clear">✕</button>
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
       </div>
       <button type="button" class="gear-btn" id="settingsBtn" aria-haspopup="dialog" aria-expanded="false"
               title="Настройки" aria-label="Настройки"
@@ -734,15 +735,19 @@
 
 <!-- ============ ПРИВЕТСТВЕННЫЙ ЭКРАН ============
      Показывается при первом заходе и после обновления версии — логика
-     в js/welcome.js. Разметка лежит здесь, а не собирается скриптом,
-     по той же причине, что и панель настроек: экран обязан быть готов
-     к показу в тот же кадр, в котором принято решение показать его,
-     иначе страница успевает мигнуть неразмытой.
+     в js/welcome.js. Разметка лежит здесь, а не собирается скриптом:
+     экран обязан быть готов к показу в тот же кадр, в котором принято
+     решение показать его, иначе страница успевает мигнуть неразмытой.
 
-     Два набора текста в одной карточке: приветствие для новых и список
-     изменений для тех, кто уже был здесь на прошлой версии. Скрипт
-     показывает один из них — заводить ради этого два диалога значило
-     бы дублировать всю обвязку с фокусом и клавишами. -->
+     С 2.1.1 первый заход — это три шага в одной карточке:
+       lang  — выбор языка. Идёт первым, потому что до 2.1.1 язык
+               угадывался по браузеру, и приветствие то и дело
+               встречало по-английски человека, который английского
+               не просил;
+       hello — само приветствие;
+       tour  — короткое обучение из четырёх анимированных сцен.
+     Вернувшийся после обновления видит один шаг — список изменений,
+     он живёт в том же блоке, что и приветствие. -->
 <div class="welcome" id="welcome" hidden>
   <!-- Поле позади карточки: та же сетка, что у компаса, только
        медленно дышит. Рисуется разметкой, а не скриптом: это
@@ -766,50 +771,141 @@
   </div>
 
   <div class="wel-card" id="welCard" role="dialog" aria-modal="true"
-       aria-labelledby="welTitle" tabindex="-1">
+       aria-labelledby="welLangTitle" tabindex="-1" data-step="lang">
     <button type="button" class="wel-x" id="welClose" aria-label="Закрыть приветствие"
             data-i18n-attr="aria-label:wel.close">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
     </button>
 
-    <span class="eyebrow" id="welEyebrow" data-i18n="wel.eyebrow">Политический компас партий РФ</span>
-    <h2 id="welTitle" data-i18n="wel.h">Добро пожаловать</h2>
-    <p class="wel-lede" id="welLede" data-i18n="wel.lede">Здесь российские партии расставлены по двум осям —
-      что они думают про экономику и сколько власти отдают государству. Никакой агитации: у каждой
-      координаты рядом лежит объяснение, с которым можно спорить.</p>
+    <!-- ---------- шаг 1: язык ----------
+         Подписи здесь намеренно двуязычные и в словарь не входят: человек
+         ещё не выбрал язык, и показывать ему экран на одном из двух значит
+         решить за него. -->
+    <section class="wel-step" id="welLang" data-step="lang">
+      <span class="eyebrow">Политический компас · Political Compass</span>
+      <h2 id="welLangTitle">Выберите язык<span class="wel-sub" lang="en">Choose your language</span></h2>
+      <div class="wel-langs" role="group" aria-label="Язык · Language">
+        <button type="button" class="wel-lang" data-lang="ru" lang="ru">
+          <span class="wel-lang-mark" aria-hidden="true">Аа</span>
+          <span class="wel-lang-t"><b>Русский</b><small>Интерфейс, данные и тест на русском</small></span>
+          <span class="wel-lang-go" aria-hidden="true">›</span>
+        </button>
+        <button type="button" class="wel-lang" data-lang="en" lang="en">
+          <span class="wel-lang-mark" aria-hidden="true">Aa</span>
+          <span class="wel-lang-t"><b>English</b><small>Interface, data and quiz in English</small></span>
+          <span class="wel-lang-go" aria-hidden="true">›</span>
+        </button>
+      </div>
+      <p class="wel-note">Язык можно сменить в настройках · You can change it later in settings</p>
+    </section>
 
-    <ul class="wel-points" id="welPoints">
-      <li>
-        <span class="wel-ico" aria-hidden="true">◎</span>
-        <b data-i18n="wel.p1.h">Посмотрите на поле</b>
-        <span data-i18n="wel.p1.p">Одиннадцать партий, пять созывов Думы и графики, которые следуют за выбранным созывом.</span>
-      </li>
-      <li>
-        <span class="wel-ico" aria-hidden="true">✦</span>
-        <b data-i18n="wel.p2.h">Найдите себя</b>
-        <span data-i18n="wel.p2.p">Тест ставит на ту же сетку вас — от двух минут до четверти часа, на ваш выбор.</span>
-      </li>
-      <li>
-        <span class="wel-ico" aria-hidden="true">⌂</span>
-        <b data-i18n="wel.p3.h">Ничего не уходит наружу</b>
-        <span data-i18n="wel.p3.p">Ни счётчиков, ни аналитики. Ответы и настройки лежат только в вашем браузере.</span>
-      </li>
-    </ul>
+    <!-- ---------- шаг 2: приветствие или список изменений ---------- -->
+    <section class="wel-step" id="welHello" data-step="hello" hidden>
+      <span class="eyebrow" id="welEyebrow" data-i18n="wel.eyebrow">Политический компас партий РФ</span>
+      <h2 id="welTitle" data-i18n="wel.h">Добро пожаловать</h2>
+      <p class="wel-lede" id="welLede" data-i18n="wel.lede">Здесь российские партии расставлены по двум осям —
+        что они думают про экономику и сколько власти отдают государству. Никакой агитации: у каждой
+        координаты рядом лежит объяснение, с которым можно спорить.</p>
 
-    <ul class="wel-news" id="welNews" hidden>
-      <li data-i18n="wel.up.l1">Больше стекла и настройка его густоты — от едва заметного до плотного.</li>
-      <li data-i18n="wel.up.l2">У каждого графика появилось пояснение «как читать» — раскрывается по желанию.</li>
-      <li data-i18n="wel.up.l3">«О проекте» и «Голосования» разобраны на части: меньше сплошного текста.</li>
-      <li data-i18n="wel.up.l4">Страница грузится быстрее: шрифты больше не задерживают первую отрисовку.</li>
-      <li data-i18n="wel.up.l5">Две новые пасхалки. Одна заметная, вторая — нет.</li>
-    </ul>
+      <ul class="wel-points" id="welPoints">
+        <li>
+          <span class="wel-ico" aria-hidden="true">◎</span>
+          <b data-i18n="wel.p1.h">Посмотрите на поле</b>
+          <span data-i18n="wel.p1.p">Одиннадцать партий, пять созывов Думы и графики, которые следуют за выбранным созывом.</span>
+        </li>
+        <li>
+          <span class="wel-ico" aria-hidden="true">✦</span>
+          <b data-i18n="wel.p2.h">Найдите себя</b>
+          <span data-i18n="wel.p2.p">Тест ставит на ту же сетку вас — от двух минут до четверти часа, на ваш выбор.</span>
+        </li>
+        <li>
+          <span class="wel-ico" aria-hidden="true">⌂</span>
+          <b data-i18n="wel.p3.h">Ничего не уходит наружу</b>
+          <span data-i18n="wel.p3.p">Ни счётчиков, ни аналитики. Ответы и настройки лежат только в вашем браузере.</span>
+        </li>
+      </ul>
 
-    <div class="wel-actions">
-      <button type="button" class="btn primary" id="welEnter" data-i18n="wel.enter">Смотреть компас</button>
-      <button type="button" class="btn ghost" id="welQuiz" data-i18n="wel.quiz">Сразу к тесту</button>
-    </div>
-    <p class="wel-note" id="welNote" data-i18n="wel.note">Это окно больше не появится — разве что после
-      следующего обновления. Вернуть его можно в настройках.</p>
+      <ul class="wel-news" id="welNews" hidden>
+        <li data-i18n="wel.up.l1">Приветствие начинается с выбора языка и больше не угадывает его по браузеру.</li>
+        <li data-i18n="wel.up.l2">Короткое анимированное обучение: четыре сцены о том, как пользоваться компасом.</li>
+        <li data-i18n="wel.up.l3">Новая тема «Боровляны» — мокрый лес после дождя.</li>
+        <li data-i18n="wel.up.l4">Интерфейс стал спокойнее: сегментированные вкладки, круглые кнопки, мягкие тени.</li>
+        <li data-i18n="wel.up.l5">Переработана шапка и исправлено несколько ошибок.</li>
+      </ul>
+
+      <div class="wel-actions">
+        <button type="button" class="btn primary" id="welTour" data-i18n="wel.tour">Как пользоваться</button>
+        <button type="button" class="btn" id="welEnter" data-i18n="wel.enter">Смотреть компас</button>
+        <button type="button" class="btn ghost" id="welQuiz" data-i18n="wel.quiz">Сразу к тесту</button>
+      </div>
+      <p class="wel-note" id="welNote" data-i18n="wel.note">Это окно больше не появится — разве что после
+        следующего обновления. Вернуть его можно в настройках.</p>
+    </section>
+
+    <!-- ---------- шаг 3: обучение ----------
+         Четыре сцены, нарисованные разметкой и CSS. Анимация каждой
+         запускается заново, когда сцена становится текущей: класс
+         is-on снимается и ставится после принудительной перерисовки
+         (js/welcome.js). Текст подписи берётся из словаря по номеру. -->
+    <section class="wel-step" id="welTourStep" data-step="tour" hidden>
+      <div class="wt-stage" aria-hidden="true">
+        <!-- 1. поле: оси и точки партий -->
+        <div class="wt-scene wt-s1" data-scene="0">
+          <span class="wt-axis wt-axis--h"></span><span class="wt-axis wt-axis--v"></span>
+          <span class="wt-q wt-q--lu"></span><span class="wt-q wt-q--rd"></span>
+          <i class="wt-pt" style="--x:22%;--y:30%;--c:#d8433b;--d:.15s"></i>
+          <i class="wt-pt" style="--x:64%;--y:22%;--c:#2f6fd6;--d:.3s"></i>
+          <i class="wt-pt" style="--x:78%;--y:62%;--c:#e0a52b;--d:.45s"></i>
+          <i class="wt-pt" style="--x:34%;--y:70%;--c:#3aa36b;--d:.6s"></i>
+          <i class="wt-pt" style="--x:52%;--y:44%;--c:#8a5cd6;--d:.75s"></i>
+          <span class="wt-lab wt-lab--x" data-i18n="wel.t.x">← экономика →</span>
+          <span class="wt-lab wt-lab--y" data-i18n="wel.t.y">государство</span>
+        </div>
+        <!-- 2. точка → карточка партии -->
+        <div class="wt-scene wt-s2" data-scene="1">
+          <i class="wt-pt wt-pt--static" style="--x:24%;--y:34%;--c:#d8433b"></i>
+          <i class="wt-pt wt-pt--static wt-pt--target" style="--x:40%;--y:58%;--c:#2f6fd6"></i>
+          <i class="wt-pt wt-pt--static" style="--x:16%;--y:72%;--c:#3aa36b"></i>
+          <span class="wt-cursor"></span>
+          <span class="wt-panel">
+            <span class="wt-line wt-line--h"></span>
+            <span class="wt-line"></span><span class="wt-line wt-line--s"></span>
+            <span class="wt-bars"><i></i><i></i><i></i></span>
+          </span>
+        </div>
+        <!-- 3. созыв и графики -->
+        <div class="wt-scene wt-s3" data-scene="2">
+          <span class="wt-seg"><i></i><b>IV</b><b>V</b><b>VI</b><b>VII</b><b>VIII</b></span>
+          <span class="wt-hemi">
+            <i style="--c:#d8433b;--h:38%"></i><i style="--c:#e0a52b;--h:22%"></i>
+            <i style="--c:#2f6fd6;--h:86%"></i><i style="--c:#3aa36b;--h:30%"></i>
+            <i style="--c:#8a5cd6;--h:18%"></i>
+          </span>
+        </div>
+        <!-- 4. тест: шкала ответов и точка «вы» -->
+        <div class="wt-scene wt-s4" data-scene="3">
+          <span class="wt-question"><span class="wt-line wt-line--h"></span><span class="wt-line wt-line--s"></span></span>
+          <span class="wt-scale"><i></i><i></i><i></i><i class="is-pick"></i><i></i></span>
+          <span class="wt-mini">
+            <span class="wt-axis wt-axis--h"></span><span class="wt-axis wt-axis--v"></span>
+            <i class="wt-you"></i>
+          </span>
+        </div>
+      </div>
+
+      <span class="eyebrow" id="welTourCount">Шаг 1 из 4</span>
+      <h2 id="welTourTitle">Поле из двух осей</h2>
+      <p class="wel-lede" id="welTourText" aria-live="polite"></p>
+
+      <div class="wt-dots" id="welTourDots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+      <div class="wel-actions wel-actions--tour">
+        <button type="button" class="btn ghost" id="welSkip" data-i18n="wel.skip">Пропустить</button>
+        <span class="wel-spacer"></span>
+        <button type="button" class="btn" id="welBack" data-i18n="wel.back">Назад</button>
+        <button type="button" class="btn primary" id="welNext" data-i18n="wel.next">Дальше</button>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -1160,7 +1256,7 @@
              PC.VERSION: подвал читают и без JavaScript. Тест сверяет
              его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.1: приветственный экран, больше стекла, пояснения к графикам и ускоренная загрузка">v2.1</span>
+              title="Версия 2.1.1: выбор языка и обучение в приветствии, тема «Боровляны», интерфейс в духе Apple">v2.1.1</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>

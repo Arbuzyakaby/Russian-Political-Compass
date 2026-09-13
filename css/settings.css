@@ -13,8 +13,8 @@
 
 /* ---------- кнопка в шапке ---------- */
 .gear-btn{
-  width:36px;height:36px;flex:none;display:grid;place-items:center;cursor:pointer;
-  border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--stroke);
+  width:40px;height:40px;flex:none;display:grid;place-items:center;cursor:pointer;
+  border-radius:50%;background:color-mix(in srgb,var(--text) 6.5%,transparent);border:1px solid transparent;
   color:var(--muted);
   transition:background var(--dur-1) var(--ease-out),
              border-color var(--dur-1) var(--ease-out),
@@ -24,7 +24,7 @@
 .gear-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;
   stroke-linecap:round;stroke-linejoin:round;
   transition:transform var(--dur-3) var(--ease-spring);}
-.gear-btn:hover{background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);}
+.gear-btn:hover{background:color-mix(in srgb,var(--text) 10%,transparent);color:var(--text);}
 .gear-btn:hover svg{transform:rotate(60deg);}
 .gear-btn:active{transform:scale(.94);}
 .gear-btn[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent-line);
@@ -159,12 +159,12 @@ body.sheet-lock{overflow:hidden;}
 
 /* ---------- сегментированный переключатель ---------- */
 .seg{
-  display:inline-flex;flex:none;padding:3px;gap:2px;border-radius:var(--radius-sm);
-  background:color-mix(in srgb,var(--surface-2) 80%,transparent);border:1px solid var(--stroke);
+  display:inline-flex;flex:none;padding:2px;gap:2px;border-radius:calc(var(--radius-xs) + 1px);
+  background:color-mix(in srgb,var(--text) 7%,transparent);border:1px solid transparent;
 }
 .seg button{
   font:inherit;font-size:11.5px;font-weight:600;letter-spacing:var(--track-body);cursor:pointer;
-  padding:6px 11px;border-radius:calc(var(--radius-sm) - 4px);border:1px solid transparent;
+  padding:6px 11px;border-radius:calc(var(--radius-xs) - 1px);border:1px solid transparent;
   background:transparent;color:var(--muted);white-space:nowrap;
   transition:background var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),
              box-shadow var(--dur-2) var(--ease-out),transform var(--dur-1) var(--ease-out);
@@ -172,8 +172,8 @@ body.sheet-lock{overflow:hidden;}
 .seg button:active{transform:scale(.96);}
 .seg button:hover{color:var(--text);}
 .seg button[aria-checked="true"]{
-  background:var(--surface-3);color:var(--text);border-color:var(--stroke);
-  box-shadow:0 2px 6px -3px rgba(0,0,0,.5),inset 0 1px 0 color-mix(in srgb,#fff 12%,transparent);
+  background:var(--surface-3);color:var(--text);border-color:transparent;
+  box-shadow:0 1px 2px rgba(0,0,0,.10),0 3px 8px -4px rgba(0,0,0,.22);
 }
 .seg button:focus-visible{outline:2px solid var(--tone);outline-offset:1px;}
 
@@ -181,22 +181,23 @@ body.sheet-lock{overflow:hidden;}
 /* Не чекбокс с галочкой: у переключателя два состояния «сейчас включено /
    сейчас выключено», и положение ползунка сообщает это без чтения. */
 .sw{
-  position:relative;flex:none;width:44px;height:26px;cursor:pointer;padding:0;
-  border-radius:var(--radius-pill);border:1px solid var(--stroke-2);
-  background:var(--surface-2);
-  transition:background .24s var(--ease-out),border-color .24s ease;
+  /* Пропорции тумблера iOS: 51×31, белый ползунок с тенью в обоих
+     положениях; включённое состояние — зелёным «ok» темы, а не тоном
+     раздела, как у системного переключателя. */
+  position:relative;flex:none;width:48px;height:29px;cursor:pointer;padding:0;
+  border-radius:999px;border:0;
+  background:color-mix(in srgb,var(--text) 16%,transparent);
+  transition:background .24s var(--ease-out);
 }
 .sw i{
-  position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
-  background:var(--muted);box-shadow:0 2px 6px -2px rgba(0,0,0,.6);
-  transition:transform .26s var(--ease-spring),background .24s ease;
+  position:absolute;top:2px;left:2px;width:25px;height:25px;border-radius:999px;
+  background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.20),0 0 0 .5px rgba(0,0,0,.06);
+  transition:transform .3s var(--ease-spring),width .2s var(--ease-out);
 }
-.sw[aria-checked="true"]{
-  background:color-mix(in srgb,var(--tone) 68%,transparent);
-  border-color:color-mix(in srgb,var(--tone) 70%,transparent);
-}
-.sw[aria-checked="true"] i{transform:translateX(18px);background:#fff;}
-.sw:active i{width:24px;}
+.sw[aria-checked="true"]{background:var(--ok);}
+.sw[aria-checked="true"] i{transform:translateX(19px);}
+.sw:active i{width:30px;}
+.sw[aria-checked="true"]:active i{transform:translateX(14px);}
 .sw:focus-visible{outline:2px solid var(--tone);outline-offset:3px;}
 
 /* ---------- подвал панели ---------- */

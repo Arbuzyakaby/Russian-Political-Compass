@@ -124,13 +124,15 @@
              color var(--dur-1) var(--ease-out),
              box-shadow var(--dur-2) var(--ease-out),
              transform var(--dur-1) var(--ease-spring);}
+/* С 2.1.1 — по-эппловски: наведение только углубляет заливку, без
+   подъёма и тени; включённое состояние — инверсия в цвет текста. */
 .chip:hover,.trend-mode:hover:not(:disabled),.data-toggle:hover{
-  background:var(--surface-2);border-color:var(--stroke-2);color:var(--text);
-  transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(0,0,0,.45);}
-.chip:active,.trend-mode:active:not(:disabled),.data-toggle:active{transform:translateY(0) scale(.95);box-shadow:none;}
-.chip[aria-pressed="true"],.trend-mode[aria-pressed="true"]{
-  background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);
-  box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 10%,transparent);}
+  background:color-mix(in srgb,var(--text) 11%,transparent);border-color:transparent;color:var(--text);}
+.chip:active,.trend-mode:active:not(:disabled),.data-toggle:active{transform:scale(.95);box-shadow:none;}
+.chip[aria-pressed="true"],.trend-mode[aria-pressed="true"],
+.chip[aria-pressed="true"]:hover,.trend-mode[aria-pressed="true"]:hover:not(:disabled){
+  background:var(--text);border-color:var(--text);color:var(--bg);
+  box-shadow:0 1px 2px rgba(0,0,0,.12);}
 .chip:focus-visible,.trend-mode:focus-visible,.data-toggle:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px;box-shadow:0 0 0 5px var(--accent-soft);}
 .trend-mode:disabled{opacity:.45;cursor:default;}

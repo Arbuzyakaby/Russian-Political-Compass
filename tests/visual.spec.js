@@ -65,9 +65,22 @@ async function compassReady(page){
   });
 }
 
+/* Приветственный экран закрывает страницу при первом заходе, а у
+   каждого теста браузер чистый. Отметка «видел» ставится до проверок,
+   экран закрывается: иначе любой клик по странице упирался бы в него.
+   Сам экран проверяется отдельным тестом в конце файла. */
+async function dismissWelcome(page){
+  await page.evaluate(() => {
+    localStorage.setItem("pc-welcome", window.PC.VERSION);
+    window.PC.welcome.close();
+  });
+  await expect(page.locator("#welcome")).toBeHidden();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await compassReady(page);
+  await dismissWelcome(page);
 });
 
 test("компас отрисован: сетка, подписи осей и точка на каждую партию", async ({ page }) => {
@@ -337,9 +350,9 @@ test("карточка партии открывается со сводкой �
    подложка действительно сменилась, что светлота выставлена отдельным
    атрибутом (на неё смотрит расчёт цвета марок на графиках), что компас
    продолжает рисоваться и что выбор переживает перезагрузку. */
-test("шесть тем: подложка меняется, светлота выставляется, выбор запоминается", async ({ page }) => {
+test("семь тем: подложка меняется, светлота выставляется, выбор запоминается", async ({ page }) => {
   const themes = await page.evaluate(() => Object.keys(window.PC.theme.SCHEME));
-  expect(themes.length).toBe(6);
+  expect(themes.length).toBe(7);
 
   const backgrounds = new Set();
   for(const name of themes){
@@ -356,7 +369,7 @@ test("шесть тем: подложка меняется, светлота в�
 
     expect(await page.locator("#svg .node").count()).toBe(PARTIES);
   }
-  /* у всех шести подложка своя — совпадение означало бы, что блок
+  /* у всех семи подложка своя — совпадение означало бы, что блок
      токенов какой-то темы не подхватился и она показывается чужой */
   expect(backgrounds.size).toBe(themes.length);
 
@@ -487,4 +500,65 @@ test("песочница коалиций: заготовка, тип коали
   await page.locator("#coReset").click();
   await expect(page.locator("#coReal")).toBeVisible();
   await expect(page.locator('.co-tog[aria-pressed="false"]')).toHaveCount(0);
+});
+
+
+/* ============ НОВОЕ В 2.1.1 ============ */
+
+/* Полный путь новичка: язык → приветствие → четыре сцены обучения →
+   страница. До 2.1.1 экран «то появлялся, то нет, иногда на английском»,
+   поэтому проверяется и сама последовательность, и то, что после выбора
+   языка перезагруженная страница продолжает со второго шага, а не
+   показывает выбор языка снова. */
+test("приветствие: выбор языка, приветствие, обучение, больше не появляется", async ({ page }) => {
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+  await page.reload();
+  const welcome = page.locator("#welcome");
+  await expect(welcome).toBeVisible();
+  await expect(page.locator("#welLang")).toBeVisible();
+  await expect(page.locator("#welHello")).toBeHidden();
+
+  /* клик мимо карточки на шаге языка ничего не закрывает */
+  await page.mouse.click(5, 5);
+  await expect(page.locator("#welLang")).toBeVisible();
+
+  await page.locator('.wel-lang[data-lang="en"]').click();
+  await page.waitForLoadState("load");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#welHello")).toBeVisible();
+  await expect(page.locator("#welLang")).toBeHidden();
+  await expect(page.locator("#welTitle")).toHaveText("Welcome");
+
+  await page.locator("#welTour").click();
+  await expect(page.locator("#welTourStep")).toBeVisible();
+  for(let i = 0; i < 4; i++){
+    await expect(page.locator(".wt-scene.is-on")).toHaveAttribute("data-scene", String(i));
+    await expect(page.locator("#welTourText")).not.toHaveText("");
+    await expect(page.locator("#welTourText")).not.toContainText(/[а-яё]/i);
+    await page.locator("#welNext").click();
+  }
+  await expect(welcome).toBeHidden();
+
+  await page.reload();
+  await compassReady(page);
+  await expect(welcome).toBeHidden();
+});
+
+test("приветствие: шаг языка на том же языке не перезагружает страницу", async ({ page }) => {
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+  await page.reload();
+  await page.evaluate(() => { window.__noReload = true; });
+  await page.locator('.wel-lang[data-lang="ru"]').click();
+  await expect(page.locator("#welHello")).toBeVisible();
+  expect(await page.evaluate(() => window.__noReload)).toBe(true);
+  expect(await page.evaluate(() => localStorage.getItem("pc-lang"))).toBe("ru");
+});
+
+test("сброс настроек перекрашивает меню тем", async ({ page }) => {
+  await page.locator("#settingsBtn").click();
+  await page.locator('.theme-chip[data-val="borovlyany"]').click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "borovlyany");
+  await page.locator("#setReset").click();
+  await expect(page.locator('.theme-chip[data-val="system"]')).toHaveAttribute("aria-checked", "true");
+  await expect(page.locator('.theme-chip[data-val="borovlyany"]')).toHaveAttribute("aria-checked", "false");
 });

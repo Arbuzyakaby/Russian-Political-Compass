@@ -19,7 +19,8 @@
   var SCHEME = {
     light:"light", dark:"dark",
     paper:"light", alaska:"light",
-    neon:"dark",   fireplace:"dark"
+    neon:"dark",   fireplace:"dark",
+    borovlyany:"light"
   };
 
   var pref = "system";

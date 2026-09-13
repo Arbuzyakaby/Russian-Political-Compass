@@ -258,12 +258,354 @@ body.welcome-lock.welcome-out .site-footer{
   max-width:44ch;
 }
 
+/* ---------- шаги ----------
+   Три шага живут в одной карточке и сменяют друг друга без смены
+   размера окна рывком: каждый новый шаг проявляется коротким подъёмом,
+   как смена экрана в настройках iOS. */
+.wel-step[hidden]{ display:none; }
+.wel-step.is-enter{ animation:wel-step .42s var(--ease-out) both; }
+@keyframes wel-step{
+  from{ opacity:0; transform:translateY(8px); }
+  to  { opacity:1; transform:none; }
+}
+.wel-card[data-step="lang"]{ width:min(460px,100%); }
+
+/* ---------- шаг 1: язык ---------- */
+.wel-sub{
+  display:block;
+  margin-top:4px;
+  font-size:.62em;
+  font-weight:500;
+  letter-spacing:-.01em;
+  color:var(--muted);
+}
+.wel-langs{
+  display:grid;
+  gap:10px;
+  margin:22px 0 18px;
+}
+.wel-lang{
+  display:grid;
+  grid-template-columns:44px 1fr auto;
+  align-items:center;
+  gap:14px;
+  width:100%;
+  padding:14px 16px;
+  text-align:left;
+  font:inherit;
+  color:var(--text);
+  cursor:pointer;
+  border-radius:var(--radius);
+  border:1px solid var(--stroke);
+  background:var(--surface);
+  transition:background var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out),
+             transform var(--dur-1) var(--ease-spring), box-shadow var(--dur-2) var(--ease-out);
+}
+.wel-lang:hover{ background:var(--surface-2); border-color:var(--stroke-2); box-shadow:var(--shadow-sm); }
+.wel-lang:active{ transform:scale(.98); }
+.wel-lang:focus-visible{ outline:2px solid var(--tone); outline-offset:2px; }
+/* Угаданный по браузеру язык отмечен, но не выбран: это подсказка,
+   а не решение. */
+.wel-lang.is-current{ border-color:var(--accent-line); }
+.wel-lang-mark{
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  font-family:var(--font-display);
+  font-size:18px;
+  font-weight:650;
+  color:var(--accent);
+  background:var(--accent-soft);
+}
+.wel-lang-t{ display:grid; gap:2px; }
+.wel-lang-t b{ font-size:15px; font-weight:600; }
+.wel-lang-t small{ font-size:12.5px; color:var(--muted); }
+.wel-lang-go{
+  font-size:22px;
+  line-height:1;
+  color:var(--muted-2);
+  transition:transform var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out);
+}
+.wel-lang:hover .wel-lang-go{ transform:translateX(3px); color:var(--accent); }
+
+/* ---------- шаг 3: обучение ----------
+   Сцена — маленький макет интерфейса, нарисованный блоками. Каждая
+   анимация короткая и проигрывается один раз при показе сцены, кроме
+   курсора и выбора ответа: они повторяются, пока сцена на экране, —
+   иначе человек, дочитавший подпись, смотрел бы на застывший кадр. */
+.wt-stage{
+  position:relative;
+  height:188px;
+  margin:26px 0 20px;
+  border-radius:var(--radius);
+  overflow:hidden;
+  border:1px solid var(--stroke);
+  background:
+    radial-gradient(80% 90% at 50% 0%, color-mix(in srgb,var(--accent) 10%,transparent), transparent 70%),
+    var(--surface);
+}
+.wt-scene{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  visibility:hidden;
+}
+.wt-scene.is-on{ opacity:1; visibility:visible; animation:wel-in .35s var(--ease-out) both; }
+
+.wt-axis{ position:absolute; z-index:1; background:var(--line-axis); }
+.wt-axis--h{ left:8%; right:8%; top:50%; height:1px; }
+.wt-axis--v{ top:10%; bottom:10%; left:50%; width:1px; }
+.is-on .wt-axis--h{ animation:wt-grow-x .6s var(--ease-out) both; }
+.is-on .wt-axis--v{ animation:wt-grow-y .6s var(--ease-out) .08s both; }
+@keyframes wt-grow-x{ from{ transform:scaleX(0); } to{ transform:none; } }
+@keyframes wt-grow-y{ from{ transform:scaleY(0); } to{ transform:none; } }
+
+.wt-q{ position:absolute; width:42%; height:40%; opacity:0; border-radius:10px; }
+.wt-q--lu{ left:8%; top:10%; background:color-mix(in srgb,var(--bad) 9%,transparent); }
+.wt-q--rd{ right:8%; bottom:10%; background:color-mix(in srgb,var(--info) 9%,transparent); }
+.is-on .wt-q{ animation:wel-in .6s var(--ease-out) .3s forwards; }
+
+.wt-pt{
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  width:14px;
+  height:14px;
+  margin:-7px 0 0 -7px;
+  border-radius:50%;
+  background:var(--c);
+  box-shadow:0 0 0 2px var(--dot-stroke), 0 4px 10px -3px color-mix(in srgb,var(--c) 70%,transparent);
+  opacity:0;
+  transform:scale(.2);
+}
+.is-on .wt-pt{ animation:wt-pop .55s var(--ease-spring) var(--d,0s) forwards; }
+.wt-pt--static{ opacity:1; transform:none; }
+.is-on .wt-pt--static{ animation:none; }
+@keyframes wt-pop{ to{ opacity:1; transform:none; } }
+
+.wt-lab{ position:absolute; font-size:10.5px; font-weight:600; color:var(--muted-2); letter-spacing:.02em; }
+.wt-lab--x{ left:50%; bottom:6px; transform:translateX(-50%); }
+.wt-lab--y{ left:calc(50% + 6px); top:6px; }
+
+/* сцена 2: курсор едет к точке, точка откликается, выезжает карточка */
+.wt-cursor{
+  position:absolute;
+  left:78%;
+  top:18%;
+  width:16px;
+  height:22px;
+  background:var(--text);
+  clip-path:polygon(0 0, 0 78%, 26% 60%, 44% 100%, 60% 92%, 42% 54%, 76% 54%);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));
+}
+.is-on .wt-cursor{ animation:wt-cursor 3.2s var(--ease-in-out) infinite; }
+@keyframes wt-cursor{
+  0%     { left:78%; top:18%; transform:none; }
+  35%,42%{ left:calc(40% + 2px); top:calc(58% + 2px); transform:none; }
+  46%    { transform:scale(.86); }
+  52%,100%{ left:calc(40% + 2px); top:calc(58% + 2px); transform:none; }
+}
+.is-on .wt-pt--target{ animation:wt-ping 3.2s ease-out infinite; }
+@keyframes wt-ping{
+  0%,44%{ box-shadow:0 0 0 2px var(--dot-stroke), 0 0 0 0 color-mix(in srgb,var(--c) 50%,transparent); }
+  60%   { box-shadow:0 0 0 2px var(--dot-stroke), 0 0 0 12px color-mix(in srgb,var(--c) 0%,transparent); transform:scale(1.25); }
+  100%  { box-shadow:0 0 0 2px var(--dot-stroke), 0 0 0 0 transparent; transform:scale(1.25); }
+}
+.wt-panel{
+  position:absolute;
+  top:12%;
+  bottom:12%;
+  right:5%;
+  width:40%;
+  padding:14px;
+  display:grid;
+  align-content:start;
+  gap:8px;
+  border-radius:14px;
+  background:var(--surface-3);
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow-sm);
+  opacity:0;
+  transform:translateX(24px);
+}
+.is-on .wt-panel{ animation:wt-panel 3.2s var(--ease-out) infinite; }
+@keyframes wt-panel{
+  0%,46%{ opacity:0; transform:translateX(24px); }
+  60%,92%{ opacity:1; transform:none; }
+  100%  { opacity:0; transform:translateX(12px); }
+}
+.wt-line{ display:block; height:7px; border-radius:4px; background:var(--stroke-2); }
+.wt-line--h{ width:70%; height:10px; background:color-mix(in srgb,#2f6fd6 55%,transparent); }
+.wt-line--s{ width:55%; }
+.wt-bars{ display:grid; gap:5px; margin-top:6px; }
+.wt-bars i{ display:block; height:6px; border-radius:3px; background:var(--accent-soft); }
+.wt-bars i:nth-child(1){ width:90%; } .wt-bars i:nth-child(2){ width:60%; } .wt-bars i:nth-child(3){ width:75%; }
+
+/* сцена 3: бегунок созыва переезжает, дуга палаты перестраивается */
+.wt-seg{
+  position:absolute;
+  left:50%;
+  top:20px;
+  transform:translateX(-50%);
+  display:grid;
+  grid-template-columns:repeat(5,44px);
+  padding:3px;
+  border-radius:10px;
+  background:var(--surface-2);
+  border:1px solid var(--stroke);
+}
+.wt-seg b{ position:relative; z-index:1; text-align:center; font-size:11px; line-height:24px; font-weight:600; color:var(--muted); }
+.wt-seg i{
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:44px;
+  height:24px;
+  border-radius:7px;
+  background:var(--accent-soft);
+  box-shadow:inset 0 0 0 1px var(--accent-line);
+}
+.is-on .wt-seg i{ animation:wt-seg 4s var(--ease-out-soft) infinite; }
+@keyframes wt-seg{
+  0%,20%  { transform:translateX(176px); }
+  30%,55% { transform:translateX(88px); }
+  65%,85% { transform:translateX(0); }
+  95%,100%{ transform:translateX(176px); }
+}
+.wt-hemi{
+  position:absolute;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  height:100px;
+}
+.wt-hemi i{
+  display:block;
+  width:30px;
+  height:var(--h);
+  border-radius:8px 8px 4px 4px;
+  background:var(--c);
+  opacity:.88;
+  transform-origin:bottom;
+}
+.is-on .wt-hemi i{ animation:wt-bars 4s var(--ease-out) infinite; }
+.is-on .wt-hemi i:nth-child(2){ animation-delay:.08s; }
+.is-on .wt-hemi i:nth-child(3){ animation-delay:.16s; }
+.is-on .wt-hemi i:nth-child(4){ animation-delay:.24s; }
+.is-on .wt-hemi i:nth-child(5){ animation-delay:.32s; }
+@keyframes wt-bars{
+  0%,20% { transform:scaleY(1); }
+  30%,55%{ transform:scaleY(.62); }
+  65%,85%{ transform:scaleY(.4); }
+  95%,100%{ transform:scaleY(1); }
+}
+
+/* сцена 4: утверждение, выбор ответа, точка «вы» садится на поле */
+.wt-question{
+  position:absolute;
+  left:7%;
+  top:22px;
+  width:48%;
+  display:grid;
+  gap:8px;
+}
+.wt-question .wt-line--h{ width:100%; background:var(--stroke-2); }
+.wt-scale{
+  position:absolute;
+  left:7%;
+  bottom:30px;
+  display:flex;
+  gap:8px;
+}
+.wt-scale i{
+  display:block;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:1.5px solid var(--stroke-2);
+  background:var(--surface-3);
+}
+.is-on .wt-scale .is-pick{ animation:wt-pick 3.4s var(--ease-out) infinite; }
+@keyframes wt-pick{
+  0%,22% { background:var(--surface-3); border-color:var(--stroke-2); transform:none; }
+  28%    { transform:scale(.85); }
+  34%,90%{ background:var(--accent); border-color:var(--accent); transform:none; }
+  100%   { background:var(--surface-3); border-color:var(--stroke-2); }
+}
+.wt-mini{
+  position:absolute;
+  right:6%;
+  top:16px;
+  bottom:16px;
+  aspect-ratio:1;
+  border-radius:14px;
+  border:1px solid var(--stroke);
+  background:var(--surface-3);
+}
+.wt-you{
+  position:absolute;
+  left:64%;
+  top:34%;
+  width:16px;
+  height:16px;
+  margin:-8px 0 0 -8px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 3px var(--dot-stroke), 0 0 22px -2px var(--accent);
+  opacity:0;
+}
+.is-on .wt-you{ animation:wt-you 3.4s var(--ease-spring) infinite; }
+@keyframes wt-you{
+  0%,36% { opacity:0; transform:translateY(-26px) scale(.5); }
+  52%,90%{ opacity:1; transform:none; }
+  100%   { opacity:0; transform:none; }
+}
+
+.wt-dots{
+  display:flex;
+  gap:6px;
+  margin:16px 0 18px;
+}
+.wt-dots i{
+  display:block;
+  width:7px;
+  height:7px;
+  border-radius:4px;
+  background:var(--stroke-2);
+  transition:width var(--dur-3) var(--ease-out), background var(--dur-2) var(--ease-out);
+}
+.wt-dots i.is-done{ background:color-mix(in srgb,var(--accent) 45%,transparent); }
+.wt-dots i.is-on{ width:22px; background:var(--accent); }
+
+.wel-actions--tour{ align-items:center; margin-bottom:0; }
+.wel-spacer{ flex:1; }
+#welTourStep .wel-lede{ min-height:4.9em; }
+
 /* ---------- узкий экран ---------- */
 @media(max-width:560px){
   .welcome{ padding:12px; }
   .wel-card{ padding:24px 20px 20px; }
   .wel-points li{ padding:9px 8px 10px; }
   .wel-actions .btn{ flex:1; }
+  .wel-actions--tour .wel-spacer{ display:none; }
+  .wt-stage{ height:160px; }
+  .wt-seg{ grid-template-columns:repeat(5,36px); }
+  .wt-seg i{ width:36px; }
+  @keyframes wt-seg{
+    0%,20%  { transform:translateX(144px); }
+    30%,55% { transform:translateX(72px); }
+    65%,85% { transform:translateX(0); }
+    95%,100%{ transform:translateX(144px); }
+  }
+  .wt-hemi{ gap:7px; height:84px; }
+  .wt-hemi i{ width:24px; }
+  .wt-scale{ gap:5px; }
+  .wt-scale i{ width:22px; height:22px; }
 }
 
 /* ---------- выключенное движение ----------
@@ -282,6 +624,27 @@ body.welcome-lock.welcome-out .site-footer{
   body.welcome-lock .shell,
   body.welcome-lock .site-footer{ transition:none; }
 }
+/* Сцены обучения без движения показывают последний кадр. Бесконечные
+   анимации здесь обязаны сниматься целиком, а не укорачиваться:
+   общее правило сжимает длительность до тысячной секунды, и
+   зацикленный курсор превратился бы в мерцание. */
+@media(prefers-reduced-motion:reduce){
+  .wt-stage *,
+  .wel-step.is-enter{ animation:none!important; }
+  .wt-pt,.wt-q,.wt-you{ opacity:1; transform:none; }
+  .wt-panel{ opacity:1; transform:none; }
+  .wt-cursor{ left:calc(40% + 2px); top:calc(58% + 2px); }
+  .wt-scale .is-pick{ background:var(--accent); border-color:var(--accent); }
+}
+:root[data-motion="off"] .wt-stage *,
+:root[data-motion="off"] .wel-step.is-enter{ animation:none!important; }
+:root[data-motion="off"] .wt-pt,
+:root[data-motion="off"] .wt-q,
+:root[data-motion="off"] .wt-you,
+:root[data-motion="off"] .wt-panel{ opacity:1; transform:none; }
+:root[data-motion="off"] .wt-cursor{ left:calc(40% + 2px); top:calc(58% + 2px); }
+:root[data-motion="off"] .wt-scale .is-pick{ background:var(--accent); border-color:var(--accent); }
+
 :root[data-motion="off"] .welcome,
 :root[data-motion="off"] .wel-card,
 :root[data-motion="off"] .wel-grid{ animation:none; opacity:1; }

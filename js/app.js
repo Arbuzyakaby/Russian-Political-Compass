@@ -302,9 +302,20 @@
   PC.convocationInfo = convocationInfo;
   PC.setConvocation = setConvocation;
 
+  /* Приветствие запускается в конце init(), и до 2.1.1 любая ошибка
+     в одном из двадцати модулей перед ним молча отменяла экран целиком —
+     ещё одна причина, по которой он «то появлялся, то нет». Ошибка
+     по-прежнему уходит в консоль, но первого знакомства больше не
+     отнимает. Повторный вызов welcome.init() безопасен: модуль сам
+     проверяет, что уже запущен. */
+  function boot(){
+    try{ init(); }
+    finally{ if(PC.welcome) PC.welcome.init(); }
+  }
+
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", boot);
   }else{
-    init();
+    boot();
   }
 })(window.PC = window.PC || {});

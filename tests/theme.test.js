@@ -40,7 +40,7 @@ const CSS_THEMES = new Set(
 );
 
 test("таблица светлот одинакова в theme-boot.js и theme.js", () => {
-  assert.ok(Object.keys(bootScheme).length >= 6, "тем подозрительно мало");
+  assert.ok(Object.keys(bootScheme).length >= 7, "тем подозрительно мало");
   assert.deepEqual({ ...bootScheme }, { ...themeScheme },
     "таблицы разошлись: на загрузке и при переключении тема получит разную светлоту");
 });
@@ -106,6 +106,42 @@ test("список тем в меню совпадает с таблицей с�
   const themes = listed.slice(1).sort();
   assert.deepEqual(themes, Object.keys(themeScheme).sort(),
     "в меню показывается не тот набор тем, который умеет применять модуль");
+});
+
+/* «Боровляны» — светлая тема 2.1.1. Проверяется то, из-за чего она
+   сломалась бы молча: светлота (от неё зависит расчёт цвета марок),
+   достаточный контраст текста и акцента на подложке и то, что капли
+   на фоне выключаются вместе с зерном. */
+function luminance(hex){
+  const c = hex.replace("#", "").match(/../g).map(h => parseInt(h, 16) / 255)
+    .map(v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4));
+  return .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+}
+function contrast(a, b){
+  const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p);
+  return (x + .05) / (y + .05);
+}
+
+test("тема «Боровляны»: светлая, контрастная, капли выключаются с зерном", () => {
+  assert.equal(bootScheme.borovlyany, "light");
+  const start = tokens.indexOf(':root[data-theme="borovlyany"]');
+  const block = tokens.slice(start, tokens.indexOf("}", start));
+  const token = name => new RegExp(name + ":(#[0-9a-f]{6})", "i").exec(block)[1];
+  assert.ok(contrast(token("--text"), token("--bg")) >= 7, "основной текст не дотягивает до AAA");
+  assert.ok(contrast(token("--accent"), token("--bg")) >= 4.5, "акцент не читается на подложке");
+  assert.ok(contrast(token("--muted"), token("--bg")) >= 4.5, "вторичный текст не читается на подложке");
+
+  const base = fs.readFileSync(path.join(ROOT, "css", "base.css"), "utf8");
+  assert.match(base, /:root\[data-theme="borovlyany"\]\[data-grain="off"\] body::before\{display:none;\}/);
+});
+
+/* Меню тем перекрашивается в apply(), а не в обработчике клика: тему
+   меняет и сброс настроек, и до 2.1.1 после него в меню оставалась
+   подсвеченной прежняя. */
+test("смена темы из кода перекрашивает меню", () => {
+  const apply = /function apply\(next\)\{([\s\S]*?)\n  \}/.exec(themeJs);
+  assert.ok(apply, "в theme.js нет apply()");
+  assert.match(apply[1], /paint\(\)/, "apply() не перекрашивает меню тем");
 });
 
 /* Цвет строки браузера на мобильных подменяется скриптом при каждом
