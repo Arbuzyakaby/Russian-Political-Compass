@@ -207,3 +207,18 @@
 .nb-far{margin-top:9px;padding-top:9px;border-top:1px solid var(--stroke);}
 .nb-far .k{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;
   color:var(--muted-2);margin-bottom:5px;}
+
+/* ============ СРАВНЕНИЕ С ДРУГОЙ ПАРТИЕЙ (2.3) ============ */
+.cmp-sect #cmpSelect{margin-top:2px;}
+.cmp-sect .xs{display:flex;width:100%;}
+.cmp-sect .xs-btn{width:100%;justify-content:space-between;}
+#cmpResult:not(:empty){margin-top:12px;}
+.cmp-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;
+  padding:6px 0;border-bottom:1px solid var(--stroke);font-size:12px;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-lab{color:var(--muted);}
+.cmp-a,.cmp-b{min-width:38px;text-align:right;font-weight:650;font-variant-numeric:tabular-nums;
+  color:var(--text);}
+.cmp-head{border-bottom:1px solid var(--stroke-2);padding-bottom:8px;margin-bottom:2px;}
+.cmp-head .cmp-a,.cmp-head .cmp-b{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.03em;}

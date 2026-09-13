@@ -171,11 +171,6 @@
     sheet.querySelectorAll("[data-set-seg]").forEach(function(group){
       var key = group.dataset.setSeg;
       var all = group.querySelectorAll("[data-val]");
-      /* положение и число ячеек для скользящего ползунка (2.2) */
-      group.style.setProperty("--n", all.length);
-      all.forEach(function(b, i){
-        if(b.dataset.val === state[key]) group.style.setProperty("--i", i);
-      });
       all.forEach(function(b){
         var on = b.dataset.val === state[key];
         b.setAttribute("aria-checked", String(on));

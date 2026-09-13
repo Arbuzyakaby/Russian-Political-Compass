@@ -104,10 +104,7 @@
      На поле с одиннадцатью точками глаз путает близость по одной оси
      с близостью вообще. */
   function neighbourBlock(p){
-    var others = PC.PARTIES.filter(function(o){ return o.id !== p.id; }).map(function(o){
-      var dx = o.x - p.x, dy = o.y - p.y;
-      return { p:o, d:Math.sqrt(dx * dx + dy * dy) };
-    }).sort(function(a, b){ return a.d - b.d; });
+    var others = PC.calc.rankParties(p, p.id);
     if(!others.length) return "";
 
     var near = others.slice(0, 3);
@@ -122,6 +119,48 @@
       '<div class="nb-list">' + near.map(function(r){ return row(r); }).join("") + '</div>' +
       '<div class="nb-far"><span class="k">' + esc(t("side.farthest")) + '</span>' + row(far, "far") + '</div>' +
       '<div class="hist-note">' + esc(t("side.neighboursNote")) + '</div></div>';
+  }
+
+  /* ---------- сравнение с другой партией ----------
+     Тот же расчётный слой, что у соседей по полю (PC.calc), только
+     разница показана не одним числом-расстоянием, а по каждой оси и
+     под-оси отдельно — читатель видит не «насколько далеко», а «в чём
+     именно» расходятся две партии. Выбор партии для сравнения не
+     сохраняется: при возврате на карточку читатель начинает заново,
+     и это правильно — вопрос «с кем сравнить» каждый раз новый. */
+  function compareRow(label, a, b){
+    return '<div class="cmp-row"><span class="cmp-lab">' + esc(label) + '</span>' +
+      '<span class="cmp-a">' + (a == null ? "—" : fmt(a)) + '</span>' +
+      '<span class="cmp-b">' + (b == null ? "—" : fmt(b)) + '</span></div>';
+  }
+
+  function renderCompare(a, b){
+    var box = document.getElementById("cmpResult");
+    if(!box) return;
+    if(!b){ box.innerHTML = ""; return; }
+    var rows = [compareRow(t("side.econ"), a.x, b.x), compareRow(t("side.state"), a.y, b.y)]
+      .concat(PC.calc.subaxisDelta(a, b).map(function(d){
+        return compareRow(t("sub." + d.axis.id), d.a, d.b);
+      }));
+    box.innerHTML =
+      '<div class="cmp-row cmp-head">' +
+        '<span class="cmp-lab"></span>' +
+        '<span class="cmp-a" style="color:' + esc(a.color) + '">' + esc(L(a, "short")) + '</span>' +
+        '<span class="cmp-b" style="color:' + esc(b.color) + '">' + esc(L(b, "short")) + '</span>' +
+      '</div>' + rows.join("");
+  }
+
+  function compareBlock(p){
+    var others = PC.PARTIES.filter(function(o){ return o.id !== p.id; });
+    return '<div class="sect cmp-sect"><h4>' + esc(t("side.compare")) + '</h4>' +
+      '<p class="hist-note">' + esc(t("side.compare.d")) + '</p>' +
+      '<select id="cmpSelect" aria-label="' + esc(t("side.compare")) + '">' +
+        '<option value="">' + esc(t("side.compare.pick")) + '</option>' +
+        others.map(function(o){
+          return '<option value="' + esc(o.id) + '">' + esc(L(o, "name")) + '</option>';
+        }).join("") +
+      '</select>' +
+      '<div id="cmpResult"></div></div>';
   }
 
   /* Траектория партии словами: те же точки, что рисует слой «Траектории»
@@ -203,6 +242,7 @@
           '<div class="note"><p>' + esc(L(p, "why")) + '</p></div></div>' +
         subBlock(p) +
         neighbourBlock(p) +
+        compareBlock(p) +
         (PC.votes ? PC.votes.partyBlock(p) : "") +
         trailBlock(p) +
       '</div>';
@@ -212,6 +252,13 @@
     body.querySelectorAll(".nb-row").forEach(function(b){
       b.addEventListener("click", function(){ PC.select(b.dataset.id); });
     });
+    var cmpSelect = document.getElementById("cmpSelect");
+    if(cmpSelect){
+      if(PC.dropdown) PC.dropdown.init(body);
+      cmpSelect.addEventListener("change", function(){
+        renderCompare(p, cmpSelect.value ? PC.partyById(cmpSelect.value) : null);
+      });
+    }
 
     /* ширина полос задаётся в следующем кадре, чтобы сработал transition */
     requestAnimationFrame(function(){

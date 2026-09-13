@@ -151,6 +151,7 @@
       pivots: pivots,
       cohesion: cohesionOf(members, c),
       fault: faultOf(members),
+      connector: PC.calc.connectorOf(members),
       metrics: PC.charts.groupMetrics(members, c),
       oppMetrics: PC.charts.groupMetrics(rest, c)
     };
@@ -285,6 +286,7 @@
       metric(t("co.cohesion"), '<div class="v" data-m="coh">—</div>', "cohD") +
       metric(t("co.polar"), '<div class="v" data-m="polar">—</div>', "polarD") +
       metric(t("co.fault"), '<div class="v v-word" data-m="fault">—</div>', "faultD") +
+      metric(t("co.connector"), '<div class="v v-word" data-m="connector">—</div>', "connectorD") +
       metric(t("co.opp"), '<div class="v" data-m="opp">—</div>', "oppD");
 
     host.togs.querySelectorAll(".co-tog").forEach(function(b){
@@ -395,6 +397,16 @@
     }else{
       q("fault").textContent = "—";
       q("faultD").textContent = t("co.faultD.none");
+    }
+
+    /* связующее звено */
+    var conn = res.connector;
+    if(conn){
+      q("connector").textContent = L(conn.p, "short");
+      q("connectorD").textContent = t("co.connectorD", { v:conn.avg.toFixed(1) });
+    }else{
+      q("connector").textContent = "—";
+      q("connectorD").textContent = t("co.connectorD.none");
     }
 
     /* всё, что осталось за бортом */

@@ -741,11 +741,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">3D-пролёт камеры над компасом при первом заходе.</li>
-        <li data-i18n="wel.up.l2">Новая тема «Прованс», а «Боровляны» стали тёмным хвойным лесом.</li>
-        <li data-i18n="wel.up.l3">Объёмные переключатели и новые настройки: скорость анимаций, контраст, подчёркивание ссылок.</li>
-        <li data-i18n="wel.up.l4">Раздел «О проекте» стал короче, а в нём появилось слово автора.</li>
-        <li data-i18n="wel.up.l5">Исправлены ошибки на телефоне, включая перерисовку диаграммы мандатов. И кое-что про число 22.</li>
+        <li data-i18n="wel.up.l1">В карточке партии можно сравнить её с любой другой по всем шести под-осям.</li>
+        <li data-i18n="wel.up.l2">В песочнице коалиций появилось «связующее звено»: участник, чья позиция ближе всего сразу ко всем остальным.</li>
+        <li data-i18n="wel.up.l3">Настройки разложены по шести постоянным разделам вместо разросшегося произвольного списка.</li>
+        <li data-i18n="wel.up.l4">Тема «Прованс» и объёмные переключатели убраны — решение сделать интерфейс спокойнее, а не добавить эффектов.</li>
+        <li data-i18n="wel.up.l5">Расчёты компаса вынесены в отдельный слой и покрыты тестами отдельно от интерфейса.</li>
       </ul>
 
       <div class="wel-actions">
@@ -843,12 +843,16 @@
   </header>
 
   <div class="sheet-body">
+    <!-- Шесть групп в фиксированном порядке (2.3): внешний вид — интерфейс —
+         анимация — читаемость — навигация — общее. Раньше группы росли по
+         мере появления новых настроек («Страница», «Пасхалки») и не складывались
+         в понятный порядок; теперь у каждой настройки одно очевидное место. -->
     <section class="set-group">
-      <h3 data-i18n="set.look">Оформление</h3>
+      <h3 data-i18n="set.look">Внешний вид</h3>
 
-      <!-- Плитки тем строит js/theme.js: список из шести тем живёт там,
+      <!-- Плитки тем строит js/theme.js: список тем живёт там,
            и вторая его копия в разметке разошлась бы при добавлении
-           седьмой. Контейнер обязан существовать заранее — модуль ищет
+           следующей. Контейнер обязан существовать заранее — модуль ищет
            его по id на этапе инициализации. -->
       <div class="set-row set-row--block">
         <span class="set-lab"><b data-i18n="set.theme">Тема</b>
@@ -858,18 +862,8 @@
       </div>
 
       <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.lang">Язык</b>
-          <small data-i18n="set.lang.d">Переключение перезагружает страницу; ответы теста сохраняются</small></span>
-        <div class="seg" id="langSeg" role="radiogroup" aria-label="Язык интерфейса"
-             data-i18n-attr="aria-label:lang.label">
-          <button type="button" role="radio" data-val="ru" aria-checked="true">Русский</button>
-          <button type="button" role="radio" data-val="en" aria-checked="false" tabindex="-1">English</button>
-        </div>
-      </div>
-
-      <div class="set-row">
         <span class="set-lab"><b data-i18n="set.density">Плотность</b>
-          <small data-i18n="set.density.d">Меняются отступы, но не кегль текста: он отдельной настройкой ниже</small></span>
+          <small data-i18n="set.density.d">Меняются отступы, но не кегль текста: он отдельной настройкой в разделе «Читаемость»</small></span>
         <div class="seg" data-set-seg="density" role="radiogroup" aria-label="Плотность"
              data-i18n-attr="aria-label:set.density">
           <button type="button" role="radio" data-val="compact" aria-checked="false" tabindex="-1"
@@ -878,20 +872,6 @@
                   data-i18n="set.density.cozy">Обычно</button>
           <button type="button" role="radio" data-val="airy" aria-checked="false" tabindex="-1"
                   data-i18n="set.density.airy">Просторно</button>
-        </div>
-      </div>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.textsize">Размер текста</b>
-          <small data-i18n="set.textsize.d">Меняется базовый кегль, вся остальная шкала подстраивается сама</small></span>
-        <div class="seg" data-set-seg="textsize" role="radiogroup" aria-label="Размер текста"
-             data-i18n-attr="aria-label:set.textsize">
-          <button type="button" role="radio" data-val="small" aria-checked="false" tabindex="-1"
-                  data-i18n="set.textsize.small">Мельче</button>
-          <button type="button" role="radio" data-val="normal" aria-checked="true"
-                  data-i18n="set.textsize.normal">Обычный</button>
-          <button type="button" role="radio" data-val="large" aria-checked="false" tabindex="-1"
-                  data-i18n="set.textsize.large">Крупнее</button>
         </div>
       </div>
 
@@ -949,22 +929,42 @@
                   data-i18n="set.glasslevel.strong">Плотное</button>
         </div>
       </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.compass">Интерфейс</h3>
 
       <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.numerals">Цифры</b>
-          <small data-i18n="set.numerals.d">Моноширинные не дрожат при пересчёте: все знаки одной ширины</small></span>
-        <div class="seg" data-set-seg="numerals" role="radiogroup" aria-label="Цифры"
-             data-i18n-attr="aria-label:set.numerals">
-          <button type="button" role="radio" data-val="tabular" aria-checked="true"
-                  data-i18n="set.numerals.tabular">Моноширинные</button>
-          <button type="button" role="radio" data-val="proportional" aria-checked="false" tabindex="-1"
-                  data-i18n="set.numerals.proportional">Пропорциональные</button>
-        </div>
+        <span class="set-lab"><b data-i18n="set.labels">Подписи партий</b>
+          <small data-i18n="set.labels.d">Без них поле читается как облако точек — названия в подсказке</small></span>
+        <button type="button" class="sw" data-set-switch="labels" role="switch" aria-checked="true"
+                aria-label="Подписи партий" data-i18n-attr="aria-label:set.labels"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.quads">Подсветка квадрантов</b>
+          <small data-i18n="set.quads.d">Цветная заливка четвертей поля под точками партий</small></span>
+        <button type="button" class="sw" data-set-switch="quads" role="switch" aria-checked="true"
+                aria-label="Подсветка квадрантов" data-i18n-attr="aria-label:set.quads"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.grid">Мелкая сетка</b>
+          <small data-i18n="set.grid.d">Линии через одно деление; крупная сетка и оси остаются всегда</small></span>
+        <button type="button" class="sw" data-set-switch="grid" role="switch" aria-checked="true"
+                aria-label="Мелкая сетка" data-i18n-attr="aria-label:set.grid"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.cross">Перекрестие</b>
+          <small data-i18n="set.cross.d">Пунктир от точки под курсором к обеим осям — читать координату на глаз</small></span>
+        <button type="button" class="sw" data-set-switch="crosshair" role="switch" aria-checked="true"
+                aria-label="Перекрестие" data-i18n-attr="aria-label:set.cross"><i></i></button>
       </div>
     </section>
 
     <section class="set-group">
-      <h3 data-i18n="set.motion">Движение и фон</h3>
+      <h3 data-i18n="set.motion">Анимация</h3>
 
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.anim">Анимации</b>
@@ -1009,59 +1009,32 @@
     </section>
 
     <section class="set-group">
-      <h3 data-i18n="set.compass">Компас</h3>
+      <h3 data-i18n="set.readability">Читаемость</h3>
 
       <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.labels">Подписи партий</b>
-          <small data-i18n="set.labels.d">Без них поле читается как облако точек — названия в подсказке</small></span>
-        <button type="button" class="sw" data-set-switch="labels" role="switch" aria-checked="true"
-                aria-label="Подписи партий" data-i18n-attr="aria-label:set.labels"><i></i></button>
+        <span class="set-lab"><b data-i18n="set.textsize">Размер текста</b>
+          <small data-i18n="set.textsize.d">Меняется базовый кегль, вся остальная шкала подстраивается сама</small></span>
+        <div class="seg" data-set-seg="textsize" role="radiogroup" aria-label="Размер текста"
+             data-i18n-attr="aria-label:set.textsize">
+          <button type="button" role="radio" data-val="small" aria-checked="false" tabindex="-1"
+                  data-i18n="set.textsize.small">Мельче</button>
+          <button type="button" role="radio" data-val="normal" aria-checked="true"
+                  data-i18n="set.textsize.normal">Обычный</button>
+          <button type="button" role="radio" data-val="large" aria-checked="false" tabindex="-1"
+                  data-i18n="set.textsize.large">Крупнее</button>
+        </div>
       </div>
 
       <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.quads">Подсветка квадрантов</b>
-          <small data-i18n="set.quads.d">Цветная заливка четвертей поля под точками партий</small></span>
-        <button type="button" class="sw" data-set-switch="quads" role="switch" aria-checked="true"
-                aria-label="Подсветка квадрантов" data-i18n-attr="aria-label:set.quads"><i></i></button>
-      </div>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.grid">Мелкая сетка</b>
-          <small data-i18n="set.grid.d">Линии через одно деление; крупная сетка и оси остаются всегда</small></span>
-        <button type="button" class="sw" data-set-switch="grid" role="switch" aria-checked="true"
-                aria-label="Мелкая сетка" data-i18n-attr="aria-label:set.grid"><i></i></button>
-      </div>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.cross">Перекрестие</b>
-          <small data-i18n="set.cross.d">Пунктир от точки под курсором к обеим осям — читать координату на глаз</small></span>
-        <button type="button" class="sw" data-set-switch="crosshair" role="switch" aria-checked="true"
-                aria-label="Перекрестие" data-i18n-attr="aria-label:set.cross"><i></i></button>
-      </div>
-    </section>
-
-    <section class="set-group">
-      <h3 data-i18n="set.page">Страница</h3>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.readbar">Полоса прочтения</b>
-          <small data-i18n="set.readbar.d">Тонкая линия под шапкой, показывающая долю прокрученного</small></span>
-        <button type="button" class="sw" data-set-switch="readbar" role="switch" aria-checked="true"
-                aria-label="Полоса прочтения" data-i18n-attr="aria-label:set.readbar"><i></i></button>
-      </div>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.sticky">Липкие вкладки</b>
-          <small data-i18n="set.sticky.d">Полоса разделов остаётся у верхней кромки при прокрутке</small></span>
-        <button type="button" class="sw" data-set-switch="sticky" role="switch" aria-checked="true"
-                aria-label="Липкие вкладки" data-i18n-attr="aria-label:set.sticky"><i></i></button>
-      </div>
-
-      <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.topbtn">Кнопка «наверх»</b>
-          <small data-i18n="set.topbtn.d">Круглая кнопка в углу после семисот пикселей прокрутки</small></span>
-        <button type="button" class="sw" data-set-switch="topbtn" role="switch" aria-checked="true"
-                aria-label="Кнопка «наверх»" data-i18n-attr="aria-label:set.topbtn"><i></i></button>
+        <span class="set-lab"><b data-i18n="set.numerals">Цифры</b>
+          <small data-i18n="set.numerals.d">Моноширинные не дрожат при пересчёте: все знаки одной ширины</small></span>
+        <div class="seg" data-set-seg="numerals" role="radiogroup" aria-label="Цифры"
+             data-i18n-attr="aria-label:set.numerals">
+          <button type="button" role="radio" data-val="tabular" aria-checked="true"
+                  data-i18n="set.numerals.tabular">Моноширинные</button>
+          <button type="button" role="radio" data-val="proportional" aria-checked="false" tabindex="-1"
+                  data-i18n="set.numerals.proportional">Пропорциональные</button>
+        </div>
       </div>
 
       <div class="set-row">
@@ -1101,6 +1074,45 @@
         <button type="button" class="sw" data-set-switch="underline" role="switch" aria-checked="false"
                 aria-label="Подчёркивать ссылки" data-i18n-attr="aria-label:set.underline"><i></i></button>
       </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.nav">Навигация</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.readbar">Полоса прочтения</b>
+          <small data-i18n="set.readbar.d">Тонкая линия под шапкой, показывающая долю прокрученного</small></span>
+        <button type="button" class="sw" data-set-switch="readbar" role="switch" aria-checked="true"
+                aria-label="Полоса прочтения" data-i18n-attr="aria-label:set.readbar"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.sticky">Липкие вкладки</b>
+          <small data-i18n="set.sticky.d">Полоса разделов остаётся у верхней кромки при прокрутке</small></span>
+        <button type="button" class="sw" data-set-switch="sticky" role="switch" aria-checked="true"
+                aria-label="Липкие вкладки" data-i18n-attr="aria-label:set.sticky"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.topbtn">Кнопка «наверх»</b>
+          <small data-i18n="set.topbtn.d">Круглая кнопка в углу после семисот пикселей прокрутки</small></span>
+        <button type="button" class="sw" data-set-switch="topbtn" role="switch" aria-checked="true"
+                aria-label="Кнопка «наверх»" data-i18n-attr="aria-label:set.topbtn"><i></i></button>
+      </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.page">Общее</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.lang">Язык</b>
+          <small data-i18n="set.lang.d">Переключение перезагружает страницу; ответы теста сохраняются</small></span>
+        <div class="seg" id="langSeg" role="radiogroup" aria-label="Язык интерфейса"
+             data-i18n-attr="aria-label:lang.label">
+          <button type="button" role="radio" data-val="ru" aria-checked="true">Русский</button>
+          <button type="button" role="radio" data-val="en" aria-checked="false" tabindex="-1">English</button>
+        </div>
+      </div>
 
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.promo">Блок о Lumen</b>
@@ -1108,10 +1120,6 @@
         <button type="button" class="sw" data-set-switch="promo" role="switch" aria-checked="true"
                 aria-label="Блок о Lumen" data-i18n-attr="aria-label:set.promo"><i></i></button>
       </div>
-    </section>
-
-    <section class="set-group">
-      <h3 data-i18n="set.fun">Пасхалки</h3>
 
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.eggs">Мелкие шутки</b>
@@ -1213,7 +1221,7 @@
              PC.VERSION: подвал читают и без JavaScript. Тест сверяет
              его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.2: 3D-пролёт, тема «Прованс», новые настройки и переключатели">v2.2</span>
+              title="Версия 2.3: расчётный слой, сравнение партий, связующее звено коалиции, настройки по шести разделам">v2.3</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1224,6 +1232,7 @@
 
 <script src="js/data.js" defer></script>
 <script src="js/utils.js" defer></script>
+<script src="js/calc.js" defer></script>
 <script src="js/i18n.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/select.js" defer></script>

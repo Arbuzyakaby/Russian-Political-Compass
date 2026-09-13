@@ -157,11 +157,9 @@
      дальше — 0%. Диагональ поля длиннее MAX_DIST, поэтому у совсем
      противоположных партий совпадение честно упирается в ноль. */
   function ranking(pt){
-    return PC.PARTIES.map(function(p){
-      var dx = p.x - pt.x, dy = p.y - pt.y;
-      var d = Math.sqrt(dx * dx + dy * dy);
-      return { p:p, d:d, match: Math.round(clamp(1 - d / MAX_DIST, 0, 1) * 100) };
-    }).sort(function(a, b){ return a.d - b.d; });
+    return PC.calc.rankParties(pt).map(function(r){
+      return { p:r.p, d:r.d, match: Math.round(clamp(1 - r.d / MAX_DIST, 0, 1) * 100) };
+    });
   }
 
   /* ---------- кодирование результата в ссылку ---------- */

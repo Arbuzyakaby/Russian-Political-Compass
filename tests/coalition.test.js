@@ -189,6 +189,27 @@ test("ось разлома: размах по оси и крайние учас
   assert.ok(Math.abs(f.span - Math.max(spanX, spanY)) < 1e-9);
 });
 
+test("связующее звено: минимум трёх участников, минимальная средняя дистанция", () => {
+  const c = PC.CURRENT_CONVOCATION;
+  const members = inDuma(c);
+
+  assert.equal(PC.coalition.evaluate([], c).connector, null);
+  const two = members.slice(0, 2).map(p => p.id);
+  assert.equal(PC.coalition.evaluate(two, c).connector, null, "у двух участников нет связующего звена");
+
+  const ids = members.map(p => p.id);
+  const res = PC.coalition.evaluate(ids, c);
+  if(members.length >= 3){
+    assert.ok(res.connector, "у трёх и более участников связующее звено обязано найтись");
+    assert.ok(members.some(p => p.id === res.connector.p.id));
+    /* и это ровно тот, у кого PC.calc.connectorOf().avg минимален по прямому счёту */
+    const byBrute = members
+      .map(p => ({ p, avg:PC.calc.avgDistanceToOthers(p, members) }))
+      .sort((a, b) => a.avg - b.avg)[0];
+    assert.equal(res.connector.p.id, byBrute.p.id);
+  }
+});
+
 test("готовые расклады считаются из данных созыва, а не выписаны списком", () => {
   for(const conv of PC.CONVOCATIONS){
     const c = conv.id;

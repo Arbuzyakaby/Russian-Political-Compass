@@ -27,7 +27,7 @@
     light:"light", dark:"dark",
     paper:"light", alaska:"light",
     neon:"dark",   fireplace:"dark",
-    borovlyany:"dark", provence:"light"
+    borovlyany:"dark"
   };
 
   /* Порядок в меню: сначала системный режим, затем две исходные темы,
@@ -41,8 +41,7 @@
     { id:"alaska",    key:"set.theme.alaska",    bg:"#e9eff5", dot:"#0e6e8c" },
     { id:"neon",      key:"set.theme.neon",      bg:"#07060f", dot:"#ff4d9d" },
     { id:"fireplace", key:"set.theme.fireplace", bg:"#16100c", dot:"#ff8a3d" },
-    { id:"borovlyany", key:"set.theme.borovlyany", bg:"#0b1a12", dot:"#6fbf7f" },
-    { id:"provence",  key:"set.theme.provence",  bg:"#f6f0e6", dot:"#6f55a8" }
+    { id:"borovlyany", key:"set.theme.borovlyany", bg:"#0b1a12", dot:"#6fbf7f" }
   ];
 
   /* Цвет строки браузера на мобильных. В разметке стоят два <meta
@@ -55,7 +54,7 @@
     light:"#f1efea", dark:"#08090d",
     paper:"#f7f2e6", alaska:"#e9eff5",
     neon:"#07060f",  fireplace:"#16100c",
-    borovlyany:"#0b1a12", provence:"#f6f0e6"
+    borovlyany:"#0b1a12"
   };
 
   var root = document.documentElement;

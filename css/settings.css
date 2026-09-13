@@ -200,49 +200,13 @@ body.sheet-lock{overflow:hidden;}
 .sw[aria-checked="true"]:active i{transform:translateX(14px);}
 .sw:focus-visible{outline:2px solid var(--tone);outline-offset:3px;}
 
-/* ---------- 2.5D-переключатели (2.2) ----------
-   Тумблер получает глубину: утопленный жёлоб с внутренней тенью и
-   выпуклый ползунок с бликом по центру, а не по кромке. Сегментированные
-   группы в панели стали настоящими переключателями: одна «шайба»
-   скользит под подписями, а не подсвечиваются отдельные кнопки. */
-.sw{
-  background:linear-gradient(180deg,
-    color-mix(in srgb,var(--text) 24%,transparent),
-    color-mix(in srgb,var(--text) 12%,transparent));
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.28),inset 0 -1px 0 rgba(255,255,255,.10),
-             0 1px 0 color-mix(in srgb,#fff 12%,transparent);
-}
-.sw[aria-checked="true"]{
-  background:linear-gradient(180deg,color-mix(in srgb,var(--ok) 78%,#000),var(--ok));
-}
-.sw i{
-  background:radial-gradient(circle at 50% 35%,#fff 0%,#f2f2f2 55%,#d9d9d9 100%);
-  box-shadow:0 3px 6px rgba(0,0,0,.30),0 1px 1px rgba(0,0,0,.20),
-             inset 0 -2px 3px rgba(0,0,0,.10);
-}
-.sw[aria-checked="true"] i{transform:translateX(19px) rotate(180deg);}
-.sw[aria-checked="true"]:active i{transform:translateX(14px) rotate(180deg);}
-
-.sheet .seg{
-  position:relative;display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;
-  padding:3px;gap:0;border-radius:999px;isolation:isolate;
-  background:linear-gradient(180deg,
-    color-mix(in srgb,var(--text) 13%,transparent),
-    color-mix(in srgb,var(--text) 6%,transparent));
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.22),inset 0 -1px 0 rgba(255,255,255,.08);
-}
-.sheet .seg::before{
-  content:"";position:absolute;z-index:-1;top:3px;bottom:3px;left:3px;
-  width:calc((100% - 6px) / var(--n,2));border-radius:999px;
-  transform:translateX(calc(100% * var(--i,0)));
-  background:linear-gradient(180deg,var(--surface-3),color-mix(in srgb,var(--surface-3) 88%,#000));
-  box-shadow:0 3px 7px -2px rgba(0,0,0,.35),0 1px 1px rgba(0,0,0,.12),
-             inset 0 -1px 2px rgba(0,0,0,.08);
-  transition:transform .34s var(--ease-spring);
-}
-.sheet .seg button{border-radius:999px;}
-.sheet .seg button[aria-checked="true"]{background:transparent;box-shadow:none;}
-@media(max-width:560px){ .sheet .seg{display:grid;} }
+/* Объёмный вариант тумблеров и сегментированных групп («2.5D») из 2.2 —
+   утопленный жёлоб, выпуклый ползунок, скользящая «шайба» — снят в 2.3:
+   при разборе раздела «Дизайн» оказалось, что глубина была чисто
+   декоративной, ничего не объясняла и не читалась лучше, а плоского
+   тумблера выше для этого хватает. Решение осознанное, а не пропуск:
+   раздел версии специально требовал зафиксировать его, а не просто
+   унести на будущее. */
 
 /* ---------- новые настройки 2.2 ---------- */
 :root[data-speed="slow"]{ --dur-1:.3s; --dur-2:.5s; --dur-3:1s; --dur-4:1.5s; }

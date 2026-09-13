@@ -1,4 +1,4 @@
-/* Темы оформления. Тем шесть, и знание о них разложено по трём местам:
+/* Темы оформления. Знание о них разложено по трём местам:
    таблица светлот в js/theme-boot.js (он выполняется синхронно в <head>
    и обязан быть самодостаточным), такая же таблица в js/theme.js вместе
    со списком для меню, и блоки токенов в css/tokens.css.
@@ -122,7 +122,7 @@ function contrast(a, b){
   return (x + .05) / (y + .05);
 }
 
-for (const [id, scheme] of [["borovlyany", "dark"], ["provence", "light"]]) test(`тема ${id}: ${scheme}, контрастная`, () => {
+for (const [id, scheme] of [["borovlyany", "dark"]]) test(`тема ${id}: ${scheme}, контрастная`, () => {
   assert.equal(bootScheme[id], scheme);
   const start = tokens.indexOf(`:root[data-theme="${id}"]`);
   const block = tokens.slice(start, tokens.indexOf("}", start));
