@@ -41,16 +41,23 @@
 }
 .sheet-scrim.is-open{opacity:1;}
 
+/* Панель настроек с 2.3.1 — не лист, выезжающий от края экрана, а
+   центрированное окно: рельс с шестью разделами слева, открытая панель
+   справа. Формат другой не ради формата — с шестью разделами вместо
+   пяти сплошная прокрутка стала длиннее, чем помещается на один взгляд,
+   а рельс превращает «где у меня контраст» в один клик вместо скролла. */
 .sheet{
   position:fixed;z-index:calc(var(--z-sheet,80) + 1);
-  top:12px;right:12px;bottom:12px;width:min(410px,calc(100vw - 24px));
+  top:50%;left:50%;
+  width:min(760px,calc(100vw - 32px));
+  max-height:min(660px,calc(100vh - 48px));
   display:flex;flex-direction:column;overflow:hidden;
   border-radius:var(--radius-lg);border:1px solid var(--stroke-2);
   background:var(--glass-bg-2);
-  transform:translateX(calc(100% + 20px));opacity:0;
-  transition:transform .3s var(--ease-out),opacity .22s var(--ease-out);
+  transform:translate(-50%,-50%) scale(.95);opacity:0;
+  transition:transform .26s var(--ease-spring),opacity .2s var(--ease-out);
 }
-.sheet.is-open{transform:none;opacity:1;}
+.sheet.is-open{transform:translate(-50%,-50%) scale(1);opacity:1;}
 /* верхний блик по кромке — тот же приём, что у карточек: без него
    стеклянная панель на тёмном фоне выглядит дырой, а не поверхностью */
 .sheet::before{
@@ -86,14 +93,37 @@ body.sheet-lock{overflow:hidden;}
 .sheet-close:active{transform:scale(.9);}
 .sheet-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-.sheet-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:6px 18px 18px;}
+.sheet-body{flex:1;display:flex;min-height:0;overflow:hidden;}
+
+/* ---------- рельс разделов ---------- */
+.setm-rail{
+  flex:none;width:172px;display:flex;flex-direction:column;gap:2px;
+  padding:10px;border-right:1px solid var(--stroke);overflow-y:auto;
+}
+.setm-tab{
+  text-align:left;font:inherit;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
+  color:var(--muted);cursor:pointer;padding:9px 12px;border-radius:var(--radius-sm);
+  border:1px solid transparent;background:transparent;
+  transition:background var(--dur-1) var(--ease-out),color var(--dur-1) var(--ease-out),
+             border-color var(--dur-1) var(--ease-out);
+}
+.setm-tab:hover{background:var(--surface-2);color:var(--text);}
+.setm-tab[aria-selected="true"]{
+  background:color-mix(in srgb,var(--tone) 12%,transparent);
+  color:var(--tone);border-color:var(--tone-line,var(--accent-line));
+}
+.setm-tab:focus-visible{outline:2px solid var(--tone);outline-offset:1px;}
+
+.setm-panels{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 20px 18px;}
 
 /* ---------- группы и строки ---------- */
-.set-group{padding:16px 0 4px;border-bottom:1px solid var(--stroke);}
-.set-group:last-of-type{border-bottom:0;}
+/* Одна открытая панель занимает всю правую половину окна — разделитель
+   под заголовком, нужный в 2.3 для сплошной прокрутки шести секций
+   подряд, здесь только повторял бы рамку самого окна. */
+.set-group{padding:0;}
 .set-group h3{
   font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;
-  color:var(--tone);margin-bottom:10px;
+  color:var(--tone);margin-bottom:14px;
 }
 .set-row{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
@@ -223,16 +253,28 @@ body.sheet-lock{overflow:hidden;}
 
 /* ---------- подвал панели ---------- */
 .set-foot{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  margin-top:16px;padding-top:14px;border-top:1px solid var(--stroke);
+  flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:14px 18px 16px;border-top:1px solid var(--stroke);
 }
 .set-foot p{font-size:11px;line-height:1.5;color:var(--muted-2);max-width:30ch;}
 
-@media(max-width:560px){
-  /* лист снизу: правый верхний угол большого телефона недосягаем */
-  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;max-height:86vh;
+@media(max-width:680px){
+  /* Лист снизу вместо окна по центру: правый верхний угол большого
+     телефона недосягаем, а окно шире экрана только сминалось бы. Рельс
+     разделов ложится горизонтальной лентой над панелью — той же ролью,
+     что и слева на широком экране, просто в один ряд вместо столбца. */
+  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;max-height:88vh;
     border-radius:var(--radius-lg) var(--radius-lg) 0 0;border-bottom:0;
-    transform:translateY(calc(100% + 20px));}
+    transform:translateY(calc(100% + 20px)) scale(1);}
+  .sheet.is-open{transform:translateY(0) scale(1);}
+  .sheet-body{flex-direction:column;}
+  .setm-rail{
+    width:auto;flex-direction:row;gap:6px;overflow-x:auto;overflow-y:hidden;
+    border-right:0;border-bottom:1px solid var(--stroke);
+    -webkit-overflow-scrolling:touch;
+  }
+  .setm-tab{flex:none;white-space:nowrap;}
+  .setm-panels{padding:14px 18px 18px;}
   .set-row{flex-direction:column;align-items:flex-start;gap:9px;}
   .seg{width:100%;}
   .seg button{flex:1;text-align:center;}

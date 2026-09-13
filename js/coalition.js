@@ -26,7 +26,7 @@
        государства, ведёт себя иначе, чем наоборот.
 
    Формулы не дублируются: центр тяжести, индекс Лааксо — Таагеперы и
-   поляризация берутся из PC.charts.groupMetrics, то есть ровно те же,
+   поляризация берутся из PC.calc.groupMetrics, то есть ровно те же,
    что в плитках палаты. При всех включённых фракциях центр и разброс
    коалиции обязаны совпасть с плитками — это закреплено тестом.
 
@@ -152,8 +152,8 @@
       cohesion: cohesionOf(members, c),
       fault: faultOf(members),
       connector: PC.calc.connectorOf(members),
-      metrics: PC.charts.groupMetrics(members, c),
-      oppMetrics: PC.charts.groupMetrics(rest, c)
+      metrics: PC.calc.groupMetrics(members, c),
+      oppMetrics: PC.calc.groupMetrics(rest, c)
     };
   }
 
@@ -307,7 +307,7 @@
   /* ---------- пересчёт ---------- */
   function update(){
     var res = evaluate(currentIds(), conv);
-    var house = PC.charts.houseMetrics(conv);
+    var house = PC.calc.houseMetrics(conv);
     var m = res.metrics, empty = !res.members.length;
     var pivotIds = res.pivots.map(function(p){ return p.id; });
 

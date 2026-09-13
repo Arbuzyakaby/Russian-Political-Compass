@@ -11,7 +11,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { loadApp, ROOT } = require("./harness.js");
 
-const FILES = ["js/data.js", "js/utils.js", "js/i18n.js", "js/welcome.js"];
+const FILES = ["js/data.js", "js/utils.js",
+  "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js", "js/i18n-about.js", "js/i18n-misc.js", "js/i18n.js",
+  "js/welcome.js"];
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const src = fs.readFileSync(path.join(ROOT, "js", "welcome.js"), "utf8");
 

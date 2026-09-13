@@ -40,7 +40,7 @@ const CSS_THEMES = new Set(
 );
 
 test("таблица светлот одинакова в theme-boot.js и theme.js", () => {
-  assert.ok(Object.keys(bootScheme).length >= 7, "тем подозрительно мало");
+  assert.ok(Object.keys(bootScheme).length >= 6, "тем подозрительно мало");
   assert.deepEqual({ ...bootScheme }, { ...themeScheme },
     "таблицы разошлись: на загрузке и при переключении тема получит разную светлоту");
 });
@@ -108,10 +108,9 @@ test("список тем в меню совпадает с таблицей с�
     "в меню показывается не тот набор тем, который умеет применять модуль");
 });
 
-/* «Боровляны» — светлая тема 2.1.1. Проверяется то, из-за чего она
-   сломалась бы молча: светлота (от неё зависит расчёт цвета марок),
-   достаточный контраст текста и акцента на подложке и то, что капли
-   на фоне выключаются вместе с зерном. */
+/* Контраст текста и акцента на подложке — для каждой темы, а не для
+   одной наугад выбранной: до 2.3.1 проверялась только «Боровляны»,
+   и ни одна другая тема не была от этой проверки застрахована. */
 function luminance(hex){
   const c = hex.replace("#", "").match(/../g).map(h => parseInt(h, 16) / 255)
     .map(v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4));
@@ -122,17 +121,13 @@ function contrast(a, b){
   return (x + .05) / (y + .05);
 }
 
-for (const [id, scheme] of [["borovlyany", "dark"]]) test(`тема ${id}: ${scheme}, контрастная`, () => {
-  assert.equal(bootScheme[id], scheme);
-  const start = tokens.indexOf(`:root[data-theme="${id}"]`);
-  const block = tokens.slice(start, tokens.indexOf("}", start));
+for (const id of Object.keys(themeScheme)) test(`тема ${id}: контраст текста и акцента на подложке`, () => {
+  const block = id === "dark" ? tokens.slice(0, tokens.indexOf(":root["))
+    : tokens.slice(tokens.indexOf(`:root[data-theme="${id}"]`), tokens.indexOf("}", tokens.indexOf(`:root[data-theme="${id}"]`)));
   const token = name => new RegExp(name + ":(#[0-9a-f]{6})", "i").exec(block)[1];
-  assert.ok(contrast(token("--text"), token("--bg")) >= 7, "основной текст не дотягивает до AAA");
-  assert.ok(contrast(token("--accent"), token("--bg")) >= 4.5, "акцент не читается на подложке");
-  assert.ok(contrast(token("--muted"), token("--bg")) >= 4.5, "вторичный текст не читается на подложке");
-
-  const base = fs.readFileSync(path.join(ROOT, "css", "base.css"), "utf8");
-  assert.match(base, /:root\[data-theme="borovlyany"\]\[data-grain="off"\] body::before\{display:none;\}/);
+  assert.ok(contrast(token("--text"), token("--bg")) >= 7, `${id}: основной текст не дотягивает до AAA`);
+  assert.ok(contrast(token("--accent"), token("--bg")) >= 4.5, `${id}: акцент не читается на подложке`);
+  assert.ok(contrast(token("--muted"), token("--bg")) >= 4.5, `${id}: вторичный текст не читается на подложке`);
 });
 
 /* Меню тем перекрашивается в apply(), а не в обработчике клика: тему

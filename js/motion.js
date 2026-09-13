@@ -164,6 +164,56 @@
     });
   }
 
+  /* ---------- переворот блока при обновлении содержимого ---------- */
+  /* Настройка «Анимации» выключает переходы глобальным правилом в
+     css/settings.css (:root[data-motion="off"] * — transition:none), но
+     JS об этом не знает и без явной проверки всё равно ждал бы половину
+     оборота, прежде чем подменить содержимое, — пауза без видимого
+     перехода выглядела бы просто как заминка. */
+  function motionOff(){
+    return document.documentElement.dataset.motion === "off" || reduced();
+  }
+  /* Длительность половины переворота — из --dur-3 самого узла: так она
+     наследует и тему по умолчанию, и настройку «Скорость анимаций»
+     (data-speed переопределяет --dur-3 на <html>), не зная о них ничего. */
+  function flipDuration(el){
+    var raw = getComputedStyle(el).getPropertyValue("--dur-3");
+    var n = parseFloat(raw);
+    if(!isFinite(n)) return 550;
+    return raw.indexOf("ms") > -1 ? n : n * 1000;
+  }
+  /* Переворачивает el «как карту» и в незримой середине (поворот на 90°,
+     нулевая непрозрачность) вызывает swap(), которая обязана заменить
+     содержимое синхронно. Вторая половина оборота идёт с противоположной
+     стороны (-90° -> 0°), а не назад тем же путём, — иначе вращение
+     выглядело бы отскоком, а не одним непрерывным переворотом. */
+  function flip(el, swap){
+    if(!el || !window.requestAnimationFrame || motionOff()){ swap(); return; }
+    var half = flipDuration(el) / 2;
+    el.classList.add("flip-out");
+    setTimeout(function(){
+      swap();
+      el.classList.remove("flip-out");
+      el.classList.add("flip-reset");
+      /* Снять flip-reset обязаны оба пути: rAF — в обычном фокусированном
+         вкладке, запасной таймер — если вкладка в фоне и кадры придержаны
+         дольше половины оборота. Без запасного пути свёрнутая в фон
+         вкладка рисковала бы вернуться с панелью, навсегда повёрнутой
+         ребром: React на смену видимости здесь нет, а второй rAF мог не
+         дождаться своей очереди сколь угодно долго. */
+      var done = false;
+      function settle(){
+        if(done) return;
+        done = true;
+        el.classList.remove("flip-reset");
+      }
+      requestAnimationFrame(function(){
+        requestAnimationFrame(settle);
+      });
+      setTimeout(settle, half + 120);
+    }, half);
+  }
+
   function init(){
     document.documentElement.style.setProperty("--reveal-step", STEP + "ms");
 
@@ -187,5 +237,5 @@
     scan();
   }
 
-  PC.motion = { init:init, scan:scan, showNow:showNow, reduced:reduced, whenRevealed:whenRevealed };
+  PC.motion = { init:init, scan:scan, showNow:showNow, reduced:reduced, whenRevealed:whenRevealed, flip:flip };
 })(window.PC = window.PC || {});

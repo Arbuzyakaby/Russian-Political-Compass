@@ -70,11 +70,75 @@
     return { p:scored[0].p, avg:scored[0].avg };
   }
 
+  /* ---------- сводки по палате и произвольным группам фракций ----------
+     До 2.3.1 жили в js/charts.js, хотя ни разу не трогали DOM: график
+     их только вызывал, чтобы нарисовать число. Здесь ими пользуются
+     и графики палаты, и песочница коалиций (js/coalition.js), и им
+     обеим нужна ровно одна и та же арифметика, а не две похожие. */
+  function seats(p, c){ return PC.seatsAt(p, c); }
+
+  /* Фракции созыва — партии, у которых в нём есть мандаты. */
+  function inDuma(conv){
+    return PC.PARTIES.filter(function(p){ return seats(p, conv) > 0; });
+  }
+  /* Партии, существовавшие в созыве — с мандатами или без них. */
+  function existing(conv){
+    return PC.PARTIES.filter(function(p){ return seats(p, conv) !== null; });
+  }
+
+  /* Три числа, которых на компасе не видно, потому что компас показывает
+     партии, а не палату: насколько власть в ней раздроблена (эффективное
+     число фракций, индекс Лааксо — Таагеперы), насколько далеко фракции
+     разошлись друг от друга (поляризация — среднее расстояние фракции
+     до центра тяжести, взвешенное по мандатам) и где сам центр тяжести.
+     denom — знаменатель долей в индексе Лааксо — Таагеперы: для палаты
+     это 450 мест (депутаты вне фракций тоже «размывают» власть), для
+     коалиции — её собственные мандаты, иначе одна «Единая Россия»
+     получала бы почти две эффективные фракции вместо одной. */
+  function groupMetrics(list, c, denom){
+    var duma = list.filter(function(p){ return seats(p, c) > 0; });
+    var total = duma.reduce(function(s, p){ return s + seats(p, c); }, 0);
+    if(!total) return { total:0, wx:0, wy:0, enp:0, polar:0, topShare:0 };
+    denom = denom || total;
+
+    var wx = 0, wy = 0, sumSq = 0;
+    duma.forEach(function(p){
+      var s = seats(p, c), share = s / denom;
+      wx += p.x * s; wy += p.y * s;
+      sumSq += share * share;
+    });
+    wx /= total; wy /= total;
+
+    var polar = 0;
+    duma.forEach(function(p){
+      var s = seats(p, c);
+      var dx = p.x - wx, dy = p.y - wy;
+      polar += Math.sqrt(dx * dx + dy * dy) * s;
+    });
+    polar /= total;
+
+    var top = duma.slice().sort(function(a, b){ return seats(b, c) - seats(a, c); })[0];
+    return {
+      total: total, wx: wx, wy: wy,
+      enp: sumSq ? 1 / sumSq : 0,
+      polar: polar,
+      topShare: top ? seats(top, c) / PC.TOTAL_SEATS * 100 : 0
+    };
+  }
+  /* Те же три числа для всей палаты созыва разом. */
+  function houseMetrics(c){
+    return groupMetrics(inDuma(c), c, PC.TOTAL_SEATS);
+  }
+
   PC.calc = {
     distance: distance,
     rankParties: rankParties,
     subaxisDelta: subaxisDelta,
     avgDistanceToOthers: avgDistanceToOthers,
-    connectorOf: connectorOf
+    connectorOf: connectorOf,
+    inDuma: inDuma,
+    existing: existing,
+    groupMetrics: groupMetrics,
+    houseMetrics: houseMetrics
   };
 })(window.PC = window.PC || {});

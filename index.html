@@ -283,11 +283,17 @@
       </section>
 
       <aside class="card side" aria-label="Список партий">
-        <div class="side-head">
-          <h2 id="sideTitle" data-i18n="side.title">Партии</h2>
-          <span class="count" id="count"></span>
+        <!-- side-flip — сам переворачивающийся блок (2.3.1): список и
+             карточка партии меняются местами переворотом всей панели,
+             как игральной карты, а не мгновенной подменой. Логика — в
+             PC.motion.flip, вызывается из js/app.js. -->
+        <div class="side-flip" id="sideFlip">
+          <div class="side-head">
+            <h2 id="sideTitle" data-i18n="side.title">Партии</h2>
+            <span class="count" id="count"></span>
+          </div>
+          <div class="scroll" id="sideBody"></div>
         </div>
-        <div class="scroll" id="sideBody"></div>
       </aside>
     </div>
 
@@ -741,11 +747,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">В карточке партии можно сравнить её с любой другой по всем шести под-осям.</li>
-        <li data-i18n="wel.up.l2">В песочнице коалиций появилось «связующее звено»: участник, чья позиция ближе всего сразу ко всем остальным.</li>
-        <li data-i18n="wel.up.l3">Настройки разложены по шести постоянным разделам вместо разросшегося произвольного списка.</li>
-        <li data-i18n="wel.up.l4">Тема «Прованс» и объёмные переключатели убраны — решение сделать интерфейс спокойнее, а не добавить эффектов.</li>
-        <li data-i18n="wel.up.l5">Расчёты компаса вынесены в отдельный слой и покрыты тестами отдельно от интерфейса.</li>
+        <li data-i18n="wel.up.l1">Список ⇄ карточка партии и карточка ⇄ другая карточка теперь переворачиваются, как игральная карта.</li>
+        <li data-i18n="wel.up.l2">Настройки — окно по центру с рельсом из шести разделов вместо одной длинной прокрутки.</li>
+        <li data-i18n="wel.up.l3">Тема «Боровляны» убрана: тем шесть вместо семи.</li>
+        <li data-i18n="wel.up.l4">Проверка контраста в настройках теперь проходит по каждой теме, а не по одной — заодно нашли и поправили едва заметный огрех в «Аляске».</li>
+        <li data-i18n="wel.up.l5">Код разложен по большему числу файлов, каждый — на своём месте: расчёт теста и коалиций, данные партий и голосований, словарь по разделам.</li>
       </ul>
 
       <div class="wel-actions">
@@ -843,11 +849,35 @@
   </header>
 
   <div class="sheet-body">
-    <!-- Шесть групп в фиксированном порядке (2.3): внешний вид — интерфейс —
-         анимация — читаемость — навигация — общее. Раньше группы росли по
-         мере появления новых настроек («Страница», «Пасхалки») и не складывались
-         в понятный порядок; теперь у каждой настройки одно очевидное место. -->
-    <section class="set-group">
+    <!-- Шесть разделов настроек (2.3.1): не один длинный список подряд,
+         а рельс слева и одна открытая панель справа — на телефоне рельс
+         ложится сверху горизонтальной лентой. Раздел выбирается кликом
+         или стрелками (полноценный ARIA-tablist), выбор виден сразу по
+         подсвеченной кнопке слева, а не угадывается прокруткой. -->
+    <nav class="setm-rail" id="setRail" role="tablist" aria-label="Разделы настроек"
+         data-i18n-attr="aria-label:set.railLabel">
+      <button type="button" class="setm-tab" role="tab" data-panel="look"
+              id="setTab-look" aria-controls="setPanel-look" aria-selected="true">
+        <span data-i18n="set.look">Внешний вид</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="interface"
+              id="setTab-interface" aria-controls="setPanel-interface" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.compass">Интерфейс</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="motion"
+              id="setTab-motion" aria-controls="setPanel-motion" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.motion">Анимация</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="readability"
+              id="setTab-readability" aria-controls="setPanel-readability" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.readability">Читаемость</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="nav"
+              id="setTab-nav" aria-controls="setPanel-nav" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.nav">Навигация</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="general"
+              id="setTab-general" aria-controls="setPanel-general" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.page">Общее</span></button>
+    </nav>
+
+    <div class="setm-panels" id="setPanels">
+    <section class="set-group" data-panel="look" id="setPanel-look" role="tabpanel" aria-labelledby="setTab-look">
       <h3 data-i18n="set.look">Внешний вид</h3>
 
       <!-- Плитки тем строит js/theme.js: список тем живёт там,
@@ -931,7 +961,7 @@
       </div>
     </section>
 
-    <section class="set-group">
+    <section class="set-group" data-panel="interface" id="setPanel-interface" role="tabpanel" aria-labelledby="setTab-interface" hidden>
       <h3 data-i18n="set.compass">Интерфейс</h3>
 
       <div class="set-row">
@@ -963,7 +993,7 @@
       </div>
     </section>
 
-    <section class="set-group">
+    <section class="set-group" data-panel="motion" id="setPanel-motion" role="tabpanel" aria-labelledby="setTab-motion" hidden>
       <h3 data-i18n="set.motion">Анимация</h3>
 
       <div class="set-row">
@@ -1008,7 +1038,7 @@
       </div>
     </section>
 
-    <section class="set-group">
+    <section class="set-group" data-panel="readability" id="setPanel-readability" role="tabpanel" aria-labelledby="setTab-readability" hidden>
       <h3 data-i18n="set.readability">Читаемость</h3>
 
       <div class="set-row">
@@ -1076,7 +1106,7 @@
       </div>
     </section>
 
-    <section class="set-group">
+    <section class="set-group" data-panel="nav" id="setPanel-nav" role="tabpanel" aria-labelledby="setTab-nav" hidden>
       <h3 data-i18n="set.nav">Навигация</h3>
 
       <div class="set-row">
@@ -1101,7 +1131,7 @@
       </div>
     </section>
 
-    <section class="set-group">
+    <section class="set-group" data-panel="general" id="setPanel-general" role="tabpanel" aria-labelledby="setTab-general" hidden>
       <h3 data-i18n="set.page">Общее</h3>
 
       <div class="set-row">
@@ -1134,8 +1164,10 @@
         <button type="button" class="btn small" id="setWelcome" data-i18n="set.welcome.show">Показать снова</button>
       </div>
     </section>
+    </div>
+  </div>
 
-    <footer class="set-foot">
+  <footer class="set-foot">
       <p data-i18n="set.note">Настройки хранятся только в вашем браузере и никуда не отправляются.</p>
       <button type="button" class="btn small" id="setReset" data-i18n="set.reset">Сбросить настройки</button>
     </footer>
@@ -1221,7 +1253,7 @@
              PC.VERSION: подвал читают и без JavaScript. Тест сверяет
              его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.3: расчётный слой, сравнение партий, связующее звено коалиции, настройки по шести разделам">v2.3</span>
+              title="Версия 2.3.1: переворот карточек, настройки окном с рельсом разделов, шесть тем, код по файлам">v2.3.1</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1231,8 +1263,15 @@
 </footer>
 
 <script src="js/data.js" defer></script>
+<script src="js/data-parties.js" defer></script>
+<script src="js/data-votes.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/calc.js" defer></script>
+<script src="js/i18n-shell.js" defer></script>
+<script src="js/i18n-compass.js" defer></script>
+<script src="js/i18n-quiz.js" defer></script>
+<script src="js/i18n-about.js" defer></script>
+<script src="js/i18n-misc.js" defer></script>
 <script src="js/i18n.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/select.js" defer></script>
@@ -1248,6 +1287,7 @@
 <script src="js/votes.js" defer></script>
 <script src="js/sidebar.js" defer></script>
 <script src="js/quiz-data.js" defer></script>
+<script src="js/quiz-calc.js" defer></script>
 <script src="js/quiz.js" defer></script>
 <script src="js/share.js" defer></script>
 <script src="js/export.js" defer></script>

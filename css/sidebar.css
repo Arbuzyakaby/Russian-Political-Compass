@@ -1,11 +1,31 @@
 /* ============ БОКОВАЯ ПАНЕЛЬ: список партий и карточка ============ */
-.side{position:sticky;top:26px;max-height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden;}
+.side{position:sticky;top:26px;max-height:calc(100vh - 52px);display:flex;flex-direction:column;
+  overflow:hidden;perspective:1400px;}
 .side-head{padding:16px 18px;border-bottom:1px solid var(--stroke);display:flex;align-items:center;gap:10px;flex:none;}
 .side-head h2{font-size:13px;font-weight:600;color:var(--muted);}
 .count{margin-left:auto;font-size:11px;color:var(--muted-2);background:var(--surface-2);padding:3px 9px;border-radius:999px;border:1px solid var(--stroke);}
 .scroll{overflow-y:auto;flex:1;scrollbar-width:thin;}
 .scroll::-webkit-scrollbar{width:7px;}
 .scroll::-webkit-scrollbar-thumb{background:var(--stroke-2);border-radius:99px;}
+
+/* ---------- переворот панели при обновлении (2.3.1) ----------
+   Список ⇄ карточка партии, карточка одной партии ⇄ карточка другой:
+   до 2.3.1 содержимое .side-flip просто подменялось. Теперь смена читается
+   как переворот игральной карты — .side задаёт перспективу, сам поворот
+   и подмену в его незримой середине делает PC.motion.flip (js/motion.js),
+   вызываемый из js/app.js. Длительность берётся из --dur-3 самого узла,
+   поэтому подчиняется настройке «Скорость анимаций»; при отключённых
+   анимациях и prefers-reduced-motion JS переворот не запускает вовсе,
+   и эти правила остаются мёртвым кодом на бумаге, а не в браузере. */
+.side-flip{
+  display:flex;flex-direction:column;flex:1;min-height:0;
+  transform:rotateY(0deg);opacity:1;
+  backface-visibility:hidden;
+  transition:transform calc(var(--dur-3) / 2) var(--ease-in-out),
+             opacity calc(var(--dur-3) / 2) var(--ease-in-out);
+}
+.side-flip.flip-out{transform:rotateY(90deg);opacity:0;}
+.side-flip.flip-reset{transition:none;transform:rotateY(-90deg);opacity:0;}
 
 .plist{padding:8px;}
 .pitem{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:12px;cursor:pointer;text-align:left;

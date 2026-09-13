@@ -61,21 +61,39 @@
 
   /* Перерисовывает панель, но только если её содержимое действительно
      изменилось — иначе на каждое нажатие клавиши в поиске заново
-     проигрывались бы анимации карточки. */
+     проигрывались бы анимации карточки.
+
+     Смена «личности» показанного — список стал карточкой, одна карточка
+     стала другой, карточка вернулась в список — переворачивает панель
+     целиком (PC.motion.flip, 2.3.1): старое содержимое уходит ребром,
+     новое разворачивается на его месте. Перерисовка списка по одному и
+     тому же поисковому запросу — не смена личности, и такая не
+     переворачивается, иначе каждое нажатие клавиши крутило бы панель. */
   function renderSide(force){
-    if(state.active){
-      if(force || rendered !== state.active){
+    var nextKey = state.active || "list";
+    var identityChanged = rendered !== null && rendered !== nextKey;
+
+    function paint(){
+      if(state.active){
         /* Переход между карточками двух РАЗНЫХ партий (например, при
            просмотре траекторий одной за другой) — это обновление данных,
            а не первое открытие карточки: полный стартовый разъезд полей
            анимацией здесь неуместен, он выглядит как перезагрузка панели. */
         var freshOpen = !rendered || rendered === "list";
         PC.sidebar.renderDetail(PC.partyById(state.active), freshOpen);
-        rendered = state.active;
+      }else{
+        PC.sidebar.renderList(visible(), state.active);
       }
+      rendered = nextKey;
+    }
+
+    if(state.active){
+      if(!force && rendered === nextKey) return;
+    }
+    if(identityChanged && PC.motion){
+      PC.motion.flip(document.getElementById("sideFlip"), paint);
     }else{
-      PC.sidebar.renderList(visible(), state.active);
-      rendered = "list";
+      paint();
     }
   }
 

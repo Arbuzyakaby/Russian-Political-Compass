@@ -20,7 +20,7 @@ test("все фракции созыва — это вся палата: мет�
   for(const conv of PC.CONVOCATIONS){
     const ids = inDuma(conv.id).map(p => p.id);
     const res = PC.coalition.evaluate(ids, conv.id);
-    const house = PC.charts.houseMetrics(conv.id);
+    const house = PC.calc.houseMetrics(conv.id);
     const sum = inDuma(conv.id).reduce((s, p) => s + PC.seatsAt(p, conv.id), 0);
     assert.equal(res.seats, sum, `${conv.id}: мандаты коалиции не равны сумме фракций`);
     assert.ok(Math.abs(res.metrics.wx - house.wx) < 1e-9, `${conv.id}: центр по экономике`);

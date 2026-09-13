@@ -225,6 +225,9 @@ test("переключение языка меняет и разметку, и �
   /* Переключатель языка живёт в меню настроек: с 1.6 в шапке остаётся
      одна кнопка, открывающая панель. */
   await page.locator("#settingsBtn").click();
+  /* Язык — в разделе «Общее»: с 2.3.1 открыта только та панель, чью
+     кнопку выбрали на рельсе слева, остальные пять скрыты. */
+  await page.locator('.setm-tab[data-panel="general"]').click();
   await page.locator('#langSeg [data-val="en"]').click();
   await page.waitForFunction(() => document.documentElement.lang === "en");
   await compassReady(page);
@@ -239,6 +242,7 @@ test("переключение языка меняет и разметку, и �
   /* панель закрылась вместе с перезагрузкой — открываем заново и
      убеждаемся, что переключатель показывает выбранный язык */
   await page.locator("#settingsBtn").click();
+  await page.locator('.setm-tab[data-panel="general"]').click();
   await expect(page.locator('#langSeg [data-val="en"]')).toHaveAttribute("aria-checked", "true");
 });
 
@@ -282,8 +286,10 @@ test("меню настроек: открывается, переключает 
   await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
 
   /* Выключение слоя не перерисовывает поле: точки обязаны остаться
-     на месте, исчезают только подписи. */
+     на месте, исчезают только подписи. Сама настройка — в разделе
+     «Интерфейс», не в открытом по умолчанию «Внешнем виде». */
   const before = await page.locator("#svg .node").count();
+  await page.locator('.setm-tab[data-panel="interface"]').click();
   await page.locator('[data-set-switch="labels"]').click();
   await expect(page.locator("html")).toHaveAttribute("data-labels", "off");
   expect(await page.locator("#svg .node").count()).toBe(before);
@@ -350,9 +356,9 @@ test("карточка партии открывается со сводкой �
    подложка действительно сменилась, что светлота выставлена отдельным
    атрибутом (на неё смотрит расчёт цвета марок на графиках), что компас
    продолжает рисоваться и что выбор переживает перезагрузку. */
-test("семь тем: подложка меняется, светлота выставляется, выбор запоминается", async ({ page }) => {
+test("шесть тем: подложка меняется, светлота выставляется, выбор запоминается", async ({ page }) => {
   const themes = await page.evaluate(() => Object.keys(window.PC.theme.SCHEME));
-  expect(themes.length).toBe(7);
+  expect(themes.length).toBe(6);
 
   const backgrounds = new Set();
   for(const name of themes){
@@ -369,7 +375,7 @@ test("семь тем: подложка меняется, светлота вы�
 
     expect(await page.locator("#svg .node").count()).toBe(PARTIES);
   }
-  /* у всех семи подложка своя — совпадение означало бы, что блок
+  /* у всех шести подложка своя — совпадение означало бы, что блок
      токенов какой-то темы не подхватился и она показывается чужой */
   expect(backgrounds.size).toBe(themes.length);
 
@@ -417,12 +423,17 @@ test("размер текста и скругление меняют вычис�
   const base = await probe();
   await page.locator("#settingsBtn").click();
 
+  /* Размер текста — в «Читаемости», скругление — в открытом по
+     умолчанию «Внешнем виде»: переключаем раздел только для первого. */
+  await page.locator('.setm-tab[data-panel="readability"]').click();
   await page.locator('[data-set-seg="textsize"] [data-val="large"]').click();
+  await page.locator('.setm-tab[data-panel="look"]').click();
   await page.locator('[data-set-seg="corners"] [data-val="sharp"]').click();
   const changed = await probe();
   expect(changed.font).toBeGreaterThan(base.font);
   expect(changed.radius).toBeLessThan(base.radius);
 
+  await page.locator('.setm-tab[data-panel="readability"]').click();
   await page.locator('[data-set-seg="textsize"] [data-val="small"]').click();
   expect((await probe()).font).toBeLessThan(base.font);
 });
@@ -559,9 +570,9 @@ test("приветствие: шаг языка на том же языке не
 
 test("сброс настроек перекрашивает меню тем", async ({ page }) => {
   await page.locator("#settingsBtn").click();
-  await page.locator('.theme-chip[data-val="borovlyany"]').click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "borovlyany");
+  await page.locator('.theme-chip[data-val="fireplace"]').click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "fireplace");
   await page.locator("#setReset").click();
   await expect(page.locator('.theme-chip[data-val="system"]')).toHaveAttribute("aria-checked", "true");
-  await expect(page.locator('.theme-chip[data-val="borovlyany"]')).toHaveAttribute("aria-checked", "false");
+  await expect(page.locator('.theme-chip[data-val="fireplace"]')).toHaveAttribute("aria-checked", "false");
 });

@@ -28,7 +28,17 @@
    описано правилами в css/settings.css.
 
    Тема и язык держат свои ключи (pc-theme, pc-lang) — они были до этой
-   панели и переживут её. ============ */
+   панели и переживут её.
+
+   С 2.3.1 панель — не лист, выезжающий от края экрана, а окно по центру
+   с рельсом из шести разделов слева (сверху на телефоне) и одной открытой
+   панелью справа: настроек стало достаточно, что сплошная прокрутка
+   шести секций подряд перестала быть самым быстрым способом найти
+   нужную. Рельс — обычный ARIA-tablist (initPanels ниже), он не знает
+   о самих настройках ничего: какая панель открыта, решает только атрибут
+   data-panel на кнопке и на секции, а какие переключатели внутри панели
+   что делают — по-прежнему целиком в разметке index.html и в data-* на
+   <html>, как было до 2.3.1. ============ */
 (function(PC){
   "use strict";
   var KEY = "pc-settings";
@@ -247,6 +257,43 @@
     if(PC.ui) PC.ui.toast(PC.t("set.resetDone"));
   }
 
+  /* ---------- рельс разделов (2.3.1) ----------
+     Полноценный ARIA-tablist: клик или стрелки переключают панель,
+     кочующий tabindex держит в обычном порядке Tab только активную
+     кнопку рельса — так же, как в сегментированных переключателях
+     ниже, только по одной панели вместо одного значения. */
+  var rail, panelTabs, panels;
+  function selectPanel(id){
+    if(!panels || !panels.length) return;
+    panels.forEach(function(p){ p.hidden = p.dataset.panel !== id; });
+    panelTabs.forEach(function(b){
+      var on = b.dataset.panel === id;
+      b.setAttribute("aria-selected", String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+  }
+  function initPanels(){
+    rail = document.getElementById("setRail");
+    if(!rail) return;
+    panelTabs = Array.prototype.slice.call(rail.querySelectorAll(".setm-tab"));
+    panels = Array.prototype.slice.call(sheet.querySelectorAll(".set-group[data-panel]"));
+    panelTabs.forEach(function(b, i){
+      b.addEventListener("click", function(){ selectPanel(b.dataset.panel); });
+      b.addEventListener("keydown", function(e){
+        var horizontal = getComputedStyle(rail).flexDirection === "row";
+        var step = horizontal
+          ? (e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0)
+          : (e.key === "ArrowDown"  ? 1 : e.key === "ArrowUp"   ? -1 : 0);
+        if(!step) return;
+        e.preventDefault();
+        var next = panelTabs[(i + step + panelTabs.length) % panelTabs.length];
+        selectPanel(next.dataset.panel);
+        next.focus({ preventScroll:true });
+      });
+    });
+    if(panelTabs.length) selectPanel(panelTabs[0].dataset.panel);
+  }
+
   /* ---------- сборка ---------- */
   function init(){
     load();
@@ -287,6 +334,8 @@
         });
       });
     });
+
+    initPanels();
 
     var resetBtn = document.getElementById("setReset");
     if(resetBtn) resetBtn.addEventListener("click", reset);

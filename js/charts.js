@@ -52,13 +52,13 @@
     return hslToCss(hsl[0], hsl[1], l);
   }
 
-  /* ---------- выборки по данным ---------- */
-  function inDuma(conv){
-    return PC.PARTIES.filter(function(p){ return seatsAt(p, conv) > 0; });
-  }
-  function existing(conv){
-    return PC.PARTIES.filter(function(p){ return seatsAt(p, conv) !== null; });
-  }
+  /* ---------- выборки по данным и сводки палаты ----------
+     Сама арифметика (кто в Думе, центр тяжести, эффективное число
+     фракций, поляризация) переехала в js/calc.js в 2.3.1 — здесь
+     остались только псевдонимы, чтобы не переписывать всё, что
+     обращалось к этим именам ниже по файлу. */
+  var inDuma = PC.calc.inDuma, existing = PC.calc.existing;
+  var groupMetrics = PC.calc.groupMetrics, houseMetrics = PC.calc.houseMetrics;
 
   /* «Круглый» шаг сетки: 1 · 2 · 5 · 10 … — чтобы подписи оси были
      читаемыми при любом максимуме, а не всегда кратными 50. */
@@ -72,61 +72,6 @@
   }
 
   /* ---------- KPI-плитки ---------- */
-  /* ---------- сводные показатели палаты ----------
-     Три числа, которых на компасе не видно, потому что компас показывает
-     партии, а не палату: насколько власть в ней раздроблена, насколько
-     далеко фракции разошлись друг от друга и есть ли у кого-то
-     самостоятельное большинство.
-
-     Эффективное число фракций — индекс Лааксо — Таагеперы, 1/Σs². В нём
-     фракция весит своей долей, а не фактом существования: пять фракций,
-     одна из которых держит почти три четверти мест, дают чуть больше
-     полутора, и это честнее, чем «пять». Поляризация — среднее
-     расстояние фракции до центра тяжести палаты, взвешенное по мандатам:
-     она отвечает на вопрос, спорят ли в палате вообще, тогда как центр
-     тяжести отвечает только на вопрос, о чём договорились. */
-  function houseMetrics(c){
-    return groupMetrics(inDuma(c), c, PC.TOTAL_SEATS);
-  }
-
-  /* Те же три числа для произвольного набора фракций — на них стоит
-     песочница коалиций. denom — знаменатель долей в индексе Лааксо —
-     Таагеперы: для палаты это 450 мест (депутаты вне фракций тоже
-     «размывают» власть), для коалиции — её собственные мандаты, иначе
-     одна «Единая Россия» получала бы почти две эффективные фракции
-     вместо одной. Центр тяжести и поляризация от знаменателя не
-     зависят: они взвешены по мандатам участников. */
-  function groupMetrics(list, c, denom){
-    var duma = list.filter(function(p){ return seatsAt(p,c) > 0; });
-    var total = duma.reduce(function(s, p){ return s + seatsAt(p,c); }, 0);
-    if(!total) return { total:0, wx:0, wy:0, enp:0, polar:0, topShare:0 };
-    denom = denom || total;
-
-    var wx = 0, wy = 0, sumSq = 0;
-    duma.forEach(function(p){
-      var s = seatsAt(p,c), share = s / denom;
-      wx += p.x*s; wy += p.y*s;
-      sumSq += share*share;
-    });
-    wx /= total; wy /= total;
-
-    var polar = 0;
-    duma.forEach(function(p){
-      var s = seatsAt(p,c);
-      var dx = p.x - wx, dy = p.y - wy;
-      polar += Math.sqrt(dx*dx + dy*dy) * s;
-    });
-    polar /= total;
-
-    var top = duma.slice().sort(function(a, b){ return seatsAt(b,c) - seatsAt(a,c); })[0];
-    return {
-      total:total, wx:wx, wy:wy,
-      enp: sumSq ? 1/sumSq : 0,
-      polar: polar,
-      topShare: top ? seatsAt(top,c)/PC.TOTAL_SEATS*100 : 0
-    };
-  }
-
   var statsShown = false;   /* плитки уже показывались хотя бы раз */
   function renderStats(){
     var conv = PC.convocationInfo(), c = conv.id;
@@ -944,6 +889,5 @@
   /* niceScale и hemiSeats — чистые функции без DOM: раскладка мест
      и шаг сетки проверяются тестами напрямую, без браузера. */
   PC.charts = { init:init, render:render, invalidate:invalidate,
-                chartColor:chartColor, niceScale:niceScale, hemiSeats:hemiSeats,
-                houseMetrics:houseMetrics, groupMetrics:groupMetrics };
+                chartColor:chartColor, niceScale:niceScale, hemiSeats:hemiSeats };
 })(window.PC = window.PC || {});

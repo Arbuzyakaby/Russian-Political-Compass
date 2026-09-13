@@ -14,7 +14,10 @@ const { loadApp, ROOT } = require("./harness.js");
 const ru = loadApp().PC;
 const en = loadApp(undefined, { "pc-lang": "en" }).PC;
 
-const dictSource = fs.readFileSync(path.join(ROOT, "js", "i18n.js"), "utf8");
+/* Сам словарь с 2.3.1 живёт не в js/i18n.js (это движок), а в пяти
+   соседних файлах — см. шапку js/i18n.js. */
+const DICT_FILES = ["i18n-shell.js", "i18n-compass.js", "i18n-quiz.js", "i18n-about.js", "i18n-misc.js"];
+const dictSource = DICT_FILES.map(f => fs.readFileSync(path.join(ROOT, "js", f), "utf8")).join("\n");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 
 /* Ключи словаря вынимаются из исходника: сам объект наружу не отдаётся,
