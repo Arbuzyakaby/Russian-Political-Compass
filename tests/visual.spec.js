@@ -522,9 +522,12 @@ test("приветствие: выбор языка, приветствие, о�
   await page.mouse.click(5, 5);
   await expect(page.locator("#welLang")).toBeVisible();
 
+  /* Перезагрузка теперь идёт не мгновенно (см. js/welcome.js) — кнопка
+     на время паузы гаснет вместе с соседкой, а не запускает переход
+     сразу; дожидаемся именно смены языка, а не факта нажатия. */
   await page.locator('.wel-lang[data-lang="en"]').click();
-  await page.waitForLoadState("load");
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator('.wel-lang[data-lang="en"]')).toHaveClass(/is-loading/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en", { timeout:5000 });
   await expect(page.locator("#welHello")).toBeVisible();
   await expect(page.locator("#welLang")).toBeHidden();
   await expect(page.locator("#welTitle")).toHaveText("Welcome");

@@ -1058,8 +1058,8 @@
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Версия 2.1.1: выбор языка и обучение в приветствии, тема «Боровляны», интерфейс в духе Apple",
-                           "Version 2.1.1: language choice and a tour on the welcome screen, the Borovlyany theme, an Apple-style interface"],
+    "foot.version.tip":   ["Версия 2.1.1.1: пауза перед сменой языка в приветствии, чтобы её не принимали за бота",
+                           "Version 2.1.1.1: a brief pause before switching language on the welcome screen, so it isn't mistaken for a bot"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"]
   };

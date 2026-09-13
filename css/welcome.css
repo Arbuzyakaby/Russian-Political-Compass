@@ -307,6 +307,14 @@ body.welcome-lock.welcome-out .site-footer{
 /* Угаданный по браузеру язык отмечен, но не выбран: это подсказка,
    а не решение. */
 .wel-lang.is-current{ border-color:var(--accent-line); }
+/* Пауза перед перезагрузкой (см. js/welcome.js) не должна читаться как
+   зависание: невыбранные кнопки гаснут, нажатая мягко пульсирует. */
+.wel-lang:disabled{ cursor:default; }
+.wel-lang:disabled:not(.is-loading){ opacity:.45; }
+.wel-lang.is-loading{ border-color:var(--accent-line); animation:wel-lang-pulse 1s ease-in-out infinite; }
+@keyframes wel-lang-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.62; } }
+@media(prefers-reduced-motion:reduce){ .wel-lang.is-loading{ animation:none; } }
+:root[data-motion="off"] .wel-lang.is-loading{ animation:none; }
 .wel-lang-mark{
   display:grid;
   place-items:center;
