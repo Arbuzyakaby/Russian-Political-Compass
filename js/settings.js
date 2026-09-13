@@ -50,6 +50,7 @@
     motion:   "on",
     grain:    "on",
     spotlight:"on",
+    speed:    "normal",   /* slow | normal | fast (2.2) */
     /* компас */
     labels:   "on",      /* подписи партий на компасе */
     quads:    "on",      /* цветная подсветка квадрантов */
@@ -62,6 +63,9 @@
     numerals: "tabular", /* tabular | proportional */
     hints:    "closed",  /* open | closed — пояснения «как это читать» */
     measure:  "normal",  /* narrow | normal — длина строки в длинных разделах */
+    contrast: "off",     /* повышенный контраст (2.2) */
+    underline:"off",     /* подчёркивание ссылок (2.2) */
+    promo:    "on",      /* карточка Lumen (2.2) */
     /* пасхалки */
     eggs:     "on"       /* портал вместо кнопки «наверх» и могила в углу */
   };
@@ -166,7 +170,13 @@
     });
     sheet.querySelectorAll("[data-set-seg]").forEach(function(group){
       var key = group.dataset.setSeg;
-      group.querySelectorAll("[data-val]").forEach(function(b){
+      var all = group.querySelectorAll("[data-val]");
+      /* положение и число ячеек для скользящего ползунка (2.2) */
+      group.style.setProperty("--n", all.length);
+      all.forEach(function(b, i){
+        if(b.dataset.val === state[key]) group.style.setProperty("--i", i);
+      });
+      all.forEach(function(b){
         var on = b.dataset.val === state[key];
         b.setAttribute("aria-checked", String(on));
         b.tabIndex = on ? 0 : -1;
@@ -285,6 +295,12 @@
 
     var resetBtn = document.getElementById("setReset");
     if(resetBtn) resetBtn.addEventListener("click", reset);
+
+    var flyBtn = document.getElementById("setFlyover");
+    if(flyBtn) flyBtn.addEventListener("click", function(){
+      close();
+      if(PC.flyover) setTimeout(function(){ PC.flyover(true); }, 320);
+    });
 
     var welBtn = document.getElementById("setWelcome");
     if(welBtn) welBtn.addEventListener("click", function(){

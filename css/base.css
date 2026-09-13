@@ -87,7 +87,7 @@ body::after{
     radial-gradient(3px 4px at 72% 64%, rgba(255,255,255,.75), rgba(255,255,255,0) 70%),
     radial-gradient(6px 7px at 18% 78%, rgba(47,107,76,.16), rgba(47,107,76,0) 72%),
     radial-gradient(5px 6px at 84% 30%, rgba(47,107,76,.13), rgba(47,107,76,0) 72%),
-    linear-gradient(180deg, rgba(246,251,247,.55) 0%, rgba(246,251,247,0) 32%);
+    linear-gradient(180deg, rgba(90,160,110,.14) 0%, rgba(90,160,110,0) 32%);
   background-size:173px 173px,241px 241px,241px 241px,173px 173px,100% 100%;
   opacity:.9;
 }

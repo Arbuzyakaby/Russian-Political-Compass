@@ -408,6 +408,13 @@
       b.addEventListener("mouseleave", function(){ highlight(hovered ? hovered.id : activeId); });
     });
 
+    box._highlight = function(id){
+      shown = undefined;
+      host.hemiLegend.querySelectorAll(".hleg").forEach(function(b){
+        b.classList.toggle("active", b.dataset.id === id);
+      });
+      highlight(id);
+    };
     if(activeId) highlight(activeId);
   }
 
@@ -881,11 +888,15 @@
       });
     });
 
-    var t = null;
+    var t = null, lastW = 0;
     window.addEventListener("resize", function(){
       clearTimeout(t);
       t = setTimeout(function(){    /* размер в ключ не входит — перерисовываем напрямую */
-        if(!host.hemi.clientWidth) return;
+        var w = host.hemi.clientWidth;
+        /* На телефоне resize приходит, когда прячется адресная строка —
+           ширина при этом прежняя, и пересобирать дугу незачем (2.2). */
+        if(!w || w === lastW) return;
+        lastW = w;
         renderHemicycle();
         renderTrend();
       }, 180);
@@ -907,9 +918,16 @@
     var key = [PC.convocationInfo().id, activeId, root.theme,
                root.density, root.textsize].join("|");
     if(key === lastKey) return;
+    /* Сменилась только выбранная партия — дугу не пересобираем, а лишь
+       переносим подсветку. До 2.2 на телефоне выбор фракции перерисовывал
+       весь полукруг на глазах. */
+    var onlyActive = lastKey && host.hemi._highlight &&
+      lastKey.split("|").filter(function(v, i){ return i !== 1; }).join("|") ===
+      key.split("|").filter(function(v, i){ return i !== 1; }).join("|");
     lastKey = key;
     renderStats();
-    renderHemicycle();
+    if(onlyActive) host.hemi._highlight(activeId);
+    else renderHemicycle();
     renderTrend();
     renderSpectrum();
     renderRadar();

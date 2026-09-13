@@ -222,3 +222,19 @@
 @media print{
   .horse-grave{ display:none!important; }
 }
+
+/* ============ Уловка-22 (2.2) ============ */
+:root.catch22 body{ animation:catch22 7s linear infinite; transform-origin:50% 40vh; overflow-x:hidden; }
+@keyframes catch22{ to{ transform:rotate(360deg); } }
+
+/* ============ 3D-пролёт над компасом (2.2) ============ */
+.plot.flyover{ animation:flyover 2.8s cubic-bezier(.22,.72,.18,1) both; transform-origin:50% 55%; will-change:transform; }
+@keyframes flyover{
+  0%  { transform:perspective(900px) translate3d(0,60px,-520px) rotateX(70deg) rotateZ(-40deg); opacity:0; filter:blur(3px); }
+  20% { opacity:1; filter:blur(0); }
+  55% { transform:perspective(900px) translate3d(0,20px,-160px) rotateX(46deg) rotateZ(14deg); }
+  100%{ transform:perspective(900px) translate3d(0,0,0) rotateX(0deg) rotateZ(0deg); }
+}
+@media (prefers-reduced-motion: reduce){
+  :root.catch22 body,.plot.flyover{ animation:none; }
+}

@@ -20,7 +20,7 @@
     light:"light", dark:"dark",
     paper:"light", alaska:"light",
     neon:"dark",   fireplace:"dark",
-    borovlyany:"light"
+    borovlyany:"dark", provence:"light"
   };
 
   var pref = "system";

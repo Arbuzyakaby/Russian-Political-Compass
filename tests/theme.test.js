@@ -122,9 +122,9 @@ function contrast(a, b){
   return (x + .05) / (y + .05);
 }
 
-test("тема «Боровляны»: светлая, контрастная, капли выключаются с зерном", () => {
-  assert.equal(bootScheme.borovlyany, "light");
-  const start = tokens.indexOf(':root[data-theme="borovlyany"]');
+for (const [id, scheme] of [["borovlyany", "dark"], ["provence", "light"]]) test(`тема ${id}: ${scheme}, контрастная`, () => {
+  assert.equal(bootScheme[id], scheme);
+  const start = tokens.indexOf(`:root[data-theme="${id}"]`);
   const block = tokens.slice(start, tokens.indexOf("}", start));
   const token = name => new RegExp(name + ":(#[0-9a-f]{6})", "i").exec(block)[1];
   assert.ok(contrast(token("--text"), token("--bg")) >= 7, "основной текст не дотягивает до AAA");

@@ -110,10 +110,39 @@
     }, { rootMargin:"0px 0px -40px 0px" }).observe(footer.lastElementChild || footer);
   }
 
+  /* ---------- 3. Уловка-22 (2.2) ----------
+     «22» в поиске партий — и весь интерфейс начинает вращаться. Чтобы
+     остановить, нужно стереть запрос в поле, которое тоже крутится. */
+  function initCatch22(){
+    var q = document.getElementById("q");
+    if(!q) return;
+    var root = document.documentElement;
+    q.addEventListener("input", function(){
+      var hit = on() && !reduced() && q.value.trim() === "22";
+      if(hit && !root.classList.contains("catch22") && PC.ui) PC.ui.toast(PC.t("egg.c22"));
+      root.classList.toggle("catch22", hit);
+    });
+  }
+
   function init(){
     initPortal(document.querySelector(".to-top"));
     initGrave();
+    initCatch22();
   }
+
+  /* ---------- 3D-пролёт над компасом (2.2) ----------
+     Не пасхалка, но живёт здесь же: чисто декоративный эффект, о котором
+     не знает ни один другой модуль. force — повтор из настроек. */
+  PC.flyover = function(){
+    var plot = document.getElementById("plot");
+    if(!plot || reduced()) return;
+    if(PC.nav && PC.nav.current && PC.nav.current() !== "compass") return;
+    plot.scrollIntoView({ block:"center", behavior:"smooth" });
+    plot.classList.remove("flyover");
+    void plot.offsetWidth;
+    plot.classList.add("flyover");
+    setTimeout(function(){ plot.classList.remove("flyover"); }, 3000);
+  };
 
   PC.eggs = { init:init };
 })(window.PC = window.PC || {});

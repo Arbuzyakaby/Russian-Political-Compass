@@ -490,6 +490,8 @@
     view = "result";
     shared = null;
     render();
+    /* поздравление от автора (2.2) */
+    if(PC.ui && PC.ui.toast) setTimeout(function(){ PC.ui.toast(PC.t("quiz.congrats")); }, 600);
     /* точка пользователя появляется и на большом компасе */
     if(PC.compass) PC.compass.redraw();
   }

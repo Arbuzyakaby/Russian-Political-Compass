@@ -732,95 +732,172 @@
 }
 
 /* ============ БОРОВЛЯНЫ ============
-   Сосновый лес под Минском через полчаса после дождя: воздух ещё
-   мокрый, всё зелёное стало на тон темнее и насыщеннее, над землёй
-   висит светлая дымка. Отсюда светлая, но не белая подложка с
-   зеленоватым туманом, хвойная тьма вместо чёрного текста и мох
-   акцентом. Второй акцент — сырая кора, чтобы градиенты не уходили
-   в одну сплошную зелень.
-
-   Стекло здесь влажное: размытие сильнее, чем у «слоновой кости»,
-   и кромка подсвечена чуть холоднее — как запотевшая поверхность.
-   Капли на фоне рисует css/base.css только для этой темы. */
+   С 2.2 — тёмный хвойный лес: светлая версия 2.1.1 с зеленоватой
+   дымкой читалась скорее как бассейн, чем как лес. Подложка —
+   глубокая хвоя почти до черноты, текст — бледный мох, акцент —
+   молодая хвоя, второй акцент — сырая кора. Капли на фоне
+   рисует css/base.css только для этой темы. */
 :root[data-theme="borovlyany"]{
-  color-scheme:light;
+  color-scheme:dark;
 
-  --bg:#e3ece4;
-  --bg-deep:#c9d9cd;
-  --blob-3:rgba(47,107,76,.16);
+  --bg:#0b1a12;
+  --bg-deep:#06110b;
+  --blob-3:rgba(74,140,92,.20);
 
-  --surface:rgba(250,253,250,.62);
-  --surface-2:rgba(250,253,250,.88);
-  --surface-3:#fbfdfb;
-  --card-a:rgba(248,252,248,.80);
-  --card-b:rgba(232,242,234,.58);
-  --stroke:rgba(20,52,36,.11);
-  --stroke-2:rgba(20,52,36,.21);
-  --hairline:rgba(255,255,255,.96);
+  --surface:rgba(20,40,28,.62);
+  --surface-2:rgba(24,48,33,.88);
+  --surface-3:#1c3526;
+  --card-a:rgba(22,44,30,.82);
+  --card-b:rgba(12,28,19,.62);
+  --stroke:rgba(170,220,180,.10);
+  --stroke-2:rgba(170,220,180,.20);
+  --hairline:rgba(190,235,200,.10);
 
-  --text:#0f261b;
-  --body:#2f4539;
-  --muted:#48604f;
-  --muted-2:#6f8578;
+  --text:#e6f2e8;
+  --body:#bfd3c3;
+  --muted:#93ab98;
+  --muted-2:#6f8a75;
 
-  --accent:#2f6b4c;
-  --accent-2:#6b5a3a;
-  --accent-soft:rgba(47,107,76,.11);
-  --accent-line:rgba(47,107,76,.40);
-  --accent-ink:#f3faf5;
+  --accent:#6fbf7f;
+  --accent-2:#b08a5a;
+  --accent-soft:rgba(111,191,127,.14);
+  --accent-line:rgba(111,191,127,.42);
+  --accent-ink:#06130b;
 
   --glass-blur:24px;
   --glass-sat:135%;
-  --glass-bg:rgba(242,249,244,.54);
-  --glass-bg-2:rgba(246,251,247,.80);
+  --glass-bg:rgba(16,34,23,.56);
+  --glass-bg-2:rgba(20,40,28,.82);
+  --glass-stroke:rgba(170,220,180,.14);
+  --glass-edge:
+    inset 0 1px 0 rgba(190,235,200,.08),
+    inset 0 -1px 0 rgba(0,0,0,.30);
+
+  --ok:#58b86e;
+  --ok-soft:rgba(88,184,110,.15);
+  --warn:#d6a14a;
+  --warn-soft:rgba(214,161,74,.15);
+  --bad:#e0766b;
+  --bad-soft:rgba(224,118,107,.14);
+  --info:#6fb3cf;
+  --info-soft:rgba(111,179,207,.14);
+  --note:#b39ad6;
+  --note-soft:rgba(179,154,214,.14);
+
+  --tone-compass:#6fbf7f;
+  --tone-quiz:#6fb3cf;
+  --tone-votes:#a9c45a;
+  --tone-about:#b39ad6;
+
+  --line-minor:rgba(170,220,180,.045);
+  --line-major:rgba(170,220,180,.10);
+  --line-axis:rgba(170,220,180,.30);
+  --line-frame:rgba(170,220,180,.16);
+  --tick:rgba(170,220,180,.32);
+  --cap:rgba(230,242,232,.66);
+  --quad-cap:rgba(230,242,232,.30);
+  --tag:rgba(236,246,238,.92);
+  --tag-halo:rgba(8,20,13,.93);
+  --dot-stroke:rgba(236,246,238,.92);
+  --quad-op:1;
+
+  --chart-surface:#0f2218;
+  --chart-grid:rgba(170,220,180,.08);
+  --chart-axis:rgba(170,220,180,.18);
+  --chart-empty:rgba(170,220,180,.11);
+
+  --hero-bg:url("../assets/hero-bg.png");
+  --hero-veil-a:rgba(10,30,18,.58);
+  --hero-veil-b:rgba(6,17,11,.32);
+
+  --tip-bg:rgba(12,28,19,.95);
+  --shadow:0 24px 70px -20px rgba(0,0,0,.80);
+  --shadow-lift:0 34px 92px -28px rgba(20,80,40,.45);
+  --shadow-sm:0 2px 8px -2px rgba(0,0,0,.55);
+}
+
+/* ============ ПРОВАНС (2.2) ============
+   Юг Франции в июле: лавандовое поле, выгоревший известняк и охра
+   ставен. Светлая тёплая подложка, текст — тёмный баклажан, акцент —
+   лаванда, второй акцент — подсолнух. */
+:root[data-theme="provence"]{
+  color-scheme:light;
+
+  --bg:#f6f0e6;
+  --bg-deep:#ebe0cf;
+  --blob-3:rgba(124,98,176,.14);
+
+  --surface:rgba(255,252,246,.66);
+  --surface-2:rgba(255,252,246,.90);
+  --surface-3:#fffcf6;
+  --card-a:rgba(255,251,244,.84);
+  --card-b:rgba(246,238,226,.62);
+  --stroke:rgba(60,40,70,.11);
+  --stroke-2:rgba(60,40,70,.21);
+  --hairline:rgba(255,255,255,.96);
+
+  --text:#2a1f33;
+  --body:#4a3f52;
+  --muted:#6b5f70;
+  --muted-2:#8d8290;
+
+  --accent:#6f55a8;
+  --accent-2:#c98a1b;
+  --accent-soft:rgba(111,85,168,.11);
+  --accent-line:rgba(111,85,168,.40);
+  --accent-ink:#fbf8ff;
+
+  --glass-blur:22px;
+  --glass-sat:130%;
+  --glass-bg:rgba(252,247,238,.58);
+  --glass-bg-2:rgba(255,251,244,.82);
   --glass-stroke:rgba(255,255,255,.70);
   --glass-edge:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    inset 0 -1px 0 rgba(20,52,36,.08);
+    inset 0 1px 0 rgba(255,255,255,.90),
+    inset 0 -1px 0 rgba(60,40,70,.07);
 
-  --ok:#1f7a45;
-  --ok-soft:rgba(31,122,69,.11);
-  --warn:#94620c;
-  --warn-soft:rgba(148,98,12,.12);
-  --bad:#a83a33;
-  --bad-soft:rgba(168,58,51,.10);
-  --info:#2a6a86;
-  --info-soft:rgba(42,106,134,.11);
-  --note:#6a5391;
-  --note-soft:rgba(106,83,145,.11);
+  --ok:#4f7d2e;
+  --ok-soft:rgba(79,125,46,.12);
+  --warn:#a8680c;
+  --warn-soft:rgba(168,104,12,.12);
+  --bad:#b23f3a;
+  --bad-soft:rgba(178,63,58,.10);
+  --info:#3f6f9a;
+  --info-soft:rgba(63,111,154,.11);
+  --note:#6f55a8;
+  --note-soft:rgba(111,85,168,.11);
 
-  --tone-compass:#2f6b4c;
-  --tone-quiz:#2a6a86;
-  --tone-votes:#5c7a1f;
-  --tone-about:#6a5391;
+  --tone-compass:#6f55a8;
+  --tone-quiz:#3f6f9a;
+  --tone-votes:#6f8a2a;
+  --tone-about:#c98a1b;
 
-  --line-minor:rgba(20,52,36,.05);
-  --line-major:rgba(20,52,36,.12);
-  --line-axis:rgba(20,52,36,.34);
-  --line-frame:rgba(20,52,36,.16);
-  --tick:rgba(20,52,36,.40);
-  --cap:rgba(20,52,36,.64);
-  --quad-cap:rgba(20,52,36,.32);
-  --tag:rgba(15,38,27,.94);
-  --tag-halo:rgba(247,251,248,.96);
+  --line-minor:rgba(60,40,70,.05);
+  --line-major:rgba(60,40,70,.12);
+  --line-axis:rgba(60,40,70,.34);
+  --line-frame:rgba(60,40,70,.16);
+  --tick:rgba(60,40,70,.40);
+  --cap:rgba(60,40,70,.64);
+  --quad-cap:rgba(60,40,70,.32);
+  --tag:rgba(42,31,51,.94);
+  --tag-halo:rgba(255,251,244,.96);
   --dot-stroke:rgba(255,255,255,.97);
   --quad-op:.56;
 
-  --chart-surface:#f8fbf8;
-  --chart-grid:rgba(20,52,36,.09);
-  --chart-axis:rgba(20,52,36,.22);
-  --chart-empty:rgba(20,52,36,.11);
+  --chart-surface:#fffaf2;
+  --chart-grid:rgba(60,40,70,.09);
+  --chart-axis:rgba(60,40,70,.22);
+  --chart-empty:rgba(60,40,70,.11);
 
   --hero-bg:url("../assets/hero-bg-white.png");
-  --hero-veil-a:rgba(240,248,242,.76);
-  --hero-veil-b:rgba(222,236,226,.50);
+  --hero-veil-a:rgba(250,243,232,.76);
+  --hero-veil-b:rgba(236,226,244,.50);
 
-  --tip-bg:rgba(250,253,250,.97);
-  --shadow:0 22px 60px -24px rgba(16,48,32,.30);
-  --shadow-lift:0 30px 78px -28px rgba(16,48,32,.38);
-  --shadow-sm:0 1px 3px rgba(16,48,32,.14);
+  --tip-bg:rgba(255,251,244,.97);
+  --shadow:0 22px 60px -24px rgba(60,40,70,.28);
+  --shadow-lift:0 30px 78px -28px rgba(60,40,70,.36);
+  --shadow-sm:0 1px 3px rgba(60,40,70,.14);
 }
-
 /* ---------- тон активного раздела ---------- */
 :root[data-section="quiz"]{ --tone:var(--tone-quiz); }
 :root[data-section="votes"]{ --tone:var(--tone-votes); }
