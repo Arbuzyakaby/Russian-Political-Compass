@@ -125,6 +125,78 @@
     t.addEventListener("click", kill);
   }
 
+  /* ---------- оглавление раздела «О проекте» ----------
+     Тринадцать текстовых карточек подряд — это объём, по которому
+     нужно уметь перемещаться, а не только листать. Чипы собираются
+     из заголовков самих карточек: список, написанный в разметке
+     руками, пришлось бы держать в двух языках и править на каждый
+     новый раздел — и однажды он бы отстал от карточек.
+
+     Якоря проставляются здесь же, по порядковому номеру: id вида
+     ab-sec-3 ничего не обещает про содержание и потому не соврёт,
+     если разделы поменяются местами. */
+  function initAboutNav(){
+    var nav = document.getElementById("aboutNav");
+    if(!nav) return;
+    var cards = document.querySelectorAll(".about-card:not(.about-hero)");
+    if(!cards.length) return;
+
+    var label = document.createElement("span");
+    label.className = "ab-nav-lab";
+    label.textContent = PC.t("ab.nav.h");
+    nav.appendChild(label);
+
+    cards.forEach(function(card, i){
+      var h = card.querySelector("h3");
+      if(!h) return;
+      if(!card.id) card.id = "ab-sec-" + (i + 1);
+      var a = document.createElement("a");
+      a.href = "#" + card.id;
+      a.textContent = h.textContent.trim();
+      /* Штатная прокрутка по якорю прыгает, и при включённых анимациях
+         это единственное резкое движение на всей странице. Плюс hash
+         в адресе: #ab-sec-3 перебил бы маршрут вкладки (#/about),
+         и возврат по истории увёл бы на компас. */
+      a.addEventListener("click", function(e){
+        e.preventDefault();
+        card.scrollIntoView({ behavior:reduced() ? "auto" : "smooth", block:"start" });
+        card.setAttribute("tabindex", "-1");
+        card.focus({ preventScroll:true });
+      });
+      nav.appendChild(a);
+    });
+    nav.hidden = false;
+  }
+
+  /* Числа проекта в плитках раздела: те же значения, что и в подвале,
+     и по той же причине — написанные руками, они разойдутся с данными.
+
+     Подпись собирается здесь же, а не берётся из разметки: пять созывов
+     и два языка требуют разных форм одного слова, и склонять их обязан
+     тот, кто знает число. */
+  function put(id, count, wordKey, labelKey){
+    var node = document.getElementById(id);
+    if(!node) return;
+    node.textContent = String(count);
+    var label = node.nextElementSibling;
+    if(label) label.textContent = PC.t(labelKey, { w:PC.i18n.pl(count, wordKey) });
+  }
+
+  function fillAboutStats(){
+    if(!document.getElementById("abStParties")) return;
+    put("abStParties", PC.PARTIES.length, "word.party", "ab.st.parties");
+    /* Набор утверждений, а не активная версия теста: плитка говорит про
+       размер проекта, а не про то, какую длину человек выбрал сейчас. */
+    put("abStQuiz", PC.QUIZ.QUESTIONS.length, "word.statement", "ab.st.quiz");
+    put("abStVotes", PC.VOTES.length, "word.vote", "ab.st.votes");
+    /* Заготовленные впрок созывы (draft) в счёт не идут: данных по ним
+       нет, и на странице их тоже нет. */
+    put("abStConv", PC.CONVOCATIONS.filter(function(c){ return !c.draft; }).length,
+        "word.convocation", "ab.st.conv");
+    put("abStSub", PC.SUBAXES.length, "word.subaxis", "ab.st.sub");
+    put("abStLangs", PC.i18n.LANGS.length, "word.language", "ab.st.langs");
+  }
+
   function init(){
     bar = document.createElement("div");
     bar.className = "read-bar";
@@ -135,6 +207,8 @@
     initToasts();
     initSticky();
     initSpotlight();
+    initAboutNav();
+    fillAboutStats();
 
     window.addEventListener("scroll", onScroll, { passive:true });
     window.addEventListener("resize", onScroll, { passive:true });

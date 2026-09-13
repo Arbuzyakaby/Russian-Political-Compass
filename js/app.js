@@ -222,6 +222,20 @@
        руками отстало бы от набора при первом же новом голосовании. */
     var votesBadge = document.querySelector("#tab-votes .tab-badge");
     if(votesBadge) votesBadge.textContent = String(PC.VOTES.length);
+    /* Числа в шапке раздела голосований — из того же набора, что и
+       ярлык вкладки. Фракции считаются по самим голосованиям, а не по
+       списку партий: в таблице стоят только те, у кого позиция вообще
+       зафиксирована хоть раз. */
+    var vfCount = document.getElementById("vfCount");
+    if(vfCount) vfCount.textContent = String(PC.VOTES.length);
+    var vfFactions = document.getElementById("vfFactions");
+    if(vfFactions){
+      var seen = new Set();
+      PC.VOTES.forEach(function(v){
+        Object.keys(v.pos || {}).forEach(function(id){ seen.add(id); });
+      });
+      vfFactions.textContent = String(seen.size);
+    }
     /* Те же два числа стоят в подвале. Написанные руками, они разошлись
        бы с набором при первой же новой партии или голосовании — а подвал
        читают как справку о масштабе данных, и врать ему нельзя. */
@@ -236,6 +250,13 @@
     PC.charts.render(state.active);
     initControls();
     PC.settings.init();
+    /* после settings.init(): обе пасхалки смотрят на data-eggs, который
+       выставляет панель настроек, и до неё атрибута на <html> ещё нет */
+    PC.eggs.init();
+    /* последним из всего: приветственный экран закрывает собой готовую
+       страницу, а не строящуюся — под размытием должен стоять компас
+       с точками, а не пустая сетка */
+    PC.welcome.init();
     /* Нативные списки подменяются своими только после того, как модули
        разложили в них варианты: до этого оформленной оказалась бы пустая
        кнопка, а варианты доехали бы в скрытый <select>. */

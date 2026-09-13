@@ -101,6 +101,11 @@ body.sheet-lock{overflow:hidden;}
 }
 .set-group h3 + .set-row{border-top:0;}
 .set-row[hidden]{display:none;}
+/* Строка, имеющая смысл только при включённом родительском
+   переключателе: густота стекла ни о чём не говорит, когда стекла нет.
+   Прячется целиком, а не гасится — неактивная строка на месте активной
+   читается как сломанная, а не как неприменимая. */
+:root[data-glass="off"] .set-row[data-set-when="glass"]{display:none;}
 .set-lab{display:flex;flex-direction:column;gap:3px;min-width:180px;flex:1;}
 .set-lab b{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
 .set-lab small{font-size:11px;line-height:1.45;color:var(--muted-2);text-wrap:pretty;}

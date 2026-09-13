@@ -34,8 +34,14 @@
 <meta name="twitter:title" content="Интерактивный политический компас партий РФ">
 <meta name="twitter:description" content="Партии России на двух независимых осях, мандаты по созывам IV–VIII и тест на 90 утверждений.">
 <meta name="twitter:image" content="https://rupolitcompass.website/assets/og-image.png">
-<link rel="icon" href="assets/icon.png" type="image/png">
-<link rel="apple-touch-icon" href="assets/icon.png">
+<!-- Иконка вкладки и логотип в шапке берут уменьшенную копию. Полная,
+     на 512 пикселей, весит 235 КБ и до 2.1 скачивалась при каждой
+     загрузке ради картинки размером в сорок шесть пикселей — это было
+     самое тяжёлое, что вообще есть на странице, тяжелее любого скрипта.
+     Копия на 512 осталась для установки приложения: там её берут один
+     раз и по делу. -->
+<link rel="icon" href="assets/icon-96.png" type="image/png" sizes="96x96">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="manifest" href="manifest.json">
 <title>Политический компас партий РФ</title>
 
@@ -46,12 +52,29 @@
      файлами браузер округлял их до ближайшего из четырёх — половина
      задуманной градации иерархии пропадала.
 
+     С 2.1 запрос разделён надвое и ни одна его половина не задерживает
+     первую отрисовку.
+
+     Базовые начертания (Inter, Manrope) стоят в стеке --font-body и
+     --font-display последними, после системных шрифтов: на macOS и
+     Windows до них дело не доходит вовсе, а нужны они там, где системного
+     гротеска нужного качества нет. Поэтому запрос помечен media="print"
+     и переключается на all в onload — браузер скачивает файл, но не
+     держит из-за него отрисовку. Текст показывается системным шрифтом
+     сразу, а не через «невидимый» период ожидания.
+
      IBM Plex Sans Condensed и Fraunces обслуживают настройку «Шрифт»
-     (js/settings.js, data-font на <html>): они заменяют --font-display
-     в компактном и творческом режиме, а Inter как основной текст не
-     трогают — длинные абзацы «О проекте» не обязаны подстраиваться
-     под заголовочное начертание. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&family=IBM+Plex+Sans+Condensed:wght@400..700&family=Fraunces:wght@400..800&display=swap">
+     (js/fonts.js, data-font на <html>): они заменяют --font-display
+     в узком и антиквенном режиме. Раньше их скачивали все — включая
+     тех, кто этих режимов никогда не включит, — а это две гарнитуры
+     с кириллицей в каждой загрузке страницы. Теперь они подтягиваются
+     в тот момент, когда переключатель действительно выбран. -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&display=swap">
+<noscript>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&display=swap">
+</noscript>
 
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
@@ -70,6 +93,8 @@
 <link rel="stylesheet" href="css/select.css">
 <link rel="stylesheet" href="css/settings.css">
 <link rel="stylesheet" href="css/ui.css">
+<link rel="stylesheet" href="css/welcome.css">
+<link rel="stylesheet" href="css/eggs.css">
 <!-- стекло уточняет поверхности, описанные выше, поэтому идёт после них -->
 <link rel="stylesheet" href="css/glass.css">
 <!-- слой движения подключается последним: часть его правил намеренно
@@ -157,7 +182,7 @@
 
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark" aria-hidden="true"><img src="assets/icon.png" alt=""></div>
+      <div class="brand-mark" aria-hidden="true"><img src="assets/icon-96.png" alt="" width="96" height="96" decoding="async"></div>
       <div>
         <span class="eyebrow" data-i18n="brand.eyebrow">Политология · Россия</span>
         <h1 data-i18n="brand.h1">Интерактивный политический компас партий РФ</h1>
@@ -240,6 +265,20 @@
           <div><b>↑</b> <span data-i18n="legend.up">Сильное государство, контроль</span></div>
           <div><b>↓</b> <span data-i18n="legend.down">Личные свободы, децентрализация</span></div>
         </div>
+
+        <!-- Легенда называет полюса, но не объясняет, что вообще делать
+             с полем. Это первое, что видит человек на странице, и до
+             2.1 единственное объяснение лежало во вкладке «О проекте» —
+             то есть там, куда заходят в последнюю очередь. -->
+        <details class="chart-why compass-why">
+          <summary data-i18n="how.compass.h">Как читать компас</summary>
+          <p data-i18n="how.compass.p1">Каждый кружок — партия, а его размер — мандаты в выбранном созыве.
+            Чем дальше две партии друг от друга, тем сильнее расходятся их программы.</p>
+          <p data-i18n="how.compass.p2">Влево и вправо — спор про экономику: кто распоряжается собственностью
+            и доходом. Вверх и вниз — спор про государство: сколько оно вправе решать за человека.</p>
+          <p data-i18n="how.compass.p3">Наведите курсор на точку — появится карточка партии. Нажмите —
+            она откроется целиком, вместе с обоснованием координат.</p>
+        </details>
       </section>
 
       <aside class="card side" aria-label="Список партий">
@@ -267,7 +306,10 @@
         </div>
         <div class="chart-body hemi-wrap" id="hemi"></div>
         <div class="hemi-legend" id="hemiLegend"></div>
-        <p class="chart-why" data-i18n="ch.hemi.why">Почему это важно: место фракции на дуге — не рейтинг, а положение на экономической шкале. Сплошной блок одного цвета в центре означает, что большинство собрано вокруг одной позиции, а не составлено из коалиции.</p>
+        <details class="chart-why">
+          <summary data-i18n="how.open">Как это читать</summary>
+          <p data-i18n="ch.hemi.why">Почему это важно: место фракции на дуге — не рейтинг, а положение на экономической шкале. Сплошной блок одного цвета в центре означает, что большинство собрано вокруг одной позиции, а не составлено из коалиции.</p>
+        </details>
       </section>
 
       <section class="card chart-card" data-reveal aria-label="Динамика мандатов по созывам">
@@ -284,7 +326,10 @@
         <button type="button" class="data-toggle" id="trendTableBtn" aria-expanded="false"
                 data-i18n="ch.trend.showTable">Показать таблицу данных</button>
         <div class="data-wrap" id="trendTableWrap" hidden><div id="trendTable"></div></div>
-        <p class="chart-why" data-i18n="ch.trend.why">Как читать: в абсолютных мандатах видно масштаб фракции, в долях — сравнимость созывов между собой. Резкий обрыв линии почти всегда совпадает не со сменой настроений, а со сменой избирательных правил: барьер, одномандатные округа, порядок регистрации.</p>
+        <details class="chart-why">
+          <summary data-i18n="how.open">Как это читать</summary>
+          <p data-i18n="ch.trend.why">Как читать: в абсолютных мандатах видно масштаб фракции, в долях — сравнимость созывов между собой. Резкий обрыв линии почти всегда совпадает не со сменой настроений, а со сменой избирательных правил: барьер, одномандатные округа, порядок регистрации.</p>
+        </details>
       </section>
 
       <section class="card chart-card wide co-card" id="coalition" data-reveal aria-label="Песочница коалиций"
@@ -310,7 +355,10 @@
         <div class="co-bar" id="coBar" role="img" aria-label="Мандаты коалиции относительно порога большинства"
              data-i18n-attr="aria-label:co.bar"></div>
         <div class="co-metrics" id="coMetrics"></div>
-        <p class="chart-why" data-i18n="co.why">Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Сплочённость — единственный показатель здесь, который считается не по координатам, а по тому, как фракции голосовали на самом деле, и потому он вправе спорить с остальными. Это модель, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.</p>
+        <details class="chart-why">
+          <summary data-i18n="how.open">Как это читать</summary>
+          <p data-i18n="co.why">Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Сплочённость — единственный показатель здесь, который считается не по координатам, а по тому, как фракции голосовали на самом деле, и потому он вправе спорить с остальными. Это модель, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.</p>
+        </details>
       </section>
 
       <section class="card chart-card wide" data-reveal aria-label="Идеологический спектр партий">
@@ -319,7 +367,10 @@
           <p data-i18n="ch.spec.p">Те же координаты, что и на компасе, но развёрнутые в две шкалы: видно порядок партий и расстояния между ними. Полоса растёт от нуля в сторону полюса.</p>
         </div>
         <div class="spectrum" id="spectrum"></div>
-        <p class="chart-why" data-i18n="ch.spec.why">Что здесь видно: на экономической шкале партии распределены почти равномерно, а на шкале отношения к государству сбиты в верхнюю половину. Это и есть главная асимметрия российской партийной системы — спор идёт про экономику, а не про объём государственной власти.</p>
+        <details class="chart-why">
+          <summary data-i18n="how.open">Как это читать</summary>
+          <p data-i18n="ch.spec.why">Что здесь видно: на экономической шкале партии распределены почти равномерно, а на шкале отношения к государству сбиты в верхнюю половину. Это и есть главная асимметрия российской партийной системы — спор идёт про экономику, а не про объём государственной власти.</p>
+        </details>
       </section>
 
       <!-- радар идёт во всю ширину: в двухколоночной сетке он оставался
@@ -353,8 +404,29 @@
         <h2 data-i18n="votes.h">Ключевые голосования</h2>
         <span class="rule"></span>
       </div>
-      <p class="votes-lede" data-reveal data-i18n="votes.lede">Координаты на компасе выведены в том числе из того, как фракции голосуют, а не только из того, что партии пишут в программах. Здесь эти голосования собраны в одну таблицу: двадцать законопроектов 2004–2024 годов — и те, на которых позиции разошлись сильнее всего, и те, на которых фракции совпали полностью.</p>
-      <p class="votes-disclaimer" data-reveal data-i18n="votes.note">Позиция фракции — преобладающая: отдельные депутаты голосовали иначе, а по части законопроектов фракция официально не определялась. Партии, которой в том созыве не было в Думе, в строке стоит прочерк.</p>
+      <!-- До 2.1 раздел открывался двумя плотными абзацами подряд, и до
+           первой таблицы читатель добирался через полтора экрана текста.
+           Теперь сверху одно предложение и три числа, а объяснения
+           убраны под раскрывающиеся заголовки: кто пришёл за таблицей,
+           видит таблицу; кто пришёл разобраться, раскрывает и читает. -->
+      <p class="votes-lede" data-reveal data-i18n="votes.lede.short">Программу можно написать какой угодно — голосование уже поступок. Двадцать законопроектов 2004–2024 годов и позиция каждой фракции по каждому из них.</p>
+
+      <div class="votes-figures" data-reveal>
+        <span class="vf"><b id="vfCount">20</b> <span data-i18n="votes.s1">голосований</span></span>
+        <span class="vf"><b>2004–2024</b> <span data-i18n="votes.s2">годы</span></span>
+        <span class="vf"><b id="vfFactions">6</b> <span data-i18n="votes.s3">фракций</span></span>
+      </div>
+
+      <div class="votes-intro" data-reveal>
+        <details class="chart-why">
+          <summary data-i18n="votes.why.h">Зачем этот раздел</summary>
+          <p data-i18n="votes.why.p">Координаты на компасе выведены в том числе из того, как фракции голосуют, а не только из того, что партии пишут в программах. Здесь собраны и те голосования, на которых позиции разошлись сильнее всего, и те, на которых фракции совпали полностью.</p>
+        </details>
+        <details class="chart-why">
+          <summary data-i18n="votes.note.h">Как читать позиции</summary>
+          <p data-i18n="votes.note">Позиция фракции — преобладающая: отдельные депутаты голосовали иначе, а по части законопроектов фракция официально не определялась. Партии, которой в том созыве не было в Думе, в строке стоит прочерк.</p>
+        </details>
+      </div>
 
       <div id="votesHost"></div>
 
@@ -364,6 +436,10 @@
           <p data-i18n="votes.agreementP">Доля голосований, в которых две фракции заняли одинаковую позицию. Считается только по тем голосованиям, где обе партии были в Думе, — иначе отсутствие в созыве читалось бы как согласие.</p>
         </div>
         <div class="ag-wrap" id="votesMatrix"></div>
+        <details class="chart-why">
+          <summary data-i18n="how.open">Как это читать</summary>
+          <p data-i18n="votes.agreementWhy">Что здесь видно: расстояние на компасе измеряет программы, а матрица — поведение, и совпадают они не всегда. ЛДПР и «Справедливая Россия» стоят на поле почти втрое дальше друг от друга, чем ЛДПР от «Единой России», — и при этом совпали во всех общих голосованиях.</p>
+        </details>
       </section>
     </div>
   </section>
@@ -382,10 +458,56 @@
           и как менялся состав Госдумы за пять созывов подряд.</p>
       </article>
 
-      <article class="card about-card about-card--wide" data-reveal>
+      <!-- Числа проекта одной строкой. Раздел состоит из тринадцати
+           текстовых карточек подряд, и до первой картинки читатель
+           добирается через три экрана сплошных абзацев. Плитки дают
+           масштаб сразу и заодно делят стену на части.
+
+           Значения подставляет js/ui.js из самих данных — написанные
+           руками, они разошлись бы с набором при первой же новой
+           партии. В разметке стоят текущие: без JavaScript страница
+           обязана оставаться правдивой. -->
+      <div class="about-stats" data-reveal>
+        <div class="ab-st"><b id="abStParties">11</b><span>партий на поле</span></div>
+        <div class="ab-st"><b id="abStQuiz">90</b><span>утверждений в тесте</span></div>
+        <div class="ab-st"><b id="abStVotes">20</b><span>ключевых голосований</span></div>
+        <div class="ab-st"><b id="abStConv">5</b><span>созывов Госдумы</span></div>
+        <div class="ab-st"><b id="abStSub">6</b><span>под-осей у каждой партии</span></div>
+        <div class="ab-st"><b id="abStLangs">2</b><span>языка интерфейса</span></div>
+      </div>
+
+      <!-- Оглавление раздела. Собирается скриптом из заголовков самих
+           карточек (js/ui.js): список из тринадцати пунктов, написанный
+           в разметке руками, пришлось бы править дважды на каждый новый
+           раздел и ещё раз в словаре — и однажды он бы отстал. -->
+      <nav class="about-nav" id="aboutNav" hidden aria-label="Разделы «О проекте»"
+           data-i18n-attr="aria-label:ab.nav.h"></nav>
+
+      <article class="card about-card about-card--wide" id="ab-axes" data-reveal>
         <h3 data-i18n="ab.axes.h">Две оси</h3>
         <p data-i18n="ab.axes.p">Одномерная шкала «левые — правые» склеивает вещи, которые в жизни не связаны: отношение
           к собственности и отношение к принуждению. Поэтому осей две, и они независимы.</p>
+
+        <!-- Схема поля вместо описания поля. Два абзаца ниже объясняют,
+             что означает каждая ось; эта картинка показывает, как они
+             складываются в четыре четверти, — и делает это быстрее,
+             чем любой из абзацев. Нарисована разметкой, а не в SVG:
+             здесь нет ни одной кривой, только сетка и подписи, и на
+             гриде это переживает смену кегля без пересчёта. -->
+        <div class="axis-map" aria-hidden="true">
+          <span class="am-q am-q--lu"></span>
+          <span class="am-q am-q--ru"></span>
+          <span class="am-q am-q--ld"></span>
+          <span class="am-q am-q--rd"></span>
+          <span class="am-axis am-axis--v"></span>
+          <span class="am-axis am-axis--h"></span>
+          <span class="am-lab am-lab--up"   data-i18n="ab.axes.yhi">+10 этатизм</span>
+          <span class="am-lab am-lab--down" data-i18n="ab.axes.ylo">−10 свободы</span>
+          <span class="am-lab am-lab--left" data-i18n="ab.axes.xlo">−10 плановая</span>
+          <span class="am-lab am-lab--right" data-i18n="ab.axes.xhi">+10 рыночная</span>
+          <span class="am-dot"></span>
+        </div>
+
         <div class="axis-grid">
           <div class="axis-box">
             <div class="k" data-i18n="ab.axes.xk">Горизонталь · экономика</div>
@@ -610,6 +732,87 @@
 
 </div>
 
+<!-- ============ ПРИВЕТСТВЕННЫЙ ЭКРАН ============
+     Показывается при первом заходе и после обновления версии — логика
+     в js/welcome.js. Разметка лежит здесь, а не собирается скриптом,
+     по той же причине, что и панель настроек: экран обязан быть готов
+     к показу в тот же кадр, в котором принято решение показать его,
+     иначе страница успевает мигнуть неразмытой.
+
+     Два набора текста в одной карточке: приветствие для новых и список
+     изменений для тех, кто уже был здесь на прошлой версии. Скрипт
+     показывает один из них — заводить ради этого два диалога значило
+     бы дублировать всю обвязку с фокусом и клавишами. -->
+<div class="welcome" id="welcome" hidden>
+  <!-- Поле позади карточки: та же сетка, что у компаса, только
+       медленно дышит. Рисуется разметкой, а не скриптом: это
+       украшение, и оно не должно ничего ждать. -->
+  <div class="wel-field" aria-hidden="true">
+    <svg class="wel-grid" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="welCell" width="24" height="24" patternUnits="userSpaceOnUse">
+          <path d="M24 0H0v24" fill="none" stroke="currentColor" stroke-width=".5"/>
+        </pattern>
+      </defs>
+      <rect width="240" height="240" fill="url(#welCell)"/>
+      <line x1="120" y1="0" x2="120" y2="240" stroke="currentColor" stroke-width="1"/>
+      <line x1="0" y1="120" x2="240" y2="120" stroke="currentColor" stroke-width="1"/>
+    </svg>
+    <span class="wel-dot" style="--dx:-58px;--dy:-42px;--d:0s"></span>
+    <span class="wel-dot" style="--dx:44px;--dy:-66px;--d:.4s"></span>
+    <span class="wel-dot" style="--dx:74px;--dy:26px;--d:.8s"></span>
+    <span class="wel-dot" style="--dx:-30px;--dy:58px;--d:1.2s"></span>
+    <span class="wel-dot wel-dot--you" style="--dx:6px;--dy:-8px;--d:1.6s"></span>
+  </div>
+
+  <div class="wel-card" id="welCard" role="dialog" aria-modal="true"
+       aria-labelledby="welTitle" tabindex="-1">
+    <button type="button" class="wel-x" id="welClose" aria-label="Закрыть приветствие"
+            data-i18n-attr="aria-label:wel.close">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+    </button>
+
+    <span class="eyebrow" id="welEyebrow" data-i18n="wel.eyebrow">Политический компас партий РФ</span>
+    <h2 id="welTitle" data-i18n="wel.h">Добро пожаловать</h2>
+    <p class="wel-lede" id="welLede" data-i18n="wel.lede">Здесь российские партии расставлены по двум осям —
+      что они думают про экономику и сколько власти отдают государству. Никакой агитации: у каждой
+      координаты рядом лежит объяснение, с которым можно спорить.</p>
+
+    <ul class="wel-points" id="welPoints">
+      <li>
+        <span class="wel-ico" aria-hidden="true">◎</span>
+        <b data-i18n="wel.p1.h">Посмотрите на поле</b>
+        <span data-i18n="wel.p1.p">Одиннадцать партий, пять созывов Думы и графики, которые следуют за выбранным созывом.</span>
+      </li>
+      <li>
+        <span class="wel-ico" aria-hidden="true">✦</span>
+        <b data-i18n="wel.p2.h">Найдите себя</b>
+        <span data-i18n="wel.p2.p">Тест ставит на ту же сетку вас — от двух минут до четверти часа, на ваш выбор.</span>
+      </li>
+      <li>
+        <span class="wel-ico" aria-hidden="true">⌂</span>
+        <b data-i18n="wel.p3.h">Ничего не уходит наружу</b>
+        <span data-i18n="wel.p3.p">Ни счётчиков, ни аналитики. Ответы и настройки лежат только в вашем браузере.</span>
+      </li>
+    </ul>
+
+    <ul class="wel-news" id="welNews" hidden>
+      <li data-i18n="wel.up.l1">Больше стекла и настройка его густоты — от едва заметного до плотного.</li>
+      <li data-i18n="wel.up.l2">У каждого графика появилось пояснение «как читать» — раскрывается по желанию.</li>
+      <li data-i18n="wel.up.l3">«О проекте» и «Голосования» разобраны на части: меньше сплошного текста.</li>
+      <li data-i18n="wel.up.l4">Страница грузится быстрее: шрифты больше не задерживают первую отрисовку.</li>
+      <li data-i18n="wel.up.l5">Две новые пасхалки. Одна заметная, вторая — нет.</li>
+    </ul>
+
+    <div class="wel-actions">
+      <button type="button" class="btn primary" id="welEnter" data-i18n="wel.enter">Смотреть компас</button>
+      <button type="button" class="btn ghost" id="welQuiz" data-i18n="wel.quiz">Сразу к тесту</button>
+    </div>
+    <p class="wel-note" id="welNote" data-i18n="wel.note">Это окно больше не появится — разве что после
+      следующего обновления. Вернуть его можно в настройках.</p>
+  </div>
+</div>
+
 <!-- ============ МЕНЮ НАСТРОЕК ============
      Разметка лежит здесь, а не строится скриптом: переключатели темы и
      языка обязаны существовать к моменту, когда theme.js и i18n.js
@@ -718,6 +921,24 @@
                 aria-label="Стекло" data-i18n-attr="aria-label:set.glass"><i></i></button>
       </div>
 
+      <!-- Густота — отдельной строкой, а не тремя положениями одного
+           переключателя вместе с «выключено»: выключение стекла это
+           решение про производительность, а густота — про вкус, и
+           смешивать их в одной шкале значит прятать первое за вторым. -->
+      <div class="set-row" data-set-when="glass">
+        <span class="set-lab"><b data-i18n="set.glasslevel">Густота стекла</b>
+          <small data-i18n="set.glasslevel.d">Насколько сильно размывается то, что лежит под поверхностью</small></span>
+        <div class="seg" data-set-seg="glasslevel" role="radiogroup" aria-label="Густота стекла"
+             data-i18n-attr="aria-label:set.glasslevel">
+          <button type="button" role="radio" data-val="subtle" aria-checked="false" tabindex="-1"
+                  data-i18n="set.glasslevel.subtle">Лёгкое</button>
+          <button type="button" role="radio" data-val="normal" aria-checked="true"
+                  data-i18n="set.glasslevel.normal">Обычное</button>
+          <button type="button" role="radio" data-val="strong" aria-checked="false" tabindex="-1"
+                  data-i18n="set.glasslevel.strong">Плотное</button>
+        </div>
+      </div>
+
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.numerals">Цифры</b>
           <small data-i18n="set.numerals.d">Моноширинные не дрожат при пересчёте: все знаки одной ширины</small></span>
@@ -811,6 +1032,47 @@
         <button type="button" class="sw" data-set-switch="topbtn" role="switch" aria-checked="true"
                 aria-label="Кнопка «наверх»" data-i18n-attr="aria-label:set.topbtn"><i></i></button>
       </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.hints">Пояснения к графикам</b>
+          <small data-i18n="set.hints.d">Держать раскрытыми у каждого графика или прятать под кнопку «Как это читать»</small></span>
+        <div class="seg" data-set-seg="hints" role="radiogroup" aria-label="Пояснения к графикам"
+             data-i18n-attr="aria-label:set.hints">
+          <button type="button" role="radio" data-val="open" aria-checked="false" tabindex="-1"
+                  data-i18n="set.hints.open">Раскрыты</button>
+          <button type="button" role="radio" data-val="closed" aria-checked="true"
+                  data-i18n="set.hints.closed">Свёрнуты</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.measure">Ширина текста</b>
+          <small data-i18n="set.measure.d">Длина строки в длинных разделах: узкая колонка читается легче, широкая вмещает больше</small></span>
+        <div class="seg" data-set-seg="measure" role="radiogroup" aria-label="Ширина текста"
+             data-i18n-attr="aria-label:set.measure">
+          <button type="button" role="radio" data-val="narrow" aria-checked="false" tabindex="-1"
+                  data-i18n="set.measure.narrow">Узкая</button>
+          <button type="button" role="radio" data-val="normal" aria-checked="true"
+                  data-i18n="set.measure.normal">Обычная</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="set-group">
+      <h3 data-i18n="set.fun">Пасхалки</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.eggs">Мелкие шутки</b>
+          <small data-i18n="set.eggs.d">Портал вместо кнопки «наверх» и то, что прячется в самом низу страницы</small></span>
+        <button type="button" class="sw" data-set-switch="eggs" role="switch" aria-checked="true"
+                aria-label="Мелкие шутки" data-i18n-attr="aria-label:set.eggs"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.welcome">Приветственный экран</b>
+          <small data-i18n="set.welcome.d">То самое окно, которое встречает при первом заходе</small></span>
+        <button type="button" class="btn small" id="setWelcome" data-i18n="set.welcome.show">Показать снова</button>
+      </div>
     </section>
 
     <footer class="set-foot">
@@ -849,7 +1111,7 @@
 
     <div class="foot-grid">
       <div class="foot-brand" data-reveal>
-        <div class="foot-mark" aria-hidden="true"><img src="assets/icon.png" alt=""></div>
+        <div class="foot-mark" aria-hidden="true"><img src="assets/icon-96.png" alt="" width="96" height="96" loading="lazy" decoding="async"></div>
         <div>
           <h2 data-i18n="doc.title.compass">Политический компас партий РФ</h2>
           <p data-i18n="ft.about">Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по пяти созывам Госдумы.</p>
@@ -894,8 +1156,11 @@
       <span class="foot-meta">
         <span>2026</span>
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
+        <!-- Номер версии стоит здесь строкой, а не подставляется из
+             PC.VERSION: подвал читают и без JavaScript. Тест сверяет
+             его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.0: редизайн со стеклянными поверхностями, шесть тем, тест на 90 утверждений и аналитика коалиций">v2.0</span>
+              title="Версия 2.1: приветственный экран, больше стекла, пояснения к графикам и ускоренная загрузка">v2.1</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -904,26 +1169,28 @@
   </div>
 </footer>
 
-<script src="js/data.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/i18n.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/select.js"></script>
-<script src="js/motion.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/nav.js"></script>
-<script src="js/tooltip.js"></script>
-<script src="js/compass.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/radar.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/coalition.js"></script>
-<script src="js/votes.js"></script>
-<script src="js/sidebar.js"></script>
-<script src="js/quiz-data.js"></script>
-<script src="js/quiz.js"></script>
-<script src="js/share.js"></script>
-<script src="js/export.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js" defer></script>
+<script src="js/utils.js" defer></script>
+<script src="js/i18n.js" defer></script>
+<script src="js/ui.js" defer></script>
+<script src="js/select.js" defer></script>
+<script src="js/motion.js" defer></script>
+<script src="js/theme.js" defer></script>
+<script src="js/nav.js" defer></script>
+<script src="js/tooltip.js" defer></script>
+<script src="js/compass.js" defer></script>
+<script src="js/settings.js" defer></script>
+<script src="js/radar.js" defer></script>
+<script src="js/charts.js" defer></script>
+<script src="js/coalition.js" defer></script>
+<script src="js/votes.js" defer></script>
+<script src="js/sidebar.js" defer></script>
+<script src="js/quiz-data.js" defer></script>
+<script src="js/quiz.js" defer></script>
+<script src="js/share.js" defer></script>
+<script src="js/export.js" defer></script>
+<script src="js/welcome.js" defer></script>
+<script src="js/eggs.js" defer></script>
+<script src="js/app.js" defer></script>
 </body>
 </html>

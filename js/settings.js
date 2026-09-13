@@ -40,11 +40,12 @@
      в разметку переключатель и написать правило в CSS. */
   var DEFAULTS = {
     /* оформление */
-    density:  "cozy",    /* compact | cozy | airy */
-    textsize: "normal",  /* small | normal | large */
-    corners:  "normal",  /* sharp | normal | soft */
-    font:     "modern",  /* modern | compact | creative | mono */
-    glass:    "on",      /* полупрозрачные поверхности */
+    density:  "cozy",     /* compact | cozy | airy */
+    textsize: "normal",   /* small | normal | large */
+    corners:  "normal",   /* sharp | normal | soft */
+    font:     "modern",   /* modern | compact | creative | mono */
+    glass:    "on",       /* полупрозрачные поверхности */
+    glasslevel:"normal",  /* subtle | normal | strong — густота размытия */
     /* движение и фон */
     motion:   "on",
     grain:    "on",
@@ -58,8 +59,48 @@
     readbar:  "on",      /* полоса прочтения под шапкой */
     topbtn:   "on",      /* кнопка возврата наверх */
     sticky:   "on",      /* липкая полоса вкладок */
-    numerals: "tabular"  /* tabular | proportional */
+    numerals: "tabular", /* tabular | proportional */
+    hints:    "closed",  /* open | closed — пояснения «как это читать» */
+    measure:  "normal",  /* narrow | normal — длина строки в длинных разделах */
+    /* пасхалки */
+    eggs:     "on"       /* портал вместо кнопки «наверх» и могила в углу */
   };
+
+  /* ---------- необязательные гарнитуры ----------
+     Две из четырёх настроек шрифта обслуживаются веб-гарнитурами, и до
+     2.1 их скачивали все подряд: два семейства с кириллицей в каждой
+     загрузке страницы ради режимов, которые включает меньшинство.
+
+     Теперь запрос уходит в тот момент, когда режим выбран, — при старте
+     (если он был выбран раньше и лежит в хранилище) или сразу по клику.
+     Базовые Inter и Manrope по-прежнему приходят из разметки: они стоят
+     в общих стеках и нужны независимо от этой настройки.
+
+     Системный и моноширинный режимы веб-шрифтов не требуют вовсе —
+     их и нет в таблице. */
+  var FONT_CSS = {
+    compact:  "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400..700&display=swap",
+    creative: "https://fonts.googleapis.com/css2?family=Fraunces:wght@400..800&display=swap"
+  };
+  var fontsAsked = {};
+
+  function ensureFont(name){
+    var href = FONT_CSS[name];
+    if(!href || fontsAsked[name]) return;
+    fontsAsked[name] = true;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+    /* Подписи компаса разложены по метрикам прежнего шрифта: пока новый
+       не доехал, ярлыки стоят по старым ширинам и могут наехать друг
+       на друга. Тот же пересчёт делает app.js при первой загрузке. */
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){
+        if(PC.compass && PC.nav && PC.nav.current() === "compass") PC.compass.redraw();
+      });
+    }
+  }
   var state = {};
   var root = document.documentElement;
   var sheet, scrim, opener, lastFocus = null;
@@ -78,9 +119,25 @@
      переключение подписей или сетки не требует перерисовки поля. */
   function apply(){
     Object.keys(DEFAULTS).forEach(function(k){ root.dataset[k] = state[k]; });
+    ensureFont(state.font);
   }
 
   function get(key){ return state[key]; }
+
+  /* Пояснения «как это читать» — единственная настройка, которую нельзя
+     выразить атрибутом на <html>: раскрытость <details> живёт в его
+     собственном атрибуте open, и CSS до неё не дотягивается.
+
+     Синхронизация идёт только по смене самой настройки и один раз при
+     запуске — не на каждое применение подряд. Иначе переключение темы
+     захлопывало бы пояснение, которое человек только что раскрыл
+     руками, и выглядело бы это как поломка. */
+  function syncHints(){
+    var open = state.hints === "open";
+    document.querySelectorAll("details.chart-why").forEach(function(d){
+      d.open = open;
+    });
+  }
 
   function set(key, value){
     if(!(key in DEFAULTS) || state[key] === value) return;
@@ -98,6 +155,7 @@
       }
       if(PC.compass) PC.compass.redraw();
     }
+    if(key === "hints") syncHints();
   }
 
   /* ---------- отрисовка состояния элементов управления ---------- */
@@ -174,6 +232,7 @@
     load();
     apply();
     paint();
+    syncHints();
     if(PC.theme) PC.theme.set("system");
     if(PC.charts){
       PC.charts.invalidate();
@@ -226,6 +285,13 @@
 
     var resetBtn = document.getElementById("setReset");
     if(resetBtn) resetBtn.addEventListener("click", reset);
+
+    var welBtn = document.getElementById("setWelcome");
+    if(welBtn) welBtn.addEventListener("click", function(){
+      if(PC.welcome) PC.welcome.replay();
+    });
+
+    syncHints();
 
     document.addEventListener("keydown", function(e){
       if(sheet.hidden) return;

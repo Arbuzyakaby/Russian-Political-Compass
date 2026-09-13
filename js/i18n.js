@@ -57,6 +57,9 @@
     "word.seat":          [["мандат", "мандата", "мандатов"], ["seat", "seats"]],
     "word.faction":       [["фракция", "фракции", "фракций"], ["faction", "factions"]],
     "word.vote":          [["голосование", "голосования", "голосований"], ["vote", "votes"]],
+    "word.convocation":   [["созыв", "созыва", "созывов"], ["convocation", "convocations"]],
+    "word.subaxis":       [["под-ось", "под-оси", "под-осей"], ["sub-axis", "sub-axes"]],
+    "word.language":      [["язык", "языка", "языков"], ["language", "languages"]],
 
     "search.label":       ["Поиск партии", "Search parties"],
     "search.placeholder": ["Найти партию…", "Find a party…"],
@@ -121,6 +124,34 @@
     "set.cross":          ["Перекрестие", "Crosshair"],
     "set.cross.d":        ["Пунктир от точки под курсором к обеим осям — читать координату на глаз",
                            "A dotted line from the hovered point to both axes, for reading the coordinate by eye"],
+
+    "set.glasslevel":     ["Густота стекла", "Glass thickness"],
+    "set.glasslevel.d":   ["Насколько сильно размывается то, что лежит под поверхностью",
+                           "How strongly whatever lies under a surface gets blurred"],
+    "set.glasslevel.subtle":["Лёгкое", "Light"],
+    "set.glasslevel.normal":["Обычное", "Normal"],
+    "set.glasslevel.strong":["Плотное", "Heavy"],
+
+    "set.hints":          ["Пояснения к графикам", "Chart explanations"],
+    "set.hints.d":        ["Держать раскрытыми у каждого графика или прятать под кнопку «Как это читать»",
+                           "Keep them open under every chart, or tuck them behind a “How to read this” button"],
+    "set.hints.open":     ["Раскрыты", "Open"],
+    "set.hints.closed":   ["Свёрнуты", "Collapsed"],
+
+    "set.measure":        ["Ширина текста", "Text width"],
+    "set.measure.d":      ["Длина строки в длинных разделах: узкая колонка читается легче, широкая вмещает больше",
+                           "Line length in the long-form sections: a narrow column reads more easily, a wide one fits more"],
+    "set.measure.narrow": ["Узкая", "Narrow"],
+    "set.measure.normal": ["Обычная", "Normal"],
+
+    "set.fun":            ["Пасхалки", "Easter eggs"],
+    "set.eggs":           ["Мелкие шутки", "Small jokes"],
+    "set.eggs.d":         ["Портал вместо кнопки «наверх» и то, что прячется в самом низу страницы",
+                           "A portal instead of the back-to-top button, and whatever hides at the very bottom of the page"],
+    "set.welcome":        ["Приветственный экран", "Welcome screen"],
+    "set.welcome.d":      ["То самое окно, которое встречает при первом заходе",
+                           "The window that greets you on a first visit"],
+    "set.welcome.show":   ["Показать снова", "Show it again"],
 
     "set.page":           ["Страница", "Page"],
     "set.readbar":        ["Полоса прочтения", "Reading bar"],
@@ -211,8 +242,11 @@
     "side.title":         ["Партии", "Parties"],
     "side.listTitle":     ["Партии · мандаты в ГД · {conv}", "Parties · Duma seats · {conv}"],
     "side.cardTitle":     ["Карточка партии", "Party profile"],
-    "side.empty":         ["Ничего не найдено.<br>Попробуйте изменить запрос.",
-                           "Nothing found.<br>Try a different query."],
+    /* Пустое состояние объясняет, что делать дальше, а не только
+       сообщает о неудаче: «ничего не найдено» — это тупик, а подсказка
+       про фильтр и другое написание — выход из него. */
+    "side.empty":         ["Под этот запрос ничего не подошло.<br>Попробуйте короче или проверьте фильтр над полем — возможно, партия скрыта им.",
+                           "Nothing matched that.<br>Try a shorter query, or check the filter above the field — the party may be hidden by it."],
     "side.back":          ["← Все партии", "← All parties"],
     "side.leader":        ["Лидер партии", "Party leader"],
     "side.econ":          ["Экономика", "Economy"],
@@ -290,7 +324,8 @@
     "co.yes":             ["Большинство есть: на {n} сверх порога", "Majority: {n} above the threshold"],
     "co.no":              ["До большинства не хватает {n}", "{n} short of a majority"],
     "co.super":           ["Две трети палаты — хватает и на поправки к Конституции", "Two thirds of the chamber — enough even for constitutional amendments"],
-    "co.empty":           ["Выберите хотя бы одну фракцию", "Pick at least one faction"],
+    "co.empty":           ["Пока пусто — включите фракции кнопками выше, и всё пересчитается",
+                           "Empty for now — switch factions on with the buttons above and everything recalculates"],
     "co.centre":          ["Центр тяжести коалиции", "Coalition centre of gravity"],
     "co.enp":             ["Эффективное число партнёров", "Effective number of partners"],
     "co.enpD":            ["1.0 — коалиция держится на одной фракции", "1.0 means the coalition rests on a single faction"],
@@ -916,14 +951,94 @@
     "card.shareText":     ["Мой результат: {q} · экономика {x}, государство {y}",
                            "My result: {q} · economy {x}, state {y}"],
 
+    /* ===== приветственный экран ===== */
+    "wel.eyebrow":        ["Политический компас партий РФ", "Russian Political Compass"],
+    "wel.h":              ["Добро пожаловать", "Welcome"],
+    "wel.lede":           ["Здесь российские партии расставлены по двум осям — что они думают про экономику и сколько власти отдают государству. Никакой агитации: у каждой координаты рядом лежит объяснение, с которым можно спорить.",
+                           "This is where Russia's parties are laid out along two axes — what they think about the economy, and how much power they hand the state. No campaigning: every coordinate comes with the reasoning behind it, and you are welcome to argue with it."],
+    "wel.p1.h":           ["Посмотрите на поле", "Look at the field"],
+    "wel.p1.p":           ["Одиннадцать партий, пять созывов Думы и графики, которые следуют за выбранным созывом.",
+                           "Eleven parties, five convocations of the Duma, and charts that follow whichever one you pick."],
+    "wel.p2.h":           ["Найдите себя", "Find yourself on it"],
+    "wel.p2.p":           ["Тест ставит на ту же сетку вас — от двух минут до четверти часа, на ваш выбор.",
+                           "The quiz puts you on the same grid — anywhere from two minutes to a quarter of an hour, your call."],
+    "wel.p3.h":           ["Ничего не уходит наружу", "Nothing leaves your browser"],
+    "wel.p3.p":           ["Ни счётчиков, ни аналитики. Ответы и настройки лежат только в вашем браузере.",
+                           "No trackers, no analytics. Your answers and settings stay in your browser and nowhere else."],
+    "wel.enter":          ["Смотреть компас", "Open the compass"],
+    "wel.quiz":           ["Сразу к тесту", "Straight to the quiz"],
+    "wel.note":           ["Это окно больше не появится — разве что после следующего обновления. Вернуть его можно в настройках.",
+                           "You won't see this again — except after the next update. You can bring it back from the settings."],
+    "wel.close":          ["Закрыть приветствие", "Close the welcome screen"],
+    "wel.up.eyebrow":     ["Обновление {v}", "Update {v}"],
+    "wel.up.h":           ["Кое-что изменилось", "A few things have changed"],
+    "wel.up.lede":        ["Вы уже были здесь раньше, поэтому коротко — что нового с прошлого раза.",
+                           "You have been here before, so here is the short version of what is new."],
+    "wel.up.enter":       ["Понятно, дальше", "Got it, carry on"],
+    "wel.up.l1":          ["Больше стекла и настройка его густоты — от едва заметного до плотного.",
+                           "More glass, plus a dial for how thick it is — from barely there to properly frosted."],
+    "wel.up.l2":          ["У каждого графика появилось пояснение «как читать» — раскрывается по желанию.",
+                           "Every chart now has a “how to read this” note that opens when you want it."],
+    "wel.up.l3":          ["«О проекте» и «Голосования» разобраны на части: меньше сплошного текста.",
+                           "“About” and “Votes” have been broken up: much less solid wall of text."],
+    "wel.up.l4":          ["Страница грузится быстрее: шрифты больше не задерживают первую отрисовку.",
+                           "The page loads faster: fonts no longer hold up the first paint."],
+    "wel.up.l5":          ["Две новые пасхалки. Одна заметная, вторая — нет.",
+                           "Two new easter eggs. One of them is easy to spot; the other is not."],
+
+    /* ===== пояснения к графикам ===== */
+    "how.open":           ["Как это читать", "How to read this"],
+    "how.close":          ["Свернуть пояснение", "Hide the explanation"],
+    "how.compass.h":      ["Как читать компас", "How to read the compass"],
+    "how.compass.p1":     ["Каждый кружок — партия, а его размер — мандаты в выбранном созыве. Чем дальше две партии друг от друга, тем сильнее расходятся их программы.",
+                           "Each circle is a party, and its size is the number of seats it holds in the selected convocation. The further apart two parties sit, the further apart their platforms are."],
+    "how.compass.p2":     ["Влево и вправо — спор про экономику: кто распоряжается собственностью и доходом. Вверх и вниз — спор про государство: сколько оно вправе решать за человека.",
+                           "Left and right is the argument about the economy: who controls property and income. Up and down is the argument about the state: how much it gets to decide for you."],
+    "how.compass.p3":     ["Наведите курсор на точку — появится карточка партии. Нажмите — она откроется целиком, вместе с обоснованием координат.",
+                           "Hover over a dot for a quick card. Click it to open the party in full, reasoning included."],
+
+    /* ===== вкладка голосований ===== */
+    "votes.lede.short":   ["Программу можно написать какой угодно — голосование уже поступок. Двадцать законопроектов 2004–2024 годов и позиция каждой фракции по каждому из них.",
+                           "A platform can say anything; a vote is an act. Twenty bills from 2004 to 2024, and where every faction stood on each of them."],
+    "votes.s1":           ["голосований", "votes"],
+    "votes.s2":           ["годы", "years"],
+    "votes.s3":           ["фракций", "factions"],
+    "votes.why.h":        ["Зачем этот раздел", "Why this section exists"],
+    "votes.why.p":        ["Координаты на компасе выведены в том числе из того, как фракции голосуют, а не только из того, что партии пишут в программах. Здесь собраны и те голосования, на которых позиции разошлись сильнее всего, и те, на которых фракции совпали полностью.",
+                           "The coordinates on the compass are derived partly from how factions actually vote, not only from what parties put in their platforms. This section collects both the votes that split them the hardest and the ones where they agreed completely."],
+    "votes.note.h":       ["Как читать позиции", "How to read the positions"],
+    "votes.agreementWhy": ["Что здесь видно: расстояние на компасе измеряет программы, а матрица — поведение, и совпадают они не всегда. ЛДПР и «Справедливая Россия» стоят на поле почти втрое дальше друг от друга, чем ЛДПР от «Единой России», — и при этом совпали во всех общих голосованиях.",
+                           "What this shows: distance on the compass measures platforms, while the matrix measures behaviour — and the two do not always agree. The LDPR and A Just Russia sit almost three times further apart on the field than the LDPR and United Russia, yet they matched on every vote they shared."],
+
+    /* ===== вкладка «О проекте» ===== */
+    "ab.nav.h":           ["Коротко о разделах", "The sections, briefly"],
+    "ab.nav.hint":        ["Нажмите, чтобы перейти к нужному", "Tap any of these to jump to it"],
+    /* Подписи плиток собираются из склоняемого слова и хвоста: пять
+       созывов и два языка требуют разных форм, а число приходит из
+       данных и меняется при каждом новом созыве. */
+    "ab.st.parties":      ["{w} на поле", "{w} on the field"],
+    "ab.st.quiz":         ["{w} в тесте", "{w} in the quiz"],
+    "ab.st.votes":        ["ключевых {w}", "landmark {w}"],
+    "ab.st.conv":         ["{w} Госдумы", "Duma {w}"],
+    "ab.st.sub":          ["{w} у каждой партии", "{w} per party"],
+    "ab.st.langs":        ["{w} интерфейса", "interface {w}"],
+    "ab.more":            ["Подробнее", "More detail"],
+
+    /* ===== пасхалки ===== */
+    "egg.portal.tip":     ["Наверх. Сюда войдёшь — там выйдешь", "Back to the top. In one side, out the other"],
+    "egg.portal.aria":    ["Вернуться к началу страницы", "Return to the top of the page"],
+    "egg.grave.tip":      ["Здесь покоится Horse Update. Плита накрыта вышиванкой — так теплее",
+                           "Here lies the Horse Update. The slab is covered with an embroidered cloth — it is warmer that way"],
+    "egg.grave.epitaph":  ["Horse Update · 1.6 — 2.0", "Horse Update · 1.6 — 2.0"],
+
     /* ===== прочее ===== */
     "ui.top":             ["Наверх", "Back to top"],
     "ui.topAria":         ["Вернуться к началу страницы", "Return to the top of the page"],
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков, аналитики и внешних запросов",
                            "No trackers, no analytics, no outbound requests"],
-    "foot.version.tip":   ["Версия 2.0.1: правка бага с переносом текста в настройке шрифта",
-                           "Version 2.0.1: fixed a text-wrapping bug in the font setting"],
+    "foot.version.tip":   ["Версия 2.1: приветственный экран, больше стекла, пояснения к графикам и ускоренная загрузка",
+                           "Version 2.1: a welcome screen, more glass, how-to-read notes on every chart and a faster load"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"]
   };
@@ -1111,7 +1226,12 @@
   lang = detect();
 
   PC.i18n = { init:init, applyDom:applyDom, t:t, pl:pl, n:n, L:L,
-              current:current, isRu:isRu, set:set, toggle:toggle, LANGS:LANGS };
+              current:current, isRu:isRu, set:set, toggle:toggle, LANGS:LANGS,
+              /* Запись словаря целиком, обе локали сразу: raw() отдаёт
+                 строку на текущем языке, а проверкам нужно сверять
+                 перевод с переводом — например, что подсказка к номеру
+                 версии упоминает его и по-русски, и по-английски. */
+              entry:function(key){ return DICT[key]; } };
   /* Короткие псевдонимы: t() и L() зовутся из каждого модуля десятки раз,
      и PC.i18n.t на каждой строке читался бы хуже самой строки. */
   PC.t = t;

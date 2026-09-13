@@ -1,0 +1,224 @@
+/* ============ ПАСХАЛКИ ============
+
+   Портал вместо кнопки «наверх» и могила Horse Update в углу страницы.
+   Оба выключаются переключателем «Мелкие шутки» (data-eggs="off"), и
+   тогда от этого файла на странице не остаётся ничего: кнопка снова
+   становится обычным кружком со стрелкой, могила не рисуется.
+
+   Файл подключается после css/ui.css, но до css/glass.css: портал
+   уточняет описанную в ui.css кнопку, а спор со стеклом решает не
+   порядок подключения, а вес селектора — :root[data-eggs="on"] .to-top
+   точнее, чем просто .to-top, и снимает с кнопки размытие независимо
+   от того, кто из файлов идёт первым. ============ */
+
+/* ---------- портал ----------
+   Оранжевый портал — овал со светящейся кромкой. Овал, а не круг:
+   круглая рамка читается как обычная иконка, и только вытянутая по
+   вертикали форма узнаётся как портал.
+
+   Кромка нарисована двумя тенями вместо border: border обязан лежать
+   по форме элемента, а нам нужна форма изнутри — светящееся кольцо
+   с провалом в середине, куда уходит стрелка. */
+:root[data-eggs="on"] .to-top{
+  border-color:transparent;
+  background:transparent;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+  box-shadow:none;
+  overflow:visible;
+}
+
+/* внешнее кольцо: собственно портал */
+:root[data-eggs="on"] .to-top::before{
+  content:"";
+  position:absolute;
+  inset:-2px 5px;                  /* уже по горизонтали — получается овал */
+  border-radius:50%;
+  border:2.5px solid #ff9a2e;
+  box-shadow:
+    0 0 14px -1px rgba(255,154,46,.85),
+    0 0 34px -6px rgba(255,154,46,.55),
+    inset 0 0 12px -2px rgba(255,154,46,.75);
+  transition:border-color var(--dur-2) var(--ease-out),
+             box-shadow var(--dur-2) var(--ease-out),
+             transform var(--dur-2) var(--ease-out);
+}
+
+/* Нутро портала: то, что «по ту сторону». Собственного размытия здесь
+   нет намеренно — оно не выключалось бы настройкой «Стекло» и жило бы
+   мимо общей переменной. Глубину даёт градиент, и её достаточно. */
+:root[data-eggs="on"] .to-top::after{
+  content:"";
+  position:absolute;
+  inset:2px 9px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 62%, rgba(255,206,140,.42), rgba(120,58,0,.32) 62%, rgba(20,10,0,.46));
+  transition:background var(--dur-2) var(--ease-out);
+}
+
+/* стрелка лежит поверх нутра */
+:root[data-eggs="on"] .to-top > span{
+  position:relative;
+  z-index:1;
+  color:#fff3e2;
+  text-shadow:0 0 10px rgba(255,154,46,.9);
+}
+
+:root[data-eggs="on"] .to-top:hover{
+  border-color:transparent;
+  color:inherit;
+}
+:root[data-eggs="on"] .to-top:hover::before{
+  transform:scale(1.06);
+  box-shadow:
+    0 0 20px 0 rgba(255,154,46,.95),
+    0 0 46px -4px rgba(255,154,46,.6),
+    inset 0 0 14px -2px rgba(255,154,46,.85);
+}
+
+/* Нажатие: вход оранжевый, выход синий. Кольцо на миг перекрашивается
+   в синий портал — тот, из которого выходят, — и только потом страница
+   уезжает вверх. Полсекунды на всю шутку, дольше она бы мешала. */
+:root[data-eggs="on"] .to-top.fired::before{
+  animation:portal-fire .62s var(--ease-out);
+}
+:root[data-eggs="on"] .to-top.fired::after{
+  animation:portal-fire-in .62s var(--ease-out);
+}
+@keyframes portal-fire{
+  0%  { border-color:#ff9a2e; transform:scale(1); }
+  35% { border-color:#3da9ff; transform:scale(1.22);
+        box-shadow:0 0 26px 2px rgba(61,169,255,.95),
+                   0 0 60px -4px rgba(61,169,255,.65),
+                   inset 0 0 18px -2px rgba(61,169,255,.9); }
+  100%{ border-color:#ff9a2e; transform:scale(1); }
+}
+@keyframes portal-fire-in{
+  0%  { background:radial-gradient(circle at 50% 62%, rgba(255,206,140,.42), rgba(120,58,0,.30) 62%, rgba(20,10,0,.42)); }
+  35% { background:radial-gradient(circle at 50% 40%, rgba(190,228,255,.62), rgba(0,86,150,.38) 60%, rgba(0,18,34,.46)); }
+  100%{ background:radial-gradient(circle at 50% 62%, rgba(255,206,140,.42), rgba(120,58,0,.30) 62%, rgba(20,10,0,.42)); }
+}
+
+/* ---------- могила Horse Update ----------
+   Стоит в левом нижнем углу и проявляется, только когда подвал дошёл
+   до низа экрана. Слева, а не справа: справа живёт портал, и две
+   шутки в одном углу мешали бы друг другу.
+
+   pointer-events:none на всей сцене, кроме самой плиты: это картинка
+   в углу, и перехватывать ею клики по подвалу было бы неприятно. */
+.horse-grave{
+  position:fixed;
+  left:clamp(10px,2.5vw,26px);
+  bottom:clamp(10px,2.5vw,26px);
+  z-index:54;                       /* на слой ниже портала */
+  width:clamp(80px,9vw,104px);
+  opacity:0;
+  visibility:hidden;
+  transform:translateX(-14px) translateY(6px);
+  transition:opacity .6s var(--ease-out), transform .6s var(--ease-out), visibility .6s;
+  pointer-events:none;
+}
+.horse-grave.show{
+  opacity:.9;
+  visibility:visible;
+  transform:none;
+}
+.horse-grave:hover{ opacity:1; }
+.horse-grave svg{
+  display:block;
+  width:100%;
+  height:auto;
+  overflow:visible;
+  pointer-events:auto;              /* ради подсказки по наведению */
+}
+:root[data-eggs="off"] .horse-grave{ display:none; }
+
+/* Земля и камень берут цвет у темы: могила обязана быть частью
+   страницы, а не наклейкой поверх неё. */
+.g-ground{ fill:color-mix(in srgb,var(--muted-2) 26%,transparent); }
+.g-stone{
+  fill:color-mix(in srgb,var(--muted-2) 42%,var(--surface-3));
+  stroke:var(--stroke-2);
+  stroke-width:1;
+}
+.g-shoe{
+  fill:none;
+  stroke:color-mix(in srgb,var(--text) 42%,transparent);
+  stroke-width:2.2;
+  stroke-linecap:round;
+}
+.g-shoe-nail{ fill:color-mix(in srgb,var(--text) 42%,transparent); }
+
+/* ---------- вышиванка ----------
+   Полотно белое в любой теме, орнамент красный: белорусская вышиванка
+   узнаётся именно этой парой, и подстраивать её под палитру значило бы
+   получить просто цветную тряпку. Единственная уступка тёмным темам —
+   полотно чуть притушено, чтобы не светиться в углу фонарём. */
+.g-cloth{
+  fill:#f7f3ec;
+  stroke:rgba(0,0,0,.14);
+  stroke-width:.8;
+}
+.g-orn{
+  fill:none;
+  stroke:#c2352b;
+  stroke-linecap:square;
+}
+.g-fringe{
+  fill:none;
+  stroke:#e6dccb;
+  stroke-width:1.4;
+  stroke-linecap:round;
+}
+:root[data-scheme="dark"] .g-cloth{ fill:#e8e2d6; }
+
+/* роза у подножия — та же, что осталась в подвале от старой пасхалки */
+.g-rose{ fill:#c2352b; }
+.g-stem{ fill:none; stroke:#4c7a43; stroke-width:1.6; stroke-linecap:round; }
+.g-leaf{ fill:#4c7a43; }
+
+/* ---------- эпитафия ----------
+   Годы жизни пасхалки. Появляется по наведению: сцена в углу должна
+   читаться как картинка, а не как подпись под картинкой. */
+.g-epitaph{
+  display:block;
+  margin-top:3px;
+  text-align:center;
+  font-family:var(--font-mono);
+  font-size:8.5px;
+  letter-spacing:.02em;
+  color:var(--muted-2);
+  opacity:0;
+  transition:opacity var(--dur-2) var(--ease-out);
+}
+.horse-grave:hover .g-epitaph{ opacity:1; }
+
+/* Могила стоит ровно там, где у подвала идёт строка про мандаты, и
+   без отступа накрыла бы её собой. Место резервируется постоянно, а не
+   в момент появления: сцена проявляется как раз тогда, когда эту строку
+   читают, и переставлять под ней текст было бы хуже, чем подвинуть его
+   заранее. Отступ идёт ровно там, где сцена вообще показывается. */
+@media(min-width:721px){
+  :root[data-eggs="on"] .foot-bottom{
+    padding-left:calc(clamp(80px,9vw,104px) + 22px);
+  }
+}
+
+/* Узкий экран: угол занят большим пальцем, а не украшениями. */
+@media(max-width:720px){
+  .horse-grave{ display:none; }
+}
+
+@media(prefers-reduced-motion:reduce){
+  :root[data-eggs="on"] .to-top.fired::before,
+  :root[data-eggs="on"] .to-top.fired::after{ animation:none; }
+  .horse-grave{ transition:opacity .3s linear, visibility .3s; transform:none; }
+  .horse-grave.show{ transform:none; }
+}
+:root[data-motion="off"] .horse-grave{ transition:none; transform:none; }
+:root[data-motion="off"] .horse-grave.show{ transform:none; }
+
+@media print{
+  .horse-grave{ display:none!important; }
+}

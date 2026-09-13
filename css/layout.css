@@ -176,9 +176,65 @@
    Подпись в .chart-head отвечает на вопрос «что здесь нарисовано»,
    а этот блок — на вопрос «и что с того». Он намеренно отделён
    линией и стоит под самим графиком: читатель сначала смотрит,
-   потом читает вывод, а не наоборот. */
+   потом читает вывод, а не наоборот.
+
+   С 2.1 это <details>, а не абзац. Под каждым графиком лежало по
+   четыре-пять строк сплошного текста, и пять таких блоков подряд
+   превращали аналитику в статью, сквозь которую надо продираться
+   к следующей картинке. Свёрнутый блок обещает объяснение тому, кому
+   оно нужно, и не мешает тому, кому нет; исходное поведение
+   возвращается настройкой «Пояснения к графикам». Состояние ставит
+   js/settings.js атрибутом open — CSS раскрыть <details> не может. */
 .chart-why{
   margin-top:16px;padding-top:14px;border-top:1px solid var(--stroke);
   font-size:12px;line-height:1.6;color:var(--muted);
 }
-.chart-why::first-line{color:var(--body);}
+.chart-why p{ margin-top:9px; }
+.chart-why p:first-of-type{ margin-top:11px; }
+.chart-why p::first-line{ color:var(--body); }
+
+/* Треугольник браузера заменён своим: у нативного маркера нет ни
+   цвета темы, ни анимации, а в Safari он ещё и другой формы. */
+.chart-why > summary{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:fit-content;
+  cursor:pointer;
+  list-style:none;
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:var(--track-body);
+  color:var(--muted-2);
+  transition:color var(--dur-2) var(--ease-out);
+}
+.chart-why > summary::-webkit-details-marker{ display:none; }
+.chart-why > summary::before{
+  content:"";
+  width:0;
+  height:0;
+  border:4px solid transparent;
+  border-left-color:currentColor;
+  border-right-width:0;
+  transition:transform var(--dur-2) var(--ease-out);
+}
+.chart-why[open] > summary::before{ transform:rotate(90deg) translateX(1px); }
+.chart-why > summary:hover{ color:var(--text); }
+.chart-why > summary:focus-visible{ outline:2px solid var(--tone); outline-offset:3px; border-radius:4px; }
+.chart-why[open] > summary{ color:var(--body); }
+
+/* Когда пояснения раскрыты настройкой, заголовок перестаёт быть
+   предложением их раскрыть и становится подписью к тому, что и так
+   на виду: набирается как надзаголовок, а не как кнопка. Свернуть
+   его по-прежнему можно — просто он больше не зовёт это сделать. */
+:root[data-hints="open"] .chart-why > summary{
+  font-size:9.5px;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  font-weight:700;
+  color:var(--muted-2);
+}
+
+/* Пояснение к самому компасу стоит под легендой, а не под графиком:
+   верхней линии там не нужно — легенда уже отделена. */
+.compass-why{ margin-top:10px; padding-top:10px; }

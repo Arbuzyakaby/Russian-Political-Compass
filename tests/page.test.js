@@ -113,6 +113,17 @@ test("все картинки, на которые ссылается CSS и р�
       `index.html ссылается на несуществующий ${m[1]}`);
   }
 
+  /* Манифест — такая же точка ссылки, как разметка и стили: иконка
+     на 512 пикселей нужна только при установке приложения, и ссылка
+     на неё есть лишь здесь. Без этого файла проверка ниже объявила бы
+     её забытой и потребовала удалить. */
+  const manifest = fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8");
+  for(const icon of JSON.parse(manifest).icons){
+    seen.add(icon.src);
+    assert.ok(fs.existsSync(path.join(ROOT, icon.src)),
+      `manifest.json ссылается на несуществующий ${icon.src}`);
+  }
+
   /* И обратная проверка: лежащий в репозитории, но никем не используемый
      файл — это либо забытый черновик, либо потерянная ссылка. */
   for(const name of fs.readdirSync(path.join(ROOT, "assets"))){
@@ -283,7 +294,7 @@ test("число голосований одно и то же в данных, �
   assert.equal(fallback("data-i18n-html", "ft.data.l3", "li"), norm(PC.t("ft.data.l3")),
     "текст подвала в разметке отстал от словаря");
   assert.ok(PC.t("ft.data.l3").includes("<b>" + n + "</b>"), `в подвале не ${n} голосований`);
-  for(const key of ["votes.lede", "ab.votes.p"]){
+  for(const key of ["votes.lede.short", "ab.votes.p"]){
     assert.equal(fallback("data-i18n", key, "p"), norm(PC.t(key)), `${key}: разметка отстала от словаря`);
   }
   const badge = html.match(/id="tab-votes"[\s\S]*?class="tab-badge">(\d+)</);
@@ -308,4 +319,36 @@ test("внешние ссылки открываются безопасно", ()
   for(const m of html.matchAll(/<a[^>]+target="_blank"[^>]*>/g)){
     assert.match(m[0], /rel="[^"]*noopener/, `ссылка без noopener: ${m[0]}`);
   }
+});
+
+/* Номер версии живёт в четырёх местах, и три из них — текст, который
+   собирается вручную: строка в подвале, подсказка к ней и package.json.
+   В выпуске 2.0.1 подвал остался на 2.0 и уехал в релиз, потому что
+   проверять это было нечем. Теперь проверка есть. */
+test("номер версии совпадает во всех местах, где он записан", () => {
+  const { PC } = require("./harness.js").loadApp();
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+
+  const foot = html.match(/class="foot-version"[\s\S]*?>v([\d.]+)</);
+  assert.ok(foot, "в подвале не нашлась строка с номером версии");
+  assert.equal(foot[1], PC.VERSION,
+    `в подвале v${foot[1]}, а PC.VERSION — ${PC.VERSION}`);
+
+  assert.ok(pkg.version.startsWith(PC.VERSION),
+    `package.json объявляет ${pkg.version}, а код — ${PC.VERSION}`);
+
+  const tips = PC.i18n.entry("foot.version.tip");
+  tips.forEach((tip, lang) => {
+    assert.ok(tip.includes(PC.VERSION),
+      `подсказка к версии (${lang ? "en" : "ru"}) не упоминает ${PC.VERSION}: ${tip}`);
+  });
+
+  const footTitle = html.match(/class="foot-version"[\s\S]*?title="([^"]+)"/);
+  assert.ok(footTitle[1].includes(PC.VERSION),
+    `подсказка к версии в разметке не упоминает ${PC.VERSION}`);
+
+  const head = fs.readFileSync(path.join(ROOT, "CHANGELOG.md"), "utf8")
+    .match(/^## \[([\d.]+)\]/m);
+  assert.ok(head[1].startsWith(PC.VERSION),
+    `верхняя запись CHANGELOG — ${head[1]}, а версия ${PC.VERSION}`);
 });
