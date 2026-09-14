@@ -262,7 +262,7 @@
      кочующий tabindex держит в обычном порядке Tab только активную
      кнопку рельса — так же, как в сегментированных переключателях
      ниже, только по одной панели вместо одного значения. */
-  var rail, panelTabs, panels;
+  var rail, panelTabs, panels, panelsBox;
   function selectPanel(id){
     if(!panels || !panels.length) return;
     panels.forEach(function(p){ p.hidden = p.dataset.panel !== id; });
@@ -271,10 +271,17 @@
       b.setAttribute("aria-selected", String(on));
       b.tabIndex = on ? 0 : -1;
     });
+    /* Раздел меняется целиком, а не листается: без сброса прокрутки
+       новая панель могла бы открыться уже прокрученной вниз, если
+       прошлая была прокручена, — заголовок и первая строка терялись бы
+       из виду. Общий контейнер #setPanels один на все шесть секций,
+       поэтому его позиция не привязана к тому, какая секция видна. */
+    if(panelsBox) panelsBox.scrollTop = 0;
   }
   function initPanels(){
     rail = document.getElementById("setRail");
     if(!rail) return;
+    panelsBox = document.getElementById("setPanels");
     panelTabs = Array.prototype.slice.call(rail.querySelectorAll(".setm-tab"));
     panels = Array.prototype.slice.call(sheet.querySelectorAll(".set-group[data-panel]"));
     panelTabs.forEach(function(b, i){

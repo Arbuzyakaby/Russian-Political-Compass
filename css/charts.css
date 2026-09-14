@@ -78,19 +78,44 @@
 .c-tip .r i{width:8px;height:8px;border-radius:2px;flex:none;display:block;}
 .c-tip .r b{margin-left:auto;color:var(--text);font-weight:650;}
 
-/* ---------- парламентская диаграмма ---------- */
-.hemi-wrap{position:relative;}
+/* ---------- парламентская диаграмма (редизайн 2.3.1.1) ---------- */
+.hemi-wrap{position:relative;padding:6px 4px 0;
+  background:radial-gradient(ellipse 84% 100% at 50% 100%,
+    color-mix(in srgb,var(--accent) 7%,transparent),transparent 70%);
+  border-radius:var(--radius-sm);}
 .hemi-center{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);text-align:center;
-  pointer-events:none;width:min(62%,260px);}
+  pointer-events:none;width:min(62%,260px);padding-top:10px;}
+.hemi-center::before{content:"";position:absolute;left:50%;top:0;width:64px;height:1px;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,var(--stroke-2),transparent);}
 .hemi-center .big{font-family:var(--font-display);font-size:clamp(24px,3.6vw,34px);font-weight:750;
-  letter-spacing:-.035em;line-height:1;}
+  letter-spacing:-.035em;line-height:1;transition:color .3s ease;}
 .hemi-center .sub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.35;}
 .seat{transition:opacity .2s ease,transform .2s ease;transform-box:fill-box;transform-origin:center;}
 .seat.dim{opacity:.2;}
-.hemi-legend{display:flex;flex-direction:column;gap:2px;margin-top:8px;}
-.hleg{display:flex;align-items:center;gap:10px;width:100%;padding:7px 9px;border-radius:10px;cursor:pointer;
+/* Первая отрисовка: дуга собирается слева направо, местами, а не
+   выскакивает разом — 450 точек читаются как набранный состав, а не
+   как всплывший результат запроса. Задержку на каждую точку считает
+   charts.js по её positione x (тот же приём, что у перекраски дуги
+   при смене созыва). */
+.seat.seat-in{animation:seatIn .46s var(--ease-out-soft) both;}
+@keyframes seatIn{
+  from{opacity:0;transform:scale(.15);}
+  to{opacity:1;transform:scale(1);}
+}
+.hemi-legend{display:flex;flex-direction:column;gap:2px;margin-top:10px;}
+.hleg{position:relative;display:flex;align-items:center;gap:10px;width:100%;padding:7px 9px;
+  border-radius:10px;cursor:pointer;overflow:hidden;
   background:transparent;border:1px solid transparent;color:inherit;font:inherit;text-align:left;
   transition:background .15s,border-color .15s;}
+/* Доля места в палате — тонкая заливка под строкой легенды, а не
+   только число справа: масштаб фракции виден сразу, до того, как
+   прочитан процент. */
+.hleg::before{content:"";position:absolute;inset:0;z-index:0;
+  width:var(--hleg-share,0%);
+  background:color-mix(in srgb,var(--hleg-c,var(--accent)) 12%,transparent);
+  transition:width .6s var(--ease-out-soft);}
+.hleg > *{position:relative;z-index:1;}
 .hleg:hover{background:var(--surface);border-color:var(--stroke);}
 .hleg.active{background:var(--accent-soft);border-color:var(--accent-line);}
 .hleg i{width:10px;height:10px;border-radius:3px;flex:none;}

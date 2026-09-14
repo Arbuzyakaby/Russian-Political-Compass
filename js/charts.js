@@ -202,13 +202,21 @@
       ? box._seatDots.map(function(d){ return d.getAttribute("fill"); }) : null;
     var dots = [];
 
+    /* Дуга проявляется местами слева направо только при самой первой
+       отрисовке — редизайн 2.3.1.1. При смене созыва места уже красит
+       своя волна (oldFill ниже), а при простом ресайзе окна повторный
+       разлёт точек был бы просто миганием без смысла. */
+    var firstPaint = !box._seatDots;
+
     var groups = {};
     pts.forEach(function(pt, i){
       var p = owners[i];
       var dot = el("circle", {
-        class:"seat", cx:pt.x.toFixed(2), cy:pt.y.toFixed(2), r:dotR.toFixed(2),
+        class:"seat" + (firstPaint ? " seat-in" : ""),
+        cx:pt.x.toFixed(2), cy:pt.y.toFixed(2), r:dotR.toFixed(2),
         fill:p ? chartColor(p.color) : "var(--chart-empty)",
-        stroke:"var(--chart-surface)", "stroke-width":1.2        /* зазор между соседними местами */
+        stroke:"var(--chart-surface)", "stroke-width":1.2,       /* зазор между соседними местами */
+        style:firstPaint ? "animation-delay:" + Math.round(pt.x / W * 340) + "ms" : ""
       });
       dots.push(dot);
       if(p){
@@ -326,10 +334,11 @@
     /* легенда = таблица данных: название + число + доля, цвет вторичен */
     host.hemiLegend.innerHTML = duma.slice().sort(function(a, b){ return seatsAt(b,c) - seatsAt(a,c); })
       .map(function(p){
-        var s = seatsAt(p, c);
+        var s = seatsAt(p, c), color = chartColor(p.color);
         return '<button type="button" class="hleg' + (p.id === activeId ? " active" : "") +
-          '" data-id="' + esc(p.id) + '">' +
-          '<i style="background:' + esc(chartColor(p.color)) + '"></i>' +
+          '" data-id="' + esc(p.id) + '" style="--hleg-share:' + (s/PC.TOTAL_SEATS*100).toFixed(1) +
+          '%;--hleg-c:' + esc(color) + '">' +
+          '<i style="background:' + esc(color) + '"></i>' +
           '<span class="n">' + esc(L(p, "name")) + '</span>' +
           '<span class="s">' + s + '</span>' +
           '<span class="p">' + (s/PC.TOTAL_SEATS*100).toFixed(1) + '%</span></button>';

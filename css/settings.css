@@ -50,7 +50,12 @@
   position:fixed;z-index:calc(var(--z-sheet,80) + 1);
   top:50%;left:50%;
   width:min(760px,calc(100vw - 32px));
-  max-height:min(660px,calc(100vh - 48px));
+  /* Высота фиксированная, а не «до стольки-то»: с max-height окно
+     подстраивалось под содержимое каждого раздела и прыгало при каждом
+     переключении рельса — то на треть выше, то ниже. Одна и та же
+     высота на всех шести (семи с 2.3.1.1) разделах читается как одно
+     окно с меняющимся содержимым, а не как семь окон разного размера. */
+  height:min(660px,calc(100vh - 48px));
   display:flex;flex-direction:column;overflow:hidden;
   border-radius:var(--radius-lg);border:1px solid var(--stroke-2);
   background:var(--glass-bg-2);
@@ -105,13 +110,15 @@ body.sheet-lock{overflow:hidden;}
   color:var(--muted);cursor:pointer;padding:9px 12px;border-radius:var(--radius-sm);
   border:1px solid transparent;background:transparent;
   transition:background var(--dur-1) var(--ease-out),color var(--dur-1) var(--ease-out),
-             border-color var(--dur-1) var(--ease-out);
+             border-color var(--dur-1) var(--ease-out),transform var(--dur-1) var(--ease-out);
 }
 .setm-tab:hover{background:var(--surface-2);color:var(--text);}
 .setm-tab[aria-selected="true"]{
   background:color-mix(in srgb,var(--tone) 12%,transparent);
   color:var(--tone);border-color:var(--tone-line,var(--accent-line));
+  transform:translateX(3px);
 }
+@media(max-width:680px){.setm-tab[aria-selected="true"]{transform:translateY(-2px);}}
 .setm-tab:focus-visible{outline:2px solid var(--tone);outline-offset:1px;}
 
 .setm-panels{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 20px 18px;}
@@ -120,7 +127,15 @@ body.sheet-lock{overflow:hidden;}
 /* Одна открытая панель занимает всю правую половину окна — разделитель
    под заголовком, нужный в 2.3 для сплошной прокрутки шести секций
    подряд, здесь только повторял бы рамку самого окна. */
-.set-group{padding:0;}
+/* Смена раздела — не мгновенная подмена: панель едва заметно всплывает
+   и проявляется. [hidden] снимается атрибутом в JS, а не классом, и
+   браузер сам перезапускает анимацию при каждом таком возврате в
+   поток — лишнего кода в settings.js это не потребовало. */
+.set-group{padding:0;animation:setPanelIn .32s var(--ease-out);}
+@keyframes setPanelIn{
+  from{opacity:0;transform:translateY(9px);}
+  to{opacity:1;transform:translateY(0);}
+}
 .set-group h3{
   font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;
   color:var(--tone);margin-bottom:14px;
@@ -251,6 +266,40 @@ body.sheet-lock{overflow:hidden;}
 :root[data-promo="off"] .about-promo,
 :root[data-promo="off"] .foot-promo{display:none;}
 
+/* ---------- PVFP (2.3.1.1) ---------- */
+.pvfp-card{text-align:center;max-width:46ch;margin:6px auto 0;}
+.pvfp-lock{width:60px;height:60px;margin:0 auto 12px;overflow:visible;}
+.pvfp-lock .shackle{
+  transform-origin:32px 29px;
+  animation:pvfpUnlock .8s var(--ease-spring) both;
+}
+.pvfp-lock .ring{
+  transform-origin:32px 35px;
+  animation:pvfpPulse 2.6s ease-in-out .8s infinite;
+}
+@keyframes pvfpUnlock{
+  0%{transform:rotate(-22deg) translate(-3px,-3px);opacity:.5;}
+  65%{transform:rotate(5deg) translate(0,0);opacity:1;}
+  100%{transform:rotate(0) translate(0,0);opacity:1;}
+}
+@keyframes pvfpPulse{
+  0%,100%{opacity:.3;transform:scale(1);}
+  50%{opacity:.7;transform:scale(1.08);}
+}
+.pvfp-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
+  border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:4px 11px;margin-bottom:10px;}
+.pvfp-card h4{font-family:var(--font-display);font-size:16px;font-weight:750;letter-spacing:-.02em;
+  margin-bottom:10px;}
+.pvfp-lead{font-size:12px;line-height:1.55;color:var(--muted);margin-bottom:18px;}
+.pvfp-points{display:flex;flex-direction:column;gap:12px;text-align:left;margin-bottom:16px;}
+.pvfp-point{padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--surface) 60%,transparent);}
+.pvfp-point b{display:block;font-size:12px;font-weight:650;color:var(--text);margin-bottom:3px;}
+.pvfp-point span{display:block;font-size:11.5px;line-height:1.45;color:var(--muted-2);}
+.pvfp-note{font-size:10.5px;line-height:1.5;color:var(--muted-2);border-top:1px dashed var(--stroke);
+  padding-top:12px;}
+
 /* ---------- подвал панели ---------- */
 .set-foot{
   flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
@@ -263,7 +312,7 @@ body.sheet-lock{overflow:hidden;}
      телефона недосягаем, а окно шире экрана только сминалось бы. Рельс
      разделов ложится горизонтальной лентой над панелью — той же ролью,
      что и слева на широком экране, просто в один ряд вместо столбца. */
-  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;max-height:88vh;
+  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;height:88vh;
     border-radius:var(--radius-lg) var(--radius-lg) 0 0;border-bottom:0;
     transform:translateY(calc(100% + 20px)) scale(1);}
   .sheet.is-open{transform:translateY(0) scale(1);}

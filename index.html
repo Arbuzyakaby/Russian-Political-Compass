@@ -747,11 +747,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Список ⇄ карточка партии и карточка ⇄ другая карточка теперь переворачиваются, как игральная карта.</li>
-        <li data-i18n="wel.up.l2">Настройки — окно по центру с рельсом из шести разделов вместо одной длинной прокрутки.</li>
-        <li data-i18n="wel.up.l3">Тема «Боровляны» убрана: тем шесть вместо семи.</li>
-        <li data-i18n="wel.up.l4">Проверка контраста в настройках теперь проходит по каждой теме, а не по одной — заодно нашли и поправили едва заметный огрех в «Аляске».</li>
-        <li data-i18n="wel.up.l5">Код разложен по большему числу файлов, каждый — на своём месте: расчёт теста и коалиций, данные партий и голосований, словарь по разделам.</li>
+        <li data-i18n="wel.up.l1">Настройки: переключение разделов теперь анимировано, а не мгновенная подмена.</li>
+        <li data-i18n="wel.up.l2">Настройки: окно держит одну высоту на всех разделах, а прокрутка возвращается к началу при смене раздела.</li>
+        <li data-i18n="wel.up.l3">Новый раздел «Приватность» (PVFP) — на одном экране собрано всё, что раньше было разбросано по подвалу.</li>
+        <li data-i18n="wel.up.l4">Состав палаты: 450 мест дуги проявляются волной слева направо при первой отрисовке.</li>
+        <li data-i18n="wel.up.l5">Легенда состава палаты получила заливку под строкой — доля фракции видна до того, как прочитан процент.</li>
       </ul>
 
       <div class="wel-actions">
@@ -871,6 +871,9 @@
       <button type="button" class="setm-tab" role="tab" data-panel="nav"
               id="setTab-nav" aria-controls="setPanel-nav" aria-selected="false" tabindex="-1">
         <span data-i18n="set.nav">Навигация</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="privacy"
+              id="setTab-privacy" aria-controls="setPanel-privacy" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.privacy">Приватность</span></button>
       <button type="button" class="setm-tab" role="tab" data-panel="general"
               id="setTab-general" aria-controls="setPanel-general" aria-selected="false" tabindex="-1">
         <span data-i18n="set.page">Общее</span></button>
@@ -1131,6 +1134,44 @@
       </div>
     </section>
 
+    <section class="set-group pvfp" data-panel="privacy" id="setPanel-privacy" role="tabpanel" aria-labelledby="setTab-privacy" hidden>
+      <h3 data-i18n="set.privacy">Приватность</h3>
+
+      <!-- PVFP не переключатель, а витрина: показывать нечего выключать,
+           потому что выключать нечего — страница и так ничего не
+           собирает. Замочек здесь ровно поэтому декоративный: он не
+           меняет состояние, он объясняет то, что уже верно всегда. -->
+      <div class="pvfp-card">
+        <svg class="pvfp-lock" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <circle class="ring" cx="32" cy="35" r="26" fill="none" stroke="var(--tone)" stroke-width="1.4" opacity=".35"/>
+          <rect class="body" x="16" y="29" width="32" height="26" rx="7" fill="var(--tone)"/>
+          <path class="shackle" d="M22 29v-6a10 10 0 0 1 20 0v6" fill="none" stroke="var(--tone)" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="32" cy="41" r="3.4" fill="var(--glass-bg-2)"/>
+          <rect x="30.5" y="41" width="3" height="7" rx="1.5" fill="var(--glass-bg-2)"/>
+        </svg>
+        <span class="pvfp-badge" data-i18n="set.privacy.badge">Собственный протокол проекта</span>
+        <h4 data-i18n="set.privacy.title">PVFP — Privacy-Verified Front Page</h4>
+        <p class="pvfp-lead" data-i18n="set.privacy.lead">Каждый узел этой страницы построен так, что личным данным физически негде накапливаться. Это не политика конфиденциальности на словах, а архитектурное ограничение: обойти его обновлением или настройкой снаружи нельзя, потому что снаружи нет ничего, что бы это ограничение снимало.</p>
+
+        <div class="pvfp-points">
+          <div class="pvfp-point">
+            <b data-i18n="set.privacy.p1.t">Нулевая телеметрия</b>
+            <span data-i18n="set.privacy.p1.d">Ни счётчиков, ни аналитики, ни сторонних запросов при загрузке — сеть видит только файлы самой страницы.</span>
+          </div>
+          <div class="pvfp-point">
+            <b data-i18n="set.privacy.p2.t">Состояние только у вас</b>
+            <span data-i18n="set.privacy.p2.d">Тема, язык, ответы теста и вот эти настройки лежат в localStorage браузера и никогда не покидают устройство.</span>
+          </div>
+          <div class="pvfp-point">
+            <b data-i18n="set.privacy.p3.t">Проверяемо, а не обещано</b>
+            <span data-i18n="set.privacy.p3.d">Каждая строка, которая решает, что происходит с данными, открыта на GitHub — можно перепроверить, а не поверить на слово.</span>
+          </div>
+        </div>
+
+        <p class="pvfp-note" data-i18n="set.privacy.note">По сути — открытый исходный код и честное отсутствие трекеров, названные протоколом, чтобы это было видно с первого взгляда, а не только тем, кто дочитал подвал страницы.</p>
+      </div>
+    </section>
+
     <section class="set-group" data-panel="general" id="setPanel-general" role="tabpanel" aria-labelledby="setTab-general" hidden>
       <h3 data-i18n="set.page">Общее</h3>
 
@@ -1253,7 +1294,7 @@
              PC.VERSION: подвал читают и без JavaScript. Тест сверяет
              его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.3.1: переворот карточек, настройки окном с рельсом разделов, шесть тем, код по файлам">v2.3.1</span>
+              title="Версия 2.3.1.1: анимация переключения разделов настроек, окно настроек одной высоты, раздел «Приватность» (PVFP), редизайн состава палаты">v2.3.1.1</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
