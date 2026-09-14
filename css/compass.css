@@ -18,10 +18,10 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
    До 2.3.2 поле стояло прямо на фоне страницы: ни рамки, ни стекла, ни
    толщины — только линии самого SVG. Теперь у него два слоя-«подложки»
    позади основной панели, тем же языком стекла, что у карточек и
-   подсказок (css/glass.css): сдвинуты по диагонали и слегка повёрнуты,
-   как отложенные в сторону листы, и читаются именно как стопка, а не
-   декоративная тень — глубже слой, тем он прозрачнее и тем сильнее
-   размыт край.
+   подсказок (css/glass.css): сдвинуты по диагонали, но без поворота —
+   ровно отложенные в сторону листы, а не веер, — и читаются именно
+   как стопка, а не декоративная тень: глубже слой, тем он прозрачнее
+   и тем сильнее размыт край.
 
    isolation:isolate на .plot держит их в собственном стеке: отрицательный
    z-index не должен утекать ниже соседних блоков страницы. */
@@ -39,21 +39,21 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
   box-shadow:var(--shadow);
 }
 .plot::before{
-  transform:translate(7px,10px) rotate(.8deg);
+  transform:translate(7px,10px);
   background:color-mix(in srgb,var(--glass-bg-2) 55%,var(--bg));
   -webkit-backdrop-filter:var(--glass-filter);
   backdrop-filter:var(--glass-filter);
   opacity:.7;
 }
 .plot::after{
-  transform:translate(14px,19px) rotate(-1.3deg);
+  transform:translate(14px,19px);
   background:color-mix(in srgb,var(--glass-bg-2) 35%,var(--bg));
   border-color:var(--stroke);
   opacity:.45;
 }
 @media(max-width:720px){
-  .plot::before{ transform:translate(5px,7px) rotate(.6deg); }
-  .plot::after{ transform:translate(10px,14px) rotate(-1deg); }
+  .plot::before{ transform:translate(5px,7px); }
+  .plot::after{ transform:translate(10px,14px); }
 }
 @media print{
   .plot::before,.plot::after{ display:none; }
