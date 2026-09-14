@@ -238,3 +238,33 @@
 @media (prefers-reduced-motion: reduce){
   :root.catch22 body,.plot.flyover{ animation:none; }
 }
+
+/* ============ Юбилей: 50-й коммит (2.3.2) ============
+   Конфетти цветами партий, короткая одноразовая сцена поверх страницы.
+   js/eggs.js уже не создаёт узел, когда включён prefers-reduced-motion
+   или выключены «Мелкие шутки» — правило здесь только on top, на
+   случай системной настройки, сменившейся уже после запуска сцены. */
+.egg-confetti{ position:fixed; inset:0; z-index:70; pointer-events:none; overflow:hidden; }
+.egg-confetti i{
+  position:absolute; top:-14px; width:7px; height:11px; border-radius:2px; opacity:.95;
+  animation-name:egg-fall; animation-timing-function:linear; animation-fill-mode:forwards;
+}
+@keyframes egg-fall{
+  0%  { transform:translateY(0) rotate(0deg); opacity:.95; }
+  100%{ transform:translateY(112vh) rotate(560deg); opacity:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .egg-confetti{ display:none; }
+}
+
+/* ============ Код Konami (2.3.2) ============
+   Класс держится на самом svg.compass и снимается таймером из
+   js/eggs.js. filter здесь на время перебивает url(#glow) у точек
+   партий (тот задан атрибутом, а не CSS) — по окончании анимации
+   правило перестаёт действовать, и точки возвращаются к обычному
+   свечению сами, без дополнительного кода. */
+svg.compass.egg-disco .node .dot{ animation:egg-disco 1.3s ease-in-out; }
+@keyframes egg-disco{
+  0%,100%{ filter:hue-rotate(0deg) saturate(1); }
+  50%    { filter:hue-rotate(180deg) saturate(1.7); }
+}

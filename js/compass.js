@@ -438,7 +438,65 @@
         }, 140 + item.i * 60);
       });
 
+    drawPutin(layer);
     drawUser(layer);
+  }
+
+  /* ---------- точка Путина (2.3.2) ----------
+     Единственный человек на поле, а не партия: своя форма (шестиугольная
+     печать вместо кружка), свой цвет и своя карточка — PC.putin.open(),
+     а не PC.select(), потому что общая карточка партии ждёт мандаты и
+     голосования, которых здесь нет. Данные и разбор — js/data-putin.js. */
+  var PUTIN_SEAL = "M0,-12 L10.4,-6 L10.4,6 L0,12 L-10.4,6 L-10.4,-6 Z";
+  function drawPutin(layer){
+    var p = PC.PUTIN;
+    if(!p) return;
+    var c = px(p.x, p.y);
+    var g = el("g", {
+      "class":"node putin", "data-id":p.id, tabindex:"0", role:"button",
+      "aria-label":L(p, "name") + ", " + L(p, "role"),
+      transform:"translate(" + c.sx + "," + c.sy + ")"
+    });
+    g.appendChild(el("circle", { "class":"pulse", r:14, stroke:p.color }));
+    g.appendChild(el("circle", { "class":"ring", r:19, stroke:p.color }));
+    g.appendChild(el("path", { "class":"dot putin-seal", d:PUTIN_SEAL, fill:p.color, filter:"url(#glow)" }));
+    g.appendChild(el("circle", { "class":"putin-seal-core", r:3.6, fill:"var(--glass-bg-2)" }));
+
+    var tag  = el("text", { "class":"tag" }, L(p, "short"));
+    var seat = el("text", { "class":"seat" }, L(p, "badge"));
+    g.appendChild(tag);
+    g.appendChild(seat);
+    layer.appendChild(g);
+    obstacles.push(placeLabel(tag, seat, c.sx, c.sy, 12, "right"));
+
+    function enter(){
+      PC.tip.showHTML(
+        '<div class="tip-top"><span class="tip-dot" style="background:' + U.esc(p.color) + '"></span>' +
+        '<span class="tip-name">' + U.esc(L(p, "name")) + '</span></div>' +
+        '<div class="tip-ideo">' + U.esc(L(p, "role")) + ' · ' + U.esc(L(p, "badge")) + '</div>' +
+        '<div class="tip-meta">' +
+          '<span>' + U.esc(t("side.econ")) + ' <b>' + U.fmt(p.x) + '</b></span>' +
+          '<span>' + U.esc(t("side.state")) + ' <b>' + U.fmt(p.y) + '</b></span>' +
+        '</div>' +
+        '<div class="tip-hint">' + U.esc(t("tip.putin")) + '</div>',
+        c.sx, c.sy);
+      showCross(c.sx, c.sy);
+    }
+    function leave(){ PC.tip.hide(); hideCross(); }
+    function open(){ if(PC.putin) PC.putin.open(); }
+    g.addEventListener("mouseenter", enter);
+    g.addEventListener("mouseleave", leave);
+    g.addEventListener("focus", enter);
+    g.addEventListener("blur", leave);
+    g.addEventListener("click", open);
+    g.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+        e.preventDefault();
+        open();
+      }
+    });
+
+    setTimeout(function(){ g.classList.add("in"); }, 200);
   }
 
   /* ---------- точка пользователя по результату теста ---------- */
@@ -521,7 +579,11 @@
      Скрытые точки убираются и из порядка обхода Tab.
      Точка пользователя фильтрам не подчиняется — у неё нет data-id. */
   function syncNodes(visibleIds, activeId){
-    svg.querySelectorAll(".node:not(.you)").forEach(function(n){
+    /* .you и .putin не участвуют в фильтрах: у теста нет id в PC.PARTIES,
+       у Путина — своя карточка вместо PC.select, так что списку
+       видимых id взяться неоткуда, а гасить точку как «не найдено
+       фильтром» было бы неправдой. */
+    svg.querySelectorAll(".node:not(.you):not(.putin)").forEach(function(n){
       var muted = !visibleIds.has(n.dataset.id);
       n.classList.toggle("muted", muted);
       n.classList.toggle("active", n.dataset.id === activeId);

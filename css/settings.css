@@ -266,20 +266,43 @@ body.sheet-lock{overflow:hidden;}
 :root[data-promo="off"] .about-promo,
 :root[data-promo="off"] .foot-promo{display:none;}
 
-/* ---------- PVFP (2.3.1.1) ---------- */
+/* ---------- PVFP (2.3.1.1, анимация замочка доработана в 2.3.2) ----------
+   До 2.3.2 замочек делал одно: шэкль (дужка) распахивался пружиной, а
+   единственное кольцо ровно дышало вокруг него. Дужка и сам корпус
+   молчали после открытия, и рябь пульса читалась как один вдох-выдох,
+   а не как отклик на само событие.
+
+   Теперь у входа в карточку три штриха вместо одного: сам значок
+   влетает лёгким пружинным «попом» (pvfpPop, на всей svg целиком — не
+   мешает повороту дужки, потому что тот висит на другом элементе),
+   дужка распахивается с небольшим перелётом и лёгким «оседанием» вместо
+   одной остановки, а колец теперь два — второе (.ring-2) запущено с
+   тем же периодом, но сдвинуто по фазе, и вместе они читаются как
+   расходящаяся по воде рябь, а не одно кольцо. */
 .pvfp-card{text-align:center;max-width:46ch;margin:6px auto 0;}
-.pvfp-lock{width:60px;height:60px;margin:0 auto 12px;overflow:visible;}
+.pvfp-lock{width:60px;height:60px;margin:0 auto 12px;overflow:visible;
+  animation:pvfpPop .5s var(--ease-spring) both;}
 .pvfp-lock .shackle{
   transform-origin:32px 29px;
-  animation:pvfpUnlock .8s var(--ease-spring) both;
+  animation:pvfpUnlock .85s var(--ease-spring) both;
 }
 .pvfp-lock .ring{
   transform-origin:32px 35px;
   animation:pvfpPulse 2.6s ease-in-out .8s infinite;
 }
+.pvfp-lock .ring-2{
+  transform-origin:32px 35px;
+  animation:pvfpPulse 2.6s ease-in-out 2.1s infinite;
+}
+@keyframes pvfpPop{
+  0%{transform:scale(.82);opacity:0;}
+  62%{transform:scale(1.05);opacity:1;}
+  100%{transform:scale(1);opacity:1;}
+}
 @keyframes pvfpUnlock{
-  0%{transform:rotate(-22deg) translate(-3px,-3px);opacity:.5;}
-  65%{transform:rotate(5deg) translate(0,0);opacity:1;}
+  0%{transform:rotate(-26deg) translate(-3px,-4px);opacity:.5;}
+  55%{transform:rotate(6deg) translate(0,0);opacity:1;}
+  78%{transform:rotate(-2deg);}
   100%{transform:rotate(0) translate(0,0);opacity:1;}
 }
 @keyframes pvfpPulse{

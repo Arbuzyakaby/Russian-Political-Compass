@@ -1,6 +1,6 @@
 /* ============ Пасхалки ============
 
-   Две штуки, обе выключаются одним переключателем в настройках
+   Пять штук, все выключаются одним переключателем в настройках
    (data-eggs на <html>), потому что шутка, от которой нельзя
    отказаться, — уже не шутка.
 
@@ -19,8 +19,27 @@
       долистал до самого низа: это награда за внимание, а не элемент
       интерфейса, и мешать она не должна никому.
 
-   Обе живут отдельно от остальной страницы: ни один другой модуль
-   про них не знает, и удаление этого файла ничего не сломает. ============ */
+   3. Уловка-22 (2.2). «22» в поиске партий — и интерфейс начинает
+      вращаться; остановить можно, только стерев запрос из того же
+      поля, которое само в это время крутится.
+
+   4. Юбилей (2.3.2). «50» в поиске партий — пятидесятый коммит
+      проекта — запускает конфетти цветами самих партий и тост с
+      мелкой числовой шуткой. Механика та же, что у Уловки-22: то же
+      поле, тот же принцип «сработало один раз, пока не сотрут цифры».
+
+   5. Код Konami (2.3.2). Классическая последовательность
+      ↑↑↓↓←→←→ в любом месте страницы на секунду пускает точки
+      партий на компасе в разноцветный пляс — сдвиг оттенка через
+      CSS-фильтр, без переигровки самих цветов данных. Работает поверх
+      обычных стрелок навигации (тест, панель настроек, свой
+      выпадающий список): preventDefault здесь нарочно не вызывается,
+      чтобы не мешать им, а совпасть с их нажатиями случайно длинная
+      точная последовательность не может.
+
+   Все пять живут отдельно от остальной страницы: ни один другой
+   модуль про них не знает, и удаление этого файла ничего не
+   сломает, кроме самих шуток. ============ */
 (function(PC){
   "use strict";
 
@@ -124,10 +143,82 @@
     });
   }
 
+  /* ---------- 4. Юбилей: 50-й коммит (2.3.2) ----------
+     Тот же приём, что у Уловки-22: слушаем то же поле поиска и то же
+     событие input, срабатываем один раз на переход «стало 50» — а не
+     на каждую отдельную клавишу, — и сбрасываем метку, когда запрос
+     перестаёт быть «50», чтобы можно было сыграть снова. */
+  var jubilee50Fired = false;
+  function spawnConfetti(){
+    var colors = PC.PARTIES.map(function(p){ return p.color; });
+    var host = document.createElement("div");
+    host.className = "egg-confetti";
+    host.setAttribute("aria-hidden", "true");
+    for(var i = 0; i < 28; i++){
+      var bit = document.createElement("i");
+      bit.style.left = (Math.random() * 100).toFixed(1) + "%";
+      bit.style.background = colors[i % colors.length];
+      bit.style.animationDelay = (Math.random() * .4).toFixed(2) + "s";
+      bit.style.animationDuration = (1.1 + Math.random() * .6).toFixed(2) + "s";
+      host.appendChild(bit);
+    }
+    document.body.appendChild(host);
+    setTimeout(function(){ host.remove(); }, 2200);
+  }
+  function initJubilee50(){
+    var q = document.getElementById("q");
+    if(!q) return;
+    q.addEventListener("input", function(){
+      var hit = on() && q.value.trim() === "50";
+      if(hit && !jubilee50Fired){
+        if(PC.ui) PC.ui.toast(PC.t("egg.c50"));
+        if(!reduced()) spawnConfetti();
+      }
+      jubilee50Fired = hit;
+    });
+  }
+
+  /* ---------- 5. Код Konami (2.3.2) ----------
+     Буфер держит только индекс следующей ожидаемой клавиши, а не всю
+     историю нажатий: длиннее, чем восемь шагов, последовательность
+     никогда не бывает, и сравнивать есть с чем — с одной клавишей за
+     раз. Несовпадение сбрасывает счётчик, но не глухо: если сама
+     нажатая клавиша — первая клавиша кода, отсчёт стартует заново с
+     неё же, а не требует полной паузы перед новой попыткой. */
+  var KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
+                "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight"];
+  var konamiStep = 0;
+  function fireKonami(){
+    if(PC.ui) PC.ui.toast(PC.t("egg.konami"));
+    if(reduced()) return;
+    var svg = document.getElementById("svg");
+    if(!svg) return;
+    svg.classList.remove("egg-disco");
+    void svg.offsetWidth;
+    svg.classList.add("egg-disco");
+    setTimeout(function(){ svg.classList.remove("egg-disco"); }, 1500);
+  }
+  function initKonami(){
+    document.addEventListener("keydown", function(e){
+      if(!on()){ konamiStep = 0; return; }
+      if(e.key === KONAMI[konamiStep]){
+        konamiStep++;
+        if(konamiStep === KONAMI.length){
+          konamiStep = 0;
+          fireKonami();
+        }
+      }else{
+        konamiStep = e.key === KONAMI[0] ? 1 : 0;
+      }
+    });
+  }
+
   function init(){
     initPortal(document.querySelector(".to-top"));
     initGrave();
     initCatch22();
+    initJubilee50();
+    initKonami();
   }
 
   /* ---------- 3D-пролёт над компасом (2.2) ----------

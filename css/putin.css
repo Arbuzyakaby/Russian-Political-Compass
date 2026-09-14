@@ -1,0 +1,54 @@
+/* ============ КАРТОЧКА ПУТИНА (2.3.2) ============
+
+   Оболочка — тот же .sheet/.sheet-scrim, что у настроек (правила лежат
+   в css/settings.css), но окно настроек рассчитано на рельс из шести
+   разделов и держит фиксированные 760×660. Карточке нужна одна колонка
+   и высота по содержимому, поэтому здесь — не новый компонент, а два
+   точечных переопределения поверх общего .sheet.
+
+   Содержимое карточки построено на классах js/sidebar.css (.detail,
+   .d-head, .d-badge, .coords, .sect, .note — см. js/putin.js) ради
+   единого языка карточки партии и карточки Путина. Здесь — только то,
+   что делает её исключением, а не двенадцатой партией: шестиугольная
+   иконка вместо инициала, ироничный бейдж и завершающая сноска. ============ */
+
+.sheet.putin-sheet{
+  width:min(480px,calc(100vw - 32px));
+  height:auto;
+  max-height:min(680px,calc(100vh - 48px));
+}
+.putin-sheet .sheet-body{
+  display:block;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.putin-sheet #putinBody .detail{padding:18px;}
+
+/* ---------- бейдж-печать вместо инициала ---------- */
+.putin-badge svg{width:24px;height:24px;fill:#fff;}
+
+/* ---------- ироничный подзаголовок ----------
+   «Беспартийный (по паспорту)» — не оценка, а факт: с 2012 года Путин
+   формально не состоит в «Единой России», хотя дважды возглавлял её
+   список. Бейдж читается как усмешка именно потому, что он точен. */
+.pt-badge{
+  display:inline-block;margin:-4px 0 12px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--party,var(--accent));
+  background:color-mix(in srgb,var(--party,var(--accent)) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--party,var(--accent)) 34%,transparent);
+  border-radius:999px;padding:4px 10px;
+}
+
+/* ---------- сноска ---------- */
+.pt-note{
+  font-size:11px;line-height:1.55;color:var(--muted-2);
+  border-top:1px dashed var(--stroke);padding-top:12px;margin-top:2px;
+}
+
+@media(max-width:520px){
+  .sheet.putin-sheet{ top:auto;bottom:0;left:0;right:0;
+    width:100%;max-width:100%;transform:translateY(100%);
+    max-height:min(88vh,680px);border-radius:var(--radius-lg) var(--radius-lg) 0 0; }
+  .sheet.putin-sheet.is-open{ transform:translateY(0); }
+}

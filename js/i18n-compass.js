@@ -272,5 +272,11 @@
     "ch.radar.match":     ["Средняя разница по шести шкалам — {d}.",
                            "Mean difference across the six scales — {d}."],
 
+    /* ===== карточка Путина (2.3.2) ===== */
+    "tip.putin":          ["Нажмите — отдельная карточка", "Click for a separate card"],
+    "putin.eyebrow":      ["Не партия", "Not a party"],
+    "putin.title":        ["Владимир Путин", "Vladimir Putin"],
+    "putin.close":        ["Закрыть карточку", "Close the card"],
+
   });
 })(window.PC = window.PC || {});

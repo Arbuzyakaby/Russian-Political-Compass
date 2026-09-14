@@ -92,6 +92,7 @@
 <link rel="stylesheet" href="css/footer.css">
 <link rel="stylesheet" href="css/select.css">
 <link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/putin.css">
 <link rel="stylesheet" href="css/ui.css">
 <link rel="stylesheet" href="css/welcome.css">
 <link rel="stylesheet" href="css/eggs.css">
@@ -747,11 +748,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Настройки: переключение разделов теперь анимировано, а не мгновенная подмена.</li>
-        <li data-i18n="wel.up.l2">Настройки: окно держит одну высоту на всех разделах, а прокрутка возвращается к началу при смене раздела.</li>
-        <li data-i18n="wel.up.l3">Новый раздел «Приватность» (PVFP) — на одном экране собрано всё, что раньше было разбросано по подвалу.</li>
-        <li data-i18n="wel.up.l4">Состав палаты: 450 мест дуги проявляются волной слева направо при первой отрисовке.</li>
-        <li data-i18n="wel.up.l5">Легенда состава палаты получила заливку под строкой — доля фракции видна до того, как прочитан процент.</li>
+        <li data-i18n="wel.up.l1">Компас: слоистый редизайн — поле теперь стоит на стеклянных подложках, а не на одной плоской панели.</li>
+        <li data-i18n="wel.up.l2">На компасе впервые появился человек, а не партия: Владимир Путин, с отдельной, визуально особой карточкой.</li>
+        <li data-i18n="wel.up.l3">Раздел «Приватность» (PVFP) расширен, а расшифровка сменилась на Privacy-first page.</li>
+        <li data-i18n="wel.up.l4">Замочек в разделе «Приватность» получил более живую анимацию открытия.</li>
+        <li data-i18n="wel.up.l5">На телефоне выбор партии на компасе больше не открывает следом системное меню iOS поверх карточки.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1144,14 +1145,18 @@
       <div class="pvfp-card">
         <svg class="pvfp-lock" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
           <circle class="ring" cx="32" cy="35" r="26" fill="none" stroke="var(--tone)" stroke-width="1.4" opacity=".35"/>
+          <!-- Второе кольцо ряби (2.3.2): та же анимация pvfpPulse, но со
+               сдвигом фазы в css/settings.css — вместе они читаются как
+               два расходящихся круга на воде, а не один вдох-выдох. -->
+          <circle class="ring ring-2" cx="32" cy="35" r="26" fill="none" stroke="var(--tone)" stroke-width="1.4" opacity=".35"/>
           <rect class="body" x="16" y="29" width="32" height="26" rx="7" fill="var(--tone)"/>
           <path class="shackle" d="M22 29v-6a10 10 0 0 1 20 0v6" fill="none" stroke="var(--tone)" stroke-width="5" stroke-linecap="round"/>
           <circle cx="32" cy="41" r="3.4" fill="var(--glass-bg-2)"/>
           <rect x="30.5" y="41" width="3" height="7" rx="1.5" fill="var(--glass-bg-2)"/>
         </svg>
         <span class="pvfp-badge" data-i18n="set.privacy.badge">Собственный протокол проекта</span>
-        <h4 data-i18n="set.privacy.title">PVFP — Privacy-Verified Front Page</h4>
-        <p class="pvfp-lead" data-i18n="set.privacy.lead">Каждый узел этой страницы построен так, что личным данным физически негде накапливаться. Это не политика конфиденциальности на словах, а архитектурное ограничение: обойти его обновлением или настройкой снаружи нельзя, потому что снаружи нет ничего, что бы это ограничение снимало.</p>
+        <h4 data-i18n="set.privacy.title">PVFP — Privacy-first page</h4>
+        <p class="pvfp-lead" data-i18n="set.privacy.lead">Каждый узел этой страницы построен так, что личным данным физически негде накапливаться. Это не политика конфиденциальности на словах, а архитектурное ограничение: обойти его обновлением или настройкой снаружи нельзя, потому что снаружи нет ничего, что бы это ограничение снимало. Гарантия касается кода страницы — она не распространяется на сам браузер, вашего интернет-провайдера или хостинг, у которых остаётся обычный технический лог соединения, как у любого сайта в мире.</p>
 
         <div class="pvfp-points">
           <div class="pvfp-point">
@@ -1165,6 +1170,10 @@
           <div class="pvfp-point">
             <b data-i18n="set.privacy.p3.t">Проверяемо, а не обещано</b>
             <span data-i18n="set.privacy.p3.d">Каждая строка, которая решает, что происходит с данными, открыта на GitHub — можно перепроверить, а не поверить на слово.</span>
+          </div>
+          <div class="pvfp-point">
+            <b data-i18n="set.privacy.p4.t">Экспорт и ссылки — тоже локально</b>
+            <span data-i18n="set.privacy.p4.d">Картинка компаса и ссылка на ваш результат собираются в браузере из data-URL и хэша адреса — сервер их не видит и не участвует в сборке.</span>
           </div>
         </div>
 
@@ -1212,6 +1221,26 @@
       <p data-i18n="set.note">Настройки хранятся только в вашем браузере и никуда не отправляются.</p>
       <button type="button" class="btn small" id="setReset" data-i18n="set.reset">Сбросить настройки</button>
     </footer>
+  </div>
+</aside>
+
+<!-- Карточка Путина (2.3.2): тот же .sheet/.sheet-scrim, что у настроек,
+     но с одной панелью — js/putin.js держит открытие и содержимое
+     отдельно от js/settings.js, у карточки нет своих переключателей. -->
+<div class="sheet-scrim" id="putinScrim" hidden></div>
+<aside class="sheet putin-sheet" id="putinSheet" role="dialog" aria-modal="true" aria-labelledby="putinTitle" hidden>
+  <header class="sheet-head">
+    <div>
+      <span class="eyebrow" data-i18n="putin.eyebrow">Не партия</span>
+      <h2 id="putinTitle" data-i18n="putin.title">Владимир Путин</h2>
+    </div>
+    <button type="button" class="sheet-close" id="putinClose" aria-label="Закрыть карточку"
+            data-i18n-attr="aria-label:putin.close">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+    </button>
+  </header>
+  <div class="sheet-body">
+    <div id="putinBody"></div>
   </div>
 </aside>
 
@@ -1294,7 +1323,7 @@
              PC.VERSION: подвал читают и без JavaScript. Тест сверяет
              его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.3.1.1: анимация переключения разделов настроек, окно настроек одной высоты, раздел «Приватность» (PVFP), редизайн состава палаты">v2.3.1.1</span>
+              title="Версия 2.3.2: слоистый редизайн компаса, Владимир Путин на поле, расширенный раздел «Приватность» (PVFP), правка выбора партии на телефоне">v2.3.2</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1306,6 +1335,7 @@
 <script src="js/data.js" defer></script>
 <script src="js/data-parties.js" defer></script>
 <script src="js/data-votes.js" defer></script>
+<script src="js/data-putin.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/calc.js" defer></script>
 <script src="js/i18n-shell.js" defer></script>
@@ -1327,6 +1357,7 @@
 <script src="js/coalition.js" defer></script>
 <script src="js/votes.js" defer></script>
 <script src="js/sidebar.js" defer></script>
+<script src="js/putin.js" defer></script>
 <script src="js/quiz-data.js" defer></script>
 <script src="js/quiz-calc.js" defer></script>
 <script src="js/quiz.js" defer></script>

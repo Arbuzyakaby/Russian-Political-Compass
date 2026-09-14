@@ -189,14 +189,17 @@
     "set.reset":          ["Сбросить настройки", "Reset settings"],
     "set.resetDone":      ["Настройки сброшены к исходным", "Settings restored to their defaults"],
 
-    /* ===== PVFP (2.3.1.1) — витрина в разделе «Приватность»: см.
-       комментарий у setPanel-privacy в index.html про то, что это на
-       самом деле. ===== */
+    /* ===== PVFP (2.3.1.1, расширено в 2.3.2) — витрина в разделе
+       «Приватность»: см. комментарий у setPanel-privacy в index.html
+       про то, что это на самом деле. Расшифровка сменилась в 2.3.2 с
+       Privacy-Verified Front Page на Privacy-first page — сама
+       аббревиатура PVFP осталась прежней, это бренд протокола, а не
+       побуквенный акроним, который обязан сходиться. ===== */
     "set.privacy":        ["Приватность", "Privacy"],
     "set.privacy.badge":  ["Собственный протокол проекта", "The project's own protocol"],
-    "set.privacy.title":  ["PVFP — Privacy-Verified Front Page", "PVFP — Privacy-Verified Front Page"],
-    "set.privacy.lead":   ["Каждый узел этой страницы построен так, что личным данным физически негде накапливаться. Это не политика конфиденциальности на словах, а архитектурное ограничение: обойти его обновлением или настройкой снаружи нельзя, потому что снаружи нет ничего, что бы это ограничение снимало.",
-                           "Every part of this page is built so personal data has physically nowhere to accumulate. This isn't a privacy policy in words — it's an architectural constraint that no update or external setting can lift, because there is nothing outside it that could lift it."],
+    "set.privacy.title":  ["PVFP — Privacy-first page", "PVFP — Privacy-first page"],
+    "set.privacy.lead":   ["Каждый узел этой страницы построен так, что личным данным физически негде накапливаться. Это не политика конфиденциальности на словах, а архитектурное ограничение: обойти его обновлением или настройкой снаружи нельзя, потому что снаружи нет ничего, что бы это ограничение снимало. Гарантия касается кода страницы — она не распространяется на сам браузер, вашего интернет-провайдера или хостинг, у которых остаётся обычный технический лог соединения, как у любого сайта в мире.",
+                           "Every part of this page is built so personal data has physically nowhere to accumulate. This isn't a privacy policy in words — it's an architectural constraint that no update or external setting can lift, because there is nothing outside it that could lift it. The guarantee covers the page's own code; it does not extend to your browser, your internet provider, or the host, which keep the same ordinary connection log any site in the world keeps."],
     "set.privacy.p1.t":   ["Нулевая телеметрия", "Zero telemetry"],
     "set.privacy.p1.d":   ["Ни счётчиков, ни аналитики, ни сторонних запросов при загрузке — сеть видит только файлы самой страницы.",
                            "No counters, no analytics, no third-party requests on load — the network sees only the page's own files."],
@@ -206,6 +209,9 @@
     "set.privacy.p3.t":   ["Проверяемо, а не обещано", "Verifiable, not promised"],
     "set.privacy.p3.d":   ["Каждая строка, которая решает, что происходит с данными, открыта на GitHub — можно перепроверить, а не поверить на слово.",
                            "Every line that decides what happens to your data is open on GitHub — you can check it yourself instead of taking anyone's word for it."],
+    "set.privacy.p4.t":   ["Экспорт и ссылки — тоже локально", "Export and links stay local too"],
+    "set.privacy.p4.d":   ["Картинка компаса и ссылка на ваш результат собираются в браузере из data-URL и хэша адреса — сервер их не видит и не участвует в сборке.",
+                           "The compass image and the link to your result are assembled in the browser from a data URL and the address hash — the server never sees them and takes no part in building them."],
     "set.privacy.note":   ["По сути — открытый исходный код и честное отсутствие трекеров, названные протоколом, чтобы это было видно с первого взгляда, а не только тем, кто дочитал подвал страницы.",
                            "In plain terms: open source code and a genuine absence of trackers, given a protocol's name so it's visible at a glance — not only to those who scroll all the way to the footer."],
 
