@@ -382,6 +382,22 @@
       obstacles.push({ x1:c.sx - r, y1:c.sy - r, x2:c.sx + r, y2:c.sy + r });
     });
 
+    /* точки Путина и результата теста рисуются позже (drawPutin/drawUser),
+       но их место на поле известно заранее — резервируем его здесь же,
+       иначе подпись партии, отрисованная раньше, может лечь прямо на
+       эти точки: в языках с более длинными названиями партий (например,
+       в английской версии, "United Russia" длиннее «Единой России»)
+       это было заметно как наезд текста на печать Путина */
+    if(PC.PUTIN){
+      var pc = px(PC.PUTIN.x, PC.PUTIN.y), pr = 19 + 4;
+      obstacles.push({ x1:pc.sx - pr, y1:pc.sy - pr, x2:pc.sx + pr, y2:pc.sy + pr });
+    }
+    var userRes = PC.quiz && PC.quiz.result();
+    if(userRes){
+      var uc = px(userRes.x, userRes.y), ur = 9 + 4;
+      obstacles.push({ x1:uc.sx - ur, y1:uc.sy - ur, x2:uc.sx + ur, y2:uc.sy + ur });
+    }
+
     /* крупные фракции раскладываем первыми — им достаются лучшие места */
     PC.PARTIES.map(function(p, i){ return { p:p, i:i, seats:PC.seatsOf(p) }; })
       .filter(function(item){ return item.seats !== null; })

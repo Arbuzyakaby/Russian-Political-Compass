@@ -279,8 +279,47 @@ body.sheet-lock{overflow:hidden;}
    одной остановки, а колец теперь два — второе (.ring-2) запущено с
    тем же периодом, но сдвинуто по фазе, и вместе они читаются как
    расходящаяся по воде рябь, а не одно кольцо. */
-.pvfp-card{text-align:center;max-width:46ch;margin:6px auto 0;}
-.pvfp-lock{width:60px;height:60px;margin:0 auto 12px;overflow:visible;
+/* Карточка-витрина (2.3.3): рамка держит собственный мягкий свет
+   (pvfpGlow) вместо простой линии — тот же приём, что у «живых»
+   поверхностей в css/glass.css, только чуть ярче, потому что здесь
+   он и есть главная деталь, а не фон для текста. Свет дышит, но не
+   крутится и не наклоняется — в проекте лежачие слои не наклоняют. */
+.pvfp-card{
+  position:relative;
+  text-align:center;max-width:52ch;margin:6px auto 0;
+  padding:22px 20px 4px;
+  border-radius:var(--radius-lg);
+  border:1px solid var(--glass-stroke);
+  background:
+    radial-gradient(120% 140% at 50% -10%, color-mix(in srgb,var(--tone) 9%,transparent), transparent 60%),
+    var(--glass-bg-1);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--tone) 14%,transparent),
+             0 18px 40px -22px color-mix(in srgb,var(--tone) 45%,transparent);
+  overflow:hidden;
+  animation:pvfpGlow 5s ease-in-out infinite;
+}
+@keyframes pvfpGlow{
+  0%,100%{ box-shadow:0 0 0 1px color-mix(in srgb,var(--tone) 14%,transparent),
+                       0 18px 40px -22px color-mix(in srgb,var(--tone) 45%,transparent); }
+  50%    { box-shadow:0 0 0 1px color-mix(in srgb,var(--tone) 26%,transparent),
+                       0 18px 44px -20px color-mix(in srgb,var(--tone) 60%,transparent); }
+}
+/* Полоса, «сканирующая» карточку сверху вниз — чисто декоративная
+   деталь протокольного вида, не привязанная ни к какой проверке. */
+.pvfp-scan{
+  position:absolute;
+  left:0; right:0; top:0;
+  height:120px;
+  background:linear-gradient(180deg, color-mix(in srgb,var(--tone) 16%,transparent), transparent);
+  opacity:.7;
+  pointer-events:none;
+  animation:pvfpScan 4.6s ease-in-out infinite;
+}
+@keyframes pvfpScan{
+  0%,100%{ transform:translateY(-6px); opacity:.45; }
+  50%    { transform:translateY(10px); opacity:.85; }
+}
+.pvfp-lock{width:60px;height:60px;margin:0 auto 12px;overflow:visible;position:relative;z-index:1;
   animation:pvfpPop .5s var(--ease-spring) both;}
 .pvfp-lock .shackle{
   transform-origin:32px 29px;
@@ -311,17 +350,96 @@ body.sheet-lock{overflow:hidden;}
 }
 .pvfp-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;
   letter-spacing:.12em;color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
-  border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:4px 11px;margin-bottom:10px;}
+  border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:4px 11px;margin-bottom:10px;
+  position:relative;z-index:1;}
 .pvfp-card h4{font-family:var(--font-display);font-size:16px;font-weight:750;letter-spacing:-.02em;
-  margin-bottom:10px;}
-.pvfp-lead{font-size:12px;line-height:1.55;color:var(--muted);margin-bottom:18px;}
-.pvfp-points{display:flex;flex-direction:column;gap:12px;text-align:left;margin-bottom:16px;}
-.pvfp-point{padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--stroke);
-  background:color-mix(in srgb,var(--surface) 60%,transparent);}
+  margin-bottom:8px;position:relative;z-index:1;}
+/* Строка-«версия протокола»: моноширинный шрифт и точка-индикатор
+   дают ей вид системного статуса, хотя это то же самое обещание
+   приватности, просто в другой одежде. */
+.pvfp-proto{
+  display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;
+  font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);
+  font-size:10px;letter-spacing:.03em;color:var(--muted);
+  padding:4px 10px;border-radius:999px;border:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--surface) 70%,transparent);
+  position:relative;z-index:1;
+}
+.pvfp-proto-dot{
+  width:6px;height:6px;border-radius:50%;flex:none;
+  background:color-mix(in srgb,var(--good,#3fae5a) 80%,var(--tone));
+  box-shadow:0 0 0 0 color-mix(in srgb,var(--good,#3fae5a) 55%,transparent);
+  animation:pvfpDot 2.4s ease-in-out infinite;
+}
+@keyframes pvfpDot{
+  0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--good,#3fae5a) 45%,transparent); }
+  50%    { box-shadow:0 0 0 4px color-mix(in srgb,var(--good,#3fae5a) 0%,transparent); }
+}
+.pvfp-lead{font-size:12px;line-height:1.55;color:var(--muted);margin-bottom:18px;position:relative;z-index:1;}
+.pvfp-points{
+  display:grid;grid-template-columns:1fr;gap:10px;text-align:left;margin-bottom:16px;
+  position:relative;z-index:1;
+}
+@media(min-width:480px){ .pvfp-points{ grid-template-columns:1fr 1fr; } }
+.pvfp-point{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--surface) 60%,transparent);
+  transition:border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.pvfp-point:hover{ border-color:var(--tone-line,var(--accent-line)); transform:translateY(-1px); }
+.pvfp-point-ico{
+  flex:none;display:grid;place-items:center;width:26px;height:26px;margin-top:1px;
+  border-radius:50%;color:var(--tone);
+  background:color-mix(in srgb,var(--tone) 13%,transparent);
+}
+.pvfp-point-ico svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;}
 .pvfp-point b{display:block;font-size:12px;font-weight:650;color:var(--text);margin-bottom:3px;}
 .pvfp-point span{display:block;font-size:11.5px;line-height:1.45;color:var(--muted-2);}
 .pvfp-note{font-size:10.5px;line-height:1.5;color:var(--muted-2);border-top:1px dashed var(--stroke);
-  padding-top:12px;}
+  padding-top:12px;position:relative;z-index:1;}
+
+/* ---------- FGDRI (2.3.3): витрина в разделе «Интерфейс» ----------
+   Тот же приём, что у PVFP: обычная адаптивная раскладка получает
+   название, значок «Always on» и небольшую живую иллюстрацию — сетку
+   из плиток, которая мягко перестраивает пропорции по кругу. Плитки
+   двигаются только по размеру, без наклона и без вращения — здесь
+   такие эффекты не в ходу. */
+.fgdri-card{
+  display:flex;align-items:center;gap:16px;
+  padding:13px 16px;margin-bottom:14px;
+  border-radius:var(--radius);border:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--surface) 55%,transparent);
+}
+.fgdri-grid{
+  flex:none;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);
+  gap:3px;width:52px;height:36px;
+}
+.fgdri-grid i{
+  display:block;border-radius:3px;background:color-mix(in srgb,var(--tone) 45%,transparent);
+  animation:fgdriTile 5s var(--ease-out-soft) infinite;
+}
+.fgdri-grid i:nth-child(1){ animation-delay:0s; }
+.fgdri-grid i:nth-child(2){ animation-delay:.15s; }
+.fgdri-grid i:nth-child(3){ animation-delay:.3s; }
+.fgdri-grid i:nth-child(4){ animation-delay:.45s; }
+.fgdri-grid i:nth-child(5){ animation-delay:.6s; }
+.fgdri-grid i:nth-child(6){ animation-delay:.75s; }
+@keyframes fgdriTile{
+  0%,40%{ transform:scale(1); opacity:.55; }
+  55%   { transform:scale(.78); opacity:1; }
+  70%,100%{ transform:scale(1); opacity:.55; }
+}
+.fgdri-text{ display:flex;flex-direction:column;gap:4px;min-width:0; }
+.fgdri-badge{
+  align-self:flex-start;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
+  border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:2px 8px;
+}
+.fgdri-text b{font-size:13px;font-weight:650;color:var(--text);letter-spacing:-.01em;}
+.fgdri-text small{font-size:11px;line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
+@media(max-width:480px){ .fgdri-card{flex-direction:column;align-items:flex-start;} }
 
 /* ---------- подвал панели ---------- */
 .set-foot{

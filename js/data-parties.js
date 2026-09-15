@@ -197,19 +197,19 @@ PC.PARTIES = [
   },
   {
     id:"nl", name:"Новые люди", short:"Новые люди", tag:"Новые люди", lp:"top",
-    seats:13, color:"#f43f5e", x:6.0, y:-2.9,
+    seats:13, color:"#f43f5e", x:6.0, y:1.1,
     ideology:"Либеральный центризм, про-предпринимательский прагматизм",
     summary:"Самая молодая партия в Думе: основана в 2020 году владельцем косметической компании Faberlic Алексеем Нечаевым и с первой попытки взяла мандаты. Обращается к малому бизнесу и городским профессионалам, а не к идеологизированному избирателю.",
     leader:"Алексей Нечаев",
     sub:{ property:5.0, redistribution:6.5, regulation:6.5,
-          civil:-4.7, centralization:-1.7, tradition:-2.3 },
+          civil:2.0, centralization:0.0, tradition:1.3 },
     theses:[
       "Снижение налоговой и административной нагрузки на малый и средний бизнес",
       "Ставка на цифровую экономику, стартапы и креативные индустрии",
       "Критика избыточного регулирования, проверок и бюрократии",
       "Осторожная риторика о свободе интернета и гуманизации законодательства"
     ],
-    why:"Самая прорыночная позиция в списке: дерегулирование, поддержка частной инициативы и снижение налогов. Ниже нуля по вертикали — партия выступает за сокращение вмешательства государства в бизнес и частную жизнь. С 2.0 точка чуть поднята: за три года во фракции риторика о свободах стала осторожнее, а голосования по охранительным законам — ближе к линии большинства, и прежняя оценка переоценивала дистанцию.",
+    why:"Самая прорыночная позиция в списке: дерегулирование, поддержка частной инициативы и снижение налогов. По вертикали точка перешла на сторону государства: фракция всё чаще голосует по охранительным законам вместе с провластным большинством, а прежняя риторика о свободе интернета и гуманизации законодательства за последние созывы почти сошла на нет. Прежняя оценка (−2.9) отражала более раннюю, либеральную по тону фракцию; нынешняя практика голосований этого уже не подтверждает.",
     en:{
       name:"New People", short:"New People", tag:"New People",
       ideology:"Liberal centrism, pro-business pragmatism",
@@ -221,7 +221,7 @@ PC.PARTIES = [
         "Criticism of excessive regulation, inspections and bureaucracy",
         "Cautious rhetoric about internet freedom and a more humane legal code"
       ],
-      why:"The most pro-market position on the board: deregulation, support for private initiative and lower taxes. Below zero on the vertical — the party argues for less state interference in business and private life. Since 2.0 the point sits slightly higher: over three years the faction's rhetoric about freedoms has grown more careful and its votes on restrictive laws have moved closer to the majority line, so the earlier estimate overstated the distance."
+      why:"The most pro-market position on the board: deregulation, support for private initiative and lower taxes. On the vertical axis the point has moved to the state's side: the faction increasingly votes for restrictive laws alongside the pro-government majority, and its earlier rhetoric about internet freedom and a more humane legal code has largely faded. The earlier estimate (−2.9) reflected an earlier, more liberal-sounding faction; the current voting record no longer supports it."
     }
   },
   {

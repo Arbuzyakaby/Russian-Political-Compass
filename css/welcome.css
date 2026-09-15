@@ -116,12 +116,15 @@ body.welcome-lock.welcome-out .site-footer{
      вывести карточку из-под переключателя «Стекло». */
   border:1px solid var(--glass-stroke);
   background:var(--glass-bg-2);
-  animation:wel-rise .5s var(--ease-out) .06s backwards;
+  animation:wel-rise .56s var(--ease-spring) .06s backwards;
 }
 .welcome.is-out .wel-card{ animation:wel-sink .3s var(--ease-out) forwards; }
+/* Лёгкий перелёт (--ease-spring) вместо простого затухания: карточка
+   чуть заходит за конечный масштаб и возвращается — то же ощущение
+   «мягкой посадки», что и у точек поля ниже, а не рывок без отдачи. */
 @keyframes wel-rise{
-  from{ opacity:0; transform:translateY(18px) scale(.97); }
-  to  { opacity:1; transform:none; }
+  from{ opacity:0; filter:blur(6px); transform:translateY(22px) scale(.94); }
+  to  { opacity:1; filter:blur(0); transform:none; }
 }
 @keyframes wel-sink{
   from{ opacity:1; transform:none; }
@@ -189,6 +192,17 @@ body.welcome-lock.welcome-out .site-footer{
   padding:11px 12px 12px;
   border-radius:var(--radius-sm);
   transition:background var(--dur-2) var(--ease-out);
+  opacity:0;
+  animation:wel-point-in .5s var(--ease-out) both;
+}
+/* Каждый пункт входит своей очередью, а не все три разом: то же
+   ощущение «раскладки», что у точек компаса за карточкой. */
+.wel-points li:nth-child(1){ animation-delay:.16s; }
+.wel-points li:nth-child(2){ animation-delay:.24s; }
+.wel-points li:nth-child(3){ animation-delay:.32s; }
+@keyframes wel-point-in{
+  from{ opacity:0; transform:translateX(-8px); }
+  to  { opacity:1; transform:none; }
 }
 .wel-points li:hover{ background:var(--surface); }
 .wel-ico{
@@ -263,10 +277,10 @@ body.welcome-lock.welcome-out .site-footer{
    размера окна рывком: каждый новый шаг проявляется коротким подъёмом,
    как смена экрана в настройках iOS. */
 .wel-step[hidden]{ display:none; }
-.wel-step.is-enter{ animation:wel-step .42s var(--ease-out) both; }
+.wel-step.is-enter{ animation:wel-step .46s var(--ease-out-soft) both; }
 @keyframes wel-step{
-  from{ opacity:0; transform:translateY(8px); }
-  to  { opacity:1; transform:none; }
+  from{ opacity:0; filter:blur(3px); transform:translateY(10px) scale(.985); }
+  to  { opacity:1; filter:blur(0); transform:none; }
 }
 .wel-card[data-step="lang"]{ width:min(460px,100%); }
 
@@ -300,7 +314,12 @@ body.welcome-lock.welcome-out .site-footer{
   background:var(--surface);
   transition:background var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out),
              transform var(--dur-1) var(--ease-spring), box-shadow var(--dur-2) var(--ease-out);
+  opacity:0;
+  animation:wel-point-in .45s var(--ease-out) both;
 }
+.wel-lang:nth-child(1){ animation-delay:.1s; }
+.wel-lang:nth-child(2){ animation-delay:.17s; }
+.wel-lang:nth-child(3){ animation-delay:.24s; }
 .wel-lang:hover{ background:var(--surface-2); border-color:var(--stroke-2); box-shadow:var(--shadow-sm); }
 .wel-lang:active{ transform:scale(.98); }
 .wel-lang:focus-visible{ outline:2px solid var(--tone); outline-offset:2px; }
@@ -623,7 +642,9 @@ body.welcome-lock.welcome-out .site-footer{
 @media(prefers-reduced-motion:reduce){
   .welcome,
   .wel-card,
-  .wel-grid{ animation:none; opacity:1; }
+  .wel-grid,
+  .wel-points li,
+  .wel-lang{ animation:none; opacity:1; }
   .wel-dot{
     animation:none;
     opacity:.85;
@@ -655,7 +676,9 @@ body.welcome-lock.welcome-out .site-footer{
 
 :root[data-motion="off"] .welcome,
 :root[data-motion="off"] .wel-card,
-:root[data-motion="off"] .wel-grid{ animation:none; opacity:1; }
+:root[data-motion="off"] .wel-grid,
+:root[data-motion="off"] .wel-points li,
+:root[data-motion="off"] .wel-lang{ animation:none; opacity:1; }
 :root[data-motion="off"] .wel-dot{
   animation:none;
   opacity:.85;

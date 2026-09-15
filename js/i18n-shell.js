@@ -198,6 +198,20 @@
     "set.privacy":        ["Приватность", "Privacy"],
     "set.privacy.badge":  ["Собственный протокол проекта", "The project's own protocol"],
     "set.privacy.title":  ["PVFP — Privacy-first page", "PVFP — Privacy-first page"],
+    /* Декоративная строка-протокол (2.3.3): читается как версия и
+       статус спецификации, хотя ничего не версионирует и не проверяет —
+       часть той же самой шутки про «PVFP», доведённая до конца. */
+    "set.privacy.proto":  ["PVFP · протокол v3 · страница проверяет сама себя",
+                           "PVFP · protocol v3 · the page verifies itself"],
+
+    /* ===== FGDRI (2.3.3) — витрина в разделе «Интерфейс», построенная
+       по тому же рецепту, что PVFP выше: обычная адаптивная раскладка,
+       которая была на странице всегда, получает громкое название и
+       собственный значок. См. комментарий у .fgdri-card в index.html. ===== */
+    "set.fgdri.badge":    ["Всегда включено", "Always on"],
+    "set.fgdri.t":         ["Fluid-Grid Dynamic Responsive Interface", "Fluid-Grid Dynamic Responsive Interface"],
+    "set.fgdri.d":         ["Экранная сетка адаптивно перестраивает геометрию под любой размер дисплея без потери контекста — от телефона до широкого монитора. Отключать нечего: это то, как страница всегда себя вела.",
+                           "The screen grid adaptively reflows its geometry to any display size without losing context — from a phone to a wide monitor. There is nothing to turn off: this is how the page has always behaved."],
     "set.privacy.lead":   ["Каждый узел этой страницы построен так, что личным данным физически негде накапливаться. Это не политика конфиденциальности на словах, а архитектурное ограничение: обойти его обновлением или настройкой снаружи нельзя, потому что снаружи нет ничего, что бы это ограничение снимало. Гарантия касается кода страницы — она не распространяется на сам браузер, вашего интернет-провайдера или хостинг, у которых остаётся обычный технический лог соединения, как у любого сайта в мире.",
                            "Every part of this page is built so personal data has physically nowhere to accumulate. This isn't a privacy policy in words — it's an architectural constraint that no update or external setting can lift, because there is nothing outside it that could lift it. The guarantee covers the page's own code; it does not extend to your browser, your internet provider, or the host, which keep the same ordinary connection log any site in the world keeps."],
     "set.privacy.p1.t":   ["Нулевая телеметрия", "Zero telemetry"],
