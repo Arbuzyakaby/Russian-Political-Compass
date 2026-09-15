@@ -48,7 +48,14 @@
   max-height:min(340px,60vh);overflow-y:auto;overscroll-behavior:contain;
   display:flex;flex-direction:column;gap:2px;padding:6px;
   border-radius:var(--radius);border:1px solid var(--stroke-2);
-  background:var(--glass-bg-2);
+  /* --glass-bg-2 (72% в тёмной теме) рассчитан на подложку поверх
+     размытой страницы, а не поверх другого текста интерфейса: список
+     плывёт над остальным содержимым карточки партии, и при том же
+     72% сквозь него читался текст позади (описание сравнения над
+     кнопкой или список голосований под ней) — получалась каша из двух
+     слоёв текста. --tip-bg почти не прозрачен (94–98%) и для того же
+     случая уже используется подсказкой компаса (css/compass.css). */
+  background:var(--tip-bg);
   box-shadow:var(--shadow-lift);
   animation:xs-in .18s var(--ease-out) both;
 }
