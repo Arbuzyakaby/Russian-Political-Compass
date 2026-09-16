@@ -157,7 +157,11 @@
       '<select id="cmpSelect" aria-label="' + esc(t("side.compare")) + '">' +
         '<option value="">' + esc(t("side.compare.pick")) + '</option>' +
         others.map(function(o){
-          return '<option value="' + esc(o.id) + '">' + esc(L(o, "name")) + '</option>';
+          /* Короткое имя (то же, что в заголовке таблицы сравнения ниже),
+             а не полное: у нескольких партий полное название — три-четыре
+             слова, и в узкой колонке списка сравнения оно не влезало
+             целиком даже с учётом кастомной раскладки js/select.js. */
+          return '<option value="' + esc(o.id) + '">' + esc(L(o, "short")) + '</option>';
         }).join("") +
       '</select>' +
       '<div id="cmpResult"></div></div>';
