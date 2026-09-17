@@ -33,44 +33,50 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
    каждую из шести тем не нужно, потому что стекло не красится, оно
    только светлеет и темнеет. */
 
+/* Плотности подняты в 2.4.2: первая версия стекла была настолько
+   деликатной, что её просто не замечали. Теперь верх плиты заметно
+   светлее низа, кромка читается как подсвеченный торец, а блик виден
+   как блик, а не как догадка. Дальше поднимать нельзя: под плитой
+   лежат заливки квадрантов, и белый поверх них гасит их смысл. */
+
 /* тело плиты: светлее сверху, темнее снизу */
-.gs-plate-hi { stop-color:#ffffff; stop-opacity:.085; }
-.gs-plate-mid{ stop-color:#ffffff; stop-opacity:.035; }
-.gs-plate-lo { stop-color:#000000; stop-opacity:.055; }
+.gs-plate-hi { stop-color:#ffffff; stop-opacity:.20; }
+.gs-plate-mid{ stop-color:#ffffff; stop-opacity:.075; }
+.gs-plate-lo { stop-color:#000000; stop-opacity:.13; }
 
 /* кромка: яркая по верху, почти пропадает к низу */
-.gs-rim-hi   { stop-color:#ffffff; stop-opacity:.42; }
-.gs-rim-mid  { stop-color:#ffffff; stop-opacity:.14; }
-.gs-rim-lo   { stop-color:#ffffff; stop-opacity:.05; }
+.gs-rim-hi   { stop-color:#ffffff; stop-opacity:.85; }
+.gs-rim-mid  { stop-color:#ffffff; stop-opacity:.30; }
+.gs-rim-lo   { stop-color:#ffffff; stop-opacity:.10; }
 
 /* диагональный блик: узкая светлая полоса от левого верхнего угла */
-.gs-sheen-a  { stop-color:#ffffff; stop-opacity:.13; }
-.gs-sheen-b  { stop-color:#ffffff; stop-opacity:.04; }
+.gs-sheen-a  { stop-color:#ffffff; stop-opacity:.28; }
+.gs-sheen-b  { stop-color:#ffffff; stop-opacity:.09; }
 .gs-sheen-c  { stop-color:#ffffff; stop-opacity:0; }
 
 /* На светлых темах белая подсветка почти не видна на белом же фоне —
    работает нижняя тень и более контурная кромка. */
 :root[data-theme="light"] .gs-plate-hi,
 :root[data-theme="paper"] .gs-plate-hi,
-:root[data-theme="alaska"] .gs-plate-hi{ stop-color:#ffffff; stop-opacity:.6; }
+:root[data-theme="alaska"] .gs-plate-hi{ stop-color:#ffffff; stop-opacity:.92; }
 :root[data-theme="light"] .gs-plate-mid,
 :root[data-theme="paper"] .gs-plate-mid,
-:root[data-theme="alaska"] .gs-plate-mid{ stop-color:#ffffff; stop-opacity:.34; }
+:root[data-theme="alaska"] .gs-plate-mid{ stop-color:#ffffff; stop-opacity:.6; }
 :root[data-theme="light"] .gs-plate-lo,
 :root[data-theme="paper"] .gs-plate-lo,
-:root[data-theme="alaska"] .gs-plate-lo{ stop-color:#000000; stop-opacity:.035; }
+:root[data-theme="alaska"] .gs-plate-lo{ stop-color:#000000; stop-opacity:.07; }
 :root[data-theme="light"] .gs-rim-hi,
 :root[data-theme="paper"] .gs-rim-hi,
 :root[data-theme="alaska"] .gs-rim-hi{ stop-color:#ffffff; stop-opacity:.9; }
 :root[data-theme="light"] .gs-rim-mid,
 :root[data-theme="paper"] .gs-rim-mid,
-:root[data-theme="alaska"] .gs-rim-mid{ stop-color:#000000; stop-opacity:.06; }
+:root[data-theme="alaska"] .gs-rim-mid{ stop-color:#000000; stop-opacity:.12; }
 :root[data-theme="light"] .gs-rim-lo,
 :root[data-theme="paper"] .gs-rim-lo,
-:root[data-theme="alaska"] .gs-rim-lo{ stop-color:#000000; stop-opacity:.09; }
+:root[data-theme="alaska"] .gs-rim-lo{ stop-color:#000000; stop-opacity:.16; }
 :root[data-theme="light"] .gs-sheen-a,
 :root[data-theme="paper"] .gs-sheen-a,
-:root[data-theme="alaska"] .gs-sheen-a{ stop-color:#ffffff; stop-opacity:.5; }
+:root[data-theme="alaska"] .gs-sheen-a{ stop-color:#ffffff; stop-opacity:.85; }
 :root[data-theme="light"] .gs-sheen-b,
 :root[data-theme="paper"] .gs-sheen-b,
 :root[data-theme="alaska"] .gs-sheen-b{ stop-color:#ffffff; stop-opacity:.16; }
@@ -78,9 +84,9 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .plate-sheen{ pointer-events:none; }
 /* Кромка линзы: тончайшая внутренняя линия, которая и делает из
    заливки квадранта отдельное стекло, вставленное в плиту. */
-.lens-rim{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.3; }
-.frame{ fill:none; stroke-width:1.5; }
-.frame-inner{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.22; }
+.lens-rim{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.55; }
+.frame{ fill:none; stroke-width:2; }
+.frame-inner{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.4; }
 
 /* Тень под плитой снимается в печати: на бумаге она превращается в
    серую кайму, а глубины всё равно не даёт. */
@@ -117,9 +123,15 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .cross.show .cross-tick{opacity:.9;}
 .cross.show .cross-val{opacity:1;}
 
-/* Поводок от точки к отодвинутой подписи: рисуется только там, где
-   подпись пришлось отвести далеко (js/compass.js, leaderLine). */
-.tag-leader{stroke-width:1;opacity:.45;stroke-dasharray:2 3;pointer-events:none;}
+/* Поводок от точки к отодвинутой подписи (js/compass.js, leaderLine).
+   С 2.4.2 он виден только под курсором и в фокусе: постоянный пунктир
+   у «Справедливой России» и «Единой России» читался как посторонняя
+   чёрточка на поле — связь имени с точкой и без него понятна, пока
+   ничего не происходит, а нужна она ровно в тот момент, когда читатель
+   разбирается с конкретной точкой. */
+.tag-leader{stroke-width:1;opacity:0;stroke-dasharray:2 3;pointer-events:none;
+  transition:opacity .2s ease;}
+.node:hover .tag-leader,.node.active .tag-leader,.node:focus-visible .tag-leader{opacity:.5;}
 
 /* Свойство user-select наследуется, так что запрета на svg.compass
    выше по файлу достаточно и для .tag/.seat внутри каждой точки —

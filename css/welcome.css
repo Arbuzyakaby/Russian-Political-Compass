@@ -593,21 +593,38 @@ body.welcome-lock.welcome-out .site-footer{
   100%   { opacity:0; transform:none; }
 }
 
+/* Лента шагов обучения (переработана в 2.4.2). Точки были
+   декоративными <i>, теперь это кнопки: по ним можно вернуться на
+   пропущенный шаг, а не жать «Назад» столько раз, сколько шагов
+   проскочил. Под ними идёт полоса пройденного — одно число
+   (--wt-progress из js/welcome.js) вместо четырёх отдельных состояний,
+   поэтому она движется плавно, а не скачет от точки к точке. */
 .wt-dots{
-  display:flex;
-  gap:6px;
-  margin:16px 0 18px;
+  position:relative;display:flex;align-items:center;justify-content:center;
+  gap:10px;margin:16px auto 2px;padding-bottom:9px;width:max-content;
 }
-.wt-dots i{
-  display:block;
-  width:7px;
-  height:7px;
-  border-radius:4px;
-  background:var(--stroke-2);
-  transition:width var(--dur-3) var(--ease-out), background var(--dur-2) var(--ease-out);
+.wt-dots::before,.wt-dots::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;
 }
-.wt-dots i.is-done{ background:color-mix(in srgb,var(--accent) 45%,transparent); }
-.wt-dots i.is-on{ width:22px; background:var(--accent); }
+.wt-dots::before{ background:var(--stroke); }
+.wt-dots::after{
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transform:scaleX(var(--wt-progress,0));transform-origin:left center;
+  transition:transform var(--dur-3) var(--ease-out);
+}
+.wt-dots button{
+  width:9px;height:9px;padding:0;border-radius:50%;flex:none;cursor:pointer;
+  border:1px solid var(--stroke-2);background:var(--surface-2);
+  transition:background var(--dur-2) var(--ease-out),
+             border-color var(--dur-2) var(--ease-out),
+             transform var(--dur-2) var(--ease-spring);
+}
+.wt-dots button:hover{ transform:scale(1.25); border-color:var(--accent); }
+.wt-dots button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+.wt-dots button.is-done{ background:color-mix(in srgb,var(--accent) 55%,transparent);
+  border-color:transparent; }
+.wt-dots button.is-on{ background:var(--accent); border-color:var(--accent);
+  transform:scale(1.35); }
 
 .wel-actions--tour{ align-items:center; margin-bottom:0; }
 .wel-spacer{ flex:1; }

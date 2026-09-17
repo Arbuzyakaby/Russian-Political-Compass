@@ -167,7 +167,7 @@
   }
 
   var PLATE_R = 26;     /* радиус углов плиты */
-  var LENS_GAP = 3;     /* зазор линзы от оси — сквозь него видно саму ось */
+  var LENS_GAP = 5;     /* зазор линзы от оси — сквозь него видно саму ось */
   var LENS_R = 7;       /* радиус внутренних углов линзы */
 
   function drawDefs(){
@@ -240,7 +240,7 @@
        лежать на ней. Один фильтр на всё поле, а не тень у каждой линзы. */
     var drop = el("filter", { id:"plateShadow", x:"-20%", y:"-20%", width:"140%", height:"150%" });
     drop.appendChild(el("feDropShadow", {
-      dx:"0", dy:"10", stdDeviation:"14", "flood-color":"#000", "flood-opacity":"0.18"
+      dx:"0", dy:"14", stdDeviation:"18", "flood-color":"#000", "flood-opacity":"0.30"
     }));
     defs.appendChild(drop);
 
@@ -401,16 +401,14 @@
   }
   function f(v){ return Math.round(v * 10) / 10; }
 
-  /* Слой траекторий выше точек, пока один из маршрутов в фокусе.
-     В SVG порядок рисования задаётся порядком в документе, и z-index
-     на него не действует, — поэтому слой переставляется, а не
-     перекрашивается. */
-  var nodesLayer = null;
-  function raiseTrails(on){
-    if(!trails || !trails.parentNode) return;
-    if(on) svg.appendChild(trails);
-    else if(nodesLayer) svg.insertBefore(trails, nodesLayer);
-  }
+  /* До 2.4.2 слой траекторий переставлялся в документе на время фокуса,
+     чтобы маршрут не прятался под точкой партии. Приём работал, но ломал
+     наведение: перестановка узла посреди обработки mouseenter отменяет
+     парный mouseleave, и подсказка, открытая с узла маршрута, оставалась
+     висеть на экране навсегда. Теперь слой просто рисуется после точек
+     и лежит над ними всегда — он и так виден только при включённой
+     кнопке «Траектории», а подложка под каждым отрезком не даёт ему
+     замазать кружки. Ничего переставлять не нужно. */
 
   function drawTrails(){
     trails = el("g", { "class":"trails" });
@@ -502,12 +500,10 @@
       function focusOn(){
         trails.classList.add("has-focus");
         g.classList.add("is-focus");
-        raiseTrails(true);
       }
       function focusOff(){
         trails.classList.remove("has-focus");
         g.classList.remove("is-focus");
-        raiseTrails(false);
       }
       g.addEventListener("mouseenter", focusOn);
       g.addEventListener("mouseleave", focusOff);
@@ -544,7 +540,7 @@
   function setTrails(on){
     trailsOn = !!on;
     if(svg) svg.classList.toggle("show-trails", trailsOn);
-    if(!trailsOn){ PC.tip.hide(); raiseTrails(false); }
+    if(!trailsOn) PC.tip.hide();
   }
   function hasTrails(){
     return PC.PARTIES.some(function(p){ return p.history && p.history.length > 1; });
@@ -591,12 +587,17 @@
 
     /* Подпись отодвигается от оси в ту сторону, где стоит точка, —
        иначе на точках у самого центра число ложится на саму ось. */
+    /* Подпись отодвигается от оси в ту сторону, где стоит точка. Если
+       точка почти на самой оси, подписи нет вовсе: у центра поля тесно,
+       и число легло бы на чужие кружки — а сказать ему там всё равно
+       нечего, координата и так видна нулевой. */
+    var nearX = Math.abs(sy - C) < 26, nearY = Math.abs(sx - C) < 30;
     P.valX.setAttribute("x", sx);
-    P.valX.setAttribute("y", C + (sy > C ? 15 : -8));
-    P.valX.textContent = U.fmt(x);
-    P.valY.setAttribute("x", C + (sx > C ? -20 : 20));
+    P.valX.setAttribute("y", C + (sy > C ? 17 : -10));
+    P.valX.textContent = nearX ? "" : U.fmt(x);
+    P.valY.setAttribute("x", C + (sx > C ? -24 : 24));
     P.valY.setAttribute("y", sy + 3.4);
-    P.valY.textContent = U.fmt(y);
+    P.valY.textContent = nearY ? "" : U.fmt(y);
 
     cross.style.color = color || "";
     cross.classList.add("show");
@@ -605,14 +606,12 @@
 
   /* ---------- точки партий ---------- */
   function drawNodes(){
-    var layer = el("g", { "class":"nodes" });
-    svg.appendChild(layer);
-    nodesLayer = layer;
-    /* Перекрестие строится после слоя точек: оно должно лежать поверх
+    /* Перекрестие строится до слоя точек: оно должно лежать поверх
        сетки и стекла, но под самими точками — иначе линия перечёркивает
        кружок, к которому относится. */
     buildCross();
-    svg.insertBefore(cross, layer);
+    var layer = el("g", { "class":"nodes" });
+    svg.appendChild(layer);
 
     /* сами точки — препятствия для чужих подписей; партии, отсутствующие
        в выбранном созыве, в отрисовке не участвуют */
@@ -865,8 +864,8 @@
     drawDefs();
     drawBoard();
     drawCaptions();
-    drawTrails();
     drawNodes();
+    drawTrails();
     if(prevStyle === null) svg.removeAttribute("style"); else svg.setAttribute("style", prevStyle);
   }
 

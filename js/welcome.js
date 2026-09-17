@@ -138,10 +138,17 @@
         node.classList.add("is-on");
       }
     });
-    el.querySelectorAll("#welTourDots i").forEach(function(dot, k){
+    el.querySelectorAll("#welTourDots button").forEach(function(dot, k){
       dot.classList.toggle("is-on", k === scene);
       dot.classList.toggle("is-done", k < scene);
+      dot.setAttribute("aria-selected", String(k === scene));
+      dot.setAttribute("aria-label", PC.t("wel.t.step", { n:k + 1, total:SCENES }));
     });
+    /* Долю пройденного держит сама лента точек: полоса под ними —
+       это одно число, а не четыре отдельных состояния. */
+    var dots = document.getElementById("welTourDots");
+    if(dots) dots.style.setProperty("--wt-progress",
+      (SCENES < 2 ? 1 : scene / (SCENES - 1)).toFixed(3));
     document.getElementById("welBack").hidden = scene === 0;
     document.getElementById("welSkip").hidden = scene === SCENES - 1;
     document.getElementById("welNext").textContent =
@@ -261,6 +268,11 @@
     });
     document.getElementById("welSkip").addEventListener("click", close);
     document.getElementById("welBack").addEventListener("click", function(){ showScene(scene - 1); });
+    /* Клик по точке — прыжок на шаг. Раньше вернуться на пропущенное
+       можно было только повторными нажатиями «Назад». */
+    el.querySelectorAll("#welTourDots button").forEach(function(dot, k){
+      dot.addEventListener("click", function(){ showScene(k); });
+    });
     document.getElementById("welNext").addEventListener("click", nextScene);
     el.querySelectorAll(".wel-lang").forEach(function(b){
       b.addEventListener("click", function(){ pickLang(b.dataset.lang); });

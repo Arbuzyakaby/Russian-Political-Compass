@@ -62,10 +62,11 @@ test("разметка содержит все шаги и узлы, котор�
 
 test("число сцен обучения совпадает в разметке, словаре и скрипте", () => {
   const scenes = (html.match(/class="wt-scene /g) || []).length;
-  const dots = /id="welTourDots"[^>]*>((?:<i><\/i>)+)</.exec(html);
+  const dots = /id="welTourDots"[\s\S]*?>([\s\S]*?)<\/div>/.exec(html);
   const declared = Number(/var SCENES = (\d+)/.exec(src)[1]);
   assert.equal(scenes, declared, "сцен в разметке не столько, сколько объявлено в скрипте");
-  assert.equal(dots[1].split("<i>").length - 1, declared, "точек прогресса не столько, сколько сцен");
+  assert.equal((dots[1].match(/<button/g) || []).length, declared,
+    "точек прогресса не столько, сколько сцен");
   const en = loadApp(FILES, { "pc-lang":"en" }).PC;
   for(let n = 1; n <= declared; n++){
     for(const key of [`wel.t${n}.h`, `wel.t${n}.p`]){
