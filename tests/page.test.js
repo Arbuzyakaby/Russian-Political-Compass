@@ -81,7 +81,7 @@ const STATIC_IDS = [
   "coalition.js:coTotal", "coalition.js:coVerdict", "coalition.js:coMetrics",
   "coalition.js:coReset", "coalition.js:coClear", "coalition.js:coReal",
   "quiz.js:quiz",
-  "putin.js:putinSheet", "putin.js:putinScrim", "putin.js:putinClose", "putin.js:putinBody"
+  "people.js:personSheet", "people.js:personScrim", "people.js:personClose", "people.js:personBody"
 ];
 
 test("все id, которые скрипты ищут в разметке, в ней есть", () => {

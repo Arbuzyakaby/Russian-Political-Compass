@@ -1,0 +1,118 @@
+/* ============ КАРТОЧКА ЧЕЛОВЕКА (2.3.2, обобщена в 2.4) ============
+
+   Оболочка — тот же .sheet/.sheet-scrim, что у настроек (правила лежат
+   в css/settings.css), но окно настроек рассчитано на рельс из шести
+   разделов и держит фиксированные 760×660. Карточке нужна одна колонка
+   и высота по содержимому, поэтому здесь — не новый компонент, а
+   несколько точечных переопределений поверх общего .sheet.
+
+   Содержимое карточки построено на классах css/sidebar.css (.detail,
+   .d-head, .d-badge, .coords, .sect, .note — см. js/people.js) ради
+   единого языка карточки партии и карточки человека. Здесь — только то,
+   что делает её исключением, а не двенадцатой партией: печать вместо
+   инициала, ироничный бейдж, завершающая сноска и строка сверки.
+
+   Цвет человека приходит из данных одной переменной --party на .detail
+   (её же читает карточка партии), поэтому на три персоны здесь ровно
+   один набор правил, а не три ветки. ============ */
+
+.sheet.person-sheet{
+  width:min(480px,calc(100vw - 32px));
+  height:auto;
+  max-height:min(680px,calc(100vh - 48px));
+}
+.person-sheet .sheet-body{
+  display:block;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.person-sheet #personBody .detail{padding:18px;}
+
+/* ---------- печать-бейдж вместо инициала ----------
+   Значок повторяет ту же форму, которой человек отмечен на поле
+   (js/compass.js, таблица SEALS): открыв карточку с точки, читатель
+   видит в шапке ровно то, на что нажал. Мягкий ореол дышит вокруг
+   печати — то же дыхание, что у рамки PVFP в настройках, только
+   привязанное к цвету конкретного человека. */
+.person-badge{ position:relative; }
+.person-badge svg{
+  width:24px;height:24px;fill:#fff;
+  position:relative;z-index:1;
+}
+.person-badge::after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb,var(--party,var(--accent)) 40%,transparent), transparent 68%);
+  opacity:.5;pointer-events:none;
+  animation:personHalo 3.4s ease-in-out infinite;
+}
+/* Финальный кадр совпадает с нулевым: когда движение выключено и
+   браузер обрывает анимацию на 100%, ореол остаётся в спокойном
+   состоянии, а не замирает раздутым. */
+@keyframes personHalo{
+  0%,100%{ transform:scale(1); opacity:.42; }
+  50%    { transform:scale(1.14); opacity:.72; }
+}
+
+/* ---------- ироничный подзаголовок ----------
+   У Путина это «Беспартийный (по паспорту)»: с 2012 года он формально
+   не состоит в «Единой России», хотя дважды возглавлял её список.
+   Бейдж читается как усмешка именно потому, что он точен — и у двух
+   других людей он работает так же: короткий факт вместо оценки. */
+.pt-badge{
+  display:inline-block;margin:-4px 0 12px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--party,var(--accent));
+  background:color-mix(in srgb,var(--party,var(--accent)) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--party,var(--accent)) 34%,transparent);
+  border-radius:999px;padding:4px 10px;
+}
+
+/* ---------- сноска ---------- */
+.pt-note{
+  font-size:11px;line-height:1.55;color:var(--muted-2);
+  border-top:1px dashed var(--stroke);padding-top:12px;margin-top:2px;
+}
+
+/* ---------- строка сверки ----------
+   Партия меняет позицию программой и съездом, живой человек — тише и
+   быстрее: местом жительства, юридическим статусом, ролью в собственной
+   организации. Дата сверки стоит последней строкой карточки и выглядит
+   как служебная отметка, а не как часть рассказа. */
+.pt-checked{
+  display:flex;align-items:center;gap:7px;margin-top:10px;
+  font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);
+  font-size:10px;letter-spacing:.02em;color:var(--muted-2);
+}
+.pt-checked-dot{
+  width:6px;height:6px;border-radius:50%;flex:none;
+  background:color-mix(in srgb,var(--party,var(--accent)) 75%,var(--text));
+  animation:personChecked 2.8s ease-in-out infinite;
+}
+@keyframes personChecked{
+  0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--party,var(--accent)) 45%,transparent); }
+  50%    { box-shadow:0 0 0 4px color-mix(in srgb,var(--party,var(--accent)) 0%,transparent); }
+}
+
+/* ---------- цветная кромка листа ----------
+   Единственное, что отличает лист Путина от листа Навальной снаружи
+   содержимого: тонкая полоса цвета человека под шапкой. Она берёт цвет
+   не из данных, а из атрибута data-person — CSS не умеет читать объект
+   из js/data-people.js, а раскрашивать саму шапку инлайном значило бы
+   тащить стиль в скрипт ради одной линии. Новый человек без строки
+   здесь просто останется с общей кромкой, и это не поломка. */
+.person-sheet .sheet-head{ position:relative; }
+.person-sheet .sheet-head::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--seal,var(--accent)),transparent);
+  opacity:.75;
+}
+.person-sheet[data-person="putin"]     { --seal:#c9a24a; }
+.person-sheet[data-person="kats"]      { --seal:#7c5cff; }
+.person-sheet[data-person="navalnaya"] { --seal:#ef4d8f; }
+
+@media(max-width:520px){
+  .sheet.person-sheet{ top:auto;bottom:0;left:0;right:0;
+    width:100%;max-width:100%;transform:translateY(100%);
+    max-height:min(88vh,680px);border-radius:var(--radius-lg) var(--radius-lg) 0 0; }
+  .sheet.person-sheet.is-open{ transform:translateY(0); }
+}

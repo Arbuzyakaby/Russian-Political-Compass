@@ -1,0 +1,293 @@
+/* ============ SRPC — БЛОК-ЦЕПОЧКА ОТРИСОВКИ (2.4) ============
+
+   Карточка «Как это устроено» во вкладке «О проекте» с 1.0 рассказывала
+   словами, что страница — это статический конвейер: разметка, стили,
+   данные, расчёты, отрисовка, экспорт. Схема ниже показывает тот же
+   конвейер, а не пересказывает его: шесть звеньев, соединённых линиями,
+   и один полный цикл, в котором сбой в третьем звене гасит всё, что
+   стоит после него, а потом система из него выходит.
+
+   Приём тот же, что у PVFP (css/settings.css) и FGDRI: обычная честная
+   техническая деталь получает имя, значок и живую иллюстрацию. Разница
+   в одном — у тех двух анимация декоративная и ничего не рассказывает,
+   а здесь у кадров есть сюжет, и его надо было уместить в статическую
+   разметку без единой строки JavaScript.
+
+   ---------- как устроена анимация ----------
+
+   Ни одного JS-модуля, никаких SVG-координат и getBoundingClientRect:
+   вся схема — это <ol> из шести пунктов и чистый CSS. Состояние звена
+   выражено одним свойством — color, — а цвет лампочки, рамки и ореола
+   выведены из него через currentColor и color-mix. Поэтому на четыре
+   состояния (обычное, неактивное, ошибка, критическая ошибка) нужен не
+   набор классов, которые некому переключать, а одна анимация цвета.
+
+   Все шесть звеньев крутят собственные @keyframes одинаковой длины
+   (--srpc-cycle), без animation-delay: задержка сдвинула бы цикл
+   целиком и звенья разъехались бы по фазе, а здесь важно, что все
+   шесть живут в одном времени и сбой у третьего виден четвёртому
+   в тот же момент. Момент включения каждого звена закодирован
+   процентами внутри его собственной дорожки, а не задержкой.
+
+   ---------- уменьшенное движение ----------
+
+   И css/motion.css (по prefers-reduced-motion), и тумблер «Анимации»
+   в настройках (css/settings.css) гасят движение одинаково: обрывают
+   анимацию на .001s с одной итерацией, то есть показывают её последний
+   кадр. Поэтому все шесть дорожек намеренно заканчиваются одним и тем
+   же состоянием — полностью исправной цепочкой. Статический кадр здесь
+   не «замирание на полпути», а осмысленная картинка: шесть зелёных
+   звеньев и целые связи между ними, ровно то, что схема и утверждает
+   про эту страницу. ============ */
+
+.chain{
+  --srpc-cycle:16s;
+  --srpc-idle:var(--muted-2);
+  --srpc-ok:var(--ok);
+  --srpc-warn:var(--warn);
+  --srpc-crit:var(--bad);
+
+  position:relative;
+  margin:18px 0 6px;
+  padding:18px 18px 16px;
+  border-radius:var(--radius-lg);
+  border:1px solid var(--glass-stroke,var(--stroke));
+  background:
+    radial-gradient(120% 160% at 50% -20%, color-mix(in srgb,var(--tone) 8%,transparent), transparent 62%),
+    var(--glass-bg);
+  overflow:hidden;
+}
+/* Мягкий свет по рамке — тот же приём, что у .pvfp-card: карточка
+   дышит, но не крутится и не наклоняется. */
+.chain::before{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tone) 14%,transparent);
+  animation:srpcFrame 6s ease-in-out infinite;
+}
+@keyframes srpcFrame{
+  0%,100%{ box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tone) 13%,transparent); }
+  50%    { box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tone) 26%,transparent); }
+}
+
+/* ---------- шапка схемы ---------- */
+.chain-cap{ position:relative;z-index:1;display:flex;flex-direction:column;gap:5px;margin-bottom:16px; }
+.chain-badge{
+  align-self:flex-start;
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
+  border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:3px 10px;
+}
+.chain-cap b{font-size:13.5px;font-weight:650;color:var(--text);letter-spacing:-.01em;}
+.chain-cap small{font-size:11.5px;line-height:1.5;color:var(--muted-2);text-wrap:pretty;}
+
+/* ---------- дорожка звеньев ----------
+   На широком экране — один ряд: конвейер и читается слева направо.
+   Ниже 760px ряд из шести коробок сжался бы до нечитаемых столбиков,
+   поэтому звенья встают колонкой, а связь между ними из горизонтальной
+   становится вертикальной. Обе раскладки пользуются одной и той же
+   анимацией: состояние связи выражено прозрачностью, а не длиной,
+   и поэтому не зависит от того, куда эта связь направлена. */
+.chain-track{
+  position:relative;z-index:1;
+  display:flex;align-items:stretch;gap:0;
+  list-style:none;margin:0;padding:0;
+}
+.chain-link{ display:flex;align-items:center;flex:1 1 0;min-width:0; }
+.chain-link:last-child{ flex:0 0 auto; }
+
+.chain-node{
+  flex:1 1 auto;min-width:0;
+  display:flex;flex-direction:column;gap:3px;
+  padding:10px 11px 11px;
+  border-radius:var(--radius-sm);
+  border:1px solid color-mix(in srgb,currentColor 34%,var(--stroke));
+  background:color-mix(in srgb,currentColor 7%,var(--surface));
+  color:var(--srpc-idle);
+  animation:var(--srpc-cycle) linear infinite both;
+}
+.chain-node b{
+  font-size:11.5px;font-weight:650;letter-spacing:-.01em;
+  color:var(--text);line-height:1.25;
+}
+.chain-node small{
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:9.5px;line-height:1.35;color:var(--muted-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.chain-head{ display:flex;align-items:center;gap:6px;margin-bottom:2px; }
+.chain-ix{
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:9px;letter-spacing:.06em;color:color-mix(in srgb,currentColor 80%,var(--muted-2));
+}
+/* Лампочка состояния: единственный элемент, который красится в цвет
+   звена целиком, — остальное берёт от него только оттенок рамки и
+   подложки, иначе шесть цветных прямоугольников перебивали бы текст. */
+.chain-led{
+  width:7px;height:7px;border-radius:50%;flex:none;
+  background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 16%,transparent);
+}
+
+/* ---------- связь между звеньями ----------
+   Тонкая линия с бегущим по ней бликом. Блик крутит собственный
+   короткий цикл, независимый от цикла состояний: его нулевой и сотый
+   кадры совпадают, поэтому при выключенном движении линия остаётся
+   ровной, а не застывает с ярким пятном посередине. */
+.chain-wire{
+  flex:0 0 auto;position:relative;
+  width:22px;height:2px;margin:0 2px;
+  border-radius:2px;
+  background:color-mix(in srgb,var(--stroke) 90%,transparent);
+  overflow:hidden;
+}
+.chain-wire i{
+  position:absolute;inset:0;border-radius:inherit;display:block;
+  color:var(--srpc-idle);
+  background:linear-gradient(90deg,
+    color-mix(in srgb,currentColor 55%,transparent) 0%,
+    color-mix(in srgb,currentColor 92%,transparent) 42%,
+    color-mix(in srgb,currentColor 55%,transparent) 84%);
+  background-size:240% 100%;
+  opacity:0;
+  animation:
+    var(--srpc-cycle) linear infinite both,
+    srpcFlow 2.2s linear infinite;
+}
+@keyframes srpcFlow{ from{ background-position:120% 0; } to{ background-position:-120% 0; } }
+
+/* ---------- дорожки состояний ----------
+   Шесть отдельных наборов кадров вместо одного с задержками: у каждого
+   звена свой сюжет, и записанный явно он читается как раскадровка —
+   видно, когда звено включилось, когда погасло и когда вернулось.
+
+   Общий сюжет цикла:
+     0–25 %   сигнал проходит цепочку слева направо, звенья зажигаются
+              по очереди — так страница и собирается при загрузке;
+     28–44 %  третье звено (данные) уходит в ошибку, а следом гаснут
+              все, кто от него зависит: считать, рисовать и выгружать
+              нечего, и это не их собственная поломка;
+     44–56 %  ошибка становится критической — линия после третьего
+              звена тухнет совсем;
+     56–74 %  восстановление в том же порядке, в каком был каскад;
+     74–100 % устойчивая работа — и этот же кадр остаётся на экране,
+              когда движение выключено. */
+
+.chain-link:nth-child(1) .chain-node{ animation-name:srpcL1; }
+.chain-link:nth-child(2) .chain-node{ animation-name:srpcL2; }
+.chain-link:nth-child(3) .chain-node{ animation-name:srpcL3; }
+.chain-link:nth-child(4) .chain-node{ animation-name:srpcL4; }
+.chain-link:nth-child(5) .chain-node{ animation-name:srpcL5; }
+.chain-link:nth-child(6) .chain-node{ animation-name:srpcL6; }
+
+.chain-link:nth-child(1) .chain-wire i{ animation-name:srpcW1, srpcFlow; }
+.chain-link:nth-child(2) .chain-wire i{ animation-name:srpcW2, srpcFlow; }
+.chain-link:nth-child(3) .chain-wire i{ animation-name:srpcW3, srpcFlow; }
+.chain-link:nth-child(4) .chain-wire i{ animation-name:srpcW4, srpcFlow; }
+.chain-link:nth-child(5) .chain-wire i{ animation-name:srpcW5, srpcFlow; }
+
+@keyframes srpcL1{
+  0%,4%    { color:var(--srpc-idle); opacity:.5; }
+  6%,100%  { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL2{
+  0%,8%    { color:var(--srpc-idle); opacity:.5; }
+  10%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+/* Третье звено — единственное, что ломается: данные партий и есть тот
+   вход, без которого дальше считать нечего. */
+@keyframes srpcL3{
+  0%,12%   { color:var(--srpc-idle); opacity:.5; }
+  14%,27%  { color:var(--srpc-ok);   opacity:1; }
+  30%,42%  { color:var(--srpc-warn); opacity:1; }
+  45%,54%  { color:var(--srpc-crit); opacity:1; }
+  57%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL4{
+  0%,16%   { color:var(--srpc-idle); opacity:.5; }
+  18%,32%  { color:var(--srpc-ok);   opacity:1; }
+  35%,58%  { color:var(--srpc-idle); opacity:.42; }
+  62%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL5{
+  0%,20%   { color:var(--srpc-idle); opacity:.5; }
+  22%,35%  { color:var(--srpc-ok);   opacity:1; }
+  38%,62%  { color:var(--srpc-idle); opacity:.42; }
+  66%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL6{
+  0%,24%   { color:var(--srpc-idle); opacity:.5; }
+  26%,38%  { color:var(--srpc-ok);   opacity:1; }
+  41%,66%  { color:var(--srpc-idle); opacity:.42; }
+  70%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+
+@keyframes srpcW1{
+  0%,4%    { color:var(--srpc-idle); opacity:0; }
+  8%,100%  { color:var(--srpc-ok);   opacity:.9; }
+}
+@keyframes srpcW2{
+  0%,8%    { color:var(--srpc-idle); opacity:0; }
+  12%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+/* Связь, выходящая из сломанного звена: сначала желтеет вместе с ним,
+   потом рвётся совсем и возвращается первой при восстановлении. */
+@keyframes srpcW3{
+  0%,12%   { color:var(--srpc-idle); opacity:0; }
+  16%,27%  { color:var(--srpc-ok);   opacity:.9; }
+  30%,42%  { color:var(--srpc-warn); opacity:.75; }
+  45%,56%  { color:var(--srpc-crit); opacity:.2; }
+  60%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+@keyframes srpcW4{
+  0%,16%   { color:var(--srpc-idle); opacity:0; }
+  20%,32%  { color:var(--srpc-ok);   opacity:.9; }
+  35%,60%  { color:var(--srpc-idle); opacity:.18; }
+  64%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+@keyframes srpcW5{
+  0%,20%   { color:var(--srpc-idle); opacity:0; }
+  24%,35%  { color:var(--srpc-ok);   opacity:.9; }
+  38%,64%  { color:var(--srpc-idle); opacity:.18; }
+  68%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+
+/* ---------- легенда состояний ----------
+   Без неё жёлтое и красное звено читаются как «что-то сломалось», но
+   не как четыре именованных состояния. Цвет здесь не единственный код:
+   рядом с каждым образцом стоит подпись — то же требование, что и к
+   графикам проекта. */
+.chain-legend{
+  position:relative;z-index:1;
+  display:flex;flex-wrap:wrap;gap:6px 14px;
+  list-style:none;margin:14px 0 0;padding:12px 0 0;
+  border-top:1px dashed var(--stroke);
+}
+.chain-legend li{
+  display:flex;align-items:center;gap:6px;
+  font-size:10.5px;color:var(--muted-2);
+}
+.chain-legend i{
+  width:7px;height:7px;border-radius:50%;flex:none;background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 16%,transparent);
+}
+.chain-legend .is-ok  { color:var(--srpc-ok); }
+.chain-legend .is-idle{ color:var(--srpc-idle); }
+.chain-legend .is-warn{ color:var(--srpc-warn); }
+.chain-legend .is-crit{ color:var(--srpc-crit); }
+.chain-legend span{ color:var(--muted-2); }
+
+/* ---------- узкий экран ----------
+   Шесть коробок в ряд на телефоне превращаются в шесть полосок по три
+   буквы. Колонка честнее: конвейер всё так же читается по порядку,
+   просто сверху вниз, а связь между звеньями становится вертикальной
+   чёрточкой. */
+@media(max-width:760px){
+  .chain-track{ flex-direction:column; align-items:stretch; }
+  .chain-link{ flex-direction:column; align-items:stretch; flex:0 0 auto; }
+  .chain-wire{ width:2px;height:14px;margin:3px 0 3px 18px; }
+  .chain-node small{ white-space:normal; }
+}
+@media(max-width:420px){
+  .chain{ padding:15px 14px 13px; }
+}

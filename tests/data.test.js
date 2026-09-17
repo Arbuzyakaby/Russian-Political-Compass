@@ -203,3 +203,79 @@ test("PC.convocations() и PC.CONVOCATIONS описывают один и тот
   );
 });
 
+
+/* ============ ЛЮДИ НА ПОЛЕ ============
+   До 2.4 человек был один и лежал отдельным объектом PC.PUTIN, который
+   не проверялся ничем: формат «одного объекта» некому было нарушить.
+   Список PC.PEOPLE нарушить легко — достаточно дописать четвёртого
+   человека и забыть половину полей, потому что страница от этого не
+   падает, а просто показывает пустую карточку. Эти проверки описывают
+   формат целиком, чтобы забытое поле стоило одной красной строки,
+   а не обхода всех трёх карточек глазами. */
+
+const SEALS = ["hex", "rhomb", "shield"];
+
+test("список людей непустой, и Путин по-прежнему в нём", () => {
+  assert.ok(Array.isArray(PC.PEOPLE), "PC.PEOPLE должен быть списком");
+  assert.ok(PC.PEOPLE.length >= 1, "на поле не осталось ни одного человека");
+  assert.ok(PC.personById("putin"), "Путин пропал из списка людей");
+  assert.equal(PC.personById("нет-такого"), null, "personById выдумывает людей");
+});
+
+test("у каждого человека заполнены все поля формата", () => {
+  const TEXT = ["name", "short", "role", "badge", "summary", "why", "note"];
+  for(const p of PC.PEOPLE){
+    assert.match(p.id, /^[a-z-]+$/, `странный id человека: ${p.id}`);
+    for(const field of TEXT){
+      assert.ok(p[field] && String(p[field]).trim(),
+        `${p.id}.${field} пуст — карточка покажет дыру`);
+    }
+    assert.ok(Array.isArray(p.theses) && p.theses.length >= 3,
+      `${p.id}: тезисов меньше трёх, карточка выглядит недописанной`);
+    assert.match(p.color, /^#[0-9a-f]{6}$/i, `${p.id}: цвет не в формате #rrggbb`);
+    assert.ok(SEALS.includes(p.seal),
+      `${p.id}: форма печати «${p.seal}» неизвестна таблице SEALS в js/compass.js`);
+  }
+});
+
+test("координаты людей лежат внутри поля и не слипаются друг с другом", () => {
+  for(const p of PC.PEOPLE){
+    for(const axis of ["x", "y"]){
+      assert.equal(typeof p[axis], "number", `${p.id}.${axis} не число`);
+      assert.ok(Math.abs(p[axis]) <= 10, `${p.id}.${axis} вне шкалы −10…10: ${p[axis]}`);
+    }
+  }
+  /* Печать человека занимает на поле радиус 19 при 33 пикселях на
+     единицу шкалы — две точки ближе полутора единиц перекрыли бы друг
+     друга и обе подписи разом. */
+  for(let i = 0; i < PC.PEOPLE.length; i++){
+    for(let j = i + 1; j < PC.PEOPLE.length; j++){
+      const a = PC.PEOPLE[i], b = PC.PEOPLE[j];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      assert.ok(d > 1.5, `${a.id} и ${b.id} стоят на поле почти в одной точке (${d.toFixed(2)})`);
+    }
+  }
+});
+
+test("id и цвета людей не пересекаются ни между собой, ни с партиями", () => {
+  const ids = new Set(), colors = new Set();
+  for(const p of PC.PEOPLE){
+    assert.ok(!ids.has(p.id), `человек ${p.id} объявлен дважды`);
+    ids.add(p.id);
+    assert.ok(!colors.has(p.color.toLowerCase()), `цвет ${p.color} занят другим человеком`);
+    colors.add(p.color.toLowerCase());
+    assert.ok(!PC.PARTIES.some(q => q.id === p.id),
+      `id ${p.id} занят партией — фильтры компаса перепутают их`);
+    assert.ok(!PC.PARTIES.some(q => q.color.toLowerCase() === p.color.toLowerCase()),
+      `цвет ${p.color} уже принадлежит партии — на поле их будет не различить`);
+  }
+});
+
+test("у каждого человека проставлена дата сверки позиции", () => {
+  for(const p of PC.PEOPLE){
+    assert.match(String(p.updatedAt), /^\d{4}-\d{2}-\d{2}$/,
+      `${p.id}.updatedAt не в формате ГГГГ-ММ-ДД: ${p.updatedAt}`);
+    const d = new Date(p.updatedAt + "T00:00:00Z");
+    assert.ok(!isNaN(d.getTime()), `${p.id}.updatedAt — не существующая дата`);
+  }
+});

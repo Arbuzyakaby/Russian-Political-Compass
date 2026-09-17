@@ -48,47 +48,147 @@
   font-variant-numeric:tabular-nums;
 }
 .ab-st span{ font-size:11px; line-height:1.35; color:var(--muted-2); text-wrap:balance; }
+/* Плитка-число отзывается на курсор: подложка слегка светлеет, а само
+   число приподнимается. Мелочь, но шесть плиток в ряд без неё читаются
+   как таблица, а не как часть живой страницы. */
+.ab-st{ transition:background var(--dur-2) var(--ease-out); }
+.ab-st b{ display:inline-block; transition:transform var(--dur-2) var(--ease-spring); }
+@media(hover:hover) and (pointer:fine){
+  .ab-st:hover{ background:color-mix(in srgb,var(--accent) 7%,var(--glass-bg)); }
+  .ab-st:hover b{ transform:translateY(-2px); }
+}
 
-/* ---------- оглавление ----------
-   Тринадцать карточек подряд — это оглавляемый объём. Чипы ведут
-   якорями: без JavaScript блок остаётся пустым и скрытым, и раздел
-   выглядит ровно так, как выглядел раньше. */
+/* ---------- оглавление-рельс (переработано в 2.4) ----------
+   До 2.4 это была просто россыпь чипов под плитками чисел: она уезжала
+   вверх с первой же прокруткой и дальше тринадцать карточек читались
+   вслепую — понять, где ты сейчас и сколько осталось, было нельзя.
+
+   Теперь оглавление липнет под полосой вкладок и ведёт себя как рельс
+   лонгрида: у активного раздела своя заливка, под чипами идёт полоса
+   прочитанного, а сам рельс на узком экране прокручивается вбок и
+   подтягивает активный чип к себе (js/ui.js). Номера чипов совпадают
+   с номерами в заголовках карточек — тот же счётчик about-sec, только
+   посчитанный скриптом, потому что CSS-счётчик наружу не отдаётся.
+
+   Без JavaScript блок остаётся пустым и скрытым, как и раньше: рельс
+   украшает чтение, но ничего не открывает и не является единственным
+   путём к разделу — карточки идут подряд. */
 .about-nav{
   grid-column:1 / -1;
+  position:sticky;
+  top:72px;
+  /* Ниже полосы вкладок (--z-sticky): рельс подъезжает под неё, а не
+     наоборот, иначе на прокрутке он перекрыл бы сами вкладки. */
+  z-index:20;
   display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  align-items:center;
+  flex-direction:column;
+  gap:8px;
+  padding:9px 12px 10px;
+  border-radius:var(--radius);
+  border:1px solid var(--glass-stroke,var(--stroke));
+  /* Подложка плотнее обычного стекла: рельс липкий, и под ним
+     проезжают карточки с крупными заголовками — сквозь одно только
+     размытие они читались как вторая строка чипов. */
+  background:color-mix(in srgb,var(--surface) 88%,var(--glass-bg-2,transparent));
+  -webkit-backdrop-filter:var(--glass-filter);
+  backdrop-filter:var(--glass-filter);
+  box-shadow:0 10px 30px -26px rgba(0,0,0,.55);
 }
 .about-nav[hidden]{ display:none; }
+
+.ab-nav-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+.ab-nav-row::-webkit-scrollbar{ display:none; }
+
 .about-nav .ab-nav-lab{
+  flex:none;
   font-size:10px;
   text-transform:uppercase;
   letter-spacing:.13em;
   font-weight:650;
   color:var(--muted-2);
   margin-right:4px;
+  white-space:nowrap;
 }
 .about-nav a{
+  flex:none;
+  display:inline-flex;
+  align-items:baseline;
+  gap:7px;
   font-size:11.5px;
   font-weight:550;
   line-height:1;
-  padding:7px 11px;
+  padding:7px 12px;
   border-radius:var(--radius-pill);
   color:var(--muted);
   text-decoration:none;
+  white-space:nowrap;
   border:1px solid var(--stroke);
   background:var(--surface);
   transition:color var(--dur-2) var(--ease-out),
              border-color var(--dur-2) var(--ease-out),
-             background var(--dur-2) var(--ease-out);
+             background var(--dur-2) var(--ease-out),
+             transform var(--dur-2) var(--ease-out);
+}
+/* Номер раздела в чипе моноширинный и с фиксированными цифрами: без
+   tabular-nums «01» и «11» имеют разную ширину, и ряд чипов дрожит
+   при переключении активного. */
+.about-nav a i{
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+  color:var(--muted-2);
+  transition:color var(--dur-2) var(--ease-out);
 }
 .about-nav a:hover{
   color:var(--text);
   border-color:var(--stroke-2);
   background:var(--surface-2);
+  transform:translateY(-1px);
 }
 .about-nav a:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+/* Активный раздел. Заливка акцентом, а не жирность: чип должен быть
+   виден краем глаза при прокрутке, не притягивая взгляд обратно. */
+.about-nav a.is-current{
+  color:var(--accent-ink);
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.about-nav a.is-current i{ color:color-mix(in srgb,var(--accent-ink) 72%,transparent); }
+.about-nav a.is-current:hover{ background:var(--accent); color:var(--accent-ink); }
+
+/* Полоса прочитанного. Долю считает js/ui.js и кладёт в --ab-read;
+   это живое значение, а не анимация, поэтому при выключенном движении
+   полоса остаётся правдивой, просто перестаёт плавно догонять. */
+.ab-nav-bar{
+  position:relative;
+  height:2px;
+  border-radius:2px;
+  background:color-mix(in srgb,var(--stroke) 85%,transparent);
+  overflow:hidden;
+}
+.ab-nav-bar::after{
+  content:"";position:absolute;inset:0;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transform:scaleX(var(--ab-read,0));
+  transform-origin:left center;
+  transition:transform var(--dur-2) var(--ease-out);
+}
+
+@media(max-width:700px){
+  .about-nav{ top:66px; padding:8px 10px 9px; }
+  .about-nav .ab-nav-lab{ display:none; }
+}
 
 /* Тонкая цветная кромка сверху — у каждой карточки своя, чтобы блок
    с текстом читался не единым потоком серых плашек, а размеченным
@@ -134,6 +234,30 @@
   transition:background-image .45s ease;
 }
 .about-hero::before{display:none;}
+/* Живое сияние поверх снимка поля (2.4). Два мягких пятна акцентных
+   цветов медленно расходятся и сходятся — карточка перестаёт быть
+   плоской фотографией, но текст поверх не шевелится и контраст не
+   меняется: пятна лежат под содержимым и никогда не набирают больше
+   десятой доли непрозрачности.
+
+   Кадр 0 % и кадр 100 % совпадают, поэтому при выключенном движении
+   свечение остаётся ровно там же, где было в покое. */
+.about-hero .hero-aura{
+  position:absolute;inset:-20% -10%;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(38% 42% at 22% 28%, color-mix(in srgb,var(--accent) 34%,transparent), transparent 70%),
+    radial-gradient(34% 38% at 78% 68%, color-mix(in srgb,var(--accent-2) 30%,transparent), transparent 70%);
+  opacity:.5;
+  filter:blur(14px);
+  animation:aboutAura 18s ease-in-out infinite;
+}
+@keyframes aboutAura{
+  0%,100%{ transform:translate3d(0,0,0)      scale(1);    opacity:.44; }
+  50%    { transform:translate3d(3%,-3%,0)   scale(1.08); opacity:.62; }
+}
+/* Содержимое геро-карточки поднято над сиянием: без своего слоя текст
+   лёг бы под градиенты и потерял бы контраст на светлых темах. */
+.about-hero > :not(.hero-aura){ position:relative;z-index:1; }
 .about-hero .eyebrow{
   display:inline-flex;align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;color:var(--accent);padding:5px 12px;border-radius:999px;
@@ -155,9 +279,9 @@
 .about-card p:last-child{margin-bottom:0;}
 .about-card .about-list{max-width:var(--measure);}
 
-/* Якорь из оглавления: карточка не должна уезжать под липкую полосу
-   вкладок, которая висит у верхней кромки. */
-.about-card{scroll-margin-top:86px;}
+/* Якорь из оглавления: карточка не должна уезжать ни под липкую
+   полосу вкладок, ни под липкий рельс оглавления под ней. */
+.about-card{scroll-margin-top:146px;}
 .about-card:focus{outline:none;}
 .about-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 .about-note{font-size:12px;color:var(--muted);line-height:1.6;padding:12px 14px;border-radius:12px;
@@ -186,9 +310,13 @@
     linear-gradient(168deg,var(--card-a) 0%,color-mix(in srgb,var(--card-a) 55%, var(--card-b)) 52%,var(--card-b) 100%);
 }
 .about-card--accent2{border-color:color-mix(in srgb,var(--accent-2) 30%, var(--stroke));}
+/* Строка со ссылкой на исходники. Раньше была flex-контейнером, и
+   текстовые узлы вокруг ссылки становились отдельными flex-элементами:
+   предложение разваливалось на три строки, и вторая начиналась с точки.
+   Это один абзац с ссылкой внутри — значит, обычный блок. */
 .about-card--tech .about-cta{
   margin-top:4px;padding:12px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--stroke);
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  line-height:1.65;
 }
 
 .about-list{margin:0 0 12px 0;padding-left:20px;display:flex;flex-direction:column;gap:9px;}

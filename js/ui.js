@@ -138,21 +138,38 @@
   function initAboutNav(){
     var nav = document.getElementById("aboutNav");
     if(!nav) return;
-    var cards = document.querySelectorAll(".about-card:not(.about-hero)");
+    var cards = Array.prototype.slice.call(
+      document.querySelectorAll(".about-card:not(.about-hero)"));
     if(!cards.length) return;
 
     var label = document.createElement("span");
     label.className = "ab-nav-lab";
     label.textContent = PC.t("ab.nav.h");
-    nav.appendChild(label);
 
+    /* Чипы живут в собственном ряду, а полоса прочитанного — под ним:
+       рельс липкий, и складывать то и другое в один горизонтально
+       прокручиваемый поток значило бы увозить полосу вбок вместе
+       с чипами. */
+    var row = document.createElement("div");
+    row.className = "ab-nav-row";
+    row.appendChild(label);
+
+    var links = [];
     cards.forEach(function(card, i){
       var h = card.querySelector("h3");
       if(!h) return;
       if(!card.id) card.id = "ab-sec-" + (i + 1);
       var a = document.createElement("a");
       a.href = "#" + card.id;
-      a.textContent = h.textContent.trim();
+      /* Номер повторяет счётчик about-sec из css/about.css: тот же
+         порядок, та же ведущая ноль-цифра. CSS-счётчик прочитать
+         нельзя, поэтому он считается здесь заново — по тому же
+         списку карточек, из которого CSS его и получает. */
+      var num = document.createElement("i");
+      num.setAttribute("aria-hidden", "true");
+      num.textContent = (i + 1 < 10 ? "0" : "") + (i + 1);
+      a.appendChild(num);
+      a.appendChild(document.createTextNode(h.textContent.trim()));
       /* Штатная прокрутка по якорю прыгает, и при включённых анимациях
          это единственное резкое движение на всей странице. Плюс hash
          в адресе: #ab-sec-3 перебил бы маршрут вкладки (#/about),
@@ -163,9 +180,76 @@
         card.setAttribute("tabindex", "-1");
         card.focus({ preventScroll:true });
       });
-      nav.appendChild(a);
+      row.appendChild(a);
+      links.push({ a:a, card:card });
     });
+    nav.appendChild(row);
+
+    var bar = document.createElement("div");
+    bar.className = "ab-nav-bar";
+    nav.appendChild(bar);
+
     nav.hidden = false;
+    trackAboutNav(nav, row, links);
+  }
+
+  /* ---------- где мы сейчас в разделе ----------
+     Активным считается последний раздел, чья верхняя кромка уже ушла
+     под рельс: это совпадает с тем, что человек читает, и не мигает
+     на границе двух карточек, как мигал бы IntersectionObserver с
+     порогом по площади — карточки разной высоты, и самая заметная
+     не всегда та, которую читают.
+
+     Доля прочитанного считается по позиции прокрутки внутри всего
+     раздела, а не по числу пройденных карточек: тринадцать карточек
+     разной длины давали бы полосу, которая скачет на коротких и
+     стоит на длинных. */
+  function trackAboutNav(nav, row, links){
+    var current = null, queued = false;
+
+    function apply(){
+      queued = false;
+      var line = nav.getBoundingClientRect().bottom + 8;
+      var active = links[0];
+      for(var i = 0; i < links.length; i++){
+        if(links[i].card.getBoundingClientRect().top <= line) active = links[i];
+      }
+
+      var first = links[0].card.getBoundingClientRect();
+      var last = links[links.length - 1].card.getBoundingClientRect();
+      var span = (last.bottom - first.top) - window.innerHeight;
+      var read = span > 0 ? (line - first.top) / span : 1;
+      nav.style.setProperty("--ab-read", Math.min(1, Math.max(0, read)).toFixed(4));
+
+      if(active === current) return;
+      if(current) current.a.classList.remove("is-current");
+      active.a.classList.add("is-current");
+      current = active;
+
+      /* На узком экране рельс прокручивается вбок, и активный чип
+         легко оказывается за краем. Подтягиваем его к себе — но
+         только внутри самого рельса, не трогая прокрутку страницы. */
+      if(row.scrollWidth > row.clientWidth + 4){
+        var cr = active.a.getBoundingClientRect(), rr = row.getBoundingClientRect();
+        if(cr.left < rr.left + 12 || cr.right > rr.right - 12){
+          row.scrollLeft += (cr.left - rr.left) - (rr.width - cr.width) / 2;
+        }
+      }
+    }
+
+    function schedule(){
+      if(queued) return;
+      queued = true;
+      requestAnimationFrame(apply);
+    }
+
+    window.addEventListener("scroll", schedule, { passive:true });
+    window.addEventListener("resize", schedule);
+    /* Раздел «О проекте» — вкладка: при возврате на неё прокрутка
+       та же, а размеры пересчитаны, и без этого вызова рельс показал
+       бы состояние, снятое до ухода. */
+    if(PC.nav && PC.nav.onChange) PC.nav.onChange(schedule);
+    schedule();
   }
 
   /* Числа проекта в плитках раздела: те же значения, что и в подвале,

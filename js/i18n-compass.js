@@ -273,10 +273,13 @@
                            "Mean difference across the six scales — {d}."],
 
     /* ===== карточка Путина (2.3.2) ===== */
-    "tip.putin":          ["Нажмите — отдельная карточка", "Click for a separate card"],
-    "putin.eyebrow":      ["Не партия", "Not a party"],
-    "putin.title":        ["Владимир Путин", "Vladimir Putin"],
-    "putin.close":        ["Закрыть карточку", "Close the card"],
+    "tip.person":         ["Нажмите — отдельная карточка", "Click for a separate card"],
+    "person.eyebrow":     ["Не партия", "Not a party"],
+    "person.close":       ["Закрыть карточку", "Close the card"],
+    /* Дата последней сверки позиции человека: у живой публичной фигуры
+       статус меняется быстрее, чем программа партии, и карточка честно
+       говорит, на какой день она верна. */
+    "person.checked":     ["Позиция и статус сверены {date}", "Position and status verified on {date}"],
 
   });
 })(window.PC = window.PC || {});

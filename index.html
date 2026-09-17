@@ -64,7 +64,7 @@
      сразу, а не через «невидимый» период ожидания.
 
      IBM Plex Sans Condensed и Fraunces обслуживают настройку «Шрифт»
-     (js/fonts.js, data-font на <html>): они заменяют --font-display
+     (js/settings.js, data-font на <html>): они заменяют --font-display
      в узком и антиквенном режиме. Раньше их скачивали все — включая
      тех, кто этих режимов никогда не включит, — а это две гарнитуры
      с кириллицей в каждой загрузке страницы. Теперь они подтягиваются
@@ -89,10 +89,11 @@
 <link rel="stylesheet" href="css/quiz.css">
 <link rel="stylesheet" href="css/export.css">
 <link rel="stylesheet" href="css/about.css">
+<link rel="stylesheet" href="css/chain.css">
 <link rel="stylesheet" href="css/footer.css">
 <link rel="stylesheet" href="css/select.css">
 <link rel="stylesheet" href="css/settings.css">
-<link rel="stylesheet" href="css/putin.css">
+<link rel="stylesheet" href="css/people.css">
 <link rel="stylesheet" href="css/ui.css">
 <link rel="stylesheet" href="css/welcome.css">
 <link rel="stylesheet" href="css/eggs.css">
@@ -456,6 +457,9 @@
   <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="-1" hidden>
     <div class="about">
       <article class="card about-card about-hero" data-reveal>
+        <!-- Сияние поверх снимка поля (2.4): чисто декоративный слой,
+             вся его жизнь — в css/about.css. -->
+        <span class="hero-aura" aria-hidden="true"></span>
         <span class="eyebrow" data-i18n="tab.about">О проекте</span>
         <h2 data-i18n="ab.hero.h">Карта вместо ярлыков</h2>
         <p class="about-lede" data-i18n="ab.hero.lede">Разговор о политике в России быстро сводится к двум ярлыкам — «свои» и «чужие».
@@ -640,7 +644,94 @@
           Компас, парламентская диаграмма, график динамики, спектр и диаграмма-паук рисуются в SVG прямо в браузере.
           Тема по умолчанию системная — берётся из настроек операционной системы и меняется вместе с ней,
           пока вы не выберете светлую или тёмную вручную.</p>
-        <p data-i18n="ab.tech.p2">Доступность: точки компаса и элементы легенд достижимы с клавиатуры, у графика динамики есть
+
+        <!-- SRPC (2.4): блок-цепочка кода в духе PVFP и FGDRI из настроек.
+             Схема стоит внутри этой карточки, а не отдельным блоком, потому
+             что она не самостоятельный сюжет, а иллюстрация к абзацу выше:
+             тот описывает конвейер словами, эта — показывает его целиком,
+             вместе со сбоем и восстановлением. Разметка статическая, вся
+             анимация и все четыре состояния живут в css/chain.css. -->
+        <figure class="chain">
+          <figcaption class="chain-cap">
+            <span class="chain-badge" data-i18n="ab.chain.badge">SRPC · 6 звеньев</span>
+            <b data-i18n="ab.chain.t">Static Render Pipeline Chain</b>
+            <small data-i18n="ab.chain.d">Путь страницы от разметки до выгрузки, шестью звеньями. Схема прогоняет полный цикл: сигнал проходит цепочку, третье звено уходит в ошибку и гасит всё, что от него зависит, — а потом конвейер собирается обратно.</small>
+          </figcaption>
+          <ol class="chain-track">
+          <li class="chain-link">
+            <span class="chain-node">
+              <span class="chain-head">
+                <span class="chain-led" aria-hidden="true"></span>
+                <span class="chain-ix" aria-hidden="true">01</span>
+              </span>
+              <b data-i18n="ab.chain.s1">Разметка</b>
+              <small data-i18n="ab.chain.s1f">index.html</small>
+            </span>
+            <span class="chain-wire" aria-hidden="true"><i></i></span>
+          </li>
+          <li class="chain-link">
+            <span class="chain-node">
+              <span class="chain-head">
+                <span class="chain-led" aria-hidden="true"></span>
+                <span class="chain-ix" aria-hidden="true">02</span>
+              </span>
+              <b data-i18n="ab.chain.s2">Стили</b>
+              <small data-i18n="ab.chain.s2f">css/*.css</small>
+            </span>
+            <span class="chain-wire" aria-hidden="true"><i></i></span>
+          </li>
+          <li class="chain-link">
+            <span class="chain-node">
+              <span class="chain-head">
+                <span class="chain-led" aria-hidden="true"></span>
+                <span class="chain-ix" aria-hidden="true">03</span>
+              </span>
+              <b data-i18n="ab.chain.s3">Данные</b>
+              <small data-i18n="ab.chain.s3f">js/data-*.js</small>
+            </span>
+            <span class="chain-wire" aria-hidden="true"><i></i></span>
+          </li>
+          <li class="chain-link">
+            <span class="chain-node">
+              <span class="chain-head">
+                <span class="chain-led" aria-hidden="true"></span>
+                <span class="chain-ix" aria-hidden="true">04</span>
+              </span>
+              <b data-i18n="ab.chain.s4">Расчёты</b>
+              <small data-i18n="ab.chain.s4f">js/calc.js</small>
+            </span>
+            <span class="chain-wire" aria-hidden="true"><i></i></span>
+          </li>
+          <li class="chain-link">
+            <span class="chain-node">
+              <span class="chain-head">
+                <span class="chain-led" aria-hidden="true"></span>
+                <span class="chain-ix" aria-hidden="true">05</span>
+              </span>
+              <b data-i18n="ab.chain.s5">Отрисовка</b>
+              <small data-i18n="ab.chain.s5f">SVG в браузере</small>
+            </span>
+            <span class="chain-wire" aria-hidden="true"><i></i></span>
+          </li>
+          <li class="chain-link">
+            <span class="chain-node">
+              <span class="chain-head">
+                <span class="chain-led" aria-hidden="true"></span>
+                <span class="chain-ix" aria-hidden="true">06</span>
+              </span>
+              <b data-i18n="ab.chain.s6">Экспорт</b>
+              <small data-i18n="ab.chain.s6f">PNG · SVG · CSV · JSON</small>
+            </span>
+          </li>
+          </ol>
+          <ul class="chain-legend">
+          <li class="is-ok"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.ok">звено работает</span></li>
+          <li class="is-idle"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.idle">ждёт входных данных</span></li>
+          <li class="is-warn"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.warn">ошибка в звене</span></li>
+          <li class="is-crit"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.crit">критическая ошибка</span></li>
+          </ul>
+        </figure>
+        <p data-i18n-html="ab.tech.p2">Доступность: точки компаса и элементы легенд достижимы с клавиатуры, у графика динамики есть
           таблица данных как альтернатива цвету, цвет нигде не остаётся единственным кодом, а анимации
           выключаются по <code>prefers-reduced-motion</code>.</p>
         <p class="about-cta" data-i18n-html="ab.tech.cta">Исходный код открыт:
@@ -1267,23 +1358,27 @@
   </div>
 </aside>
 
-<!-- Карточка Путина (2.3.2): тот же .sheet/.sheet-scrim, что у настроек,
-     но с одной панелью — js/putin.js держит открытие и содержимое
-     отдельно от js/settings.js, у карточки нет своих переключателей. -->
-<div class="sheet-scrim" id="putinScrim" hidden></div>
-<aside class="sheet putin-sheet" id="putinSheet" role="dialog" aria-modal="true" aria-labelledby="putinTitle" hidden>
+<!-- Карточка человека (2.3.2, обобщена в 2.4): тот же .sheet/.sheet-scrim,
+     что у настроек, но с одной панелью — js/people.js держит открытие и
+     содержимое отдельно от js/settings.js, у карточки нет своих
+     переключателей. Лист один на всех людей из PC.PEOPLE: заголовок и
+     тело подставляет скрипт при открытии, поэтому здесь стоит имя
+     первого человека списка — без JavaScript эта карточка всё равно
+     не открывается. -->
+<div class="sheet-scrim" id="personScrim" hidden></div>
+<aside class="sheet person-sheet" id="personSheet" role="dialog" aria-modal="true" aria-labelledby="personTitle" hidden>
   <header class="sheet-head">
     <div>
-      <span class="eyebrow" data-i18n="putin.eyebrow">Не партия</span>
-      <h2 id="putinTitle" data-i18n="putin.title">Владимир Путин</h2>
+      <span class="eyebrow" data-i18n="person.eyebrow">Не партия</span>
+      <h2 id="personTitle">Владимир Путин</h2>
     </div>
-    <button type="button" class="sheet-close" id="putinClose" aria-label="Закрыть карточку"
-            data-i18n-attr="aria-label:putin.close">
+    <button type="button" class="sheet-close" id="personClose" aria-label="Закрыть карточку"
+            data-i18n-attr="aria-label:person.close">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
     </button>
   </header>
   <div class="sheet-body">
-    <div id="putinBody"></div>
+    <div id="personBody"></div>
   </div>
 </aside>
 
@@ -1378,7 +1473,7 @@
 <script src="js/data.js" defer></script>
 <script src="js/data-parties.js" defer></script>
 <script src="js/data-votes.js" defer></script>
-<script src="js/data-putin.js" defer></script>
+<script src="js/data-people.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/calc.js" defer></script>
 <script src="js/i18n-shell.js" defer></script>
@@ -1400,7 +1495,7 @@
 <script src="js/coalition.js" defer></script>
 <script src="js/votes.js" defer></script>
 <script src="js/sidebar.js" defer></script>
-<script src="js/putin.js" defer></script>
+<script src="js/people.js" defer></script>
 <script src="js/quiz-data.js" defer></script>
 <script src="js/quiz-calc.js" defer></script>
 <script src="js/quiz.js" defer></script>

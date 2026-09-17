@@ -140,6 +140,23 @@ test("данные партий переведены целиком", () => {
   }
 });
 
+test("люди на поле переведены целиком", () => {
+  const TEXT = ["name", "short", "role", "badge", "summary", "why", "note"];
+  for(const p of en.PEOPLE){
+    assert.ok(p.en, `у человека ${p.id} нет английского блока`);
+    for(const field of TEXT){
+      const value = en.L(p, field);
+      assert.ok(value && String(value).trim(), `${p.id}.${field} пуст в английской версии`);
+      assert.ok(!/[а-яА-ЯёЁ]/.test(String(value)), `${p.id}.${field} не переведён: ${value}`);
+    }
+    const theses = en.L(p, "theses");
+    assert.equal(theses.length, p.theses.length, `${p.id}: тезисы переведены не полностью`);
+    for(const th of theses){
+      assert.ok(!/[а-яА-ЯёЁ]/.test(th), `${p.id}: тезис не переведён — ${th}`);
+    }
+  }
+});
+
 test("утверждения теста переведены все девяносто", () => {
   assert.equal(en.QUIZ.QUESTIONS.length, 90, "набор утверждений изменился — проверка устарела");
   for(const q of en.QUIZ.QUESTIONS){

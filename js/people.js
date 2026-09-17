@@ -1,20 +1,25 @@
-/* ============ Карточка Путина (2.3.2) ============
+/* ============ Карточка человека (2.3.2, обобщена в 2.4) ============
 
    Единственная карточка на странице, которая не проходит через
    js/sidebar.js: та карточка целиком выстроена вокруг данных партии
-   (мандаты, голосования, соседи по полю), которых у PC.PUTIN нет и
-   не будет. Здесь — отдельное всплывающее окно на базе того же
-   .sheet/.sheet-scrim, которым уже пользуются настройки (js/settings.js):
-   тот же способ открытия, тот же захват фокуса и Esc, но с одной
-   панелью вместо рельса разделов и с собственной, более «прикольной»
-   версткой (css/putin.css), которая помечает карточку как исключение,
-   а не как двенадцатую партию. ============ */
+   (мандаты, голосования, соседи по полю), которых у людей из
+   PC.PEOPLE нет и не будет. Здесь — отдельное всплывающее окно на базе
+   того же .sheet/.sheet-scrim, которым уже пользуются настройки
+   (js/settings.js): тот же способ открытия, тот же захват фокуса и Esc,
+   но с одной панелью вместо рельса разделов и с собственной, более
+   «прикольной» версткой (css/people.css).
+
+   До 2.4 этот файл назывался js/putin.js и знал ровно одного человека:
+   имя в заголовке стояло в разметке, открытие не принимало аргументов.
+   Теперь лист один на всех, а человек приходит параметром open(id) —
+   заголовок, печать и акцентный цвет подставляются при отрисовке.
+   Добавление четвёртого человека этот файл не трогает вовсе. ============ */
 (function(PC){
   "use strict";
   var U = PC.utils, esc = U.esc, fmt = U.fmt;
   var t = PC.t, L = PC.L;
 
-  var sheet, scrim, lastFocus = null;
+  var sheet, scrim, titleEl, lastFocus = null, currentId = null;
 
   function econLabel(x){ return t(x < -3 ? "side.labels.left" : x > 3 ? "side.labels.right" : "side.labels.centre"); }
   function stateLabel(y){ return t(y < -3 ? "side.labels.lib" : y > 3 ? "side.labels.stat" : "side.labels.centre"); }
@@ -25,15 +30,29 @@
            Math.max(1.5, w).toFixed(2) + '%;background:' + esc(color) + '"></i></div>';
   }
 
-  function render(){
-    var p = PC.PUTIN;
-    var body = document.getElementById("putinBody");
+  /* Дата сверки показывается в локали интерфейса, а не как ISO-строка:
+     «17 сентября 2026» читается, «2026-09-17» — сверяется. В данных
+     лежит вторая форма именно потому, что её удобно сверять глазами
+     в дифе. */
+  function checked(p){
+    if(!p.updatedAt) return "";
+    var d = new Date(p.updatedAt + "T00:00:00Z");
+    if(isNaN(d.getTime())) return "";
+    var loc = PC.i18n.isRu() ? "ru-RU" : "en-GB";
+    var human = d.toLocaleDateString(loc, { day:"numeric", month:"long", year:"numeric", timeZone:"UTC" });
+    return '<p class="pt-checked"><span class="pt-checked-dot" aria-hidden="true"></span>' +
+           esc(t("person.checked", { date:human })) + '</p>';
+  }
+
+  function render(p){
+    var body = document.getElementById("personBody");
     if(!body || !p) return;
+    if(titleEl) titleEl.textContent = L(p, "name");
     body.innerHTML =
-      '<div class="detail putin-card" style="--party:' + esc(p.color) + '">' +
+      '<div class="detail person-card" style="--party:' + esc(p.color) + '">' +
         '<div class="d-head">' +
-          '<div class="d-badge putin-badge" style="background:' + esc(p.color) + ';--glow:' + esc(p.color) + '">' +
-            '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21.3 7v10L12 22 2.7 17V7z"/></svg>' +
+          '<div class="d-badge person-badge" style="background:' + esc(p.color) + ';--glow:' + esc(p.color) + '">' +
+            PC.compass.sealSVG(p.seal) +
           '</div>' +
           '<div><h3>' + esc(L(p, "name")) + '</h3><div class="ideo">' + esc(L(p, "role")) + '</div></div>' +
         '</div>' +
@@ -51,6 +70,7 @@
         '<div class="sect"><h4>' + esc(t("side.why")) + '</h4>' +
           '<div class="note"><p>' + esc(L(p, "why")) + '</p></div></div>' +
         '<p class="pt-note">' + esc(L(p, "note")) + '</p>' +
+        checked(p) +
       '</div>';
   }
 
@@ -61,9 +81,12 @@
       function(n){ return !n.disabled && n.offsetParent !== null; });
   }
 
-  function open(){
-    if(!sheet || !sheet.hidden) return;
-    render();
+  function open(id){
+    var p = PC.personById(id);
+    if(!sheet || !sheet.hidden || !p) return;
+    currentId = id;
+    render(p);
+    sheet.dataset.person = id;
     var body = sheet.querySelector(".sheet-body");
     if(body) body.scrollTop = 0;
     lastFocus = document.activeElement;
@@ -85,7 +108,7 @@
     sheet.classList.remove("is-open");
     scrim.classList.remove("is-open");
     document.body.classList.remove("sheet-lock");
-    var done = function(){ sheet.hidden = true; scrim.hidden = true; };
+    var done = function(){ sheet.hidden = true; scrim.hidden = true; currentId = null; };
     var reduced = document.documentElement.dataset.motion === "off" ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if(reduced) done(); else setTimeout(done, 300);
@@ -93,12 +116,13 @@
   }
 
   function init(){
-    sheet = document.getElementById("putinSheet");
-    scrim = document.getElementById("putinScrim");
+    sheet = document.getElementById("personSheet");
+    scrim = document.getElementById("personScrim");
     if(!sheet || !scrim) return;
+    titleEl = document.getElementById("personTitle");
 
     scrim.addEventListener("click", close);
-    var closeBtn = document.getElementById("putinClose");
+    var closeBtn = document.getElementById("personClose");
     if(closeBtn) closeBtn.addEventListener("click", close);
 
     document.addEventListener("keydown", function(e){
@@ -112,7 +136,8 @@
         else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
       }
     });
+
   }
 
-  PC.putin = { init:init, open:open, close:close };
+  PC.people = { init:init, open:open, close:close };
 })(window.PC = window.PC || {});

@@ -222,5 +222,33 @@
     "ab.tech.cta":        ["Исходный код открыт: <a href=\"https://github.com/Arbuzyakaby/Russian-Political-Compass\" target=\"_blank\" rel=\"noopener noreferrer\">github.com/Arbuzyakaby/Russian-Political-Compass</a>. Замечания к координатам, данным и формулировкам вопросов — через issues.",
                            "The source is open: <a href=\"https://github.com/Arbuzyakaby/Russian-Political-Compass\" target=\"_blank\" rel=\"noopener noreferrer\">github.com/Arbuzyakaby/Russian-Political-Compass</a>. Objections to the coordinates, the data or the wording of the questions go through issues."],
 
+    /* SRPC — блок-цепочка отрисовки (2.4). Подписи звеньев короткие
+       намеренно: коробка шириной в шестую часть карточки не выдержит
+       фразы, а рядом стоит абзац, который всё объясняет словами.
+       Вторая строка каждого звена — не проза, а путь к файлу, но и она
+       идёт через словарь: у пятого звена там не путь, а описание, и
+       разнобой «половина в разметке, половина в словаре» вышел бы
+       дороже шести одинаковых пар. */
+    "ab.chain.badge":     ["SRPC · 6 звеньев", "SRPC · 6 links"],
+    "ab.chain.t":         ["Static Render Pipeline Chain", "Static Render Pipeline Chain"],
+    "ab.chain.d":         ["Путь страницы от разметки до выгрузки, шестью звеньями. Схема прогоняет полный цикл: сигнал проходит цепочку, третье звено уходит в ошибку и гасит всё, что от него зависит, — а потом конвейер собирается обратно.",
+                           "The page's path from markup to download, in six links. The diagram runs a full cycle: a signal passes along the chain, the third link fails and takes down everything that depends on it — and then the pipeline puts itself back together."],
+    "ab.chain.s1":        ["Разметка", "Markup"],
+    "ab.chain.s1f":       ["index.html", "index.html"],
+    "ab.chain.s2":        ["Стили", "Styles"],
+    "ab.chain.s2f":       ["css/*.css", "css/*.css"],
+    "ab.chain.s3":        ["Данные", "Data"],
+    "ab.chain.s3f":       ["js/data-*.js", "js/data-*.js"],
+    "ab.chain.s4":        ["Расчёты", "Maths"],
+    "ab.chain.s4f":       ["js/calc.js", "js/calc.js"],
+    "ab.chain.s5":        ["Отрисовка", "Drawing"],
+    "ab.chain.s5f":       ["SVG в браузере", "SVG in the browser"],
+    "ab.chain.s6":        ["Экспорт", "Export"],
+    "ab.chain.s6f":       ["PNG · SVG · CSV · JSON", "PNG · SVG · CSV · JSON"],
+    "ab.chain.lg.ok":     ["звено работает", "link is running"],
+    "ab.chain.lg.idle":   ["ждёт входных данных", "waiting for input"],
+    "ab.chain.lg.warn":   ["ошибка в звене", "error in the link"],
+    "ab.chain.lg.crit":   ["критическая ошибка", "critical failure"],
+
   });
 })(window.PC = window.PC || {});

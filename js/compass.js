@@ -382,16 +382,16 @@
       obstacles.push({ x1:c.sx - r, y1:c.sy - r, x2:c.sx + r, y2:c.sy + r });
     });
 
-    /* точки Путина и результата теста рисуются позже (drawPutin/drawUser),
+    /* точки людей и результата теста рисуются позже (drawPeople/drawUser),
        но их место на поле известно заранее — резервируем его здесь же,
        иначе подпись партии, отрисованная раньше, может лечь прямо на
        эти точки: в языках с более длинными названиями партий (например,
        в английской версии, "United Russia" длиннее «Единой России»)
-       это было заметно как наезд текста на печать Путина */
-    if(PC.PUTIN){
-      var pc = px(PC.PUTIN.x, PC.PUTIN.y), pr = 19 + 4;
+       это было заметно как наезд текста на печать человека */
+    (PC.PEOPLE || []).forEach(function(person){
+      var pc = px(person.x, person.y), pr = 19 + 4;
       obstacles.push({ x1:pc.sx - pr, y1:pc.sy - pr, x2:pc.sx + pr, y2:pc.sy + pr });
-    }
+    });
     var userRes = PC.quiz && PC.quiz.result();
     if(userRes){
       var uc = px(userRes.x, userRes.y), ur = 9 + 4;
@@ -454,36 +454,64 @@
         }, 140 + item.i * 60);
       });
 
-    drawPutin(layer);
+    drawPeople(layer);
     drawUser(layer);
   }
 
-  /* ---------- точка Путина (2.3.2) ----------
-     Единственный человек на поле, а не партия: своя форма (шестиугольная
-     печать вместо кружка), свой цвет и своя карточка — PC.putin.open(),
-     а не PC.select(), потому что общая карточка партии ждёт мандаты и
-     голосования, которых здесь нет. Данные и разбор — js/data-putin.js. */
-  var PUTIN_SEAL = "M0,-12 L10.4,-6 L10.4,6 L0,12 L-10.4,6 L-10.4,-6 Z";
-  function drawPutin(layer){
-    var p = PC.PUTIN;
-    if(!p) return;
+  /* ---------- точки людей (2.3.2, обобщено в 2.4) ----------
+     Не партии, а отдельные фигуры: своя форма (печать вместо кружка),
+     свой цвет и своя карточка — PC.people.open(id), а не PC.select(),
+     потому что общая карточка партии ждёт мандаты и голосования,
+     которых здесь нет. Данные и разбор — js/data-people.js.
+
+     До 2.4 здесь была функция под одного человека и один путь-константа.
+     Теперь путей столько, сколько форм печатей, а сама отрисовка —
+     обычный обход PC.PEOPLE: четвёртый человек появится на поле сам,
+     как только появится в данных. */
+  var SEALS = {
+    /* Шестиугольник — печать: замкнутая форма с плоскими гранями,
+       так рисуют штампы и гербовые оттиски. */
+    hex:   "M0,-12 L10.4,-6 L10.4,6 L0,12 L-10.4,6 L-10.4,-6 Z",
+    /* Ромб — поставленный на угол квадрат: самая «беспокойная» из трёх
+       фигур, читается как метка на карте, а не как оттиск. */
+    rhomb: "M0,-13 L13,0 L0,13 L-13,0 Z",
+    /* Щит — единственная форма с кривой: низ скругляется, верх остаётся
+       прямым, и на фоне двух угловатых печатей она узнаётся мгновенно. */
+    shield:"M0,-12.4 L11,-8.4 L11,2.6 C11,8.8 6.2,12.2 0,13.6 C-6.2,12.2 -11,8.8 -11,2.6 L-11,-8.4 Z"
+  };
+  function sealPath(key){ return SEALS[key] || SEALS.hex; }
+
+  /* Та же геометрия в 24-пиксельной коробке — для значка в шапке
+     карточки (js/people.js). Второй набор путей под ту же форму
+     разошёлся бы с первым при первой же правке, поэтому здесь не
+     новые координаты, а тот же путь со сдвигом в центр. */
+  function sealSVG(key){
+    return '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+           '<g transform="translate(12,12) scale(0.86)"><path d="' + sealPath(key) + '"/></g></svg>';
+  }
+
+  function drawPeople(layer){
+    (PC.PEOPLE || []).forEach(function(p, i){ drawPerson(layer, p, i); });
+  }
+
+  function drawPerson(layer, p, index){
     var c = px(p.x, p.y);
     var g = el("g", {
-      "class":"node putin", "data-id":p.id, tabindex:"0", role:"button",
+      "class":"node person", "data-id":p.id, tabindex:"0", role:"button",
       "aria-label":L(p, "name") + ", " + L(p, "role"),
       transform:"translate(" + c.sx + "," + c.sy + ")"
     });
     g.appendChild(el("circle", { "class":"pulse", r:14, stroke:p.color }));
     g.appendChild(el("circle", { "class":"ring", r:19, stroke:p.color }));
-    g.appendChild(el("path", { "class":"dot putin-seal", d:PUTIN_SEAL, fill:p.color, filter:"url(#glow)" }));
-    g.appendChild(el("circle", { "class":"putin-seal-core", r:3.6, fill:"var(--glass-bg-2)" }));
+    g.appendChild(el("path", { "class":"dot person-seal", d:sealPath(p.seal), fill:p.color, filter:"url(#glow)" }));
+    g.appendChild(el("circle", { "class":"person-seal-core", r:3.6, fill:"var(--glass-bg-2)" }));
 
     var tag  = el("text", { "class":"tag" }, L(p, "short"));
     var seat = el("text", { "class":"seat" }, L(p, "badge"));
     g.appendChild(tag);
     g.appendChild(seat);
     layer.appendChild(g);
-    obstacles.push(placeLabel(tag, seat, c.sx, c.sy, 12, "right"));
+    obstacles.push(placeLabel(tag, seat, c.sx, c.sy, 12, p.lp || "right"));
 
     function enter(){
       PC.tip.showHTML(
@@ -494,12 +522,12 @@
           '<span>' + U.esc(t("side.econ")) + ' <b>' + U.fmt(p.x) + '</b></span>' +
           '<span>' + U.esc(t("side.state")) + ' <b>' + U.fmt(p.y) + '</b></span>' +
         '</div>' +
-        '<div class="tip-hint">' + U.esc(t("tip.putin")) + '</div>',
+        '<div class="tip-hint">' + U.esc(t("tip.person")) + '</div>',
         c.sx, c.sy);
       showCross(c.sx, c.sy);
     }
     function leave(){ PC.tip.hide(); hideCross(); }
-    function open(){ if(PC.putin) PC.putin.open(); }
+    function open(){ if(PC.people) PC.people.open(p.id); }
     g.addEventListener("mouseenter", enter);
     g.addEventListener("mouseleave", leave);
     g.addEventListener("focus", enter);
@@ -512,7 +540,7 @@
       }
     });
 
-    setTimeout(function(){ g.classList.add("in"); }, 200);
+    setTimeout(function(){ g.classList.add("in"); }, 200 + index * 70);
   }
 
   /* ---------- точка пользователя по результату теста ---------- */
@@ -595,11 +623,11 @@
      Скрытые точки убираются и из порядка обхода Tab.
      Точка пользователя фильтрам не подчиняется — у неё нет data-id. */
   function syncNodes(visibleIds, activeId){
-    /* .you и .putin не участвуют в фильтрах: у теста нет id в PC.PARTIES,
-       у Путина — своя карточка вместо PC.select, так что списку
+    /* .you и .person не участвуют в фильтрах: у теста нет id в PC.PARTIES,
+       у людей — своя карточка вместо PC.select, так что списку
        видимых id взяться неоткуда, а гасить точку как «не найдено
        фильтром» было бы неправдой. */
-    svg.querySelectorAll(".node:not(.you):not(.putin)").forEach(function(n){
+    svg.querySelectorAll(".node:not(.you):not(.person)").forEach(function(n){
       var muted = !visibleIds.has(n.dataset.id);
       n.classList.toggle("muted", muted);
       n.classList.toggle("active", n.dataset.id === activeId);
@@ -625,7 +653,7 @@
     drawListeners.forEach(function(fn){ fn(); });
   }
 
-  PC.compass = { draw:draw, redraw:redraw, onDraw:onDraw, syncNodes:syncNodes, hideCross:hideCross,
+  PC.compass = { draw:draw, sealSVG:sealSVG, redraw:redraw, onDraw:onDraw, syncNodes:syncNodes, hideCross:hideCross,
                  setTrails:setTrails, hasTrails:hasTrails,
                  trailsOn:function(){ return trailsOn; } };
 })(window.PC = window.PC || {});
