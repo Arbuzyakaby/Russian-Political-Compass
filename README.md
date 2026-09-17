@@ -7,7 +7,7 @@
 
 **Сайт:** [rupolitcompass.website](https://rupolitcompass.website) · [English version](https://rupolitcompass.website/?lang=en)
 
-Текущая версия — **2.3.3**, список изменений в [CHANGELOG.md](CHANGELOG.md).
+Текущая версия — **2.4**, список изменений в [CHANGELOG.md](CHANGELOG.md).
 
 ## Что здесь есть
 
