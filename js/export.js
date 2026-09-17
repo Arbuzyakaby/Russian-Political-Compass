@@ -247,14 +247,33 @@
     return getComputedStyle(document.documentElement).getPropertyValue("--" + name).trim();
   }
 
+  /* Картинка компаса — отдельный файл: он не видит ни css/compass.css,
+     ни темы на <html>, поэтому оформление поля приходится перечислять
+     здесь ещё раз, подставляя значения переменных темы на момент
+     экспорта. Это честное дублирование, и у него есть сторож:
+     tests/charts.test.js сверяет список классов, которые рисует
+     js/compass.js, с этим списком, и падает, если в поле появился
+     класс, до которого экспорт не дотянулся. */
   function exportCSS(){
     return [
       "svg{font-family:'Manrope','Inter','Segoe UI',system-ui,sans-serif;}",
+      /* ---- стекло поля (2.4.1) ---- */
+      ".gs-plate-hi{stop-color:" + glass("#ffffff", ".085", ".6") + "}",
+      ".gs-plate-mid{stop-color:" + glass("#ffffff", ".035", ".34") + "}",
+      ".gs-plate-lo{stop-color:" + glass("#000000", ".055", ".035") + "}",
+      ".gs-rim-hi{stop-color:" + glass("#ffffff", ".42", ".9") + "}",
+      ".gs-rim-mid{stop-color:" + (light() ? "#000000;stop-opacity:.06;" : "#ffffff;stop-opacity:.14;") + "}",
+      ".gs-rim-lo{stop-color:" + (light() ? "#000000;stop-opacity:.09;" : "#ffffff;stop-opacity:.05;") + "}",
+      ".gs-sheen-a{stop-color:" + glass("#ffffff", ".13", ".5") + "}",
+      ".gs-sheen-b{stop-color:" + glass("#ffffff", ".04", ".16") + "}",
+      ".gs-sheen-c{stop-color:#ffffff;stop-opacity:0;}",
+      ".lens-rim{fill:none;stroke:" + v("line-frame") + ";stroke-width:1;opacity:.3;}",
+      ".frame{fill:none;stroke-width:1.5;}",
+      ".frame-inner{fill:none;stroke:" + v("line-frame") + ";stroke-width:1;opacity:.22;}",
       ".quad{opacity:" + (v("quad-op") || 1) + ";}",
       ".grid-minor{stroke:" + v("line-minor") + ";stroke-width:1;}",
       ".grid-major{stroke:" + v("line-major") + ";stroke-width:1;}",
       ".axis{stroke:" + v("line-axis") + ";stroke-width:1.4;}",
-      ".frame{fill:none;stroke:" + v("line-frame") + ";stroke-width:1.4;}",
       ".tick{font-size:9px;fill:" + v("tick") + ";}",
       ".axis-cap{font-size:11px;font-weight:700;letter-spacing:.11em;fill:" + v("cap") + ";}",
       ".quad-cap{font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;fill:" + v("quad-cap") + ";}",
@@ -265,25 +284,32 @@
         ";paint-order:stroke;stroke:" + v("tag-halo") + ";stroke-width:3.4px;stroke-linejoin:round;}",
       ".node .seat{font-size:8px;font-weight:600;fill:" + v("muted") +
         ";paint-order:stroke;stroke:" + v("tag-halo") + ";stroke-width:3px;stroke-linejoin:round;}",
+      ".tag-leader{stroke-width:1;opacity:.45;stroke-dasharray:2 3;}",
       ".node.you .you-mark{fill:" + v("accent") + ";stroke:" + v("tag-halo") + ";stroke-width:1.6;}",
       ".node.you .you-halo{fill:" + v("accent") + ";opacity:.14;}",
       ".node.you .tag{fill:" + v("accent") + ";}",
       ".trails{opacity:1;}",
       ".trail-casing{fill:none;stroke:" + v("tag-halo") +
-        ";stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round;opacity:.9;}",
-      ".trail-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;" +
-        "stroke-dasharray:9 6;opacity:.72;}",
-      ".trail-dot{opacity:.9;stroke:" + v("tag-halo") + ";stroke-width:1.6;}",
-      ".trail-year{font-size:9.5px;font-weight:700;fill:" + v("body") +
-        ";paint-order:stroke;stroke:" + v("tag-halo") + ";stroke-width:3.4px;stroke-linejoin:round;}",
-      /* в файле нет наведения: годы, которые на экране проявляются
-         только в фокусе, в картинке скрыты совсем — иначе экспорт
-         отдавал бы то, чего на экране никогда не видно разом */
-      ".trail-year.dim{display:none;}",
+        ";stroke-linecap:round;stroke-linejoin:round;opacity:.9;}",
+      /* ширина и прозрачность у каждого отрезка свои и стоят
+         атрибутами — в стилях им места нет, иначе они перебьют
+         нарастание толщины, которым и показано направление */
+      ".trail-seg{fill:none;stroke-linecap:round;stroke-linejoin:round;}",
+      ".trail-dot{stroke:" + v("tag-halo") + ";stroke-width:1.4;}",
       /* перекрестие и пульсация — состояния наведения, в файле им не место */
       ".cross,.node .pulse,.node .ring,.node .seat.empty{display:none;}",
       ".node.muted,.trail.muted{display:none;}"
     ].join("\n");
+  }
+
+  /* Светлая тема или тёмная: у стекла поля два набора плотностей, и
+     выбирать между ними приходится здесь вручную — в файле нет
+     ни медиазапросов темы, ни атрибута data-theme. */
+  function light(){
+    return ["light", "paper", "alaska"].indexOf(document.documentElement.dataset.theme) > -1;
+  }
+  function glass(color, dark, lite){
+    return color + ";stop-opacity:" + (light() ? lite : dark) + ";";
   }
 
   function compassSVG(){

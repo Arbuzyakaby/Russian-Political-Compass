@@ -14,49 +14,78 @@
 svg.compass{width:100%;height:100%;display:block;overflow:visible;
   -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
 
-/* ---- слоистая подложка (2.3.2) ----
-   До 2.3.2 поле стояло прямо на фоне страницы: ни рамки, ни стекла, ни
-   толщины — только линии самого SVG. Теперь у него два слоя-«подложки»
-   позади основной панели, тем же языком стекла, что у карточек и
-   подсказок (css/glass.css): сдвинуты по диагонали, но без поворота —
-   ровно отложенные в сторону листы, а не веер, — и читаются именно
-   как стопка, а не декоративная тень: глубже слой, тем он прозрачнее
-   и тем сильнее размыт край.
+/* ---- стекло поля (2.4.1) ----
+   С 2.3.2 и до 2.4.1 позади .plot лежали два сдвинутых по диагонали
+   слоя — стопка листов. Приём не сработал: на светлых темах край
+   торчал из-под панели, а на тёмных читался просто как двойная тень.
+   Слои убраны целиком. Стеклом стало само поле, и живёт оно внутри
+   SVG (js/compass.js, drawBoard) — плита, четыре линзы, диагональный
+   блик и светящаяся кромка. Здесь остаются только цвета этого стекла,
+   разобранные по темам.
 
-   isolation:isolate на .plot держит их в собственном стеке: отрицательный
-   z-index не должен утекать ниже соседних блоков страницы. */
-/* Фикс 2.3.2: первая версия красила оба слоя в var(--glass-bg-2) — тон
-   карточки, а не страницы. Внутри стопки других стеклянных панелей
-   разница не бросалась в глаза, но здесь слои торчат прямо на фоне
-   страницы, и в светлых темах (страница тёплая, --glass-bg-2 — почти
-   белый) край читался как криво приклеенный белый прямоугольник, а не
-   как лист позади поля. Смешиваем тон подложки с var(--bg): слой
-   остаётся стеклянным (та же размытость и кромка), но ближе по цвету
-   к тому, на чём стоит. */
-.plot::before,.plot::after{
-  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  border-radius:var(--radius-lg);border:1px solid var(--stroke-2);
-  box-shadow:var(--shadow);
-}
-.plot::before{
-  transform:translate(7px,10px);
-  background:color-mix(in srgb,var(--glass-bg-2) 55%,var(--bg));
-  -webkit-backdrop-filter:var(--glass-filter);
-  backdrop-filter:var(--glass-filter);
-  opacity:.7;
-}
-.plot::after{
-  transform:translate(14px,19px);
-  background:color-mix(in srgb,var(--glass-bg-2) 35%,var(--bg));
-  border-color:var(--stroke);
-  opacity:.45;
-}
-@media(max-width:720px){
-  .plot::before{ transform:translate(5px,7px); }
-  .plot::after{ transform:translate(10px,14px); }
-}
+   Почему цвета здесь, а не в разметке: тема переключается без
+   перерисовки компаса, и если бы стопы градиентов стояли атрибутами,
+   стекло осталось бы от прежней темы до первой перерисовки поля.
+
+   Стекло описано в нейтральных чёрно-белых полупрозрачных тонах: на
+   тёмных темах работает белая подсветка сверху, на светлых — она же,
+   но слабее, плюс более заметная тень снизу. Отдельных наборов на
+   каждую из шести тем не нужно, потому что стекло не красится, оно
+   только светлеет и темнеет. */
+
+/* тело плиты: светлее сверху, темнее снизу */
+.gs-plate-hi { stop-color:#ffffff; stop-opacity:.085; }
+.gs-plate-mid{ stop-color:#ffffff; stop-opacity:.035; }
+.gs-plate-lo { stop-color:#000000; stop-opacity:.055; }
+
+/* кромка: яркая по верху, почти пропадает к низу */
+.gs-rim-hi   { stop-color:#ffffff; stop-opacity:.42; }
+.gs-rim-mid  { stop-color:#ffffff; stop-opacity:.14; }
+.gs-rim-lo   { stop-color:#ffffff; stop-opacity:.05; }
+
+/* диагональный блик: узкая светлая полоса от левого верхнего угла */
+.gs-sheen-a  { stop-color:#ffffff; stop-opacity:.13; }
+.gs-sheen-b  { stop-color:#ffffff; stop-opacity:.04; }
+.gs-sheen-c  { stop-color:#ffffff; stop-opacity:0; }
+
+/* На светлых темах белая подсветка почти не видна на белом же фоне —
+   работает нижняя тень и более контурная кромка. */
+:root[data-theme="light"] .gs-plate-hi,
+:root[data-theme="paper"] .gs-plate-hi,
+:root[data-theme="alaska"] .gs-plate-hi{ stop-color:#ffffff; stop-opacity:.6; }
+:root[data-theme="light"] .gs-plate-mid,
+:root[data-theme="paper"] .gs-plate-mid,
+:root[data-theme="alaska"] .gs-plate-mid{ stop-color:#ffffff; stop-opacity:.34; }
+:root[data-theme="light"] .gs-plate-lo,
+:root[data-theme="paper"] .gs-plate-lo,
+:root[data-theme="alaska"] .gs-plate-lo{ stop-color:#000000; stop-opacity:.035; }
+:root[data-theme="light"] .gs-rim-hi,
+:root[data-theme="paper"] .gs-rim-hi,
+:root[data-theme="alaska"] .gs-rim-hi{ stop-color:#ffffff; stop-opacity:.9; }
+:root[data-theme="light"] .gs-rim-mid,
+:root[data-theme="paper"] .gs-rim-mid,
+:root[data-theme="alaska"] .gs-rim-mid{ stop-color:#000000; stop-opacity:.06; }
+:root[data-theme="light"] .gs-rim-lo,
+:root[data-theme="paper"] .gs-rim-lo,
+:root[data-theme="alaska"] .gs-rim-lo{ stop-color:#000000; stop-opacity:.09; }
+:root[data-theme="light"] .gs-sheen-a,
+:root[data-theme="paper"] .gs-sheen-a,
+:root[data-theme="alaska"] .gs-sheen-a{ stop-color:#ffffff; stop-opacity:.5; }
+:root[data-theme="light"] .gs-sheen-b,
+:root[data-theme="paper"] .gs-sheen-b,
+:root[data-theme="alaska"] .gs-sheen-b{ stop-color:#ffffff; stop-opacity:.16; }
+
+.plate-sheen{ pointer-events:none; }
+/* Кромка линзы: тончайшая внутренняя линия, которая и делает из
+   заливки квадранта отдельное стекло, вставленное в плиту. */
+.lens-rim{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.3; }
+.frame{ fill:none; stroke-width:1.5; }
+.frame-inner{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.22; }
+
+/* Тень под плитой снимается в печати: на бумаге она превращается в
+   серую кайму, а глубины всё равно не даёт. */
 @media print{
-  .plot::before,.plot::after{ display:none; }
+  .plate-body{ filter:none !important; }
 }
 
 /* ---- compass primitives ---- */
@@ -64,15 +93,33 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .grid-minor{stroke:var(--line-minor);stroke-width:1;}
 .grid-major{stroke:var(--line-major);stroke-width:1;}
 .axis{stroke:var(--line-axis);stroke-width:1.4;}
-.frame{fill:none;stroke:var(--line-frame);stroke-width:1.4;}
 .tick{font-size:9px;fill:var(--tick);}
 .axis-cap{font-size:11px;font-weight:700;letter-spacing:.11em;fill:var(--cap);}
 .quad-cap{font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;fill:var(--quad-cap);}
 .origin{fill:var(--cap);opacity:.45;}
 
-.cross line{stroke:currentColor;stroke-width:1.2;stroke-dasharray:4 5;opacity:0;transition:opacity .22s ease;}
-.cross.show line{opacity:.55;animation:dash 14s linear infinite;}
-@keyframes dash{to{stroke-dashoffset:-180;}}
+/* ---- перекрестие до осей (переписано в 2.4.1) ----
+   Линии красятся цветом точки (js/compass.js кладёт его в style.color
+   на сам слой), поэтому currentColor здесь — не цвет текста страницы,
+   как было до 2.4.1, а цвет партии или человека, на которого навели.
+   Засечка на оси показывает, куда точка проецируется, а число рядом
+   отвечает на вопрос, ради которого на точку и наводятся. Ползущий
+   штрих убран: перекрестие живёт на экране полторы секунды, и
+   бесконечная анимация тянула взгляд на себя. */
+.cross{color:var(--cap);pointer-events:none;}
+.cross-line{stroke:currentColor;stroke-width:1.3;stroke-dasharray:3 4;stroke-linecap:round;
+  opacity:0;transition:opacity .2s ease;}
+.cross-tick{fill:currentColor;opacity:0;transition:opacity .2s ease;}
+.cross-val{font-size:9.5px;font-weight:700;fill:currentColor;
+  font-variant-numeric:tabular-nums;opacity:0;transition:opacity .2s ease;
+  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3px;stroke-linejoin:round;}
+.cross.show .cross-line{opacity:.7;}
+.cross.show .cross-tick{opacity:.9;}
+.cross.show .cross-val{opacity:1;}
+
+/* Поводок от точки к отодвинутой подписи: рисуется только там, где
+   подпись пришлось отвести далеко (js/compass.js, leaderLine). */
+.tag-leader{stroke-width:1;opacity:.45;stroke-dasharray:2 3;pointer-events:none;}
 
 /* Свойство user-select наследуется, так что запрета на svg.compass
    выше по файлу достаточно и для .tag/.seat внутри каждой точки —
@@ -147,49 +194,39 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .node.you:hover .seat,.node.you:focus-visible .seat{opacity:1;}
 .tip-dot.you{background:var(--accent);}
 
-/* ---- траектории партий во времени (необязательный слой) ---- */
-/* Слой всегда есть в DOM: включение — смена прозрачности, а не перерисовка.
-   pointer-events отключены у выключенного слоя, иначе невидимые узлы
-   маршрута перехватывали бы наведение на партийные точки.
+/* ---- траектории партий во времени (переписано в 2.4.1) ----
+   Слой всегда есть в DOM: включение — смена прозрачности, а не
+   перерисовка. pointer-events отключены у выключенного слоя, иначе
+   невидимые узлы маршрута перехватывали бы наведение на точки партий.
 
-   Главная задача оформления здесь — развести восемь маршрутов, которые
-   в правой верхней четверти поля идут почти по одному месту. Работают
-   три приёма: подложка цветом полотна под каждой линией (пересечения
-   читаются как развязка, а не как штриховка), режим фокуса (наведение
-   на маршрут или на точку партии гасит остальные) и годы, которые
-   проявляются только у маршрута в фокусе. */
+   Направление читается толщиной, а не стрелкой: линия набирает вес от
+   прошлого к настоящему (значения ширины и прозрачности приходят
+   атрибутами из js/compass.js, потому что у каждого отрезка они свои).
+   Поэтому здесь нет ни правил ширины линии, ни анимации бегущего
+   штриха, которая была до 2.4.1: у кометного хвоста направление видно
+   и без движения. */
 .trails{opacity:0;pointer-events:none;transition:opacity .4s ease;}
 svg.compass.show-trails .trails{opacity:1;pointer-events:auto;}
 .trail{transition:opacity .3s ease;}
 .trail.muted{opacity:.08;pointer-events:none;}
 
-/* подложка: тот же путь, но шире и цветом фона поля */
-.trail-casing{fill:none;stroke:var(--tag-halo);stroke-width:6.5;stroke-linecap:round;
-  stroke-linejoin:round;opacity:.9;transition:stroke-width .25s ease;}
-.trail-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:9 6;opacity:.72;transition:opacity .25s ease,stroke-width .25s ease;}
-.trail-dot{opacity:.9;cursor:pointer;stroke-width:1.6;
+/* подложка: у каждого отрезка своя, шире его линии и цветом полотна */
+.trail-casing{fill:none;stroke:var(--tag-halo);stroke-linecap:round;
+  stroke-linejoin:round;opacity:.9;transition:opacity .25s ease;}
+.trail-seg{fill:none;stroke-linecap:round;stroke-linejoin:round;
+  transition:opacity .25s ease;}
+.trail-dot{cursor:pointer;stroke:var(--tag-halo);stroke-width:1.4;
   transition:r .2s cubic-bezier(.34,1.5,.5,1),opacity .2s ease;}
 .trail-dot:hover{r:6.4;opacity:1;}
-.trail-year{font-size:9.5px;font-weight:700;fill:var(--body);pointer-events:none;
-  font-variant-numeric:tabular-nums;
-  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3.4px;stroke-linejoin:round;
-  transition:opacity .22s ease;}
-/* промежуточные годы и год финиша — только у маршрута в фокусе */
-.trail-year.dim{opacity:0;}
-.trail.is-focus .trail-year.dim{opacity:1;}
 
 /* ---- режим фокуса ----
    Пока курсор на одном маршруте, остальные почти гаснут: сравнивать
    восемь траекторий разом всё равно невозможно, а вопрос у читателя
-   всегда про одну партию. */
+   всегда про одну партию. Сам маршрут в фокусе js/compass.js
+   переставляет поверх точек — иначе короткий путь прячется под
+   собственным кружком партии. */
 .trails.has-focus .trail:not(.is-focus){opacity:.1;}
 .trails.has-focus .trail:not(.is-focus) .trail-casing{opacity:0;}
-.trail.is-focus .trail-line,.trail.active .trail-line{opacity:1;stroke-width:3.1;}
-.trail.is-focus .trail-casing,.trail.active .trail-casing{stroke-width:8;}
+.trail.is-focus .trail-seg,.trail.active .trail-seg{opacity:1;}
+.trail.is-focus .trail-seg,.trail.active .trail-seg{opacity:1;}
 
-svg.compass.show-trails .trails .trail-line{animation:trail-run 18s linear infinite;}
-@keyframes trail-run{to{stroke-dashoffset:-240;}}
-@media(prefers-reduced-motion:reduce){
-  svg.compass.show-trails .trails .trail-line{animation:none;}
-}

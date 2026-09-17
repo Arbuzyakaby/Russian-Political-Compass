@@ -4,7 +4,9 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { loadApp } = require("./harness.js");
+const fs = require("node:fs");
+const path = require("node:path");
+const { loadApp, ROOT } = require("./harness.js");
 
 const { PC, document } = loadApp();
 
@@ -53,4 +55,38 @@ test("chartColor: тёмные цвета осветляются под тёмн
   /* тон сохраняется: цвет партии остаётся узнаваемым */
   const hue = Number(PC.charts.chartColor("#dc2626").match(/hsl\(([\d.]+)/)[1]);
   assert.ok(hue < 20 || hue > 340, "красный должен остаться красным");
+});
+
+/* ============ ЭКСПОРТ КАРТИНКИ КОМПАСА ============
+   Файл компаса не видит ни css/compass.css, ни темы на <html>, поэтому
+   js/export.js перечисляет оформление поля ещё раз, подставляя значения
+   переменных темы. Дублирование осознанное, но молчаливое: класс,
+   добавленный в js/compass.js и забытый в exportCSS, ничего не ломает
+   на экране и проявляется только в скачанном файле — то есть там, где
+   его никто не увидит до жалобы. Сторож ниже сверяет два списка.
+
+   С 2.4.1 это не гипотетический риск: поле переехало на стеклянную
+   подложку, и вместе с ней появилось тринадцать новых классов разом. */
+test("экспорт знает про все классы, которыми нарисовано поле компаса", () => {
+  const compass = fs.readFileSync(path.join(ROOT, "js", "compass.js"), "utf8");
+  const exporter = fs.readFileSync(path.join(ROOT, "js", "export.js"), "utf8");
+
+  /* Берём только то, что рисует саму подложку: точки, подписи и
+     состояния наведения экспорт либо уже описывает, либо намеренно
+     скрывает, и сверять их построчно значило бы ловить ложные тревоги. */
+  const BOARD = [
+    "gs-plate-hi", "gs-plate-mid", "gs-plate-lo",
+    "gs-rim-hi", "gs-rim-mid", "gs-rim-lo",
+    "gs-sheen-a", "gs-sheen-b", "gs-sheen-c",
+    "quad", "lens-rim", "frame", "frame-inner",
+    "grid-minor", "grid-major", "axis", "origin", "tick",
+    "axis-cap", "quad-cap", "trail-casing", "trail-seg", "trail-dot", "tag-leader"
+  ];
+  for(const cls of BOARD){
+    assert.ok(compass.includes('"' + cls + '"') || compass.includes("class:\"" + cls + "\"") ||
+              compass.includes(cls),
+      `класс ${cls} больше не рисуется в js/compass.js — список в тесте устарел`);
+    assert.ok(exporter.includes("." + cls + "{"),
+      `js/export.js не описывает .${cls}: в скачанном файле поле будет выглядеть иначе, чем на экране`);
+  }
 });
