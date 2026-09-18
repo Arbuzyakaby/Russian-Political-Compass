@@ -1,4 +1,4 @@
-/* ============ SRPC: полноэкранный разбор конвейера (2.4.2.1) ============
+/* ============ SRPC: полноэкранный разбор конвейера ============
 
    Схема в «О проекте» — это витрина: шесть звеньев в ряд, чистый CSS,
    ни одного скрипта (css/chain.css). Здесь — рабочий стол: те же шесть
@@ -13,12 +13,31 @@
    Поэтому стол живёт сам по себе: удаление этого файла убирает кнопку
    в настройках и больше ничего.
 
+   ---------- стол больше экрана (2.4.3) ----------
+
+   В 2.4.2.1 карточки раскладывались долями видимой части стола, и на
+   телефоне это разваливалось нацело: шесть карточек по 240 пикселей не
+   помещаются в 375 ни в каком порядке, и все шесть вставали друг на
+   друга. Теперь стол — холст, который не обязан помещаться в экран:
+   его размер считается от размера карточек, а не от размера окна, и
+   всё, что не влезло, прокручивается. Заодно это отвечает на вопрос
+   «а если карточку утащить за край»: за край холста она не уходит —
+   там её ждёт упор, — а сам холст всегда можно долистать.
+
+   Число колонок выбирается по ширине стола: три на широком экране,
+   две на планшете, одна на телефоне. Одна колонка — это не ухудшенная
+   раскладка, а самая честная: конвейер и есть последовательность, и
+   сверху вниз она читается ровно так, как работает.
+
    ---------- как хранится раскладка ----------
 
-   Не в пикселях, а долями стороны стола. Пиксели пережили бы ровно одно
-   окно: стол занимает весь экран, и сохранённые координаты с ноутбука
-   на телефоне увели бы половину карточек за край. Доли переживают и
-   поворот экрана, и смену окна, и зум.
+   Не в пикселях, а долями свободного места холста, и вместе с числом
+   колонок, при котором её разложили. Пиксели пережили бы ровно одно
+   окно. Доли без числа колонок пережили бы окно, но не поворот экрана:
+   разложенное в три колонки, пересчитанное на одну, даёт три пары
+   слипшихся карточек. Поэтому раскладка с чужим числом колонок не
+   применяется — вместо неё берётся стандартная для нынешнего, а
+   сохранённая ждёт возвращения на прежний экран.
 
    ---------- почему связи рисуются скриптом ----------
 
@@ -41,32 +60,43 @@
 
   var KEY = "pc-srpc-layout";
   var N = 6;
+  var GAP = 24;          /* зазор между карточками и до края холста */
+  var EDGE = 44;         /* полоса у края стола, в которой он подкручивается */
 
-  var stage, board, wires, cards = [], lastFocus = null, built = false;
+  var stage, board, canvas, wires, cards = [], lastFocus = null, built = false;
   var paths = [], hatch = null;
-
-  /* Раскладка по умолчанию — две строки по три, долями стола. Порядок
-     чтения тот же, что у схемы: слева направо, сверху вниз. */
-  var HOME = [
-    [0.055, 0.10], [0.385, 0.10], [0.715, 0.10],
-    [0.055, 0.56], [0.385, 0.56], [0.715, 0.56]
-  ];
-  var pos = HOME.map(function(p){ return p.slice(); });
+  var saved = null;      /* { c:колонок, p:[[fx,fy], …] } из хранилища */
+  var grid = 0;          /* колонок сейчас */
+  var pos = [];          /* активные доли свободного места холста */
+  var closeTimer = null;
 
   function t(key){ return PC.t ? PC.t(key) : key; }
 
+  /* ---------- хранилище ----------
+     Формат 2.4.2.1 — голый массив пар: он писался, когда колонки всегда
+     были тремя. Такую запись читаем как «разложено в три колонки»,
+     чтобы раскладка, сделанная до обновления, не пропала. */
   function load(){
-    var saved = PC.store ? PC.store.getJSON(KEY, null) : null;
-    if(!Array.isArray(saved) || saved.length !== N) return;
+    var raw = PC.store ? PC.store.getJSON(KEY, null) : null;
+    var list = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.p) ? raw.p : null);
+    var cols = Array.isArray(raw) ? 3 : (raw && raw.c);
+    if(!list || list.length !== N || !(cols >= 1 && cols <= 3)) return;
+    var out = [];
     for(var i = 0; i < N; i++){
-      var p = saved[i];
+      var p = list[i];
       if(!Array.isArray(p) || typeof p[0] !== "number" || typeof p[1] !== "number") return;
-      /* Чужая или испорченная запись не должна уводить карточку за край
-         стола: за пределы 0…1 доля не выходит по определению. */
-      pos[i] = [Math.min(1, Math.max(0, p[0])), Math.min(1, Math.max(0, p[1]))];
+      if(p[0] !== p[0] || p[1] !== p[1]) return;   /* NaN из чужой записи */
+      out.push([Math.min(1, Math.max(0, p[0])), Math.min(1, Math.max(0, p[1]))]);
     }
+    saved = { c:cols, p:out };
   }
-  function save(){ if(PC.store) PC.store.setJSON(KEY, pos); }
+  function save(){
+    /* До первой раскладки сохранять нечего: запись из полупустого pos
+       вернулась бы в следующий заход как «раскладка на ноль колонок». */
+    if(!grid || pos.length !== N) return;
+    saved = { c:grid, p:pos.map(function(p){ return p.slice(); }) };
+    if(PC.store) PC.store.setJSON(KEY, saved);
+  }
 
   /* ---------- построение ---------- */
   function build(){
@@ -76,6 +106,15 @@
     board = document.getElementById("srpcBoard");
     wires = document.getElementById("srpcWires");
     if(!board || !wires) return;
+
+    /* Холст — отдельный слой внутри стола: стол прокручивается, холст
+       задаёт систему координат. Карточки и связи лежат в нём, поэтому
+       offsetLeft/offsetTop у карточки — это сразу координата на холсте,
+       без поправок на прокрутку. */
+    canvas = document.createElement("div");
+    canvas.className = "srpcf-canvas";
+    board.appendChild(canvas);
+    canvas.appendChild(wires);
 
     for(var i = 1; i <= N; i++){
       var card = document.createElement("article");
@@ -96,7 +135,7 @@
       card.querySelector(".srpcf-file").textContent = t("ab.chain.s" + i + "f");
       card.querySelector("p").textContent = t("srpc.d" + i);
       card.setAttribute("aria-label", t("ab.chain.s" + i));
-      board.appendChild(card);
+      canvas.appendChild(card);
       cards.push(card);
       drag(card, i - 1);
       keys(card, i - 1);
@@ -118,17 +157,83 @@
     wires.appendChild(hatch);
   }
 
-  /* ---------- раскладка ---------- */
-  function place(){
-    if(!board) return;
-    var bw = board.clientWidth, bh = board.clientHeight;
+  /* ---------- размеры холста ----------
+     Считаются от карточек, а не от окна: холст обязан вместить сетку
+     целиком, даже если экран её не вмещает. Ширина карточки задана в
+     CSS и одинакова у всех, высота разная — для сетки берётся самая
+     высокая, иначе строки наезжали бы друг на друга. */
+  function cardW(){ return cards.length ? cards[0].offsetWidth : 240; }
+  function cardH(){
+    var h = 0;
+    cards.forEach(function(c){ h = Math.max(h, c.offsetHeight); });
+    return h || 180;
+  }
+
+  function colsFor(){
+    var w = board.clientWidth, cw = cardW();
+    if(w >= cw * 3 + GAP * 4) return 3;
+    if(w >= cw * 2 + GAP * 3) return 2;
+    return 1;
+  }
+
+  /* Сколько места сетке нужно на самом деле — без оглядки на окно. */
+  function need(n){
+    var cw = cardW(), ch = cardH(), rows = Math.ceil(N / n);
+    return { w:n * cw + (n + 1) * GAP, h:rows * ch + (rows + 1) * GAP };
+  }
+
+  /* Стандартная раскладка для n колонок, сразу долями свободного места:
+     в этих же величинах живёт и то, что двигал человек. Сетка стоит
+     посередине холста: на широком мониторе холст заметно больше сетки,
+     и прижатая к левому верхнему углу цепочка читалась бы как остаток
+     после чего-то, а не как разложенная схема. */
+  function home(n, W, H){
+    var cw = cardW(), ch = cardH(), rows = Math.ceil(N / n);
+    var offX = Math.max(GAP, (W - (n * cw + (n - 1) * GAP)) / 2);
+    var offY = Math.max(GAP, (H - (rows * ch + (rows - 1) * GAP)) / 2);
+    return cards.map(function(card, i){
+      /* Строки идут змейкой: первая слева направо, вторая справа налево.
+         При обычной раскладке «каждая строка с начала» переход с конца
+         одной строки на начало следующей — это связь через весь стол
+         наискосок, поверх всех промежуточных карточек. Змейка ставит
+         четвёртое звено ровно под третьим, и ни одна связь не
+         пересекает ни одной карточки. */
+      var row = Math.floor(i / n), col = i % n;
+      if(row % 2) col = n - 1 - col;
+      var x = offX + col * (cw + GAP);
+      var y = offY + row * (ch + GAP);
+      return [
+        x / Math.max(1, W - cw),
+        y / Math.max(1, H - card.offsetHeight)
+      ];
+    });
+  }
+
+  function place(force){
+    if(!board || !canvas || !cards.length) return;
+    var n = colsFor(), q = need(n);
+    /* Холст меньше стола не бывает, но и «ровно как стол в пикселях» —
+       плохая мера: полоса прокрутки съедает у стола десяток пикселей,
+       холст оказывается на них шире, и появляется вторая полоса, которая
+       съедает ещё. Поэтому пока сетка помещается, холст задан процентами
+       и подгоняется под стол сам. */
+    canvas.style.width  = q.w > board.clientWidth  ? q.w + "px" : "100%";
+    canvas.style.height = q.h > board.clientHeight ? q.h + "px" : "100%";
+    var W = canvas.clientWidth, H = canvas.clientHeight;
+
+    if(force || n !== grid || pos.length !== N){
+      grid = n;
+      pos = (saved && saved.c === n)
+        ? saved.p.map(function(p){ return p.slice(); })
+        : home(n, W, H);
+    }
+
     cards.forEach(function(card, i){
       /* Доля отсчитывается от свободного места, а не от всей стороны:
          иначе карточка с долей 1 встала бы левым краем в правый край
-         стола и вылезла бы наружу целиком. */
-      var free = { x:Math.max(0, bw - card.offsetWidth), y:Math.max(0, bh - card.offsetHeight) };
-      card.style.left = Math.round(pos[i][0] * free.x) + "px";
-      card.style.top  = Math.round(pos[i][1] * free.y) + "px";
+         холста и вылезла бы наружу целиком. */
+      card.style.left = Math.round(pos[i][0] * Math.max(0, W - card.offsetWidth)) + "px";
+      card.style.top  = Math.round(pos[i][1] * Math.max(0, H - card.offsetHeight)) + "px";
     });
     drawWires();
   }
@@ -191,25 +296,42 @@
       if(e.button != null && e.button !== 0) return;
       from = {
         px:e.clientX, py:e.clientY,
-        x:card.offsetLeft, y:card.offsetTop
+        x:card.offsetLeft, y:card.offsetTop,
+        sx:board.scrollLeft, sy:board.scrollTop
       };
       card.classList.add("is-drag");
       card.setPointerCapture(e.pointerId);
+      /* preventDefault на pointerdown отменяет и выделение текста, и
+         установку фокуса, а фокус здесь нужен: с него начинается
+         клавиатурная раскладка стрелками. Поэтому ставим руками. */
       e.preventDefault();
+      card.focus({ preventScroll:true });
     });
 
     card.addEventListener("pointermove", function(e){
       if(!from) return;
-      var bw = board.clientWidth, bh = board.clientHeight;
-      var x = Math.min(Math.max(0, from.x + e.clientX - from.px), Math.max(0, bw - card.offsetWidth));
-      var y = Math.min(Math.max(0, from.y + e.clientY - from.py), Math.max(0, bh - card.offsetHeight));
+      /* Подкрутка стола, когда карточку тащат к его краю: без неё
+         утащить карточку в непоказанную часть холста нечем. */
+      var br = board.getBoundingClientRect();
+      if(e.clientX > br.right - EDGE)      board.scrollLeft += 14;
+      else if(e.clientX < br.left + EDGE)  board.scrollLeft -= 14;
+      if(e.clientY > br.bottom - EDGE)     board.scrollTop += 14;
+      else if(e.clientY < br.top + EDGE)   board.scrollTop -= 14;
+
+      /* Прокрутка стола сдвигает холст под курсором, и её надо учесть:
+         иначе карточка уезжала бы от пальца ровно на прокрученное. */
+      var cw = canvas.clientWidth, ch = canvas.clientHeight;
+      var dx = e.clientX - from.px + (board.scrollLeft - from.sx);
+      var dy = e.clientY - from.py + (board.scrollTop  - from.sy);
+      var x = Math.min(Math.max(0, from.x + dx), Math.max(0, cw - card.offsetWidth));
+      var y = Math.min(Math.max(0, from.y + dy), Math.max(0, ch - card.offsetHeight));
       card.style.left = Math.round(x) + "px";
       card.style.top  = Math.round(y) + "px";
       remember(i, card);
       drawWires();
     });
 
-    var stop = function(e){
+    var release = function(e){
       if(!from) return;
       from = null;
       card.classList.remove("is-drag");
@@ -218,8 +340,8 @@
       }
       save();
     };
-    card.addEventListener("pointerup", stop);
-    card.addEventListener("pointercancel", stop);
+    card.addEventListener("pointerup", release);
+    card.addEventListener("pointercancel", release);
   }
 
   /* Карточку можно двигать и с клавиатуры: стрелки по восемь пикселей,
@@ -232,27 +354,31 @@
       if(!dx && !dy) return;
       e.preventDefault();
       var step = e.shiftKey ? 40 : 8;
-      var bw = board.clientWidth, bh = board.clientHeight;
-      var x = Math.min(Math.max(0, card.offsetLeft + dx * step), Math.max(0, bw - card.offsetWidth));
-      var y = Math.min(Math.max(0, card.offsetTop  + dy * step), Math.max(0, bh - card.offsetHeight));
+      var cw = canvas.clientWidth, ch = canvas.clientHeight;
+      var x = Math.min(Math.max(0, card.offsetLeft + dx * step), Math.max(0, cw - card.offsetWidth));
+      var y = Math.min(Math.max(0, card.offsetTop  + dy * step), Math.max(0, ch - card.offsetHeight));
       card.style.left = Math.round(x) + "px";
       card.style.top  = Math.round(y) + "px";
       remember(i, card);
       drawWires();
       save();
+      /* Холст больше экрана, и уехать карточкой за его видимый край с
+         клавиатуры проще всего: догоняем её столом. */
+      card.scrollIntoView({ block:"nearest", inline:"nearest" });
     });
   }
 
   function remember(i, card){
-    var fx = Math.max(1, board.clientWidth  - card.offsetWidth);
-    var fy = Math.max(1, board.clientHeight - card.offsetHeight);
+    var fx = Math.max(1, canvas.clientWidth  - card.offsetWidth);
+    var fy = Math.max(1, canvas.clientHeight - card.offsetHeight);
     pos[i] = [card.offsetLeft / fx, card.offsetTop / fy];
   }
 
   function reset(){
-    pos = HOME.map(function(p){ return p.slice(); });
+    saved = null;
     if(PC.store) PC.store.remove(KEY);
-    place();
+    place(true);
+    board.scrollTo({ left:0, top:0, behavior:"auto" });
     if(PC.ui) PC.ui.toast(t("srpc.reset.done"));
   }
 
@@ -276,16 +402,24 @@
     stage = document.getElementById("srpcStage");
     if(!stage || !stage.hidden) return;
     build();
+    if(!canvas) return;
+    /* Закрытие ещё доигрывает — его отложенная уборка спрятала бы стол
+       обратно уже после открытия. */
+    if(closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
     lastFocus = document.activeElement;
     stage.hidden = false;
     stage.removeAttribute("aria-hidden");
     document.body.classList.add("sheet-lock");
-    requestAnimationFrame(function(){
-      stage.classList.add("is-open");
-      place();
-    });
-    var close = document.getElementById("srpcClose");
-    if(close) close.focus({ preventScroll:true });
+    /* Раскладка считается сразу: стол уже не скрыт, значит измеряется.
+       Отложить её до следующего кадра — значит показать кадр, в котором
+       шесть карточек лежат в левом верхнем углу друг на друге, и на
+       этот же кадр отдать столу нажатия, пока раскладки ещё нет.
+       Пересобираем от нынешнего экрана: разложить карточки могли на
+       другом устройстве или в другой ориентации. */
+    place(true);
+    requestAnimationFrame(function(){ stage.classList.add("is-open"); });
+    var btn = document.getElementById("srpcClose");
+    if(btn) btn.focus({ preventScroll:true });
   }
 
   function close(){
@@ -293,14 +427,31 @@
     stage.classList.remove("is-open");
     document.body.classList.remove("sheet-lock");
     var done = function(){
+      closeTimer = null;
       stage.hidden = true;
       stage.setAttribute("aria-hidden", "true");
       if(lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll:true });
       lastFocus = null;
     };
-    var reduced = document.documentElement.dataset.motion === "off" ||
-      (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    if(reduced) done(); else setTimeout(done, 220);
+    if(reduced()) done(); else closeTimer = setTimeout(done, 220);
+  }
+
+  function reduced(){
+    return document.documentElement.dataset.motion === "off" ||
+      !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  /* Фокус заперт внутри стола: под ним лежит вся страница, и уйти в неё
+     табом из модального окна нельзя. Кроме кнопок в списке участвуют
+     сами карточки — они и есть главное содержимое экрана. */
+  function trap(e){
+    var list = Array.prototype.filter.call(
+      stage.querySelectorAll("button, .srpcf-card"),
+      function(n){ return !n.disabled && n.offsetWidth; });
+    if(!list.length) return;
+    var first = list[0], last = list[list.length - 1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
   }
 
   function init(){
@@ -308,8 +459,8 @@
     if(!stage) return;
     load();
 
-    var open_ = document.getElementById("srpcOpen");
-    if(open_) open_.addEventListener("click", function(){
+    var opener = document.getElementById("srpcOpen");
+    if(opener) opener.addEventListener("click", function(){
       if(PC.settings) PC.settings.close();
       setTimeout(open, 200);
     });
@@ -322,9 +473,9 @@
 
     window.addEventListener("resize", function(){ if(!stage.hidden) place(); });
     document.addEventListener("keydown", function(e){
-      if(stage.hidden || e.key !== "Escape") return;
-      e.preventDefault();
-      close();
+      if(stage.hidden) return;
+      if(e.key === "Escape"){ e.preventDefault(); close(); return; }
+      if(e.key === "Tab") trap(e);
     });
   }
 

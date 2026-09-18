@@ -473,11 +473,21 @@ body.sheet-lock{overflow:hidden;}
 /* ============ ЭФФЕКТ НАСТРОЕК ============ */
 
 /* Анимации выключены вручную: правило повторяет то, что браузер делает
-   по prefers-reduced-motion, но по решению читателя, а не системы. */
+   по prefers-reduced-motion, но по решению читателя, а не системы.
+
+   Число повторов сбрасывается в единицу не для красоты. Без этого
+   бесконечная анимация оставалась бесконечной, а длительность ей
+   ставили в одну тысячную секунды — то есть тысяча циклов в секунду.
+   На схеме SRPC это давало мигание шести звеньев всеми четырьмя
+   состояниями сразу, на компасе — дрожащие кольца у точек, и всё это
+   держало кадр занятым у человека, который анимации именно что
+   выключил. Один проход с заполнением both оставляет каждую
+   анимацию в её конечном кадре — то есть в покое. */
 :root[data-motion="off"] *,
 :root[data-motion="off"] *::before,
 :root[data-motion="off"] *::after{
   animation-duration:.001s!important;animation-delay:0s!important;
+  animation-iteration-count:1!important;
   transition-duration:.001s!important;transition-delay:0s!important;
 }
 :root[data-motion="off"] .sheet{transition:none;}

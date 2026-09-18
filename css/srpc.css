@@ -81,8 +81,25 @@
    раскладка переживает поворот телефона и изменение размера окна. */
 .srpcf-board{
   position:relative;flex:1 1 auto;min-height:0;
-  overflow:hidden;
-  touch-action:none;             /* иначе палец таскает страницу, а не карточку */
+  /* Холст внутри не обязан помещаться в экран: на телефоне шесть
+     карточек по 240 пикселей не встают в 375 ни в каком порядке, и до
+     2.4.3 они просто ложились друг на друга. Теперь стол прокручивается,
+     а размер холста считает js/srpc.js от размера карточек. */
+  overflow:auto;
+  overscroll-behavior:contain;
+  /* Пальцем по пустому месту стола — прокрутка холста, пальцем по
+     карточке — перетаскивание: touch-action:none стоит на карточке,
+     а не на всём столе, иначе холст было бы нечем листать. */
+  touch-action:pan-x pan-y;
+  scrollbar-width:thin;
+}
+.srpcf-board::-webkit-scrollbar{ width:9px;height:9px; }
+.srpcf-board::-webkit-scrollbar-thumb{ background:var(--stroke-2);border-radius:99px; }
+/* Сетка точек лежит на холсте, а не на столе: она обязана ехать вместе
+   с карточками, иначе при прокрутке карточки поедут, а «бумага» под
+   ними останется, и стол перестанет читаться как одна поверхность. */
+.srpcf-canvas{
+  position:relative;width:100%;height:100%;
   background-image:
     radial-gradient(color-mix(in srgb,var(--text) 10%,transparent) 1px, transparent 1px);
   background-size:26px 26px;
@@ -100,6 +117,7 @@
 .srpcf-card{
   position:absolute;
   width:min(260px,72vw);
+  touch-action:none;             /* иначе палец таскает холст, а не карточку */
   box-sizing:border-box;
   padding:13px 14px 14px;
   border-radius:var(--radius);
@@ -238,4 +256,17 @@
   .srpcf-head{ flex-direction:column;gap:10px; }
   .srpcf-card{ width:min(240px,78vw);padding:11px 12px 12px; }
   .srpcf-foot .srpcf-keys{ display:none; }
+}
+
+/* На телефоне стол важнее рассказа о столе: длинная подсказка в шапке
+   занимала треть экрана, а под карточки оставалось меньше половины.
+   Подсказка уходит, кнопки встают в одну строку. Клавиатурная строка
+   в подвале там уже скрыта — стрелок на телефоне нет. */
+@media(max-width:560px){
+  .srpcf-head{ padding:12px 14px 10px;gap:8px; }
+  .srpcf-head p{ display:none; }
+  .srpcf-head h2{ font-size:calc(16px * var(--text-k));margin:6px 0 0; }
+  .srpcf-tools{ flex-wrap:nowrap;width:100%; }
+  .srpcf-tools .btn{ flex:1 1 0;justify-content:center;padding-left:8px;padding-right:8px; }
+  .srpcf-foot{ padding:8px 14px;gap:6px 12px; }
 }

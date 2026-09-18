@@ -4,45 +4,137 @@
    объяснения ничего не стоит, спорить можно только с аргументом. Поэтому
    здесь собрано всё, из чего выведена точка: тезисы, обоснование
    координат, разложение на шесть под-осей, история сдвигов, практика
-   голосований фракции и ближайшие соседи по полю. ============ */
+   голосований фракции и ближайшие соседи по полю.
+
+   ---------- что изменилось в 2.4.3 ----------
+
+   Панель переписана в трёх местах, и все три — про одно и то же: она
+   слишком много переделывала на каждый чих.
+
+   Первое — события. Список и карточка собираются строкой и вставляются
+   через innerHTML; до 2.4.3 после каждой такой вставки навешивались
+   обработчики на каждую строку списка, на каждого соседа по полю и на
+   кнопку возврата. Одиннадцать партий, десяток перерисовок за минуту
+   поиска — и это десятки подписок, которые живут ровно до следующей
+   перерисовки. Теперь обработчик один и стоит на самой панели: он
+   спрашивает у события, во что попали, а не у каждой кнопки, нажали
+   ли её. Разметку это не усложняет — data-id на строках и так был.
+
+   Второе — заголовок панели. Он всегда на виду (стоит вне прокручиваемой
+   части) и до 2.4.3 говорил «Карточка партии», пока сама карточка
+   рассказывала про КПРФ на полторы тысячи пикселей вниз. Теперь в нём
+   имя партии, её цвет и возврат к списку — то есть и ответ на «чью
+   карточку я читаю», и выход, которые раньше приходилось искать
+   прокруткой в самый верх.
+
+   Третье — клавиатура. По списку партий теперь ходят стрелками, как по
+   любому другому списку в проекте: Tab приводит в него один раз, дальше
+   ↑/↓, Home/End. Одиннадцать остановок табуляции подряд вместо одной —
+   ровно то, ради чего придуман roving tabindex. ============ */
 (function(PC){
   "use strict";
   var U = PC.utils, fmt = U.fmt, esc = U.esc;
   var t = PC.t, L = PC.L;
-  var body, title, countEl;
+  var body, title, countEl, backBtn, dotEl;
+  var mode = "list";          /* что сейчас в панели: "list" или "detail" */
 
   function init(){
     body    = document.getElementById("sideBody");
     title   = document.getElementById("sideTitle");
     countEl = document.getElementById("count");
+    backBtn = document.getElementById("sideBack");
+    dotEl   = document.getElementById("sideDot");
+    if(!body) return;
+
+    /* ---------- один обработчик на всю панель ----------
+       Всё, что в панели нажимается ради выбора партии, помечено data-id:
+       строка списка, сосед по полю, самая дальняя партия. Кнопке возврата
+       ничего не нужно — её узнают по классу. */
+    body.addEventListener("click", function(e){
+      var hit = e.target.closest ? e.target.closest("[data-id]") : null;
+      if(hit && body.contains(hit)) PC.select(hit.dataset.id);
+    });
+    body.addEventListener("keydown", listKeys);
+    if(backBtn) backBtn.addEventListener("click", function(){ PC.select(null); });
+  }
+
+  /* Стрелки по списку партий. Список — не набор отдельных кнопок, а один
+     элемент управления с курсором внутри: в него входят табом один раз. */
+  function listKeys(e){
+    if(mode !== "list") return;
+    var step = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0;
+    var jump = e.key === "Home" ? "first" : e.key === "End" ? "last" : null;
+    if(!step && !jump) return;
+    var items = Array.prototype.slice.call(body.querySelectorAll(".pitem"));
+    if(!items.length) return;
+    var here = items.indexOf(document.activeElement);
+    var next = jump === "first" ? 0
+             : jump === "last"  ? items.length - 1
+             : here < 0 ? 0 : (here + step + items.length) % items.length;
+    e.preventDefault();
+    items.forEach(function(b, i){ b.tabIndex = i === next ? 0 : -1; });
+    items[next].focus();
   }
 
   function econLabel(x){ return t(x < -3 ? "side.labels.left" : x > 3 ? "side.labels.right" : "side.labels.centre"); }
   function stateLabel(y){ return t(y < -3 ? "side.labels.lib" : y > 3 ? "side.labels.stat" : "side.labels.centre"); }
 
+  /* ---------- заголовок панели ----------
+     Он вне прокрутки и виден всегда, поэтому именно он отвечает на
+     вопрос «где я»: имя партии с её цветом, когда открыта карточка,
+     и название списка с числом строк, когда открыт список. */
+  function head(p){
+    mode = p ? "detail" : "list";
+    if(backBtn) backBtn.hidden = !p;
+    if(dotEl){
+      dotEl.hidden = !p;
+      if(p) dotEl.style.background = p.color;
+    }
+    if(p){
+      countEl.hidden = true;
+      title.textContent = L(p, "name");
+    }else{
+      title.textContent = t("side.listTitle", { conv:L(PC.convocationInfo(), "label") });
+    }
+  }
+
   function renderList(list, activeId){
     var sorted = list.slice().sort(function(a, b){ return PC.seatsOf(b) - PC.seatsOf(a); });
+    head(null);
     countEl.textContent = sorted.length;
     countEl.hidden = false;
-    title.textContent = t("side.listTitle", { conv:L(PC.convocationInfo(), "label") });
 
     if(!sorted.length){
-      body.innerHTML = '<div class="empty">' + t("side.empty") + '</div>';
+      body.innerHTML = '<div class="empty">' + esc(t("side.empty")) + '</div>';
       return;
     }
+
+    /* Доля мест в зале показана полоской под названием: она отвечает на
+       вопрос, который число мандатов задаёт, но не закрывает, — много
+       это или мало. Считается от всей Думы, а не от максимума в списке:
+       «треть зала» — величина, а «столько же, сколько у лидера» — нет.
+       У партии без мандатов дорожка остаётся, но пустая. */
     body.innerHTML = '<div class="plist">' + sorted.map(function(p, i){
       var seats = PC.seatsOf(p);
-      return '<button type="button" class="pitem' + (p.id === activeId ? " active" : "") + '"' +
-             ' data-id="' + esc(p.id) + '" style="animation-delay:' + (i * 35) + 'ms">' +
+      var share = seats / PC.TOTAL_SEATS * 100;
+      return '<button type="button" class="pitem' +
+             (p.id === activeId ? " active" : "") + '"' +
+             ' data-id="' + esc(p.id) + '" tabindex="' + (i === 0 ? "0" : "-1") + '"' +
+             /* Ступенька въезда обрывается на восьмой строке: одиннадцатая
+                иначе ждала бы почти полсекунды, а это уже не «список
+                появился», а «список тормозит». */
+             ' style="animation-delay:' + Math.min(i, 8) * 32 + 'ms">' +
                '<span class="sw" style="background:' + esc(p.color) + '"></span>' +
-               '<span class="nm">' + esc(L(p, "name")) + '<small>' + esc(L(p, "ideology")) + '</small></span>' +
-               '<span class="mandates"><b>' + seats + '</b>' + esc(PC.i18n.pl(seats, "word.seat")) + '</span>' +
+               '<span class="nm">' + esc(L(p, "name")) +
+                 '<small>' + esc(L(p, "ideology")) + '</small>' +
+                 '<span class="share" aria-hidden="true"><i style="width:' +
+                   Math.max(seats ? 1.5 : 0, share).toFixed(2) + '%;background:' + esc(p.color) +
+                 '"></i></span>' +
+               '</span>' +
+               '<span class="mandates"><b>' + seats + '</b>' +
+                 esc(PC.i18n.pl(seats, "word.seat")) + '</span>' +
              '</button>';
     }).join("") + '</div>';
-
-    body.querySelectorAll(".pitem").forEach(function(b){
-      b.addEventListener("click", function(){ PC.select(b.dataset.id); });
-    });
     body.scrollTop = 0;
   }
 
@@ -192,8 +284,7 @@
   }
 
   function renderDetail(p, animate){
-    countEl.hidden = true;
-    title.textContent = t("side.cardTitle");
+    head(p);
     var seats = PC.seatsOf(p);
     var conv = PC.convocationInfo();
     var pct = seats / PC.TOTAL_SEATS * 100;
@@ -209,7 +300,6 @@
 
     body.innerHTML =
       '<div class="detail' + (animate === false ? " no-anim" : "") + '" style="--party:' + esc(p.color) + '">' +
-        '<button type="button" class="back" id="back">' + esc(t("side.back")) + '</button>' +
         '<div class="d-head">' +
           '<div class="d-badge" style="background:' + esc(p.color) + ';--glow:' + esc(p.color) + '">' +
             esc(L(p, "name").trim().charAt(0)) + '</div>' +
@@ -252,10 +342,6 @@
       '</div>';
 
     body.scrollTop = 0;
-    document.getElementById("back").addEventListener("click", function(){ PC.select(null); });
-    body.querySelectorAll(".nb-row").forEach(function(b){
-      b.addEventListener("click", function(){ PC.select(b.dataset.id); });
-    });
     var cmpSelect = document.getElementById("cmpSelect");
     if(cmpSelect){
       if(PC.dropdown) PC.dropdown.init(body);

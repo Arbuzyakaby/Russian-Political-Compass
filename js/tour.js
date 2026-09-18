@@ -69,6 +69,11 @@
   var root = document.documentElement;
   var layer, hole, bubble, title, text, count, dots, backBtn, nextBtn, skipBtn, arrow;
   var route = [], at = 0, running = false, lastFocus = null, built = false;
+  /* Уборка после закрытия отложена на время затухания слоя. Если за это
+     время обучение запустят снова (кнопка в настройках — в одном нажатии
+     от кнопки «Готово»), отложенная уборка спрячет уже открытый слой, и
+     тур пойдёт вслепую: шаги считаются, а на экране ничего нет. */
+  var hideTimer = null;
 
   function t(key, vars){ return PC.t ? PC.t(key, vars) : key; }
   function reduced(){
@@ -148,6 +153,14 @@
     var y = Math.max(6, r.top - pad);
     var w = Math.min(window.innerWidth - x - 6, r.width + pad * 2);
     var h = Math.min(window.innerHeight - y - 6, r.height + pad * 2);
+    /* Цель выше экрана — обычное дело на телефоне: панель справа там
+       разворачивается на восемьсот с лишним пикселей. Вырез во весь
+       экран не подсвечивает ничего (подсветить всё — это не подсветить),
+       да ещё и не оставляет места подписи, и она падает в нижний угол
+       поверх самого выреза. Поэтому вырез показывает начало цели, а не
+       её целиком: две трети экрана — это заведомо «вот эта штука», и
+       под подпись внизу остаётся место. */
+    h = Math.min(h, Math.round(window.innerHeight * 0.62));
     hole.style.transform = "translate(" + Math.round(x) + "px," + Math.round(y) + "px)";
     hole.style.width  = Math.round(w) + "px";
     hole.style.height = Math.round(h) + "px";
@@ -165,15 +178,33 @@
     var opposite = { top:"bottom", bottom:"top", left:"right", right:"left" };
     var order = [place, opposite[place], "bottom", "top", "right", "left"];
 
+    /* Проверяется только та ось, вдоль которой подпись отходит от
+       выреза. Поперечную кладёт на место put(), прижимая подпись к краю
+       экрана, а стрелка всё равно целится в середину выреза, а не в
+       середину подписи — ради этого она так и считается.
+
+       До 2.4.3 требовалось, чтобы подпись поместилась целиком, никуда
+       не упираясь. На телефоне это почти никогда не выполнялось: подпись
+       там шириной во весь экран минус поля, и «поместиться по горизонтали»
+       она могла, только если вырез стоит ровно посередине. Шесть шагов
+       из десяти уезжали в запасной угол внизу — без стрелки и, на высоких
+       целях, поверх самого выреза. */
     for(var i = 0; i < order.length; i++){
-      var p = order[i], x, y;
-      if(p === "bottom"){ x = box.x + box.w / 2 - bw / 2; y = box.y + box.h + gap; }
-      else if(p === "top"){ x = box.x + box.w / 2 - bw / 2; y = box.y - bh - gap; }
-      else if(p === "right"){ x = box.x + box.w + gap; y = box.y + box.h / 2 - bh / 2; }
-      else { x = box.x - bw - gap; y = box.y + box.h / 2 - bh / 2; }
-      if(x >= m && y >= m && x + bw <= W - m && y + bh <= H - m){
-        return put(x, y, p, box);
+      var p = order[i], x, y, fits;
+      if(p === "bottom"){
+        x = box.x + box.w / 2 - bw / 2; y = box.y + box.h + gap;
+        fits = y + bh <= H - m;
+      }else if(p === "top"){
+        x = box.x + box.w / 2 - bw / 2; y = box.y - bh - gap;
+        fits = y >= m;
+      }else if(p === "right"){
+        x = box.x + box.w + gap; y = box.y + box.h / 2 - bh / 2;
+        fits = x + bw <= W - m;
+      }else{
+        x = box.x - bw - gap; y = box.y + box.h / 2 - bh / 2;
+        fits = x >= m;
       }
+      if(fits) return put(x, y, p, box);
     }
     /* Ничего не подошло — значит вырез занимает почти весь экран.
        Тогда подпись просто садится в нижний угол и стрелки не рисует. */
@@ -235,7 +266,12 @@
     var step = route[at];
     var node = target(step);
     if(node && !fullyVisible(node)){
-      node.scrollIntoView({ behavior:reduced() ? "auto" : "smooth", block:"center" });
+      /* Цель, которая выше экрана, «по центру» не встаёт никак: у неё
+         и верх, и низ за краем. Показываем её начало — это то место,
+         по которому её узнают. */
+      var tall = node.getBoundingClientRect().height > window.innerHeight - 140;
+      node.scrollIntoView({ behavior:reduced() ? "auto" : "smooth",
+                            block:tall ? "start" : "center" });
       setTimeout(paint, reduced() ? 0 : 420);
       /* Промежуточный кадр, чтобы вырез не висел на прежнем месте всё
          время прокрутки: он переезжает вместе со страницей. */
@@ -269,12 +305,18 @@
     dots.innerHTML = route.map(function(){ return '<span class="tour-dot"></span>'; }).join("");
 
     running = true;
+    if(hideTimer){ clearTimeout(hideTimer); hideTimer = null; }
     lastFocus = document.activeElement;
     layer.hidden = false;
     document.body.classList.add("sheet-lock", "tour-on");
+    /* Первый шаг раскладывается сразу, а не в следующем кадре: слой уже
+       не скрыт, значит измеряется, а откладывать нечего. Отложенным этот
+       вызов был до 2.4.3, и повторный запуск обучения показывал на кадр
+       тот шаг, на котором его закрыли в прошлый раз. */
+    at = 0;
+    go(0);
     requestAnimationFrame(function(){
       layer.classList.add("is-on");
-      go(0);
       nextBtn.focus({ preventScroll:true });
     });
   }
@@ -285,11 +327,12 @@
     layer.classList.remove("is-on");
     document.body.classList.remove("sheet-lock", "tour-on");
     var done = function(){
+      hideTimer = null;
       layer.hidden = true;
       if(lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll:true });
       lastFocus = null;
     };
-    if(reduced()) done(); else setTimeout(done, 240);
+    if(reduced()) done(); else hideTimer = setTimeout(done, 240);
   }
 
   function init(){
