@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Интерактивный политический компас партий России: положение по осям «экономика» и «отношение к власти государства», мандаты в Госдуме по созывам IV–VIII, ключевые голосования и тест на 90 утверждений в трёх версиях.">
+<meta name="description" content="Русский политический компас: партии России на двух осях — экономика и отношение к власти государства. Мандаты в Госдуме по созывам IV–VIII, ключевые голосования и тест на 90 утверждений в трёх версиях. Рус. полит компас без регистрации и рекламы.">
 <meta name="color-scheme" content="light dark">
 <!-- цвет строки браузера на мобильных: свой для каждой темы, иначе
      панель остаётся белой над тёмной страницей -->
@@ -23,16 +23,16 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:site_name" content="Политический компас партий РФ">
+<meta property="og:site_name" content="Русский политический компас">
 <meta property="og:url" content="https://rupolitcompass.website/">
-<meta property="og:title" content="Интерактивный политический компас партий РФ">
-<meta property="og:description" content="Партии России на двух независимых осях: экономика и отношение к власти государства. Мандаты по созывам IV–VIII, ключевые голосования и тест на 90 утверждений.">
+<meta property="og:title" content="Русский политический компас — партии РФ на двух осях">
+<meta property="og:description" content="Русский полит компас: партии России на двух независимых осях — экономика и отношение к власти государства. Мандаты по созывам IV–VIII, ключевые голосования и тест на 90 утверждений.">
 <meta property="og:image" content="https://rupolitcompass.website/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="674">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Интерактивный политический компас партий РФ">
-<meta name="twitter:description" content="Партии России на двух независимых осях, мандаты по созывам IV–VIII и тест на 90 утверждений.">
+<meta name="twitter:title" content="Русский политический компас — партии РФ на двух осях">
+<meta name="twitter:description" content="Русский полит компас: партии России на двух независимых осях, мандаты по созывам IV–VIII и тест на 90 утверждений.">
 <meta name="twitter:image" content="https://rupolitcompass.website/assets/og-image.png">
 <!-- Иконка вкладки и логотип в шапке берут уменьшенную копию. Полная,
      на 512 пикселей, весит 235 КБ и до 2.1 скачивалась при каждой
@@ -43,7 +43,17 @@
 <link rel="icon" href="assets/icon-96.png" type="image/png" sizes="96x96">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="manifest" href="manifest.json">
-<title>Политический компас партий РФ</title>
+<!-- Заголовок переписан в 2.4.2.1 под то, как проект на самом деле
+     ищут. По-английски страница находилась, по-русски — почти нет:
+     в заголовке, описании и разметке стояло «политический компас
+     партий РФ», а набирают чаще «русский политический компас»,
+     «российский полит компас», «полит компас России». Это не разные
+     проекты, а разные имена одного, и все они теперь названы явно —
+     в заголовке, в описании, в alternateName у WebSite и в подписи
+     под шапкой. Ключевое слово в заголовке одно и стоит первым:
+     перечислять там весь список — верный способ получить обрезанный
+     сниппет и ничего не выиграть. -->
+<title>Русский политический компас — партии РФ на двух осях</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -96,6 +106,8 @@
 <link rel="stylesheet" href="css/people.css">
 <link rel="stylesheet" href="css/ui.css">
 <link rel="stylesheet" href="css/welcome.css">
+<link rel="stylesheet" href="css/tour.css">
+<link rel="stylesheet" href="css/srpc.css">
 <link rel="stylesheet" href="css/eggs.css">
 <!-- стекло уточняет поверхности, описанные выше, поэтому идёт после них -->
 <link rel="stylesheet" href="css/glass.css">
@@ -118,16 +130,24 @@
       "@type": "WebSite",
       "@id": "https://rupolitcompass.website/#website",
       "url": "https://rupolitcompass.website/",
-      "name": "Политический компас партий РФ",
-      "alternateName": "Russian Political Compass",
-      "description": "Партии России на двух независимых осях: экономика и отношение к власти государства.",
+      "name": "Русский политический компас",
+      "alternateName": [
+        "Политический компас партий РФ",
+        "Русский полит компас",
+        "Российский политический компас",
+        "Полит компас России",
+        "Russian Political Compass",
+        "PolitCompass"
+      ],
+      "description": "Русский политический компас: партии России на двух независимых осях — экономика и отношение к власти государства.",
       "inLanguage": ["ru", "en"],
       "license": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
       "@type": "WebApplication",
       "@id": "https://rupolitcompass.website/#app",
-      "name": "Политический компас партий РФ",
+      "name": "Русский политический компас",
+      "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Any",
@@ -159,7 +179,7 @@
       "inLanguage": ["ru", "en"],
       "temporalCoverage": "2003/2026",
       "spatialCoverage": { "@type": "Country", "name": "Россия" },
-      "keywords": ["политический компас", "Государственная дума", "партии России", "политология"],
+      "keywords": ["русский политический компас", "полит компас России", "политический компас", "Государственная дума", "партии России", "политология"],
       "isAccessibleForFree": true,
       "distribution": [
         { "@type": "DataDownload", "encodingFormat": "text/csv" },
@@ -186,7 +206,7 @@
     <div class="brand">
       <div class="brand-mark" aria-hidden="true"><img src="assets/icon-96.png" alt="" width="96" height="96" decoding="async"></div>
       <div>
-        <span class="eyebrow" data-i18n="brand.eyebrow">Политология · Россия</span>
+        <span class="eyebrow" data-i18n="brand.eyebrow">Русский политический компас · Политология</span>
         <h1 data-i18n="brand.h1">Интерактивный политический компас партий РФ</h1>
         <p id="lead">Партии на двух осях: экономика и отношение к власти государства</p>
       </div>
@@ -620,16 +640,26 @@
         </ul>
       </article>
 
-      <!-- Слово автора и реклама соседнего проекта (2.2). -->
+      <!-- Слово автора (переписано в 2.4.2.1) и реклама соседнего проекта.
+
+           Прежний текст был благодарностью: спасибо, что дочитали,
+           проект начинался как вечерний эксперимент, спасибо тем, кто
+           писал. Всё это правда, но раздел стоит двенадцатым в списке
+           «О проекте» — то есть до него доходит человек, который уже
+           прочитал методику и теперь хочет понять, кто и зачем всё это
+           считал. Отвечать ему перечислением тёплых слов — значит не
+           ответить. Теперь здесь написано, зачем проект вообще
+           существует и чего он про себя не утверждает. -->
       <article class="card about-card about-card--wide about-author" id="ab-author" data-reveal>
         <h3 data-i18n="ab.author.h">Слово автора</h3>
-        <p data-i18n="ab.author.p">Спасибо, что дошли до этого раздела. Компас начинался как вечерний эксперимент, а вырос в проект с тестом, голосованиями и семью… уже восемью темами оформления.</p>
+        <p data-i18n="ab.author.p">Этот проект начался с раздражения. В любом споре о политике первые полторы минуты уходят на то, чтобы выяснить, кого собеседник считает «левым», а кого «либералом», — и выясняется, что одним и тем же словом вы называете разные вещи. Координатная сетка не мирит спорящих, но она заставляет их спорить о чём-то проверяемом: не о ярлыке, а о числе и о том, откуда оно взялось.</p>
+        <p data-i18n="ab.author.p2">Поэтому здесь нет ни одной координаты без объяснения и ни одной цифры, которую нельзя выгрузить и пересчитать. Это экспертная оценка, а не измерение: с ней можно и нужно спорить — но спорить придётся с конкретным абзацем, а не с общим ощущением, что «автор предвзят».</p>
         <ul class="about-list plain">
-          <li data-i18n-html="ab.author.l1"><b>Поздравляю</b> всех, кто прошёл тест целиком — девяносто утверждений подряд требуют терпения.</li>
-          <li data-i18n-html="ab.author.l2"><b>Спасибо</b> тем, кто присылал замечания к координатам и находил баги на телефоне.</li>
-          <li data-i18n-html="ab.author.l3"><b>Спасибо</b> всем, кто делится ссылкой на свой результат и спорит с цифрами предметно.</li>
+          <li data-i18n-html="ab.author.l1"><b>Никакой агитации.</b> Проект не зовёт голосовать, не собирает подписи и не продаёт ничего — ни явно, ни исподволь. Если вам показалось, что какая-то формулировка агитирует, это ошибка формулировки, и о ней стоит написать.</li>
+          <li data-i18n-html="ab.author.l2"><b>Никаких счётчиков.</b> Сколько людей прошло тест и какие ответы они выбирали, автор не знает и узнать не может: ответы не покидают ваш браузер. Это ограничение архитектуры, а не обещание в подвале.</li>
+          <li data-i18n-html="ab.author.l3"><b>Спасибо тем, кто спорит предметно.</b> Половина правок в координатах и почти все найденные баги на телефонах пришли от читателей, которые не поленились написать, где именно не сходится.</li>
         </ul>
-        <p class="about-note" data-i18n="ab.author.sign">— Arbuzyakaby, создатель PolitCompass</p>
+        <p class="about-note" data-i18n="ab.author.sign">— Arbuzyakaby, автор PolitCompass</p>
       </article>
 
       <aside class="card about-card about-card--wide about-promo" data-reveal>
@@ -655,7 +685,7 @@
           <figcaption class="chain-cap">
             <span class="chain-badge" data-i18n="ab.chain.badge">SRPC · 6 звеньев</span>
             <b data-i18n="ab.chain.t">Static Render Pipeline Chain</b>
-            <small data-i18n="ab.chain.d">Путь страницы от разметки до выгрузки, шестью звеньями. Схема прогоняет полный цикл: сигнал проходит цепочку, третье звено уходит в ошибку и гасит всё, что от него зависит, — а потом конвейер собирается обратно.</small>
+            <small data-i18n="ab.chain.d">Путь страницы от разметки до выгрузки, шестью звеньями. Сигнал проходит цепочку слева направо — так страница и собирается при загрузке. Сбой в третьем звене и каскад за ним схема больше не показывает сама: демонстрация включается в настройках, в разделе SRPC, там же цепочку можно открыть во весь экран и разложить руками.</small>
           </figcaption>
           <ol class="chain-track">
           <li class="chain-link">
@@ -839,11 +869,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Стекло компаса стало заметным: плита светлее, кромка ярче, зазор между линзами шире, тень глубже. В прошлой версии редизайн было почти не видно.</li>
-        <li data-i18n="wel.up.l2">Пунктирный поводок к подписи партии больше не висит постоянно — он появляется под курсором. У «Справедливой России» он читался как посторонняя чёрточка на поле.</li>
-        <li data-i18n="wel.up.l3">Подсказка, открытая с точки траектории, больше не залипает на экране: слой маршрутов переставлялся посреди наведения и отменял парное событие ухода курсора.</li>
-        <li data-i18n="wel.up.l4">Числа координат у перекрестия больше не ложатся на чужие точки: у самой оси, где им всё равно нечего сказать, они не показываются.</li>
-        <li data-i18n="wel.up.l5">Шаги обучения на приветственном экране стали кликабельными, под ними идёт полоса пройденного, а блок-схема кода в «О проекте» стала крупнее и заметнее.</li>
+        <li data-i18n="wel.up.l1">Обучение переписано с нуля: теперь оно идёт по самой странице. Экран затемняется, подсвеченным остаётся настоящий элемент — поле, переключатель созыва, панель справа, — и рядом встаёт объяснение.</li>
+        <li data-i18n="wel.up.l2">Компас переработан так, чтобы это было видно: заливки квадрантов вдвое плотнее, оси и рамка толще, у точек появился цветной ореол, а квадранты подписаны плашками, а не бледными буквами.</li>
+        <li data-i18n="wel.up.l3">Размер текста наконец работает: множитель раньше действовал на один абзац, а теперь на каждую подпись, число и заголовок, включая текст внутри компаса и графиков. Разброс между «мелким» и «крупным» вырос вдвое.</li>
+        <li data-i18n="wel.up.l4">Третье звено схемы в «О проекте» больше не желтеет само по себе: демонстрация сбоя выключена по умолчанию и переехала в новый раздел настроек SRPC, где цепочку можно открыть во весь экран и разложить карточки руками.</li>
+        <li data-i18n="wel.up.l5">Тема «Аляска» переписана с нуля и стала «Аляской 2.0»: ледяной день сменился полярным светом — глубокая синь, бирюза и холодный лиловый. Рельс в «О проекте» стал матовым и перестал путаться в подсветке разделов.</li>
       </ul>
 
       <div class="wel-actions">
@@ -855,81 +885,6 @@
         следующего обновления. Вернуть его можно в настройках.</p>
     </section>
 
-    <!-- ---------- шаг 3: обучение ----------
-         Четыре сцены, нарисованные разметкой и CSS. Анимация каждой
-         запускается заново, когда сцена становится текущей: класс
-         is-on снимается и ставится после принудительной перерисовки
-         (js/welcome.js). Текст подписи берётся из словаря по номеру. -->
-    <section class="wel-step" id="welTourStep" data-step="tour" hidden>
-      <div class="wt-stage" aria-hidden="true">
-        <!-- 1. поле: оси и точки партий -->
-        <div class="wt-scene wt-s1" data-scene="0">
-          <span class="wt-axis wt-axis--h"></span><span class="wt-axis wt-axis--v"></span>
-          <span class="wt-q wt-q--lu"></span><span class="wt-q wt-q--rd"></span>
-          <i class="wt-pt" style="--x:22%;--y:30%;--c:#d8433b;--d:.15s"></i>
-          <i class="wt-pt" style="--x:64%;--y:22%;--c:#2f6fd6;--d:.3s"></i>
-          <i class="wt-pt" style="--x:78%;--y:62%;--c:#e0a52b;--d:.45s"></i>
-          <i class="wt-pt" style="--x:34%;--y:70%;--c:#3aa36b;--d:.6s"></i>
-          <i class="wt-pt" style="--x:52%;--y:44%;--c:#8a5cd6;--d:.75s"></i>
-          <span class="wt-lab wt-lab--x" data-i18n="wel.t.x">← экономика →</span>
-          <span class="wt-lab wt-lab--y" data-i18n="wel.t.y">государство</span>
-        </div>
-        <!-- 2. точка → карточка партии -->
-        <div class="wt-scene wt-s2" data-scene="1">
-          <i class="wt-pt wt-pt--static" style="--x:24%;--y:34%;--c:#d8433b"></i>
-          <i class="wt-pt wt-pt--static wt-pt--target" style="--x:40%;--y:58%;--c:#2f6fd6"></i>
-          <i class="wt-pt wt-pt--static" style="--x:16%;--y:72%;--c:#3aa36b"></i>
-          <span class="wt-cursor"></span>
-          <span class="wt-panel">
-            <span class="wt-line wt-line--h"></span>
-            <span class="wt-line"></span><span class="wt-line wt-line--s"></span>
-            <span class="wt-bars"><i></i><i></i><i></i></span>
-          </span>
-        </div>
-        <!-- 3. созыв и графики -->
-        <div class="wt-scene wt-s3" data-scene="2">
-          <span class="wt-seg"><i></i><b>IV</b><b>V</b><b>VI</b><b>VII</b><b>VIII</b></span>
-          <span class="wt-hemi">
-            <i style="--c:#d8433b;--h:38%"></i><i style="--c:#e0a52b;--h:22%"></i>
-            <i style="--c:#2f6fd6;--h:86%"></i><i style="--c:#3aa36b;--h:30%"></i>
-            <i style="--c:#8a5cd6;--h:18%"></i>
-          </span>
-        </div>
-        <!-- 4. тест: шкала ответов и точка «вы» -->
-        <div class="wt-scene wt-s4" data-scene="3">
-          <span class="wt-question"><span class="wt-line wt-line--h"></span><span class="wt-line wt-line--s"></span></span>
-          <span class="wt-scale"><i></i><i></i><i></i><i class="is-pick"></i><i></i></span>
-          <span class="wt-mini">
-            <span class="wt-axis wt-axis--h"></span><span class="wt-axis wt-axis--v"></span>
-            <i class="wt-you"></i>
-          </span>
-        </div>
-      </div>
-
-      <span class="eyebrow" id="welTourCount">Шаг 1 из 4</span>
-      <h2 id="welTourTitle">Поле из двух осей</h2>
-      <p class="wel-lede" id="welTourText" aria-live="polite"></p>
-
-      <!-- Точки прогресса (кнопки с 2.4.2). До этого они были
-           декоративными: показывали, где ты в обучении, но вернуться на
-           пропущенный шаг можно было только кнопкой «Назад» столько раз,
-           сколько шагов ты успел проскочить. Подписи проставляет
-           js/welcome.js — номер шага в них подставляется числом. -->
-      <div class="wt-dots" id="welTourDots" role="tablist"
-           aria-label="Шаги обучения" data-i18n-attr="aria-label:wel.t.steps">
-        <button type="button" role="tab"></button>
-        <button type="button" role="tab"></button>
-        <button type="button" role="tab"></button>
-        <button type="button" role="tab"></button>
-      </div>
-
-      <div class="wel-actions wel-actions--tour">
-        <button type="button" class="btn ghost" id="welSkip" data-i18n="wel.skip">Пропустить</button>
-        <span class="wel-spacer"></span>
-        <button type="button" class="btn" id="welBack" data-i18n="wel.back">Назад</button>
-        <button type="button" class="btn primary" id="welNext" data-i18n="wel.next">Дальше</button>
-      </div>
-    </section>
   </div>
 </div>
 
@@ -976,6 +931,9 @@
       <button type="button" class="setm-tab" role="tab" data-panel="privacy"
               id="setTab-privacy" aria-controls="setPanel-privacy" aria-selected="false" tabindex="-1">
         <span data-i18n="set.privacy">Приватность</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="srpc"
+              id="setTab-srpc" aria-controls="setPanel-srpc" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.srpc">SRPC</span></button>
       <button type="button" class="setm-tab" role="tab" data-panel="general"
               id="setTab-general" aria-controls="setPanel-general" aria-selected="false" tabindex="-1">
         <span data-i18n="set.page">Общее</span></button>
@@ -1326,6 +1284,40 @@
       </div>
     </section>
 
+    <!-- SRPC (2.4.2.1). Соседний раздел PVFP рассказывает, что страница
+         не делает с данными; этот — что она делает с самой собой. Схема
+         конвейера живёт в «О проекте», а здесь её разбор: шесть карточек
+         на отдельном столе, которые можно разложить руками, и тумблер
+         той самой демонстрации сбоя, из-за которой третье звено на
+         схеме желтело без предупреждения. -->
+    <section class="set-group" data-panel="srpc" id="setPanel-srpc" role="tabpanel" aria-labelledby="setTab-srpc" hidden>
+      <h3 data-i18n="set.srpc">SRPC</h3>
+
+      <div class="srpc-card">
+        <span class="srpcf-badge" data-i18n="srpc.badge">Собственный протокол проекта</span>
+        <h4 data-i18n="srpc.title">SRPC — Static Render Pipeline Chain</h4>
+        <p data-i18n="srpc.lead">Страница собирается конвейером из шести этапов: разметка, стили, данные, расчёты, отрисовка, экспорт. Ни сборщика, ни сервера, ни единого запроса наружу — весь путь от файла до картинки проходит в вашем браузере. Схема этого пути стоит во вкладке «О проекте», а здесь её можно разложить на столе и рассмотреть каждое звено отдельно.</p>
+
+        <ul class="srpc-steps">
+          <li><b>01</b><span data-i18n="ab.chain.s1">Разметка</span></li>
+          <li><b>02</b><span data-i18n="ab.chain.s2">Стили</span></li>
+          <li><b>03</b><span data-i18n="ab.chain.s3">Данные</span></li>
+          <li><b>04</b><span data-i18n="ab.chain.s4">Расчёты</span></li>
+          <li><b>05</b><span data-i18n="ab.chain.s5">Отрисовка</span></li>
+          <li><b>06</b><span data-i18n="ab.chain.s6">Экспорт</span></li>
+        </ul>
+
+        <button type="button" class="btn primary small" id="srpcOpen" data-i18n="srpc.open">Открыть во весь экран</button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.srpcfail">Демонстрация сбоя</b>
+          <small data-i18n="set.srpcfail.d">Третье звено схемы в «О проекте» уходит в ошибку и гасит всё, что от него зависит. Выключено по умолчанию: без предупреждения это читается как поломка, а не как рассказ</small></span>
+        <button type="button" class="sw" data-set-switch="srpcfail" role="switch" aria-checked="false"
+                aria-label="Демонстрация сбоя" data-i18n-attr="aria-label:set.srpcfail"><i></i></button>
+      </div>
+    </section>
+
     <section class="set-group" data-panel="general" id="setPanel-general" role="tabpanel" aria-labelledby="setTab-general" hidden>
       <h3 data-i18n="set.page">Общее</h3>
 
@@ -1346,11 +1338,24 @@
                 aria-label="Блок о Lumen" data-i18n-attr="aria-label:set.promo"><i></i></button>
       </div>
 
+      <!-- Пасхалки выключены по умолчанию с 2.4.2.1. Причина та же, по
+           которой они вообще выключаемы: шутка, которую человек не звал,
+           в первую же минуту знакомства с незнакомым сайтом читается не
+           как шутка, а как странность интерфейса — кнопка «наверх»,
+           которая почему-то портал, и могила в углу подвала. Кто их
+           хочет, включает здесь одним нажатием; кто нет — больше не
+           обязан их выключать. -->
       <div class="set-row">
         <span class="set-lab"><b data-i18n="set.eggs">Мелкие шутки</b>
-          <small data-i18n="set.eggs.d">Портал вместо кнопки «наверх» и то, что прячется в самом низу страницы</small></span>
-        <button type="button" class="sw" data-set-switch="eggs" role="switch" aria-checked="true"
+          <small data-i18n="set.eggs.d">Портал вместо кнопки «наверх» и то, что прячется в самом низу страницы. По умолчанию выключено</small></span>
+        <button type="button" class="sw" data-set-switch="eggs" role="switch" aria-checked="false"
                 aria-label="Мелкие шутки" data-i18n-attr="aria-label:set.eggs"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.tour">Обучение</b>
+          <small data-i18n="set.tour.d">Десять шагов по самой странице: экран затемняется, а подсвеченным остаётся тот элемент, о котором идёт речь</small></span>
+        <button type="button" class="btn small" id="setTour" data-i18n="set.tour.start">Пройти обучение</button>
       </div>
 
       <div class="set-row">
@@ -1368,6 +1373,41 @@
     </footer>
   </div>
 </aside>
+
+<!-- ============ SRPC: ПОЛНОЭКРАННЫЙ РАЗБОР (2.4.2.1) ============
+     Пустая сцена: шесть карточек и связи между ними строит js/srpc.js
+     при первом открытии. Разметкой они не лежат намеренно — это экран,
+     который большинство читателей не откроет никогда, и держать в
+     документе полтора десятка узлов ради него незачем. -->
+<div class="srpc-stage" id="srpcStage" hidden aria-hidden="true" role="dialog"
+     aria-modal="true" aria-labelledby="srpcStageTitle">
+  <header class="srpcf-head">
+    <div>
+      <span class="srpcf-badge" data-i18n="srpc.full.badge">SRPC · рабочий стол</span>
+      <h2 id="srpcStageTitle" data-i18n="srpc.title">SRPC — Static Render Pipeline Chain</h2>
+      <p data-i18n="srpc.full.hint">Карточки перетаскиваются мышью, пальцем и стрелками с клавиатуры — связи следуют за ними, а раскладка запоминается. Цикл идёт полностью: сборка, сбой в третьем звене, каскад и восстановление.</p>
+    </div>
+    <div class="srpcf-tools">
+      <button type="button" class="btn small" id="srpcReplay" data-i18n="srpc.replay">Проиграть заново</button>
+      <button type="button" class="btn small" id="srpcReset" data-i18n="srpc.reset">Расставить как было</button>
+      <button type="button" class="btn primary small" id="srpcClose" data-i18n="srpc.close">Закрыть</button>
+    </div>
+  </header>
+
+  <div class="srpcf-board" id="srpcBoard">
+    <svg class="srpcf-wires" id="srpcWires" aria-hidden="true" focusable="false"></svg>
+  </div>
+
+  <footer class="srpcf-foot">
+    <ul>
+      <li class="is-ok"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.ok">звено работает</span></li>
+      <li class="is-idle"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.idle">ждёт входных данных</span></li>
+      <li class="is-warn"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.warn">ошибка в звене</span></li>
+      <li class="is-crit"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.crit">критическая ошибка</span></li>
+    </ul>
+    <span class="srpcf-keys" data-i18n="srpc.keys">Esc — закрыть · стрелки — двигать карточку · Shift + стрелки — быстрее</span>
+  </footer>
+</div>
 
 <!-- Карточка человека (2.3.2, обобщена в 2.4): тот же .sheet/.sheet-scrim,
      что у настроек, но с одной панелью — js/people.js держит открытие и
@@ -1472,7 +1512,7 @@
              PC.VERSION: подвал читают и без JavaScript. Тест сверяет
              его с package.json, чтобы расхождение не дожило до релиза. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 2.4.2: стекло компаса стало заметным, постоянный пунктир у подписей убран, подсказка с траектории больше не залипает, шаги обучения кликабельны, блок-схема в «О проекте» стала крупнее">v2.4.2</span>
+              title="Версия 2.4.2.1: обучение теперь идёт по самой странице, компас стал заметно контрастнее, размер текста наконец действует на весь текст, демонстрация сбоя SRPC выключена по умолчанию и получила полноэкранный режим, тема «Аляска 2.0» переписана с нуля">v2.4.2.1</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1512,6 +1552,8 @@
 <script src="js/quiz.js" defer></script>
 <script src="js/share.js" defer></script>
 <script src="js/export.js" defer></script>
+<script src="js/srpc.js" defer></script>
+<script src="js/tour.js" defer></script>
 <script src="js/welcome.js" defer></script>
 <script src="js/eggs.js" defer></script>
 <script src="js/app.js" defer></script>

@@ -136,6 +136,10 @@
      ab-sec-3 ничего не обещает про содержание и потому не соврёт,
      если разделы поменяются местами. */
   function initAboutNav(){
+    /* Заполняется ниже, когда рельс собран: обработчик клика написан
+       раньше, чем существует сам следящий код, и держать его в
+       переменной проще, чем переставлять половину функции местами. */
+    var ctl = { pin:function(){} };
     var nav = document.getElementById("aboutNav");
     if(!nav) return;
     var cards = Array.prototype.slice.call(
@@ -184,12 +188,18 @@
          и возврат по истории увёл бы на компас. */
       a.addEventListener("click", function(e){
         e.preventDefault();
+        /* Подсветка ставится сразу и на время прокрутки запирается
+           (ctl.pin): иначе следящий за прокруткой код успевал бы
+           переписать её промежуточными кадрами плавного хода, и
+           нажатый чип загорался бы не сразу, а иногда и не тот. */
+        ctl.pin(link);
         card.scrollIntoView({ behavior:reduced() ? "auto" : "smooth", block:"start" });
         card.setAttribute("tabindex", "-1");
         card.focus({ preventScroll:true });
       });
       row.appendChild(a);
-      links.push({ a:a, card:card });
+      var link = { a:a, card:card };
+      links.push(link);
     });
     nav.appendChild(row);
 
@@ -198,7 +208,7 @@
     nav.appendChild(bar);
 
     nav.hidden = false;
-    trackAboutNav(nav, row, links);
+    ctl = trackAboutNav(nav, row, links);
   }
 
   /* ---------- где мы сейчас в разделе (исправлено в 2.4.1) ----------
@@ -230,6 +240,16 @@
      читают. */
   function trackAboutNav(nav, row, links){
     var current = null, queued = false;
+    /* Запертая подсветка (2.4.2.1). Нажатие на чип — это заявление
+       «я хочу быть здесь», и оно должно выигрывать у следящего кода
+       на всё время плавной прокрутки. Без запора получалось вот что:
+       apply() продолжал считать кадры, пока страница едет, подсвечивал
+       по дороге каждый проезжающий раздел, а на последних чипах не
+       доезжал до нажатого вовсе — ниже последней карточки прокручивать
+       уже нечего, её верхняя кромка так и остаётся ниже рельса, и
+       активным оставался предпоследний раздел. Со стороны это и
+       выглядело как «нажимаешь, а подсвечивается не то». */
+    var locked = false, lockTimer = null;
 
     /* Скрытая вкладка выпадает из раскладки, и getBoundingClientRect
        у всего внутри неё возвращает нули. Считать по таким числам —
@@ -240,10 +260,34 @@
       queued = false;
       if(!visible()) return;
 
-      var line = nav.getBoundingClientRect().bottom + 8;
+      /* Черта, ниже которой раздел считается начатым. Восемь пикселей
+         под рельсом, как было до 2.4.2.1, оказались западнёй: нажатый
+         чип прокручивает карточку к её scroll-margin-top, то есть
+         останавливает её верхнюю кромку ЧУТЬ НИЖЕ рельса — и она не
+         дотягивала до черты, поэтому подсвеченным оставался предыдущий
+         раздел. Отступ здесь обязан быть не меньше того, на котором
+         карточка останавливается после нажатия (css/about.css,
+         .about-card scroll-margin-top), и с запасом больше него. */
+      var line = nav.getBoundingClientRect().bottom + 34;
       var active = links[0];
       for(var i = 0; i < links.length; i++){
         if(links[i].card.getBoundingClientRect().top <= line) active = links[i];
+      }
+      /* Конец страницы — особый случай: последние два-три раздела
+         физически не могут поднять свою кромку под рельс, потому что
+         прокручивать уже нечего. По правилу «последний, кто ушёл под
+         рельс» они недостижимы вовсе, и подсветка застревала на
+         разделе, который человек давно проехал. Поэтому у самого низа
+         активным считается тот раздел, чья нижняя кромка ближе всего
+         к низу окна, — то есть тот, который действительно дочитывают. */
+      if(window.innerHeight + window.scrollY >=
+         document.documentElement.scrollHeight - 4){
+        for(var j = links.length - 1; j >= 0; j--){
+          if(links[j].card.getBoundingClientRect().top < window.innerHeight * 0.8){
+            active = links[j];
+            break;
+          }
+        }
       }
 
       /* Доля прочитанного — сколько раздела уже прошло под нижней кромкой
@@ -262,6 +306,14 @@
       var read  = (window.innerHeight - first.top) / span;
       nav.style.setProperty("--ab-read", Math.min(1, Math.max(0, read)).toFixed(4));
 
+      /* Полоса прочитанного считается всегда — она отвечает на другой
+         вопрос («сколько осталось») и от запора не зависит. А вот
+         активный чип, пока запор стоит, не трогаем. */
+      if(locked) return;
+      setCurrent(active);
+    }
+
+    function setCurrent(active){
       if(active === current) return;
       if(current) current.a.classList.remove("is-current");
       active.a.classList.add("is-current");
@@ -276,6 +328,25 @@
           row.scrollLeft += (cr.left - rr.left) - (rr.width - cr.width) / 2;
         }
       }
+    }
+
+    /* Нажали чип: подсвечиваем его немедленно и держим, пока страница
+       едет. Запор снимается по тишине в прокрутке, а не по фиксированной
+       паузе: длинный перелёт через весь раздел занимает заметно больше
+       времени, чем соседний шаг, и одна общая цифра была бы либо
+       слишком короткой для первого, либо слишком долгой для второго. */
+    function pin(link){
+      locked = true;
+      setCurrent(link);
+      quiet();
+    }
+    function quiet(){
+      if(!locked) return;
+      clearTimeout(lockTimer);
+      lockTimer = setTimeout(function(){
+        locked = false;
+        schedule();
+      }, 220);
     }
 
     /* requestAnimationFrame — правильное место для такой работы: она
@@ -294,7 +365,10 @@
     }
     function run(){ if(queued) apply(); }
 
-    window.addEventListener("scroll", schedule, { passive:true });
+    window.addEventListener("scroll", function(){
+      quiet();
+      schedule();
+    }, { passive:true });
     window.addEventListener("resize", schedule);
     /* Возврат на вкладку: прокрутка та же, но размеры пересчитаны, и
        без этого вызова рельс показал бы состояние, снятое до ухода.
@@ -304,10 +378,12 @@
       PC.nav.onChange(function(tab){
         if(tab !== "about") return;
         current = null;
+        locked = false;
         schedule();
       });
     }
     schedule();
+    return { pin:pin };
   }
 
   /* Числа проекта в плитках раздела: те же значения, что и в подвале,

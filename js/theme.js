@@ -37,7 +37,7 @@
     { id:"dark",      key:"set.theme.dark",      bg:"#08090d", dot:"#f0b25f" },
     { id:"light",     key:"set.theme.light",     bg:"#f1efea", dot:"#a1541c" },
     { id:"paper",     key:"set.theme.paper",     bg:"#f7f2e6", dot:"#b23a2e" },
-    { id:"alaska",    key:"set.theme.alaska",    bg:"#e9eff5", dot:"#0e6e8c" },
+    { id:"alaska",    key:"set.theme.alaska",    bg:"#dde6f0", dot:"#14548c" },
     { id:"neon",      key:"set.theme.neon",      bg:"#07060f", dot:"#ff4d9d" },
     { id:"fireplace", key:"set.theme.fireplace", bg:"#16100c", dot:"#ff8a3d" }
   ];
@@ -50,7 +50,7 @@
      перекрывает оба исходных. */
   var BAR = {
     light:"#f1efea", dark:"#08090d",
-    paper:"#f7f2e6", alaska:"#e9eff5",
+    paper:"#f7f2e6", alaska:"#dde6f0",
     neon:"#07060f",  fireplace:"#16100c"
   };
 

@@ -74,13 +74,13 @@
 .chain-badge{
   align-self:flex-start;
   font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
-  font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  font-size:calc(9.5px * var(--text-k));font-weight:700;text-transform:uppercase;letter-spacing:.12em;
   color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
   border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:3px 10px;
 }
-.chain-cap b{font-family:var(--font-display);font-size:16px;font-weight:750;
+.chain-cap b{font-family:var(--font-display);font-size:calc(16px * var(--text-k));font-weight:750;
   color:var(--text);letter-spacing:-.02em;}
-.chain-cap small{font-size:11.5px;line-height:1.5;color:var(--muted-2);text-wrap:pretty;}
+.chain-cap small{font-size:calc(11.5px * var(--text-k));line-height:1.5;color:var(--muted-2);text-wrap:pretty;}
 
 /* ---------- дорожка звеньев ----------
    На широком экране — один ряд: конвейер и читается слева направо.
@@ -125,19 +125,43 @@
   content:"";position:absolute;inset:0 0 auto;height:3px;
   background:linear-gradient(90deg,currentColor,color-mix(in srgb,currentColor 25%,transparent));
 }
+/* ---------- штриховка аварийных состояний (2.4.2.1) ----------
+   До этой версии ошибка и критическая ошибка отличались от рабочего
+   состояния только оттенком: тот же сплошной градиент, только жёлтый
+   или красный. На светлых темах разница между «работает» и «сломалось»
+   сводилась к цвету — то есть к единственному каналу, которого нет у
+   дальтоника и почти нет на плохом экране.
+
+   Теперь у аварии есть фактура: косая штриховка поверх звена, жёлтая
+   в ошибке и красная в критической — ровно тот приём, которым на
+   чертежах и в дорожных знаках обозначают «сюда нельзя». Цвет её
+   по-прежнему приходит из currentColor, то есть из той же дорожки
+   состояний, и отдельно его красить не нужно.
+
+   Слой лежит поверх подложки, но под текстом: читаемость названия
+   звена штриховка не трогает, она работает фоном. */
+.chain-node::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  border-radius:inherit;
+  background:repeating-linear-gradient(45deg,
+    color-mix(in srgb,currentColor 58%,transparent) 0 4px,
+    transparent 4px 12px);
+  opacity:0;
+}
+.chain-node > *{ position:relative;z-index:1; }
 .chain-node b{
-  font-size:12.5px;font-weight:700;letter-spacing:-.015em;
+  font-size:calc(12.5px * var(--text-k));font-weight:700;letter-spacing:-.015em;
   color:var(--text);line-height:1.25;
 }
 .chain-node small{
   font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
-  font-size:9.5px;line-height:1.35;color:var(--muted-2);
+  font-size:calc(9.5px * var(--text-k));line-height:1.35;color:var(--muted-2);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .chain-head{ display:flex;align-items:center;gap:6px;margin-bottom:2px; }
 .chain-ix{
   font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
-  font-size:10px;font-weight:700;letter-spacing:.08em;
+  font-size:calc(10px * var(--text-k));font-weight:700;letter-spacing:.08em;
   color:color-mix(in srgb,currentColor 85%,var(--muted-2));
 }
 /* Лампочка состояния: единственный элемент, который красится в цвет
@@ -176,6 +200,21 @@
     srpcFlow 2.2s linear infinite;
 }
 @keyframes srpcFlow{ from{ background-position:120% 0; } to{ background-position:-120% 0; } }
+
+/* Та же штриховка на связи, выходящей из сломанного звена: линия в
+   аварии перестаёт быть ровной полоской и становится косой насечкой,
+   как лента ограждения. */
+.chain-wire::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:repeating-linear-gradient(45deg,
+    color-mix(in srgb,currentColor 85%,transparent) 0 3px,
+    transparent 3px 7px);
+  opacity:0;
+}
+.chain-link:nth-child(3) .chain-wire::after{
+  color:var(--srpc-warn);
+  animation:var(--srpc-cycle) linear infinite both srpcHW3;
+}
 
 /* ---------- дорожки состояний ----------
    Шесть отдельных наборов кадров вместо одного с задержками: у каждого
@@ -273,6 +312,85 @@
   68%,100% { color:var(--srpc-ok);   opacity:.9; }
 }
 
+/* ---------- дорожка штриховки ----------
+   Отдельная дорожка, а не часть srpcL3: у звена уже есть анимация
+   цвета, и подмешивать в неё прозрачность псевдоэлемента нельзя —
+   ::after анимируется сам по себе. Окна совпадают с окнами аварии
+   в srpcL3 с точностью до кадра, поэтому штриховка появляется ровно
+   тогда, когда звено желтеет, и уходит вместе с ним.
+
+   Последний кадр — ноль: при выключенном движении (и в печати) на
+   экране остаётся исправная цепочка без единой насечки. */
+.chain-link:nth-child(3) .chain-node::after{
+  animation:var(--srpc-cycle) linear infinite both srpcH3;
+}
+@keyframes srpcH3{
+  0%,28%   { opacity:0; }
+  30%,54%  { opacity:.62; }
+  57%,100% { opacity:0; }
+}
+@keyframes srpcHW3{
+  0%,28%   { opacity:0; color:var(--srpc-warn); }
+  30%,42%  { opacity:.8;  color:var(--srpc-warn); }
+  45%,54%  { opacity:.45; color:var(--srpc-crit); }
+  57%,100% { opacity:0;  color:var(--srpc-crit); }
+}
+
+/* ---------- демонстрация сбоя выключена (2.4.2.1) ----------
+   Сюжет с аварией в третьем звене — самая спорная часть схемы: он
+   честно показывает четыре состояния конвейера, но человеку, который
+   просто читает «О проекте», третий блок ни с того ни с сего загорается
+   жёлтым, и это читается не как рассказ, а как поломка прямо сейчас.
+   Поэтому с 2.4.2.1 авария по умолчанию выключена: на странице цепочка
+   собирается и работает, а весь сюжет с ошибкой, каскадом и починкой
+   живёт в полноэкранном режиме SRPC и включается тумблером в настройках.
+
+   Выключение — это подмена одной дорожки на спокойную, а не остановка
+   анимации: звено по-прежнему зажигается в свой черёд при сборке. */
+:root[data-srpcfail="off"] .chain-link:nth-child(3) .chain-node{ animation-name:srpcL3calm; }
+:root[data-srpcfail="off"] .chain-link:nth-child(3) .chain-wire i{ animation-name:srpcW3calm, srpcFlow; }
+:root[data-srpcfail="off"] .chain-link:nth-child(3) .chain-node::after,
+:root[data-srpcfail="off"] .chain-link:nth-child(3) .chain-wire::after{ animation-name:none; opacity:0; }
+:root[data-srpcfail="off"] .chain-link:nth-child(4) .chain-node{ animation-name:srpcL4calm; }
+:root[data-srpcfail="off"] .chain-link:nth-child(5) .chain-node{ animation-name:srpcL5calm; }
+:root[data-srpcfail="off"] .chain-link:nth-child(6) .chain-node{ animation-name:srpcL6calm; }
+:root[data-srpcfail="off"] .chain-link:nth-child(4) .chain-wire i{ animation-name:srpcW4calm, srpcFlow; }
+:root[data-srpcfail="off"] .chain-link:nth-child(5) .chain-wire i{ animation-name:srpcW5calm, srpcFlow; }
+@keyframes srpcL3calm{
+  0%,12%   { color:var(--srpc-idle); opacity:.5; }
+  14%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL4calm{
+  0%,16%   { color:var(--srpc-idle); opacity:.5; }
+  18%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL5calm{
+  0%,20%   { color:var(--srpc-idle); opacity:.5; }
+  22%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcL6calm{
+  0%,24%   { color:var(--srpc-idle); opacity:.5; }
+  26%,100% { color:var(--srpc-ok);   opacity:1; }
+}
+@keyframes srpcW3calm{
+  0%,12%   { color:var(--srpc-idle); opacity:0; }
+  16%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+@keyframes srpcW4calm{
+  0%,16%   { color:var(--srpc-idle); opacity:0; }
+  20%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+@keyframes srpcW5calm{
+  0%,20%   { color:var(--srpc-idle); opacity:0; }
+  24%,100% { color:var(--srpc-ok);   opacity:.9; }
+}
+/* Легенда следует за тумблером: два состояния, которых на схеме
+   больше не бывает, гасить нельзя (они по-прежнему существуют
+   в полноэкранном режиме), но подписать их как «в демонстрации»
+   честнее, чем оставить выглядеть текущими. */
+:root[data-srpcfail="off"] .chain-legend .is-warn,
+:root[data-srpcfail="off"] .chain-legend .is-crit{ opacity:.5; }
+
 /* ---------- легенда состояний ----------
    Без неё жёлтое и красное звено читаются как «что-то сломалось», но
    не как четыре именованных состояния. Цвет здесь не единственный код:
@@ -286,12 +404,23 @@
 }
 .chain-legend li{
   display:flex;align-items:center;gap:6px;
-  font-size:10.5px;color:var(--muted-2);
+  font-size:calc(10.5px * var(--text-k));color:var(--muted-2);
 }
 .chain-legend i{
   width:8px;height:8px;border-radius:50%;flex:none;background:currentColor;
   box-shadow:0 0 0 3px color-mix(in srgb,currentColor 18%,transparent),
              0 0 8px color-mix(in srgb,currentColor 60%,transparent);
+}
+/* Образцы аварийных состояний — не кружки, а квадратики со штриховкой:
+   легенда обязана показывать ровно то, что человек увидит на схеме,
+   а на схеме авария теперь именно заштрихована. */
+.chain-legend .is-warn i,
+.chain-legend .is-crit i{
+  width:12px;height:9px;border-radius:2px;
+  background:repeating-linear-gradient(45deg,
+    currentColor 0 3px, transparent 3px 6px),
+    color-mix(in srgb,currentColor 12%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 55%,transparent);
 }
 .chain-legend .is-ok  { color:var(--srpc-ok); }
 .chain-legend .is-idle{ color:var(--srpc-idle); }

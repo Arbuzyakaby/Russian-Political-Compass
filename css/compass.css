@@ -84,9 +84,13 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .plate-sheen{ pointer-events:none; }
 /* Кромка линзы: тончайшая внутренняя линия, которая и делает из
    заливки квадранта отдельное стекло, вставленное в плиту. */
-.lens-rim{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.55; }
-.frame{ fill:none; stroke-width:2; }
-.frame-inner{ fill:none; stroke:var(--line-frame); stroke-width:1; opacity:.4; }
+/* Кромки и рамка потолстели в 2.4.2.1 вместе с остальным полем:
+   волосяная линия в один пиксель честно отделяла линзу от плиты на
+   макете и переставала это делать на любом реальном экране, где
+   компас нарисован в шестистах пикселях и сжат до трёхсот. */
+.lens-rim{ fill:none; stroke:var(--line-frame); stroke-width:1.6; opacity:.8; }
+.frame{ fill:none; stroke-width:3.5; }
+.frame-inner{ fill:none; stroke:var(--line-frame); stroke-width:1.2; opacity:.55; }
 
 /* Тень под плитой снимается в печати: на бумаге она превращается в
    серую кайму, а глубины всё равно не даёт. */
@@ -95,14 +99,42 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 }
 
 /* ---- compass primitives ---- */
+/* ---- примитивы поля (переработаны в 2.4.2.1) ----
+   Два предыдущих подхода к редизайну компаса (2.4.1, 2.4.2) занимались
+   стеклом — плитой, кромкой, бликом. Оба раза результат приходилось
+   описывать словами «стало заметнее», потому что глазами это заметно
+   не было: стекло лежит НАД данными и обязано быть деликатным, иначе
+   оно их гасит. Заметным поле делает не стекло, а сами его части —
+   четверти, оси, засечки, подписи и точки. Здесь все они разом
+   получили вес: линии толще, подписи крупнее и контрастнее, у осей
+   появились наконечники, у центра — мишень, у четвертей — плашки,
+   а у точек — цветной ореол. */
 .quad{opacity:var(--quad-op);transition:opacity .45s ease;}
 .grid-minor{stroke:var(--line-minor);stroke-width:1;}
-.grid-major{stroke:var(--line-major);stroke-width:1;}
-.axis{stroke:var(--line-axis);stroke-width:1.4;}
-.tick{font-size:9px;fill:var(--tick);}
-.axis-cap{font-size:11px;font-weight:700;letter-spacing:.11em;fill:var(--cap);}
-.quad-cap{font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;fill:var(--quad-cap);}
-.origin{fill:var(--cap);opacity:.45;}
+.grid-major{stroke:var(--line-major);stroke-width:1.6;}
+.axis{stroke:var(--line-axis);stroke-width:2.8;stroke-linecap:round;}
+.axis-tip{fill:var(--line-axis);}
+.tick{font-size:calc(10.5px * var(--text-k));font-weight:650;fill:var(--tick);
+  font-variant-numeric:tabular-nums;}
+.axis-cap{font-size:calc(12.5px * var(--text-k));font-weight:800;letter-spacing:.13em;fill:var(--cap);
+  text-transform:uppercase;}
+
+/* Подпись четверти на плашке. Плашка — не заливка цветом четверти,
+   а её лёгкая подкраска с чёткой рамкой того же цвета: белый текст
+   на янтарной плашке и тёмный на синей одинаково плохо читаются, а
+   собственный цвет текста темы по слабой подкраске читается везде.
+   Сам прямоугольник рисует js/compass.js по реальным размерам строки
+   — см. комментарий там. */
+.quad-cap{font-size:calc(10px * var(--text-k));font-weight:750;letter-spacing:.12em;
+  text-transform:uppercase;fill:var(--text);opacity:.88;}
+.quad-plate{fill-opacity:.17;stroke-width:1.4;stroke-opacity:.75;}
+
+/* Центр поля — мишень, а не точка: ноль по обеим осям это
+   содержательное место, и до 2.4.2.1 его отмечал кружок, терявшийся
+   на пересечении двух линий. */
+.origin{fill:var(--cap);opacity:.75;}
+.origin-ring{fill:none;stroke:var(--line-axis);stroke-width:1.4;opacity:.45;
+  stroke-dasharray:3 5;}
 
 /* ---- перекрестие до осей (переписано в 2.4.1) ----
    Линии красятся цветом точки (js/compass.js кладёт его в style.color
@@ -116,7 +148,7 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .cross-line{stroke:currentColor;stroke-width:1.3;stroke-dasharray:3 4;stroke-linecap:round;
   opacity:0;transition:opacity .2s ease;}
 .cross-tick{fill:currentColor;opacity:0;transition:opacity .2s ease;}
-.cross-val{font-size:9.5px;font-weight:700;fill:currentColor;
+.cross-val{font-size:calc(9.5px * var(--text-k));font-weight:700;fill:currentColor;
   font-variant-numeric:tabular-nums;opacity:0;transition:opacity .2s ease;
   paint-order:stroke;stroke:var(--tag-halo);stroke-width:3px;stroke-linejoin:round;}
 .cross.show .cross-line{opacity:.7;}
@@ -141,17 +173,22 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .node.in{opacity:1;}
 .node.muted{opacity:.12;pointer-events:none;}
 .node.muted .tag{opacity:0;}
-.node .dot{stroke:var(--dot-stroke);stroke-width:1.8;
+/* Ореол точки: та же заливка, что у самой точки, но почти прозрачная
+   и вдвое шире. Он не соревнуется с кружком за внимание, он даёт ему
+   опору на плотной заливке четверти. */
+.node .halo{opacity:.18;transition:opacity .25s ease,r .3s cubic-bezier(.34,1.5,.5,1);}
+.node:hover .halo,.node.active .halo,.node:focus-visible .halo{opacity:.34;}
+.node .dot{stroke:var(--dot-stroke);stroke-width:2.6;
   transition:r .28s cubic-bezier(.34,1.5,.5,1),stroke-width .22s ease;}
 .node .ring{fill:none;stroke-width:1.6;opacity:0;transition:opacity .25s ease,r .32s cubic-bezier(.34,1.5,.5,1);}
 .node .pulse{fill:none;stroke-width:1.2;opacity:0;}
-.node .tag{font-size:10.5px;font-weight:650;pointer-events:none;fill:var(--tag);
-  paint-order:stroke;stroke:var(--tag-halo);stroke-width:3.4px;stroke-linejoin:round;
+.node .tag{font-size:calc(11.5px * var(--text-k));font-weight:750;pointer-events:none;fill:var(--tag);
+  paint-order:stroke;stroke:var(--tag-halo);stroke-width:4.2px;stroke-linejoin:round;
   transition:fill .2s ease,opacity .3s ease;}
-.node .seat{font-size:8px;font-weight:600;fill:var(--muted);pointer-events:none;
+.node .seat{font-size:calc(8px * var(--text-k));font-weight:600;fill:var(--muted);pointer-events:none;
   paint-order:stroke;stroke:var(--tag-halo);stroke-width:3px;stroke-linejoin:round;opacity:0;transition:opacity .25s ease;}
 .node:hover .seat,.node.active .seat{opacity:1;}
-.node:hover .dot,.node.active .dot{stroke-width:2.8;}
+.node:hover .dot,.node.active .dot{stroke-width:3.6;}
 .node:hover .ring,.node.active .ring{opacity:.9;}
 .node.active .pulse{opacity:.5;animation:pulse 2.4s ease-out infinite;}
 @keyframes pulse{0%{r:14px;opacity:.5;}100%{r:38px;opacity:0;}}
@@ -167,16 +204,16 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .tip.below.show{transform:translate(-50%,22px) scale(1);}
 .tip-top{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
 .tip-dot{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(125,125,125,.16);}
-.tip-name{font-size:13.5px;font-weight:650;line-height:1.25;letter-spacing:-.01em;}
-.tip-ideo{font-size:11.5px;color:var(--muted);line-height:1.45;margin-bottom:9px;}
+.tip-name{font-size:calc(13.5px * var(--text-k));font-weight:650;line-height:1.25;letter-spacing:-.01em;}
+.tip-ideo{font-size:calc(11.5px * var(--text-k));color:var(--muted);line-height:1.45;margin-bottom:9px;}
 .tip-meta{display:flex;gap:6px;flex-wrap:wrap;}
-.tip-meta span{font-size:10px;color:var(--muted);background:var(--surface-2);border:1px solid var(--stroke);padding:3px 8px;border-radius:6px;}
+.tip-meta span{font-size:calc(10px * var(--text-k));color:var(--muted);background:var(--surface-2);border:1px solid var(--stroke);padding:3px 8px;border-radius:6px;}
 .tip-meta b{color:var(--text);font-weight:650;}
-.tip-hint{font-size:10px;color:var(--muted-2);margin-top:9px;padding-top:8px;border-top:1px solid var(--stroke);}
+.tip-hint{font-size:calc(10px * var(--text-k));color:var(--muted-2);margin-top:9px;padding-top:8px;border-top:1px solid var(--stroke);}
 
 .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;padding:16px 4px 2px;}
-.legend div{font-size:11.5px;color:var(--muted);display:flex;gap:8px;align-items:center;}
-.legend b{color:var(--text);font-weight:650;font-size:12px;flex:none;}
+.legend div{font-size:calc(11.5px * var(--text-k));color:var(--muted);display:flex;gap:8px;align-items:center;}
+.legend b{color:var(--text);font-weight:650;font-size:calc(12px * var(--text-k));flex:none;}
 
 /* точки компаса доступны с клавиатуры (tabindex на <g class="node">) */
 .node:focus{outline:none;}

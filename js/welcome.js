@@ -3,10 +3,19 @@
    Окно, которое встречает человека при первом заходе и один раз после
    обновления версии. Всё остальное время его нет вовсе.
 
-   С 2.1.1 первый заход состоит из трёх шагов в одной карточке:
+   С 2.1.1 первый заход состоял из трёх шагов, третьим было обучение —
+   четыре нарисованные сцены прямо в этой же карточке. С 2.4.2.1 шагов
+   снова два:
      lang  — выбор языка;
-     hello — приветствие;
-     tour  — короткое анимированное обучение, четыре сцены.
+     hello — приветствие.
+
+   Обучение из окна ушло целиком и стало отдельным модулем (js/tour.js),
+   который ведёт человека по настоящей странице: затемняет экран,
+   оставляет в нём вырез вокруг реального элемента и рассказывает про
+   него. Нарисованные сцены показывали схему интерфейса, а не сам
+   интерфейс, и переход от картинки к настоящей кнопке каждый проделывал
+   сам. Кнопка «Как пользоваться» на шаге приветствия теперь закрывает
+   окно и запускает этот тур.
 
    Когда показывается:
      первый заход            — с выбора языка;
@@ -35,14 +44,12 @@
 
   var KEY = "pc-welcome";
   var RESUME = "pc-welcome-resume";
-  var SCENES = 4;
 
   var el, card, points, news;
   var steps = {};
   var lastFocus = null;
-  var step = null;           /* lang | hello | tour */
+  var step = null;           /* lang | hello */
   var mode = "hello";        /* hello | update */
-  var scene = 0;
 
   function reduced(){
     return document.documentElement.dataset.motion === "off" ||
@@ -69,7 +76,7 @@
     o = o || {};
     /* Чужой результат важнее любого приветствия. */
     if(/^#\/?result\//.test(o.hash || "")) return null;
-    if(o.resume === "hello" || o.resume === "tour") return o.resume;
+    if(o.resume === "hello") return o.resume;
     if(!o.seen) return "lang";
     if(o.seen !== o.version) return "update";
     return null;
@@ -107,9 +114,8 @@
     step = next;
     card.dataset.step = next;
     Object.keys(steps).forEach(function(k){ steps[k].hidden = k !== next; });
-    var title = { lang:"welLangTitle", hello:"welTitle", tour:"welTourTitle" }[next];
+    var title = { lang:"welLangTitle", hello:"welTitle" }[next];
     card.setAttribute("aria-labelledby", title);
-    if(next === "tour") showScene(0);
     /* каждый шаг заново проигрывает появление содержимого */
     var s = steps[next];
     s.classList.remove("is-enter");
@@ -118,46 +124,6 @@
     /* фокус на карточку, а не на первую кнопку: иначе на шаге обучения
        рамка фокуса висела бы на «Пропустить» и читалась как подсказка */
     card.focus({ preventScroll:true });
-  }
-
-  /* ---------- обучение ---------- */
-  function showScene(i){
-    scene = Math.max(0, Math.min(SCENES - 1, i));
-    var n = scene + 1;
-    document.getElementById("welTourCount").textContent = PC.t("wel.t.count", { n:n, total:SCENES });
-    document.getElementById("welTourTitle").textContent = PC.t("wel.t" + n + ".h");
-    document.getElementById("welTourText").textContent = PC.t("wel.t" + n + ".p");
-
-    el.querySelectorAll(".wt-scene").forEach(function(node){
-      var on = Number(node.dataset.scene) === scene;
-      node.classList.remove("is-on");
-      if(on){
-        /* перезапуск анимации: без перерисовки браузер склеит снятие
-           и возврат класса в одно ничего */
-        void node.offsetWidth;
-        node.classList.add("is-on");
-      }
-    });
-    el.querySelectorAll("#welTourDots button").forEach(function(dot, k){
-      dot.classList.toggle("is-on", k === scene);
-      dot.classList.toggle("is-done", k < scene);
-      dot.setAttribute("aria-selected", String(k === scene));
-      dot.setAttribute("aria-label", PC.t("wel.t.step", { n:k + 1, total:SCENES }));
-    });
-    /* Долю пройденного держит сама лента точек: полоса под ними —
-       это одно число, а не четыре отдельных состояния. */
-    var dots = document.getElementById("welTourDots");
-    if(dots) dots.style.setProperty("--wt-progress",
-      (SCENES < 2 ? 1 : scene / (SCENES - 1)).toFixed(3));
-    document.getElementById("welBack").hidden = scene === 0;
-    document.getElementById("welSkip").hidden = scene === SCENES - 1;
-    document.getElementById("welNext").textContent =
-      PC.t(scene === SCENES - 1 ? "wel.done" : "wel.next");
-  }
-
-  function nextScene(){
-    if(scene >= SCENES - 1) close();
-    else showScene(scene + 1);
   }
 
   /* ---------- язык ---------- */
@@ -255,25 +221,31 @@
     news   = document.getElementById("welNews");
     steps  = {
       lang:  document.getElementById("welLang"),
-      hello: document.getElementById("welHello"),
-      tour:  document.getElementById("welTourStep")
+      hello: document.getElementById("welHello")
     };
 
     document.getElementById("welClose").addEventListener("click", close);
     document.getElementById("welEnter").addEventListener("click", close);
-    document.getElementById("welTour").addEventListener("click", function(){ go("tour"); });
+    /* «Как пользоваться» больше не листает сцены внутри окна, а
+       закрывает его и отдаёт человека настоящему туру по странице
+       (js/tour.js). Пауза — чтобы тур начал мерить положение элементов
+       после того, как приветствие уехало: под ним у половины узлов
+       нулевые или чужие координаты. */
+    document.getElementById("welTour").addEventListener("click", function(){
+      /* Облёт компаса камерой (PC.flyover) закрытие приветствия
+         запускает само — но не тогда, когда человек уходит в обучение:
+         две анимации поверх одного поля спорили бы друг с другом, и
+         первый шаг тура пришёлся бы на едущую камеру. Подмена режима —
+         самый дешёвый способ это сказать: close() смотрит именно на
+         него, и придумывать второй флаг ради одного места незачем. */
+      mode = "tour";
+      close();
+      if(PC.tour) setTimeout(PC.tour.start, reduced() ? 0 : 420);
+    });
     document.getElementById("welQuiz").addEventListener("click", function(){
       close();
       PC.nav.go("quiz");
     });
-    document.getElementById("welSkip").addEventListener("click", close);
-    document.getElementById("welBack").addEventListener("click", function(){ showScene(scene - 1); });
-    /* Клик по точке — прыжок на шаг. Раньше вернуться на пропущенное
-       можно было только повторными нажатиями «Назад». */
-    el.querySelectorAll("#welTourDots button").forEach(function(dot, k){
-      dot.addEventListener("click", function(){ showScene(k); });
-    });
-    document.getElementById("welNext").addEventListener("click", nextScene);
     el.querySelectorAll(".wel-lang").forEach(function(b){
       b.addEventListener("click", function(){ pickLang(b.dataset.lang); });
     });
@@ -288,11 +260,6 @@
     document.addEventListener("keydown", function(e){
       if(el.hidden) return;
       if(e.key === "Escape"){ e.preventDefault(); close(); return; }
-      if(step === "tour" && (e.key === "ArrowRight" || e.key === "ArrowLeft")){
-        e.preventDefault();
-        if(e.key === "ArrowRight") nextScene(); else showScene(scene - 1);
-        return;
-      }
       if(e.key !== "Tab") return;
       var list = focusables();
       if(!list.length) return;

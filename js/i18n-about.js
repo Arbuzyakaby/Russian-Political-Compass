@@ -162,7 +162,7 @@
        дороже шести одинаковых пар. */
     "ab.chain.badge":     ["SRPC · 6 звеньев", "SRPC · 6 links"],
     "ab.chain.t":         ["Static Render Pipeline Chain", "Static Render Pipeline Chain"],
-    "ab.chain.d":         ["Путь страницы от разметки до выгрузки, шестью звеньями. Схема прогоняет полный цикл: сигнал проходит цепочку, третье звено уходит в ошибку и гасит всё, что от него зависит, — а потом конвейер собирается обратно.",
+    "ab.chain.d":         ["Путь страницы от разметки до выгрузки, шестью звеньями. Сигнал проходит цепочку слева направо — так страница и собирается при загрузке. Сбой в третьем звене и каскад за ним схема больше не показывает сама: демонстрация включается в настройках, в разделе SRPC, там же цепочку можно открыть во весь экран и разложить руками.",
                            "The page's path from markup to download, in six links. The diagram runs a full cycle: a signal passes along the chain, the third link fails and takes down everything that depends on it — and then the pipeline puts itself back together."],
     "ab.chain.s1":        ["Разметка", "Markup"],
     "ab.chain.s1f":       ["index.html", "index.html"],

@@ -59,7 +59,7 @@
    Бейдж читается как усмешка именно потому, что он точен — и у двух
    других людей он работает так же: короткий факт вместо оценки. */
 .pt-badge{
-  display:inline-block;margin:-4px 0 12px;font-size:10px;font-weight:700;
+  display:inline-block;margin:-4px 0 12px;font-size:calc(10px * var(--text-k));font-weight:700;
   text-transform:uppercase;letter-spacing:.08em;
   color:var(--party,var(--accent));
   background:color-mix(in srgb,var(--party,var(--accent)) 14%,transparent);
@@ -69,7 +69,7 @@
 
 /* ---------- сноска ---------- */
 .pt-note{
-  font-size:11px;line-height:1.55;color:var(--muted-2);
+  font-size:calc(11px * var(--text-k));line-height:1.55;color:var(--muted-2);
   border-top:1px dashed var(--stroke);padding-top:12px;margin-top:2px;
 }
 
@@ -81,7 +81,7 @@
 .pt-checked{
   display:flex;align-items:center;gap:7px;margin-top:10px;
   font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);
-  font-size:10px;letter-spacing:.02em;color:var(--muted-2);
+  font-size:calc(10px * var(--text-k));letter-spacing:.02em;color:var(--muted-2);
 }
 .pt-checked-dot{
   width:6px;height:6px;border-radius:50%;flex:none;

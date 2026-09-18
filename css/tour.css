@@ -1,0 +1,145 @@
+/* ============ ОБУЧЕНИЕ ПО ЖИВОЙ СТРАНИЦЕ (2.4.2.1) ============
+
+   Оформление слоя, который js/tour.js кладёт поверх страницы: вырез,
+   подпись рядом с ним и лента шагов. Разметка строится скриптом, здесь
+   только вид и движение.
+
+   Главный приём — вырез. Затемнение не рисуется отдельным элементом
+   поверх всего: его даёт тень самого выреза, раздутая до размеров
+   любого экрана (box-shadow 0 0 0 9999px). Поэтому «дырка» в темноте
+   — это и есть прямоугольник, у которого можно скруглить углы,
+   который можно двигать одним transform-ом и под которым видна
+   настоящая страница, а не её снимок.
+
+   Движение выреза между шагами — переход по transform и по размерам.
+   Он намеренно медленнее обычных переходов интерфейса (--dur-3, не
+   --dur-2): окно проезжает по экрану на глазах у человека, и это
+   и есть та связь между «сейчас говорили про это» и «теперь про вот
+   это», ради которой обучение вообще идёт по живой странице. При
+   выключенном движении (css/motion.css и тумблер «Анимации») переход
+   снимается, и вырез просто оказывается на новом месте. ============ */
+
+.tour{
+  position:fixed;inset:0;z-index:var(--z-sheet);
+  /* Слой перехватывает всё: пока идёт обучение, страница под ним
+     не нажимается. См. комментарий в js/tour.js. */
+  pointer-events:auto;
+  opacity:0;
+  transition:opacity var(--dur-2) var(--ease-out);
+}
+.tour[hidden]{ display:none; }
+.tour.is-on{ opacity:1; }
+
+/* ---------- вырез ---------- */
+.tour-hole{
+  position:absolute;top:0;left:0;
+  border-radius:calc(14px * var(--radius-k,1));
+  box-shadow:0 0 0 9999px rgba(4,6,12,.72);
+  transition:transform var(--dur-3) var(--ease-out),
+             width var(--dur-3) var(--ease-out),
+             height var(--dur-3) var(--ease-out);
+}
+/* Светящаяся рамка вокруг выреза: без неё окно читается как «здесь
+   почему-то не потемнело», а не как «смотрите сюда». */
+.tour-hole::before{
+  content:"";position:absolute;inset:-2px;border-radius:inherit;
+  border:2px solid var(--accent);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 40%,transparent),
+             0 0 26px color-mix(in srgb,var(--accent) 55%,transparent);
+  pointer-events:none;
+}
+/* Пульс — расходящееся кольцо, как у активной точки на компасе: тот же
+   язык внимания в двух разных местах интерфейса. */
+.tour-ring{
+  position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;
+  border:2px solid var(--accent);
+  animation:tourPulse 2.2s var(--ease-out) infinite;
+}
+@keyframes tourPulse{
+  0%  { opacity:.7; transform:scale(1); }
+  70% { opacity:0;  transform:scale(1.045); }
+  100%{ opacity:0;  transform:scale(1.045); }
+}
+
+/* ---------- подпись ---------- */
+.tour-bubble{
+  position:absolute;top:0;left:0;
+  width:min(330px,calc(100vw - 32px));
+  box-sizing:border-box;
+  padding:15px 17px 13px;
+  border-radius:var(--radius);
+  border:1px solid var(--stroke-2);
+  /* Матовая, а не стеклянная: под ней затемнённая страница, и размытие
+     по ней дало бы грязное серое пятно вместо читаемого текста.
+
+     Подложка намешана из --text и --bg, а не из --surface-2: обе эти
+     переменные непрозрачны в каждой теме, а поверхности проекта —
+     полупрозрачные (это их работа), и смесь с ними дала бы подпись,
+     сквозь которую просвечивает страница. На затемнённом фоне тура
+     это выглядело как наложение двух текстов друг на друга. */
+  background:color-mix(in srgb,var(--text) 9%,var(--bg));
+  box-shadow:var(--shadow-lift,0 30px 70px -30px rgba(0,0,0,.6));
+  transition:transform var(--dur-3) var(--ease-out);
+}
+.tour-bubble h2{
+  margin:5px 0 5px;
+  font-family:var(--font-display);
+  font-size:calc(16px * var(--text-k));font-weight:750;letter-spacing:-.02em;
+  color:var(--text);
+}
+.tour-bubble p{
+  margin:0 0 11px;
+  font-size:calc(12px * var(--text-k));line-height:1.55;color:var(--body);
+  text-wrap:pretty;
+}
+.tour-bubble .eyebrow{
+  font-size:calc(9.5px * var(--text-k));letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;
+}
+
+/* Уголок, показывающий на вырез. Ромб, повёрнутый на 45°, с двумя
+   видимыми сторонами рамки — какими именно, решает сторона, с которой
+   подпись встала (data-place ставит js/tour.js). */
+.tour-arrow{
+  position:absolute;width:12px;height:12px;
+  background:inherit;
+  border:1px solid var(--stroke-2);
+  transform:rotate(45deg);
+}
+.tour-bubble[data-place="bottom"] .tour-arrow{ top:-7px;margin-left:-6px;
+  border-right:0;border-bottom:0; }
+.tour-bubble[data-place="top"] .tour-arrow{ bottom:-7px;margin-left:-6px;
+  border-left:0;border-top:0; }
+.tour-bubble[data-place="right"] .tour-arrow{ left:-7px;margin-top:-6px;
+  border-right:0;border-top:0; }
+.tour-bubble[data-place="left"] .tour-arrow{ right:-7px;margin-top:-6px;
+  border-left:0;border-bottom:0; }
+
+/* ---------- лента шагов ---------- */
+.tour-dots{ display:flex;gap:5px;margin:0 0 11px; }
+.tour-dot{
+  width:16px;height:3px;border-radius:2px;flex:none;
+  background:color-mix(in srgb,var(--text) 16%,transparent);
+  transition:background var(--dur-2) var(--ease-out),width var(--dur-2) var(--ease-out);
+}
+.tour-dot.is-done{ background:color-mix(in srgb,var(--accent) 45%,transparent); }
+.tour-dot.is-on{ width:26px;background:var(--accent); }
+
+.tour-acts{ display:flex;align-items:center;gap:7px; }
+.tour-spacer{ flex:1 1 auto; }
+/* У .btn в css/ui.css выставлен display:inline-flex, и он перебивает
+   собственное поведение атрибута hidden: «Назад» на первом шаге и
+   «Пропустить» на последнем оставались на экране, хотя скрипт их
+   прятал. Это ровно тот случай, когда правило обязано быть здесь,
+   а не в общем файле кнопок: скрывать кнопку атрибутом — приём
+   этого экрана. */
+.tour-acts .btn[hidden]{ display:none; }
+
+/* Пока идёт обучение, собственные всплывающие подсказки компаса не
+   нужны: слой всё равно не пропускает наведение, а оставшаяся на
+   экране карточка партии спорила бы с подписью шага. */
+body.tour-on .tip{ display:none; }
+
+@media(max-width:560px){
+  .tour-bubble{ width:calc(100vw - 24px);padding:13px 14px 12px; }
+}

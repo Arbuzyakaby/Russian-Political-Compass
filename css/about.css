@@ -46,14 +46,14 @@
 }
 .ab-st b{
   font-family:var(--font-display);
-  font-size:22px;
+  font-size:calc(22px * var(--text-k));
   font-weight:750;
   line-height:1;
   letter-spacing:-.02em;
   color:var(--text);
   font-variant-numeric:tabular-nums;
 }
-.ab-st span{ font-size:11px; line-height:1.35; color:var(--muted-2); text-wrap:balance; }
+.ab-st span{ font-size:calc(11px * var(--text-k)); line-height:1.35; color:var(--muted-2); text-wrap:balance; }
 /* Плитка-число отзывается на курсор: подложка слегка светлеет, а само
    число приподнимается. Мелочь, но шесть плиток в ряд без неё читаются
    как таблица, а не как часть живой страницы. */
@@ -91,16 +91,39 @@
   gap:8px;
   padding:9px 12px 10px;
   border-radius:var(--radius);
-  border:1px solid var(--glass-stroke,var(--stroke));
-  /* Подложка плотнее обычного стекла: рельс липкий, и под ним
-     проезжают карточки с крупными заголовками — сквозь одно только
-     размытие они читались как вторая строка чипов. */
-  background:color-mix(in srgb,var(--surface) 88%,var(--glass-bg-2,transparent));
-  -webkit-backdrop-filter:var(--glass-filter);
-  backdrop-filter:var(--glass-filter);
-  box-shadow:0 10px 30px -26px rgba(0,0,0,.55);
+  border:1px solid var(--stroke-2);
+  /* Матовая подложка (2.4.2.1). До этого рельс был стеклом: плотная,
+     но всё же полупрозрачная плашка с размытием. Под липким рельсом
+     проезжают карточки с крупными заголовками и цветными кромками, и
+     сквозь размытие они продолжали просвечивать — чипы читались как
+     вторая строка чужого заголовка, а на светлых темах активный чип
+     местами терялся в этом просвете.
+
+     Матовость здесь не стилистический каприз, а условие читаемости:
+     подложка непрозрачная (--bg, чуть подкрашенный поверхностью),
+     размытие снято совсем, а «матовость» как материал даёт очень
+     слабая диагональная штриховка поверх — она забирает у плашки
+     стеклянный глянец, не давая ей стать плоским прямоугольником. */
+  background:
+    repeating-linear-gradient(135deg,
+      color-mix(in srgb,var(--text) 3%,transparent) 0 1px,
+      transparent 1px 5px),
+    /* Смесь --text и --bg, а не поверхности проекта: --surface-2 сама
+       полупрозрачна, и подложка из неё осталась бы просвечивающей —
+       то есть не матовой, ради чего всё и затевалось. */
+    color-mix(in srgb,var(--text) 7%,var(--bg));
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+  box-shadow:0 10px 30px -24px rgba(0,0,0,.5),
+             inset 0 1px 0 color-mix(in srgb,var(--hairline,#fff) 55%,transparent);
 }
 .about-nav[hidden]{ display:none; }
+
+/* Клик по чипу прокручивает карточку к верху окна, а верх окна занят
+   полосой вкладок и самим рельсом. Без этого отступа заголовок раздела
+   уезжал ровно под них, и человек попадал на середину первого абзаца. */
+.about-card{ scroll-margin-top:124px; }
+@media(max-width:700px){ .about-card{ scroll-margin-top:112px; } }
 
 .ab-nav-row{
   display:flex;
@@ -116,7 +139,7 @@
 
 .about-nav .ab-nav-lab{
   flex:none;
-  font-size:10px;
+  font-size:calc(10px * var(--text-k));
   text-transform:uppercase;
   letter-spacing:.13em;
   font-weight:650;
@@ -129,7 +152,7 @@
   display:inline-flex;
   align-items:baseline;
   gap:7px;
-  font-size:11.5px;
+  font-size:calc(11.5px * var(--text-k));
   font-weight:550;
   line-height:1;
   padding:7px 12px;
@@ -149,7 +172,7 @@
    при переключении активного. */
 .about-nav a i{
   font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
-  font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.04em;
+  font-style:normal;font-size:calc(9.5px * var(--text-k));font-weight:700;letter-spacing:.04em;
   font-variant-numeric:tabular-nums;
   color:var(--muted-2);
   transition:color var(--dur-2) var(--ease-out);
@@ -219,7 +242,7 @@
 .about-card:not(.about-hero) h3{display:flex;align-items:baseline;gap:9px;}
 .about-card:not(.about-hero) h3::before{
   counter-increment:about-sec;content:counter(about-sec,decimal-leading-zero);
-  font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:.04em;
+  font-family:var(--font-display);font-size:calc(12px * var(--text-k));font-weight:700;letter-spacing:.04em;
   color:var(--rail,var(--accent));opacity:.65;flex:none;
 }
 
@@ -265,22 +288,22 @@
    лёг бы под градиенты и потерял бы контраст на светлых темах. */
 .about-hero > :not(.hero-aura){ position:relative;z-index:1; }
 .about-hero .eyebrow{
-  display:inline-flex;align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.14em;
+  display:inline-flex;align-self:flex-start;font-size:calc(10.5px * var(--text-k));font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;color:var(--accent);padding:5px 12px;border-radius:999px;
   background:var(--accent-soft);border:1px solid var(--accent-line);
 }
-.about-hero h2{font-family:var(--font-display);font-size:clamp(24px,3.6vw,34px);font-weight:800;
+.about-hero h2{font-family:var(--font-display);font-size:calc(clamp(24px,3.6vw,34px) * var(--text-k));font-weight:800;
   letter-spacing:-.03em;line-height:1.12;margin:14px 0 14px;
   background:linear-gradient(100deg,var(--text) 40%,var(--accent) 78%,var(--accent-2) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;}
-.about-lede{font-size:15.5px;line-height:1.68;color:var(--text);margin-bottom:12px;max-width:64ch;}
-.about-card h3{font-family:var(--font-display);font-size:16.5px;font-weight:750;letter-spacing:-.02em;
+.about-lede{font-size:calc(15.5px * var(--text-k));line-height:1.68;color:var(--text);margin-bottom:12px;max-width:64ch;}
+.about-card h3{font-family:var(--font-display);font-size:calc(16.5px * var(--text-k));font-weight:750;letter-spacing:-.02em;
   margin-bottom:12px;}
 /* Длина строки — настройка «Ширина текста» (--measure в css/tokens.css).
    Абзацы раздела набираются во всю ширину карточки, а карточка на
    широком экране бывает под тысячу пикселей: строка в полтораста
    знаков читается тяжело независимо от кегля. */
-.about-card p{font-size:13.5px;line-height:1.68;color:var(--body);margin-bottom:12px;
+.about-card p{font-size:calc(13.5px * var(--text-k));line-height:1.68;color:var(--body);margin-bottom:12px;
   max-width:var(--measure);text-wrap:pretty;}
 .about-card p:last-child{margin-bottom:0;}
 .about-card .about-list{max-width:var(--measure);}
@@ -290,9 +313,9 @@
 .about-card{scroll-margin-top:146px;}
 .about-card:focus{outline:none;}
 .about-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
-.about-note{font-size:12px;color:var(--muted);line-height:1.6;padding:12px 14px;border-radius:12px;
+.about-note{font-size:calc(12px * var(--text-k));color:var(--muted);line-height:1.6;padding:12px 14px;border-radius:12px;
   background:var(--surface);border:1px solid var(--stroke);border-left:2px solid var(--rail,var(--accent));}
-.about-card code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;
+.about-card code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:calc(12px * var(--text-k));
   background:var(--surface-2);border:1px solid var(--stroke);border-radius:5px;padding:1px 5px;}
 .about-card a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line);}
 .about-card a:hover{border-bottom-color:var(--accent);}
@@ -301,7 +324,7 @@
 /* Маленький ярлык-тег над заголовком у отдельных карточек — акцентирует
    их как самостоятельную «фичу», а не рядовой пункт методики. */
 .about-tag{
-  display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;letter-spacing:.1em;
+  display:inline-flex;align-self:flex-start;font-size:calc(10px * var(--text-k));font-weight:700;letter-spacing:.1em;
   text-transform:uppercase;color:var(--accent-2);padding:4px 10px;border-radius:999px;
   background:color-mix(in srgb,var(--accent-2) 14%, transparent);
   border:1px solid color-mix(in srgb,var(--accent-2) 40%, transparent);
@@ -325,7 +348,7 @@
 }
 
 .about-list{margin:0 0 12px 0;padding-left:20px;display:flex;flex-direction:column;gap:9px;}
-.about-list li{font-size:13px;line-height:1.6;color:var(--body);}
+.about-list li{font-size:calc(13px * var(--text-k));line-height:1.6;color:var(--body);}
 .about-list b{color:var(--text);font-weight:650;}
 .about-list.plain{list-style:none;padding-left:0;}
 .about-list.plain li{position:relative;padding-left:18px;}
@@ -374,7 +397,7 @@
 
 .am-lab{
   position:absolute;
-  font-size:10px;
+  font-size:calc(10px * var(--text-k));
   font-weight:600;
   letter-spacing:.02em;
   color:var(--quad-cap);
@@ -391,12 +414,12 @@
 .axis-box{padding:14px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--stroke);
   transition:border-color .2s ease,transform .2s ease;}
 .axis-box:hover{border-color:var(--stroke-2);transform:translateY(-1px);}
-.axis-box .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--accent);
+.axis-box .k{font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.11em;color:var(--accent);
   font-weight:650;margin-bottom:8px;}
-.axis-box .poles{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--muted-2);
+.axis-box .poles{display:flex;justify-content:space-between;gap:10px;font-size:calc(10.5px * var(--text-k));color:var(--muted-2);
   padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--stroke);}
-.axis-box p{font-size:12.5px;line-height:1.6;margin:0;}
-.about-cta{font-size:13px;}
+.axis-box p{font-size:calc(12.5px * var(--text-k));line-height:1.6;margin:0;}
+.about-cta{font-size:calc(13px * var(--text-k));}
 
 /* Карточки заметнее приподнимаются при наведении, чем стандартный .card:
    раздел справочный и длинный, лёгкая отзывчивость держит внимание. */

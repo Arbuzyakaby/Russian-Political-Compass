@@ -60,23 +60,36 @@ test("разметка содержит все шаги и узлы, котор�
   }
 });
 
-test("число сцен обучения совпадает в разметке, словаре и скрипте", () => {
-  const scenes = (html.match(/class="wt-scene /g) || []).length;
-  const dots = /id="welTourDots"[\s\S]*?>([\s\S]*?)<\/div>/.exec(html);
-  const declared = Number(/var SCENES = (\d+)/.exec(src)[1]);
-  assert.equal(scenes, declared, "сцен в разметке не столько, сколько объявлено в скрипте");
-  assert.equal((dots[1].match(/<button/g) || []).length, declared,
-    "точек прогресса не столько, сколько сцен");
+/* С 2.4.2.1 обучение — не четыре нарисованные сцены внутри окна,
+   а маршрут по живой странице (js/tour.js). Проверять теперь нужно
+   другое: что у каждого шага маршрута есть подпись на обоих языках
+   и что цель, которую он подсвечивает, вообще существует в разметке.
+   Второе особенно важно: маршрут написан селекторами, и переименование
+   класса в вёрстке молча выбросило бы шаг из тура. */
+test("у каждого шага обучения есть цель в разметке и подпись в словаре", () => {
+  const tour = fs.readFileSync(path.join(ROOT, "js", "tour.js"), "utf8");
+  const steps = Array.from(tour.matchAll(/\{ key:"(\w+)",\s*tab:"\w+",\s*sel:"([^"]+)"/g),
+    m => ({ key:m[1], sel:m[2] }));
+  assert.ok(steps.length >= 8, `шагов обучения подозрительно мало: ${steps.length}`);
+
   const en = loadApp(FILES, { "pc-lang":"en" }).PC;
-  for(let n = 1; n <= declared; n++){
-    for(const key of [`wel.t${n}.h`, `wel.t${n}.p`]){
+  for(const step of steps){
+    for(const key of [`tour.${step.key}.h`, `tour.${step.key}.p`]){
       for(const [lang, app] of [["ru", PC], ["en", en]]){
         assert.notEqual(app.t(key), key, `${lang}: нет перевода ${key}`);
       }
     }
+    /* Селекторы шагов простые нарочно — по id или по одному классу:
+       это позволяет проверить их наличие обычным поиском по разметке,
+       не поднимая целый DOM ради десяти строк. */
+    const needle = step.sel.startsWith("#")
+      ? ' id="' + step.sel.slice(1).split(" ")[0] + '"'
+      : 'class="' + step.sel.slice(1).split(" ")[0];
+    assert.ok(html.includes(needle),
+      `шаг обучения «${step.key}» целится в ${step.sel}, которого нет в index.html`);
   }
-  assert.notEqual(PC.t("wel.t.count", { n:1, total:4 }), "wel.t.count");
-  assert.match(en.t("wel.t.count", { n:2, total:4 }), /2.*4/);
+  assert.notEqual(PC.t("tour.count", { n:1, total:10 }), "tour.count");
+  assert.match(en.t("tour.count", { n:2, total:10 }), /2.*10/);
 });
 
 test("список изменений в разметке совпадает со словарём", () => {

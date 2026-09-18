@@ -38,14 +38,14 @@
 .brand > div{min-width:0;}
 .brand h1{
   font-family:var(--font-display);
-  font-size:clamp(22px,2.7vw,34px);
+  font-size:calc(clamp(22px,2.7vw,34px) * var(--text-k));
   font-weight:700;
   letter-spacing:-.03em;
   line-height:1.08;
   color:var(--text);
 }
-.brand p{color:var(--muted);font-size:14px;margin-top:5px;letter-spacing:-.005em;}
-.eyebrow{display:inline-block;font-size:11px;letter-spacing:var(--track-caps);text-transform:uppercase;
+.brand p{color:var(--muted);font-size:calc(14px * var(--text-k));margin-top:5px;letter-spacing:-.005em;}
+.eyebrow{display:inline-block;font-size:calc(11px * var(--text-k));letter-spacing:var(--track-caps);text-transform:uppercase;
   color:var(--accent);margin-bottom:6px;font-weight:600;}
 
 .tools{display:flex;align-items:center;gap:10px;}
@@ -56,7 +56,7 @@
   width:280px;height:40px;padding:0 42px 0 37px;
   background:color-mix(in srgb,var(--text) 6.5%,transparent);
   border:1px solid transparent;border-radius:var(--radius-pill);color:var(--text);
-  font-size:14.5px;font-family:inherit;letter-spacing:var(--track-body);
+  font-size:calc(14.5px * var(--text-k));font-family:inherit;letter-spacing:var(--track-body);
   outline:none;
   transition:border-color var(--dur-2) var(--ease-out),background var(--dur-2) var(--ease-out),
              box-shadow var(--dur-2) var(--ease-out),width var(--dur-3) var(--ease-out);
@@ -84,7 +84,7 @@
 .search .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;
   border-radius:50%;
   cursor:pointer;background:color-mix(in srgb,var(--text) 14%,transparent);color:var(--bg);
-  font-size:11px;font-weight:700;line-height:1;display:none;place-items:center;
+  font-size:calc(11px * var(--text-k));font-weight:700;line-height:1;display:none;place-items:center;
   transition:background .15s,color .15s;}
 .search .clear:hover{background:color-mix(in srgb,var(--text) 26%,transparent);}
 .search.has-value .clear{display:grid;}
@@ -109,5 +109,5 @@
   .brand{gap:12px;}
   .brand-mark{width:42px;height:42px;}
   .gear-btn{width:36px;height:36px;}
-  .search input{height:38px;font-size:14px;}
+  .search input{height:38px;font-size:calc(14px * var(--text-k));}
 }

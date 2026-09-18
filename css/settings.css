@@ -85,7 +85,7 @@ body.sheet-lock{overflow:hidden;}
   padding:18px 18px 14px;border-bottom:1px solid var(--stroke);
   background:var(--glass-bg-2);
 }
-.sheet-head h2{font-family:var(--font-display);font-size:19px;font-weight:750;letter-spacing:-.03em;
+.sheet-head h2{font-family:var(--font-display);font-size:calc(19px * var(--text-k));font-weight:750;letter-spacing:-.03em;
   margin-top:3px;}
 .sheet-close{
   width:30px;height:30px;flex:none;display:grid;place-items:center;cursor:pointer;
@@ -106,7 +106,7 @@ body.sheet-lock{overflow:hidden;}
   padding:10px;border-right:1px solid var(--stroke);overflow-y:auto;
 }
 .setm-tab{
-  text-align:left;font:inherit;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
+  text-align:left;font:inherit;font-size:calc(12.5px * var(--text-k));font-weight:600;letter-spacing:-.005em;
   color:var(--muted);cursor:pointer;padding:9px 12px;border-radius:var(--radius-sm);
   border:1px solid transparent;background:transparent;
   transition:background var(--dur-1) var(--ease-out),color var(--dur-1) var(--ease-out),
@@ -137,7 +137,7 @@ body.sheet-lock{overflow:hidden;}
   to{opacity:1;transform:translateY(0);}
 }
 .set-group h3{
-  font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;
+  font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.14em;font-weight:700;
   color:var(--tone);margin-bottom:14px;
 }
 .set-row{
@@ -152,8 +152,8 @@ body.sheet-lock{overflow:hidden;}
    читается как сломанная, а не как неприменимая. */
 :root[data-glass="off"] .set-row[data-set-when="glass"]{display:none;}
 .set-lab{display:flex;flex-direction:column;gap:3px;min-width:180px;flex:1;}
-.set-lab b{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
-.set-lab small{font-size:11px;line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
+.set-lab b{font-size:calc(13px * var(--text-k));font-weight:600;color:var(--text);letter-spacing:-.01em;}
+.set-lab small{font-size:calc(11px * var(--text-k));line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
 
 /* ---------- выбор темы ----------
    Шесть тем сегментированным переключателем не показать: подписи «Неон»
@@ -194,7 +194,7 @@ body.sheet-lock{overflow:hidden;}
 .theme-chip[aria-checked="true"] .tc-swatch{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 0 2px var(--tone);
 }
-.tc-name{font-size:11.5px;font-weight:600;letter-spacing:var(--track-body);white-space:nowrap;}
+.tc-name{font-size:calc(11.5px * var(--text-k));font-weight:600;letter-spacing:var(--track-body);white-space:nowrap;}
 
 /* ---------- строка на всю ширину ----------
    Подпись сверху, элемент управления под ней. Нужно там, где элемент
@@ -208,7 +208,7 @@ body.sheet-lock{overflow:hidden;}
   background:color-mix(in srgb,var(--text) 7%,transparent);border:1px solid transparent;
 }
 .seg button{
-  font:inherit;font-size:11.5px;font-weight:600;letter-spacing:var(--track-body);cursor:pointer;
+  font:inherit;font-size:calc(11.5px * var(--text-k));font-weight:600;letter-spacing:var(--track-body);cursor:pointer;
   padding:6px 11px;border-radius:calc(var(--radius-xs) - 1px);border:1px solid transparent;
   background:transparent;color:var(--muted);white-space:nowrap;
   transition:background var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),
@@ -348,11 +348,11 @@ body.sheet-lock{overflow:hidden;}
   0%,100%{opacity:.3;transform:scale(1);}
   50%{opacity:.7;transform:scale(1.08);}
 }
-.pvfp-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;
+.pvfp-badge{display:inline-block;font-size:calc(9.5px * var(--text-k));font-weight:700;text-transform:uppercase;
   letter-spacing:.12em;color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
   border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:4px 11px;margin-bottom:10px;
   position:relative;z-index:1;}
-.pvfp-card h4{font-family:var(--font-display);font-size:16px;font-weight:750;letter-spacing:-.02em;
+.pvfp-card h4{font-family:var(--font-display);font-size:calc(16px * var(--text-k));font-weight:750;letter-spacing:-.02em;
   margin-bottom:8px;position:relative;z-index:1;}
 /* Строка-«версия протокола»: моноширинный шрифт и точка-индикатор
    дают ей вид системного статуса, хотя это то же самое обещание
@@ -360,7 +360,7 @@ body.sheet-lock{overflow:hidden;}
 .pvfp-proto{
   display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;
   font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);
-  font-size:10px;letter-spacing:.03em;color:var(--muted);
+  font-size:calc(10px * var(--text-k));letter-spacing:.03em;color:var(--muted);
   padding:4px 10px;border-radius:999px;border:1px solid var(--stroke);
   background:color-mix(in srgb,var(--surface) 70%,transparent);
   position:relative;z-index:1;
@@ -375,7 +375,7 @@ body.sheet-lock{overflow:hidden;}
   0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 45%,transparent); }
   50%    { box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 0%,transparent); }
 }
-.pvfp-lead{font-size:12px;line-height:1.55;color:var(--muted);margin-bottom:18px;position:relative;z-index:1;}
+.pvfp-lead{font-size:calc(12px * var(--text-k));line-height:1.55;color:var(--muted);margin-bottom:18px;position:relative;z-index:1;}
 .pvfp-points{
   display:grid;grid-template-columns:1fr;gap:10px;text-align:left;margin-bottom:16px;
   position:relative;z-index:1;
@@ -395,9 +395,9 @@ body.sheet-lock{overflow:hidden;}
 }
 .pvfp-point-ico svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;}
-.pvfp-point b{display:block;font-size:12px;font-weight:650;color:var(--text);margin-bottom:3px;}
-.pvfp-point > div span{display:block;font-size:11.5px;line-height:1.45;color:var(--muted-2);}
-.pvfp-note{font-size:10.5px;line-height:1.5;color:var(--muted-2);border-top:1px dashed var(--stroke);
+.pvfp-point b{display:block;font-size:calc(12px * var(--text-k));font-weight:650;color:var(--text);margin-bottom:3px;}
+.pvfp-point > div span{display:block;font-size:calc(11.5px * var(--text-k));line-height:1.45;color:var(--muted-2);}
+.pvfp-note{font-size:calc(10.5px * var(--text-k));line-height:1.5;color:var(--muted-2);border-top:1px dashed var(--stroke);
   padding-top:12px;position:relative;z-index:1;}
 
 /* ---------- FGDRI (2.3.3): витрина в разделе «Интерфейс» ----------
@@ -433,12 +433,12 @@ body.sheet-lock{overflow:hidden;}
 }
 .fgdri-text{ display:flex;flex-direction:column;gap:4px;min-width:0; }
 .fgdri-badge{
-  align-self:flex-start;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  align-self:flex-start;font-size:calc(9px * var(--text-k));font-weight:700;text-transform:uppercase;letter-spacing:.1em;
   color:var(--tone);background:color-mix(in srgb,var(--tone) 12%,transparent);
   border:1px solid var(--tone-line,var(--accent-line));border-radius:999px;padding:2px 8px;
 }
-.fgdri-text b{font-size:13px;font-weight:650;color:var(--text);letter-spacing:-.01em;}
-.fgdri-text small{font-size:11px;line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
+.fgdri-text b{font-size:calc(13px * var(--text-k));font-weight:650;color:var(--text);letter-spacing:-.01em;}
+.fgdri-text small{font-size:calc(11px * var(--text-k));line-height:1.45;color:var(--muted-2);text-wrap:pretty;}
 @media(max-width:480px){ .fgdri-card{flex-direction:column;align-items:flex-start;} }
 
 /* ---------- подвал панели ---------- */
@@ -446,7 +446,7 @@ body.sheet-lock{overflow:hidden;}
   flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   padding:14px 18px 16px;border-top:1px solid var(--stroke);
 }
-.set-foot p{font-size:11px;line-height:1.5;color:var(--muted-2);max-width:30ch;}
+.set-foot p{font-size:calc(11px * var(--text-k));line-height:1.5;color:var(--muted-2);max-width:30ch;}
 
 @media(max-width:680px){
   /* Лист снизу вместо окна по центру: правый верхний угол большого

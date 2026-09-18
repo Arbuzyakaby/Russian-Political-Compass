@@ -9,7 +9,7 @@
    нужно проходить поиск, переключатель темы и три вкладки, чтобы
    добраться до содержимого. Видимой становится только в фокусе. */
 .skip-link{position:fixed;top:10px;left:10px;z-index:var(--z-skip);transform:translateY(-160%);
-  padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:650;text-decoration:none;
+  padding:10px 16px;border-radius:var(--radius-sm);font-size:calc(13px * var(--text-k));font-weight:650;text-decoration:none;
   background:var(--tip-bg);border:1px solid var(--accent-line);color:var(--accent);
   box-shadow:var(--shadow);transition:transform .2s var(--ease-out);}
 .skip-link:focus{transform:none;outline:2px solid var(--accent);outline-offset:2px;}
@@ -17,7 +17,7 @@
 /* содержимое строится скриптами: без них честно говорим об этом,
    а не оставляем пустой экран */
 .noscript-note{position:relative;z-index:1;max-width:1440px;margin:20px auto 0;
-  padding:14px 18px;border-radius:var(--radius-sm);font-size:13px;line-height:1.55;
+  padding:14px 18px;border-radius:var(--radius-sm);font-size:calc(13px * var(--text-k));line-height:1.55;
   color:var(--body);background:var(--surface);border:1px solid var(--stroke);}
 #content:focus{outline:none;}
 #content:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px;}
@@ -67,7 +67,7 @@
 /* ---------- возврат наверх ---------- */
 .to-top{
   position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:55;
-  width:44px;height:44px;border-radius:var(--radius-sm);cursor:pointer;font-size:17px;line-height:1;
+  width:44px;height:44px;border-radius:var(--radius-sm);cursor:pointer;font-size:calc(17px * var(--text-k));line-height:1;
   display:grid;place-items:center;
   background:var(--glass-bg-2);
   border:1px solid var(--stroke-2);color:var(--text);
@@ -85,7 +85,7 @@
   pointer-events:none;width:min(420px,calc(100vw - 32px));}
 .toast{
   pointer-events:auto;cursor:pointer;max-width:100%;
-  padding:11px 16px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:550;line-height:1.4;
+  padding:11px 16px;border-radius:var(--radius-sm);font-size:calc(12.5px * var(--text-k));font-weight:550;line-height:1.4;
   color:var(--text);background:var(--glass-bg-2);
   border:1px solid var(--stroke-2);
   overflow-wrap:anywhere;text-align:center;
@@ -158,5 +158,5 @@
   .card,.stat{margin-bottom:12px;}
   .side{position:static!important;max-height:none!important;}
   .scroll{overflow:visible!important;}
-  .about-card a::after{content:" (" attr(href) ")";font-size:10px;color:#555;}
+  .about-card a::after{content:" (" attr(href) ")";font-size:calc(10px * var(--text-k));color:#555;}
 }

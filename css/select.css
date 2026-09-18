@@ -16,7 +16,7 @@
 .xs-btn{
   display:inline-flex;align-items:center;gap:8px;cursor:pointer;
   height:32px;padding:0 10px 0 12px;border-radius:var(--radius-sm);
-  font:inherit;font-size:12px;font-weight:600;letter-spacing:-.005em;
+  font:inherit;font-size:calc(12px * var(--text-k));font-weight:600;letter-spacing:-.005em;
   color:var(--body);background:var(--surface);border:1px solid var(--stroke);
   white-space:nowrap;
   transition:background var(--dur-1) var(--ease-out),
@@ -30,7 +30,7 @@
   box-shadow:0 0 0 5px var(--tone-soft);}
 .xs.is-open .xs-btn{background:var(--surface-2);border-color:var(--tone-line);color:var(--text);}
 
-.xs-note{font-size:11px;font-weight:500;color:var(--muted-2);font-variant-numeric:tabular-nums;}
+.xs-note{font-size:calc(11px * var(--text-k));font-weight:500;color:var(--muted-2);font-variant-numeric:tabular-nums;}
 .xs-note:empty{display:none;}
 .xs-caret{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;
   stroke-linecap:round;stroke-linejoin:round;opacity:.6;margin-left:2px;
@@ -71,7 +71,7 @@
 .xs-opt{
   display:flex;align-items:center;gap:9px;width:100%;cursor:pointer;text-align:left;
   padding:8px 10px;border-radius:var(--radius-xs);border:1px solid transparent;
-  font:inherit;font-size:12.5px;font-weight:550;color:var(--body);background:transparent;
+  font:inherit;font-size:calc(12.5px * var(--text-k));font-weight:550;color:var(--body);background:transparent;
   transition:background .12s ease,color .12s ease;
 }
 .xs-opt:hover{background:var(--surface-2);color:var(--text);}
@@ -79,7 +79,7 @@
   border-color:var(--tone-line);}
 .xs-opt[aria-selected="true"]{background:var(--tone-soft);color:var(--tone);}
 .xs-opt-t{flex:1;white-space:nowrap;}
-.xs-opt-n{font-size:11px;font-weight:500;color:var(--muted-2);font-variant-numeric:tabular-nums;}
+.xs-opt-n{font-size:calc(11px * var(--text-k));font-weight:500;color:var(--muted-2);font-variant-numeric:tabular-nums;}
 .xs-tick{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;
   stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .12s ease;}
 .xs-opt[aria-selected="true"] .xs-tick{opacity:1;}

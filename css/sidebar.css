@@ -2,8 +2,8 @@
 .side{position:sticky;top:26px;max-height:calc(100vh - 52px);display:flex;flex-direction:column;
   overflow:hidden;perspective:1400px;}
 .side-head{padding:16px 18px;border-bottom:1px solid var(--stroke);display:flex;align-items:center;gap:10px;flex:none;}
-.side-head h2{font-size:13px;font-weight:600;color:var(--muted);}
-.count{margin-left:auto;font-size:11px;color:var(--muted-2);background:var(--surface-2);padding:3px 9px;border-radius:999px;border:1px solid var(--stroke);}
+.side-head h2{font-size:calc(13px * var(--text-k));font-weight:600;color:var(--muted);}
+.count{margin-left:auto;font-size:calc(11px * var(--text-k));color:var(--muted-2);background:var(--surface-2);padding:3px 9px;border-radius:999px;border:1px solid var(--stroke);}
 .scroll{overflow-y:auto;flex:1;scrollbar-width:thin;}
 .scroll::-webkit-scrollbar{width:7px;}
 .scroll::-webkit-scrollbar-thumb{background:var(--stroke-2);border-radius:99px;}
@@ -36,11 +36,11 @@
 .pitem:hover{background:var(--surface);border-color:var(--stroke);transform:translateX(3px);}
 .pitem.active{background:var(--accent-soft);border-color:var(--accent-line);}
 .pitem .sw{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(125,125,125,.12);}
-.pitem .nm{font-size:13px;font-weight:550;line-height:1.3;flex:1;min-width:0;}
-.pitem .nm small{display:block;color:var(--muted-2);font-size:10.5px;font-weight:450;margin-top:2px;}
-.pitem .mandates{font-size:10px;color:var(--muted-2);font-variant-numeric:tabular-nums;flex:none;text-align:right;line-height:1.35;}
-.pitem .mandates b{display:block;color:var(--text);font-size:12.5px;font-weight:650;}
-.empty{padding:44px 20px;text-align:center;color:var(--muted-2);font-size:13px;}
+.pitem .nm{font-size:calc(13px * var(--text-k));font-weight:550;line-height:1.3;flex:1;min-width:0;}
+.pitem .nm small{display:block;color:var(--muted-2);font-size:calc(10.5px * var(--text-k));font-weight:450;margin-top:2px;}
+.pitem .mandates{font-size:calc(10px * var(--text-k));color:var(--muted-2);font-variant-numeric:tabular-nums;flex:none;text-align:right;line-height:1.35;}
+.pitem .mandates b{display:block;color:var(--text);font-size:calc(12.5px * var(--text-k));font-weight:650;}
+.empty{padding:44px 20px;text-align:center;color:var(--muted-2);font-size:calc(13px * var(--text-k));}
 
 /* ============ DETAIL ============ */
 .detail{padding:20px;}
@@ -70,15 +70,15 @@
    меняются, а не открывается новая панель, так что въезд полей заново
    тут отключается */
 .detail.no-anim>*{animation:none;}
-.back{display:inline-flex;align-items:center;gap:7px;background:none;border:0;color:var(--muted);font:inherit;font-size:12px;
+.back{display:inline-flex;align-items:center;gap:7px;background:none;border:0;color:var(--muted);font:inherit;font-size:calc(12px * var(--text-k));
   cursor:pointer;padding:5px 9px;margin:-5px 0 14px -9px;border-radius:8px;transition:background .15s,color .15s,transform .15s;}
 .back:hover{background:var(--surface);color:var(--text);transform:translateX(-3px);}
 .d-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:16px;}
 .d-badge{width:52px;height:52px;border-radius:16px;flex:none;display:grid;place-items:center;color:#fff;
-  font-size:20px;font-weight:750;text-shadow:0 1px 3px rgba(0,0,0,.45);
+  font-size:calc(20px * var(--text-k));font-weight:750;text-shadow:0 1px 3px rgba(0,0,0,.45);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 24px -10px var(--glow,transparent);}
-.d-head h3{font-size:17px;font-weight:650;letter-spacing:-.02em;line-height:1.25;}
-.d-head .ideo{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45;}
+.d-head h3{font-size:calc(17px * var(--text-k));font-weight:650;letter-spacing:-.02em;line-height:1.25;}
+.d-head .ideo{font-size:calc(12px * var(--text-k));color:var(--muted);margin-top:5px;line-height:1.45;}
 
 /* ---------- сводка о партии ----------
    Короткий абзац «что это вообще за партия» перед координатами. Набран
@@ -86,7 +86,7 @@
    а первое, что карточка обязана сказать. */
 .d-summary{
   position:relative;margin:0 0 14px;padding:2px 2px 2px 14px;
-  font-size:13px;line-height:1.62;color:var(--body);text-wrap:pretty;
+  font-size:calc(13px * var(--text-k));line-height:1.62;color:var(--body);text-wrap:pretty;
 }
 .d-summary::before{
   content:"";position:absolute;left:0;top:3px;bottom:3px;width:2px;border-radius:2px;
@@ -97,36 +97,36 @@
 .leader{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   background:var(--surface);border:1px solid var(--stroke);border-radius:12px;
   padding:9px 13px;margin-bottom:16px;}
-.leader .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);flex:none;}
-.leader .v{font-size:12.5px;font-weight:600;text-align:right;}
+.leader .k{font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);flex:none;}
+.leader .v{font-size:calc(12.5px * var(--text-k));font-weight:600;text-align:right;}
 
 .coords{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
 .coord{background:var(--surface);border:1px solid var(--stroke);border-radius:12px;padding:11px 13px;}
-.coord .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);}
-.coord .v{font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:3px;letter-spacing:-.02em;}
-.coord .d{font-size:10.5px;color:var(--muted);margin-top:1px;}
+.coord .k{font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);}
+.coord .v{font-size:calc(19px * var(--text-k));font-weight:650;font-variant-numeric:tabular-nums;margin-top:3px;letter-spacing:-.02em;}
+.coord .d{font-size:calc(10.5px * var(--text-k));color:var(--muted);margin-top:1px;}
 
 .mandate-box{background:var(--surface);border:1px solid var(--stroke);border-radius:12px;padding:13px 14px;margin-bottom:18px;}
 .mandate-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px;}
-.mandate-top .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);}
-.mandate-top .v{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;}
-.mandate-top .v small{font-size:11px;font-weight:450;color:var(--muted-2);}
+.mandate-top .k{font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);}
+.mandate-top .v{font-size:calc(15px * var(--text-k));font-weight:650;font-variant-numeric:tabular-nums;}
+.mandate-top .v small{font-size:calc(11px * var(--text-k));font-weight:450;color:var(--muted-2);}
 .bar{height:8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--stroke);overflow:hidden;}
 .bar i{display:block;height:100%;border-radius:99px;width:0;transition:width .9s cubic-bezier(.2,.9,.3,1);}
-.mandate-note{font-size:10.5px;color:var(--muted-2);margin-top:8px;}
+.mandate-note{font-size:calc(10.5px * var(--text-k));color:var(--muted-2);margin-top:8px;}
 
 .sect{margin-bottom:18px;}
 .sect:last-child{margin-bottom:0;}
-.sect h4{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:650;margin-bottom:9px;}
-.sect p{font-size:13px;line-height:1.62;color:var(--body);}
+.sect h4{font-size:calc(10px * var(--text-k));text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:650;margin-bottom:9px;}
+.sect p{font-size:calc(13px * var(--text-k));line-height:1.62;color:var(--body);}
 .sect ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
-.sect li{font-size:12.5px;line-height:1.55;color:var(--body);padding-left:17px;position:relative;
+.sect li{font-size:calc(12.5px * var(--text-k));line-height:1.55;color:var(--body);padding-left:17px;position:relative;
   animation:up .4s var(--ease-out) both;}
 .sect li:nth-child(1){animation-delay:.18s}.sect li:nth-child(2){animation-delay:.24s}
 .sect li:nth-child(3){animation-delay:.30s}.sect li:nth-child(4){animation-delay:.36s}
 .sect li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;}
 .note{background:var(--surface);border:1px solid var(--stroke);border-radius:12px;padding:13px 14px;}
-.note p{font-size:12.5px;line-height:1.6;color:var(--body);}
+.note p{font-size:calc(12.5px * var(--text-k));line-height:1.6;color:var(--body);}
 
 /* ---------- лента траектории партии ---------- */
 /* Вертикальная линия — псевдоэлемент списка, а не отдельная разметка:
@@ -142,9 +142,9 @@
 .tline li:last-child{padding-bottom:2px;}
 .tline li::before{content:"";position:absolute;left:-20px;top:5px;width:9px;height:9px;border-radius:50%;
   background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
-.tline .y{font-size:11px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
-.tline .c{font-size:10px;color:var(--muted-2);margin-left:8px;font-variant-numeric:tabular-nums;}
-.tline p{font-size:12px;line-height:1.55;color:var(--body);margin-top:3px;}
+.tline .y{font-size:calc(11px * var(--text-k));font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.tline .c{font-size:calc(10px * var(--text-k));color:var(--muted-2);margin-left:8px;font-variant-numeric:tabular-nums;}
+.tline p{font-size:calc(12px * var(--text-k));line-height:1.55;color:var(--body);margin-top:3px;}
 
 .pitem:focus-visible,.back:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
 
@@ -157,7 +157,7 @@
 }
 @media(max-width:480px){
   .detail{padding:16px;}
-  .d-badge{width:44px;height:44px;border-radius:13px;font-size:17px;}
+  .d-badge{width:44px;height:44px;border-radius:13px;font-size:calc(17px * var(--text-k));}
   .coords{grid-template-columns:1fr 1fr;gap:7px;}
   .leader{flex-direction:column;align-items:flex-start;gap:2px;}
   .leader .v{text-align:left;}
@@ -172,21 +172,21 @@
 .sub-group{margin-bottom:14px;}
 .sub-group:last-of-type{margin-bottom:6px;}
 .sub-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-  font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);
+  font-size:calc(10px * var(--text-k));text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);
   padding-bottom:7px;margin-bottom:9px;border-bottom:1px solid var(--stroke);}
-.sub-head b{font-family:var(--font-display);font-size:14px;font-weight:750;letter-spacing:-.02em;
+.sub-head b{font-family:var(--font-display);font-size:calc(14px * var(--text-k));font-weight:750;letter-spacing:-.02em;
   color:var(--text);text-transform:none;}
 .sub-row{margin-bottom:11px;}
 .sub-row:last-child{margin-bottom:0;}
 .sub-lab{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-  font-size:11.5px;color:var(--body);margin-bottom:4px;}
-.sub-lab b{font-size:11.5px;font-weight:650;color:var(--text);font-variant-numeric:tabular-nums;}
+  font-size:calc(11.5px * var(--text-k));color:var(--body);margin-bottom:4px;}
+.sub-lab b{font-size:calc(11.5px * var(--text-k));font-weight:650;color:var(--text);font-variant-numeric:tabular-nums;}
 .sub-row .track{position:relative;height:7px;border-radius:4px;background:var(--surface-2);
   overflow:hidden;}
 .sub-row .track::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
   background:var(--chart-axis);z-index:2;}
 .sub-row .fill{position:absolute;top:0;bottom:0;width:0;border-radius:4px;}
-.sub-poles{display:flex;justify-content:space-between;font-size:9px;color:var(--muted-2);margin-top:3px;}
+.sub-poles{display:flex;justify-content:space-between;font-size:calc(9px * var(--text-k));color:var(--muted-2);margin-top:3px;}
 
 /* ============ КАРТОЧКА ПАРТИИ: ИЕРАРХИЯ ============
    Три яруса по важности: кто это (шапка с бейджем), где она на поле
@@ -208,7 +208,7 @@
 
 .detail .coord{position:relative;padding:12px 13px 11px;
   background:linear-gradient(168deg,var(--surface-2) 0%,var(--surface) 100%);}
-.detail .coord .v{font-family:var(--font-display);font-size:24px;font-weight:750;letter-spacing:-.035em;
+.detail .coord .v{font-family:var(--font-display);font-size:calc(24px * var(--text-k));font-weight:750;letter-spacing:-.035em;
   line-height:1.05;margin-top:4px;}
 .coord-bar{position:relative;height:5px;margin-top:9px;border-radius:3px;background:var(--surface-2);
   overflow:hidden;}
@@ -231,12 +231,12 @@
 .nb-row:hover{background:var(--surface-2);border-color:var(--stroke-2);transform:translateX(2px);}
 .nb-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
 .nb-row i{width:9px;height:9px;border-radius:3px;flex:none;}
-.nb-row .n{font-size:12px;font-weight:550;flex:1;min-width:0;overflow:hidden;
+.nb-row .n{font-size:calc(12px * var(--text-k));font-weight:550;flex:1;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;}
-.nb-row .d{font-size:11.5px;font-weight:650;color:var(--muted);font-variant-numeric:tabular-nums;}
+.nb-row .d{font-size:calc(11.5px * var(--text-k));font-weight:650;color:var(--muted);font-variant-numeric:tabular-nums;}
 .nb-row.far .d{color:var(--muted-2);}
 .nb-far{margin-top:9px;padding-top:9px;border-top:1px solid var(--stroke);}
-.nb-far .k{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;
+.nb-far .k{display:block;font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.11em;
   color:var(--muted-2);margin-bottom:5px;}
 
 /* ============ СРАВНЕНИЕ С ДРУГОЙ ПАРТИЕЙ (2.3) ============ */
@@ -254,12 +254,12 @@
    текста берёт на себя сама колонка через ellipsis. */
 .cmp-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto) minmax(0,auto);
   gap:8px;align-items:baseline;
-  padding:6px 0;border-bottom:1px solid var(--stroke);font-size:12px;}
+  padding:6px 0;border-bottom:1px solid var(--stroke);font-size:calc(12px * var(--text-k));}
 .cmp-row:last-child{border-bottom:none;}
 .cmp-lab{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cmp-a,.cmp-b{min-width:38px;max-width:104px;text-align:right;font-weight:650;
   font-variant-numeric:tabular-nums;color:var(--text);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cmp-head{border-bottom:1px solid var(--stroke-2);padding-bottom:8px;margin-bottom:2px;}
-.cmp-head .cmp-a,.cmp-head .cmp-b{font-size:11px;font-weight:700;text-transform:uppercase;
+.cmp-head .cmp-a,.cmp-head .cmp-b{font-size:calc(11px * var(--text-k));font-weight:700;text-transform:uppercase;
   letter-spacing:.03em;}

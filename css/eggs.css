@@ -186,7 +186,7 @@
   margin-top:3px;
   text-align:center;
   font-family:var(--font-mono);
-  font-size:8.5px;
+  font-size:calc(8.5px * var(--text-k));
   letter-spacing:.02em;
   color:var(--muted-2);
   opacity:0;

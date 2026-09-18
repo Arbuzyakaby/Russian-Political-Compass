@@ -1,0 +1,241 @@
+/* ============ SRPC — ПОЛНОЭКРАННЫЙ РЕЖИМ (2.4.2.1) ============
+
+   Схема в «О проекте» (css/chain.css) отвечает на вопрос «что это за
+   страница» одним взглядом: шесть звеньев в ряд, полный цикл за
+   шестнадцать секунд, ни одной строки JavaScript. Ровно поэтому она
+   не может ответить на второй вопрос — «а что происходит внутри
+   каждого звена»: в коробку шириной в одну шестую карточки помещается
+   название и имя файла, и больше ничего.
+
+   Полноэкранный режим — это та же цепочка, разложенная на столе.
+   Каждое звено становится карточкой с собственным текстом: что этот
+   этап делает, из чего берёт вход и что отдаёт дальше. Карточки можно
+   таскать мышью или пальцем, связи между ними следуют за карточками
+   живыми кривыми, а раскладка запоминается в localStorage — то есть
+   схему можно разложить так, как её понимаешь ты, а не так, как её
+   разложил автор.
+
+   Почему это вообще настройка, а не кнопка в разделе «О проекте»:
+   режим не рассказывает ничего нового про партии и Думу, он про
+   устройство самой страницы — то же место, где живут PVFP и тумблеры
+   интерфейса. В «О проекте» стоит схема, здесь — её разбор.
+
+   Состояния звеньев берут @keyframes из css/chain.css: дорожки srpcL1…
+   srpcL6 и srpcH3 объявлены там и здесь просто переиспользуются. Это
+   важно не ради экономии строк, а ради того, что обе картинки обязаны
+   рассказывать один и тот же сюжет с точностью до кадра. В отличие от
+   схемы в «О проекте», здесь сюжет с аварией идёт всегда и не зависит
+   от тумблера «Демонстрация сбоя»: сюда приходят именно за ним. ============ */
+
+.srpc-stage{
+  /* Те же четыре цвета состояний, что у схемы в «О проекте»: дорожки
+     @keyframes объявлены в css/chain.css и обращаются именно к этим
+     именам, поэтому без объявления здесь они остались бы без значения. */
+  --srpc-cycle:16s;
+  --srpc-idle:var(--muted-2);
+  --srpc-ok:var(--ok);
+  --srpc-warn:var(--warn);
+  --srpc-crit:var(--bad);
+
+  position:fixed;inset:0;z-index:var(--z-sheet);
+  display:flex;flex-direction:column;
+  background:
+    radial-gradient(120% 90% at 50% -10%, color-mix(in srgb,var(--accent) 12%,transparent), transparent 60%),
+    color-mix(in srgb,var(--bg) 96%,var(--text));
+  opacity:0;
+  transition:opacity var(--dur-2) var(--ease-out);
+}
+.srpc-stage[hidden]{ display:none; }
+.srpc-stage.is-open{ opacity:1; }
+
+/* ---------- шапка ---------- */
+.srpcf-head{
+  flex:none;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding:16px clamp(14px,3vw,30px) 12px;
+  border-bottom:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--text) 6%,var(--bg));
+}
+.srpcf-badge{
+  display:inline-block;
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:calc(9.5px * var(--text-k));font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+  border:1px solid var(--accent-line);border-radius:999px;padding:3px 10px;
+}
+.srpcf-head h2{
+  margin:7px 0 3px;
+  font-family:var(--font-display);
+  font-size:calc(19px * var(--text-k));font-weight:750;letter-spacing:-.02em;
+  color:var(--text);
+}
+.srpcf-head p{ margin:0;font-size:calc(11.5px * var(--text-k));color:var(--muted-2);max-width:62ch; }
+.srpcf-tools{ display:flex;flex-wrap:wrap;gap:8px;flex:none; }
+
+/* ---------- стол ----------
+   Карточки стоят абсолютно, в координатах стола, а не в потоке:
+   перетаскивание меняет ровно два числа и ничего не пересобирает.
+   Координаты хранятся долями стороны стола (js/srpc.js), поэтому
+   раскладка переживает поворот телефона и изменение размера окна. */
+.srpcf-board{
+  position:relative;flex:1 1 auto;min-height:0;
+  overflow:hidden;
+  touch-action:none;             /* иначе палец таскает страницу, а не карточку */
+  background-image:
+    radial-gradient(color-mix(in srgb,var(--text) 10%,transparent) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.srpcf-wires{ position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.srpcf-wire{ fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;
+  color:var(--muted-2);opacity:.5; }
+/* Штриховка на связи под аварией — та же идея, что в css/chain.css:
+   насечка вместо ровной линии. В SVG её даёт штриховой пунктир,
+   наложенный вторым проходом поверх самой связи. */
+.srpcf-wire-hatch{ fill:none;stroke:currentColor;stroke-width:5;
+  stroke-dasharray:3 7;stroke-linecap:butt;opacity:0; }
+
+/* ---------- карточка звена ---------- */
+.srpcf-card{
+  position:absolute;
+  width:min(260px,72vw);
+  box-sizing:border-box;
+  padding:13px 14px 14px;
+  border-radius:var(--radius);
+  border:1px solid color-mix(in srgb,currentColor 48%,var(--stroke));
+  background:
+    linear-gradient(180deg, color-mix(in srgb,currentColor 13%,transparent), transparent 58%),
+    color-mix(in srgb,currentColor 7%,var(--surface-2));
+  box-shadow:0 18px 40px -26px rgba(0,0,0,.6),
+             inset 0 1px 0 color-mix(in srgb,currentColor 18%,transparent);
+  color:var(--srpc-idle,var(--muted-2));
+  cursor:grab;
+  overflow:hidden;
+  animation:var(--srpc-cycle,16s) linear infinite both;
+}
+.srpcf-card.is-drag{ cursor:grabbing;z-index:5;box-shadow:0 26px 54px -22px rgba(0,0,0,.7); }
+.srpcf-card:focus-visible{ outline:2px solid var(--accent);outline-offset:3px; }
+.srpcf-card::before{
+  content:"";position:absolute;inset:0 0 auto;height:3px;
+  background:linear-gradient(90deg,currentColor,color-mix(in srgb,currentColor 22%,transparent));
+}
+.srpcf-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  /* Штриховка обязана читаться как авария и не мешать читать сам
+     текст карточки: полоса узкая, просвет между полосами вдвое шире
+     самой полосы, и всё это ещё раз приглушено прозрачностью в
+     дорожке srpcH3. На схеме в «О проекте» звенья мельче и текста
+     в них почти нет, поэтому там штриховка плотнее. */
+  background:repeating-linear-gradient(45deg,
+    color-mix(in srgb,currentColor 38%,transparent) 0 5px,
+    transparent 5px 18px);
+  opacity:0;
+}
+.srpcf-card > *{ position:relative;z-index:1; }
+.srpcf-top{ display:flex;align-items:center;gap:7px;margin-bottom:4px; }
+.srpcf-led{
+  width:10px;height:10px;border-radius:50%;flex:none;background:currentColor;
+  box-shadow:0 0 0 4px color-mix(in srgb,currentColor 18%,transparent),
+             0 0 12px color-mix(in srgb,currentColor 70%,transparent);
+}
+.srpcf-ix{
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:calc(10px * var(--text-k));font-weight:700;letter-spacing:.08em;
+  color:color-mix(in srgb,currentColor 85%,var(--muted-2));
+}
+.srpcf-grip{
+  margin-left:auto;display:flex;flex-direction:column;gap:2px;flex:none;opacity:.5;
+}
+.srpcf-grip i{ display:block;width:14px;height:2px;border-radius:2px;background:currentColor; }
+.srpcf-card h3{
+  margin:0 0 2px;font-size:calc(13.5px * var(--text-k));font-weight:750;
+  letter-spacing:-.015em;color:var(--text);
+}
+.srpcf-file{
+  display:block;margin-bottom:7px;
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:calc(9.5px * var(--text-k));color:var(--muted-2);
+}
+.srpcf-card p{ margin:0;font-size:calc(11px * var(--text-k));line-height:1.5;color:var(--body); }
+
+/* Дорожки состояний — те же шесть, что у схемы в «О проекте». */
+.srpcf-card[data-ix="1"]{ animation-name:srpcL1; }
+.srpcf-card[data-ix="2"]{ animation-name:srpcL2; }
+.srpcf-card[data-ix="3"]{ animation-name:srpcL3; }
+.srpcf-card[data-ix="4"]{ animation-name:srpcL4; }
+.srpcf-card[data-ix="5"]{ animation-name:srpcL5; }
+.srpcf-card[data-ix="6"]{ animation-name:srpcL6; }
+.srpcf-card[data-ix="3"]::after{ animation:var(--srpc-cycle,16s) linear infinite both srpcH3; }
+
+.srpcf-wire[data-ix="1"]{ animation:var(--srpc-cycle,16s) linear infinite both srpcW1; }
+.srpcf-wire[data-ix="2"]{ animation:var(--srpc-cycle,16s) linear infinite both srpcW2; }
+.srpcf-wire[data-ix="3"]{ animation:var(--srpc-cycle,16s) linear infinite both srpcW3; }
+.srpcf-wire[data-ix="4"]{ animation:var(--srpc-cycle,16s) linear infinite both srpcW4; }
+.srpcf-wire[data-ix="5"]{ animation:var(--srpc-cycle,16s) linear infinite both srpcW5; }
+.srpcf-wire-hatch[data-ix="3"]{ animation:var(--srpc-cycle,16s) linear infinite both srpcHW3; }
+
+/* ---------- легенда ---------- */
+.srpcf-foot{
+  flex:none;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;
+  padding:10px clamp(14px,3vw,30px);
+  border-top:1px solid var(--stroke);
+  background:color-mix(in srgb,var(--text) 6%,var(--bg));
+  font-size:calc(10.5px * var(--text-k));color:var(--muted-2);
+}
+.srpcf-foot ul{ display:flex;flex-wrap:wrap;gap:6px 16px;list-style:none;margin:0;padding:0; }
+.srpcf-foot li{ display:flex;align-items:center;gap:6px; }
+.srpcf-foot li i{
+  width:9px;height:9px;border-radius:50%;flex:none;background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 18%,transparent);
+}
+.srpcf-foot .is-warn i,.srpcf-foot .is-crit i{
+  width:13px;height:9px;border-radius:2px;
+  background:repeating-linear-gradient(45deg,currentColor 0 3px,transparent 3px 6px),
+    color-mix(in srgb,currentColor 12%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 55%,transparent);
+}
+.srpcf-foot .is-ok  { color:var(--ok); }
+.srpcf-foot .is-idle{ color:var(--muted-2); }
+.srpcf-foot .is-warn{ color:var(--warn); }
+.srpcf-foot .is-crit{ color:var(--bad); }
+.srpcf-foot .srpcf-keys{ margin-left:auto; }
+
+/* ---------- витрина в настройках ----------
+   Та же подача, что у PVFP в соседнем разделе: не строка с тумблером,
+   а карточка, которая сначала объясняет, что это такое. */
+.srpc-card{
+  position:relative;overflow:hidden;
+  margin:4px 0 14px;padding:16px 16px 15px;
+  border-radius:var(--radius-lg);
+  border:1px solid var(--glass-stroke,var(--stroke));
+  background:
+    radial-gradient(120% 150% at 50% -20%, color-mix(in srgb,var(--accent) 9%,transparent), transparent 60%),
+    var(--glass-bg);
+}
+.srpc-card h4{
+  margin:8px 0 4px;font-family:var(--font-display);
+  font-size:calc(15px * var(--text-k));font-weight:750;color:var(--text);letter-spacing:-.02em;
+}
+.srpc-card p{ margin:0 0 10px;font-size:calc(11.5px * var(--text-k));line-height:1.55;color:var(--muted); }
+.srpc-steps{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+  gap:6px;list-style:none;margin:0 0 12px;padding:0;
+}
+.srpc-steps li{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 9px;border-radius:var(--radius-sm);
+  border:1px solid var(--stroke);background:var(--surface);
+  font-size:calc(10.5px * var(--text-k));color:var(--body);
+}
+.srpc-steps li b{
+  font-family:var(--font-mono,ui-monospace,Menlo,Consolas,monospace);
+  font-size:calc(9.5px * var(--text-k));color:var(--muted-2);font-weight:700;
+}
+
+@media(max-width:760px){
+  .srpcf-head{ flex-direction:column;gap:10px; }
+  .srpcf-card{ width:min(240px,78vw);padding:11px 12px 12px; }
+  .srpcf-foot .srpcf-keys{ display:none; }
+}
