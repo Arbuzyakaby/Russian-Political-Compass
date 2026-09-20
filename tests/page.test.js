@@ -81,7 +81,9 @@ const STATIC_IDS = [
   "coalition.js:coTotal", "coalition.js:coVerdict", "coalition.js:coMetrics",
   "coalition.js:coReset", "coalition.js:coClear", "coalition.js:coReal",
   "quiz.js:quiz",
-  "people.js:personSheet", "people.js:personScrim", "people.js:personClose", "people.js:personBody"
+  "people.js:personSheet", "people.js:personScrim", "people.js:personClose", "people.js:personBody",
+  "ui.js:abHistory", "ui.js:abHistorySum",
+  "about-quiz.js:abQuiz"
 ];
 
 test("все id, которые скрипты ищут в разметке, в ней есть", () => {
@@ -322,36 +324,47 @@ test("внешние ссылки открываются безопасно", ()
   }
 });
 
-/* Номер версии живёт в четырёх местах, и три из них — текст, который
-   собирается вручную: строка в подвале, подсказка к ней и package.json.
-   В выпуске 2.0.1 подвал остался на 2.0 и уехал в релиз, потому что
-   проверять это было нечем. Теперь проверка есть. */
+/* Номер версии живёт в пяти местах, и четыре из них — текст, который
+   собирается вручную: строка в подвале, подсказка к ней, package.json и
+   верхняя запись CHANGELOG. В выпуске 2.0.1 подвал остался на 2.0 и
+   уехал в релиз, потому что проверять это было нечем. Теперь проверка
+   есть.
+
+   С 2.5 номеров два: машинный PC.VERSION («2.5») и человеческий
+   PC.VERSION_LABEL («RPC 2.5»). Первый сравнивается с package.json —
+   там приставке линии взяться неоткуда; второй стоит везде, где номер
+   читает человек. Связь между ними проверяется отдельно: расходиться
+   им нельзя, иначе подвал и сравнение версий начнут говорить разное. */
 test("номер версии совпадает во всех местах, где он записан", () => {
   const { PC } = require("./harness.js").loadApp();
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 
-  const foot = html.match(/class="foot-version"[\s\S]*?>v([\d.]+)</);
-  assert.ok(foot, "в подвале не нашлась строка с номером версии");
-  assert.equal(foot[1], PC.VERSION,
-    `в подвале v${foot[1]}, а PC.VERSION — ${PC.VERSION}`);
+  assert.ok(PC.VERSION_LABEL, "PC.VERSION_LABEL не объявлен");
+  assert.ok(PC.VERSION_LABEL.includes(PC.VERSION),
+    `человеческий номер «${PC.VERSION_LABEL}» не содержит машинного «${PC.VERSION}»`);
 
   assert.ok(pkg.version.startsWith(PC.VERSION),
     `package.json объявляет ${pkg.version}, а код — ${PC.VERSION}`);
 
+  const foot = html.match(/class="foot-version"[\s\S]*?>([^<]+)<\/span>/);
+  assert.ok(foot, "в подвале не нашлась строка с номером версии");
+  assert.equal(foot[1].trim(), PC.VERSION_LABEL,
+    `в подвале «${foot[1].trim()}», а PC.VERSION_LABEL — «${PC.VERSION_LABEL}»`);
+
   const tips = PC.i18n.entry("foot.version.tip");
   tips.forEach((tip, lang) => {
-    assert.ok(tip.includes(PC.VERSION),
-      `подсказка к версии (${lang ? "en" : "ru"}) не упоминает ${PC.VERSION}: ${tip}`);
+    assert.ok(tip.includes(PC.VERSION_LABEL),
+      `подсказка к версии (${lang ? "en" : "ru"}) не упоминает ${PC.VERSION_LABEL}: ${tip}`);
   });
 
   const footTitle = html.match(/class="foot-version"[\s\S]*?title="([^"]+)"/);
-  assert.ok(footTitle[1].includes(PC.VERSION),
-    `подсказка к версии в разметке не упоминает ${PC.VERSION}`);
+  assert.ok(footTitle[1].includes(PC.VERSION_LABEL),
+    `подсказка к версии в разметке не упоминает ${PC.VERSION_LABEL}`);
 
   const head = fs.readFileSync(path.join(ROOT, "CHANGELOG.md"), "utf8")
-    .match(/^## \[([\d.]+)\]/m);
-  assert.ok(head[1].startsWith(PC.VERSION),
-    `верхняя запись CHANGELOG — ${head[1]}, а версия ${PC.VERSION}`);
+    .match(/^## \[([^\]]+)\]/m);
+  assert.equal(head[1], PC.VERSION_LABEL,
+    `верхняя запись CHANGELOG — ${head[1]}, а версия ${PC.VERSION_LABEL}`);
 });
 
 /* ---------- уроки генеральной ревизии 2.4.3 ----------
@@ -412,4 +425,128 @@ test("слой движения не переопределяет положен
   }
   const ui = fs.readFileSync(path.join(ROOT, "css", "ui.css"), "utf8");
   assert.match(ui, /\.tabs\{[^}]*position:\s*sticky/, "полоса вкладок обязана быть липкой");
+});
+
+/* ---------- раздел «О проекте» вырос (2.5) ----------
+   Две новые карточки собираются скриптом из данных, а не лежат
+   в разметке: и лента вех, и вопросы теста. Значит, ошибка в данных
+   не роняет страницу — она просто печатает пустую строку, пустой
+   вариант ответа или засчитывает неверный ответ верным. Всё, что
+   ниже, ловит именно такие ошибки. */
+
+const ABOUT_FILES = ["js/data.js", "js/data-history.js", "js/data-quiz-about.js",
+  "js/utils.js",
+  "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js",
+  "js/i18n-about.js", "js/i18n-misc.js", "js/i18n.js"];
+
+test("у каждой вехи истории есть обе локали и дата, лента идёт по возрастанию", () => {
+  const { loadApp } = require("./harness.js");
+  const ru = loadApp(ABOUT_FILES).PC;
+  const en = loadApp(ABOUT_FILES, { "pc-lang":"en" }).PC;
+
+  assert.ok(ru.HISTORY && ru.HISTORY.length >= 5,
+    "лента истории подозрительно коротка или отсутствует");
+
+  for(const item of ru.HISTORY){
+    assert.match(item.date, /^\d{4}-\d{2}-\d{2}$/, `у вехи ${item.v} дата не в формате ISO: ${item.date}`);
+    assert.ok(String(item.v).trim(), "у вехи нет номера версии");
+    for(const field of ["h", "p"]){
+      assert.ok(String(ru.L(item, field) || "").trim(), `${item.v}.${field} пуст`);
+      const value = String(en.L(item, field) || "");
+      assert.ok(value.trim(), `${item.v}.${field} пуст в английской версии`);
+      assert.ok(!/[а-яА-ЯёЁ]/.test(value), `${item.v}.${field} не переведён: ${value}`);
+    }
+  }
+
+  /* Лента печатается в том порядке, в каком записи лежат в файле, и не
+     сортируется: сортировать значило бы позволить им лежать как попало.
+     Даты сравниваются как строки — ISO-формат для того и выбран. */
+  const dates = Array.from(ru.HISTORY, i => i.date);
+  assert.deepEqual(dates, [...dates].sort(), "веха вставлена не на своё место по дате");
+
+  /* Итог под лентой собирается из этого же массива (js/ui.js), и слово
+     «веха» там склоняется по числу записей — без формы во множественном
+     числе строка вышла бы вида «10 веха». */
+  assert.notEqual(ru.i18n.pl(5, "word.milestone"), "word.milestone",
+    "нет форм множественного числа для слова «веха»");
+});
+
+test("у каждого вопроса теста о проекте ровно один верный ответ", () => {
+  const { loadApp } = require("./harness.js");
+  const ru = loadApp(ABOUT_FILES).PC;
+  const ids = new Set(Array.from(html.matchAll(/\sid="([^"]+)"/g), m => m[1]));
+
+  assert.ok(ru.ABOUT_QUIZ && ru.ABOUT_QUIZ.length >= 5,
+    "набор вопросов о проекте подозрительно мал или отсутствует");
+
+  const seen = new Set();
+  for(const q of ru.ABOUT_QUIZ){
+    assert.ok(!seen.has(q.id), `вопрос ${q.id} объявлен дважды`);
+    seen.add(q.id);
+
+    assert.ok(Array.isArray(q.a) && q.a.length >= 2, `${q.id}: вариантов меньше двух`);
+    assert.ok(Array.isArray(q.aEn) && q.aEn.length === q.a.length,
+      `${q.id}: английских вариантов не столько же, сколько русских`);
+    assert.ok(Number.isInteger(q.ok) && q.ok >= 0 && q.ok < q.a.length,
+      `${q.id}: верный ответ ${q.ok} лежит за границами списка вариантов`);
+
+    for(const field of ["q", "why"]){
+      assert.ok(String(q[field] || "").trim(), `${q.id}.${field} пуст`);
+      assert.ok(String(q[field + "En"] || "").trim(), `${q.id}.${field}En пуст`);
+    }
+    for(const list of ["a", "aEn"]){
+      q[list].forEach((text, i) => {
+        assert.ok(String(text || "").trim(), `${q.id}.${list}[${i}] пуст`);
+      });
+    }
+
+    /* Карточка, в которой написан ответ. Без этого id ссылка «читать
+       в разделе» ведёт в никуда — молча, потому что getElementById
+       просто вернёт null и переход не случится. */
+    assert.ok(ids.has(q.card),
+      `вопрос ${q.id} ссылается на карточку #${q.card}, которой нет в index.html`);
+  }
+});
+
+test("в английских строках теста о проекте нет кириллицы", () => {
+  const { loadApp } = require("./harness.js");
+  const en = loadApp(ABOUT_FILES, { "pc-lang":"en" }).PC;
+  /* Ключи словаря проверяет tests/i18n.test.js, но вопросы лежат
+     в файле данных и под ту проверку не попадают: копия русской строки
+     в английской колонке прошла бы незамеченной. */
+  for(const q of en.ABOUT_QUIZ){
+    for(const field of ["q", "why"]){
+      const value = String(en.L(q, field));
+      assert.ok(!/[а-яА-ЯёЁ]/.test(value), `${q.id}.${field} не переведён: ${value}`);
+    }
+    en.L(q, "a").forEach((text, i) => {
+      assert.ok(!/[а-яА-ЯёЁ]/.test(String(text)), `${q.id}: вариант ${i} не переведён — ${text}`);
+    });
+  }
+});
+
+/* Нижний лист настроек выезжает от края экрана вверх, и пружинная
+   кривая для него значит не то же самое, что для окна по центру.
+   Окно уменьшено на 5% и, проскочив единицу, всего лишь на мгновение
+   становится чуть больше конечного размера. Лист, проскочив свою
+   конечную точку, уходит выше края экрана: на замере 390 × 844 это
+   74 пикселя пустоты под ним на 166-й миллисекунде — то есть видимая
+   страница там, где у листа обязан быть низ окна. */
+test("нижний лист настроек выезжает без перелёта", () => {
+  const css = fs.readFileSync(path.join(ROOT, "css", "settings.css"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  /* Блоков с таким условием в файле несколько, и первый из них — про
+     рельс разделов, а не про лист: смотреть надо во все сразу. */
+  const mobile = Array.from(
+    css.matchAll(/@media\(max-width:680px\)\{((?:[^{}]|\{[^{}]*\})*)\}/g), m => m[1]).join("\n");
+  assert.ok(mobile.trim(), "не нашёлся блок узкого экрана в css/settings.css");
+
+  const rules = Array.from(mobile.matchAll(/([^{}]+)\{([^{}]*)\}/g))
+    .filter(r => /\.sheet\b/.test(r[1]));
+  assert.ok(rules.length, "на узком экране у .sheet нет ни одного правила");
+  const body = rules.map(r => r[2]).join(";");
+  assert.ok(!/--ease-spring/.test(body),
+    "на узком экране лист едет по пружинной кривой — он перелетит край экрана");
+  assert.match(body, /transition-timing-function:/,
+    "кривая перехода на узком экране не переопределена — останется пружина из общего правила");
 });

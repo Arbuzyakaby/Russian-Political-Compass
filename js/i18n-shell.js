@@ -37,6 +37,7 @@
     "word.convocation":   [["созыв", "созыва", "созывов"], ["convocation", "convocations"]],
     "word.subaxis":       [["под-ось", "под-оси", "под-осей"], ["sub-axis", "sub-axes"]],
     "word.language":      [["язык", "языка", "языков"], ["language", "languages"]],
+    "word.milestone":     [["веха", "вехи", "вех"], ["milestone", "milestones"]],
 
     "search.label":       ["Поиск партии", "Search parties"],
     "search.placeholder": ["Найти партию…", "Find a party…"],

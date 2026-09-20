@@ -92,7 +92,10 @@
     var isUpdate = which === "update";
 
     document.getElementById("welEyebrow").textContent =
-      isUpdate ? PC.t("wel.up.eyebrow", { v:PC.VERSION }) : PC.t("wel.eyebrow");
+      /* Надпись читает человек, поэтому здесь человеческий номер —
+         с приставкой линии. Сравнение версий (decide) по-прежнему идёт
+         по PC.VERSION: там номер обязан быть голым числом. */
+      isUpdate ? PC.t("wel.up.eyebrow", { v:PC.VERSION_LABEL || PC.VERSION }) : PC.t("wel.eyebrow");
     document.getElementById("welTitle").textContent =
       PC.t(isUpdate ? "wel.up.h" : "wel.h");
     document.getElementById("welLede").textContent =

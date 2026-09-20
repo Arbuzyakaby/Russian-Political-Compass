@@ -212,27 +212,75 @@
       function(n){ return !n.disabled && n.offsetParent !== null; });
   }
 
+  /* Пока панель едет, с неё снимается стекло: см. .sheet.is-moving
+     в css/settings.css. Класс убирается по концу перехода, а таймер —
+     страховка на случай, когда transitionend не придёт вовсе: при
+     выключенных анимациях перехода нет, а событие «переход закончился»
+     без перехода не наступает. Прошлый таймер всегда гасится: быстрое
+     «открыть — закрыть — открыть» иначе сняло бы класс у уже едущей
+     в другую сторону панели. */
+  var moveTimer = null;
+  function moving(){
+    if(!sheet) return;
+    sheet.classList.add("is-moving");
+    clearTimeout(moveTimer);
+    var done = function(e){
+      /* У панели два перехода сразу, и прозрачность заканчивается раньше
+         движения. Вернуть стекло по её событию значит вернуть его
+         посреди хода — то есть устроить пересчёт размытия ровно там,
+         где его и убирали. Ждём именно transform и именно у самой
+         панели: переходы внутри неё всплывают сюда же. */
+      if(e && (e.target !== sheet || e.propertyName !== "transform")) return;
+      clearTimeout(moveTimer);
+      sheet.removeEventListener("transitionend", done);
+      sheet.classList.remove("is-moving");
+    };
+    sheet.addEventListener("transitionend", done);
+    moveTimer = setTimeout(done, 300);
+  }
+
   function open(){
     if(!sheet || !sheet.hidden) return;
     lastFocus = document.activeElement;
     sheet.hidden = false;
     scrim.hidden = false;
-    /* два кадра: первый вставляет панель в поток, второй запускает
-       переход — иначе браузер схлопнет оба состояния в одно */
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        sheet.classList.add("is-open");
-        scrim.classList.add("is-open");
-      });
-    });
     if(opener) opener.setAttribute("aria-expanded", "true");
     document.body.classList.add("sheet-lock");
-    var first = focusables()[0];
-    if(first) first.focus({ preventScroll:true });
+    /* два кадра: первый вставляет панель в поток, второй запускает
+       переход — иначе браузер схлопнет оба состояния в одно.
+
+       Фокус ставится здесь же, вторым кадром, а не сразу после
+       снятия hidden (как было до 2.5). Постановка фокуса заставляет
+       браузер посчитать раскладку панели целиком, и на телефоне эта
+       работа занимала больше сотни миллисекунд — ровно между вызовом
+       open() и первым нарисованным кадром. Переход при этом уже шёл по
+       часам, поэтому первый видимый кадр приходился почти на его конец:
+       вместо выезда получался прыжок. Теперь порядок обратный —
+       сначала запускается переход, потом считается фокус. */
+    var started = false;
+    var start = function(){
+      if(started) return;
+      started = true;
+      moving();
+      sheet.classList.add("is-open");
+      scrim.classList.add("is-open");
+      var first = focusables()[0];
+      if(first) first.focus({ preventScroll:true });
+    };
+    requestAnimationFrame(function(){ requestAnimationFrame(start); });
+    /* Страховка таймером — тот же приём, что у рельса оглавления
+       в js/ui.js и по той же причине: у невидимой вкладки браузер
+       кадров не рисует, и запрошенный обратный вызов не приходит
+       никогда. Без неё панель, открытая из фоновой вкладки, осталась бы
+       навсегда за нижней кромкой экрана: hidden уже снят, а класс,
+       который её выдвигает, так и не поставлен. Кто успел первым, тот
+       и запускает; второй видит поднятый флаг и молча выходит. */
+    setTimeout(start, 60);
   }
 
   function close(){
     if(!sheet || sheet.hidden) return;
+    moving();
     sheet.classList.remove("is-open");
     scrim.classList.remove("is-open");
     if(opener) opener.setAttribute("aria-expanded", "false");

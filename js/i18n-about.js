@@ -126,10 +126,10 @@
                            "A faction's stance is given as the prevailing one: individual deputies voted differently. Where a faction had no official line, the table says “no data” rather than offering a guess — the only value of this section is that it can be trusted."],
 
     "ab.quiz.h":          ["Тест на 90 утверждений", "The 90-statement quiz"],
-    "ab.quiz.p":          ["Тест ставит на ту же сетку вас. Сорок пять утверждений про экономику и сорок пять про роль государства, ответ по шкале от «полностью не согласен» до «полностью согласен». Согласие двигает координату к одному полюсу оси, несогласие — к другому; несколько ключевых утверждений весят чуть больше, потому что разводят позиции сильнее остальных.",
-                           "The quiz puts you on the same grid. Forty-five statements about the economy and forty-five about the role of the state, answered on a scale from strongly disagree to strongly agree. Agreement moves the coordinate toward one pole of the axis and disagreement toward the other; a few key statements weigh slightly more because they separate positions more sharply."],
-    "ab.quiz.p2":         ["Результат — две координаты и список партий, отсортированный по расстоянию до вашей точки. Совпадение в процентах считается именно от расстояния и означает близость координат, а не совет за кого-то голосовать.",
-                           "The result is two coordinates and a list of parties sorted by distance from your point. The percentage match is computed from that distance and means closeness of coordinates, not advice on how to vote."],
+    "ab.quiz.p":          ["Тест ставит на ту же сетку вас. Сорок пять утверждений про экономику и сорок пять про роль государства, ответ по шкале от «полностью не согласен» до «полностью согласен». Согласие двигает координату к одному полюсу оси, несогласие — к другому; пять ключевых утверждений весят 1.3 против 1 у остальных, потому что разводят позиции сильнее прочих.",
+                           "The quiz puts you on the same grid. Forty-five statements about the economy and forty-five about the role of the state, answered on a scale from strongly disagree to strongly agree. Agreement moves the coordinate toward one pole of the axis and disagreement toward the other; five key statements carry a weight of 1.3 against 1 for the rest, because they separate positions more sharply than the others."],
+    "ab.quiz.p2":         ["Версий теста три — на 90, 40 и 20 утверждений, — но это не три анкеты, а три вложенные выборки одного набора и одна общая шкала: короткая целиком входит в стандартную, стандартная — в расширенную, и результат любой из них лежит на том же поле. Результат — две координаты и список партий, отсортированный по расстоянию до вашей точки. Совпадение в процентах считается именно от расстояния и означает близость координат, а не совет за кого-то голосовать.",
+                           "There are three versions of the quiz — 90, 40 and 20 statements — but they are not three questionnaires: they are three nested selections of one set sharing a single scale, the short one contained in the standard and the standard in the extended, so a result from any of them lands on the same board. The result is two coordinates and a list of parties sorted by distance from your point. The percentage match is computed from that distance and means closeness of coordinates, not advice on how to vote."],
     "ab.quiz.p3":         ["На экране результата раскрывается разбор: каждое утверждение с его вкладом в координату, пятёрка ответов, повлиявших сильнее прочих, и профиль по шести под-осям, наложенный на профиль ближайшей партии. Формула не прячется — сумма вкладов, достижимый максимум и итоговое число показаны прямо в таблице.",
                            "The result screen opens up a breakdown: every statement with its contribution to the coordinate, the five answers that mattered most, and a six-sub-axis profile overlaid on the profile of the closest party. The formula is not hidden — the total of the contributions, the reachable maximum and the resulting figure are all shown in the table."],
     "ab.quiz.note":       ["Ответы никуда не отправляются: они лежат в localStorage вашего браузера, и кнопка «Сбросить ответы» стирает их полностью. Никакой аналитики, счётчиков и внешних запросов в проекте нет — единственный внешний ресурс на странице это шрифты.",
@@ -145,9 +145,47 @@
     "ab.not.l4":          ["Не собирает и не передаёт данные о посетителях.",
                            "It does not collect or transmit any visitor data."],
 
+    /* ===== тест по разделу (2.5) =====
+       Префикс ab.aq, а не ab.quiz: ключи ab.quiz.* заняты карточкой
+       «Тест на 90 утверждений», которая стоит в этом же разделе и
+       рассказывает совсем о другом тесте. Два разных теста с общим
+       префиксом — это гарантированная путаница при первой же правке. */
+    "ab.aq.h":            ["Проверьте себя по разделу", "Check yourself on this section"],
+    "ab.aq.p":            ["Десять вопросов о том, как устроен компас. Ответ на каждый написан в одной из карточек выше — это проверка прочитанного, а не викторина на эрудицию. Результат остаётся в вашем браузере и никуда не отправляется.",
+                           "Ten questions about how the compass works. The answer to each is written in one of the cards above — this checks what you have read, not what you happen to know. The result stays in your browser and is sent nowhere."],
+    "ab.aq.count":        ["Вопрос {n} из {total}", "Question {n} of {total}"],
+    "ab.aq.next":         ["Дальше", "Next"],
+    "ab.aq.done":         ["Показать результат", "Show the result"],
+    "ab.aq.score":        ["{n} из {total}", "{n} out of {total}"],
+    "ab.aq.again":        ["Пройти заново", "Take it again"],
+    "ab.aq.reread":       ["Читать в разделе", "Read it in the section"],
+    "ab.aq.right":        ["Верно", "Correct"],
+    "ab.aq.wrong":        ["Неверно", "Not quite"],
+    /* Итоговый экран: заголовок, совет и список разделов к перечитыванию.
+       Три строки поздравления на три диапазона — не украшение: «10 из 10»
+       и «3 из 10» требуют разного продолжения, и одна общая фраза
+       звучала бы издёвкой в одном случае и сухо в другом. */
+    "ab.aq.res.h":        ["Раздел прочитан", "The section has been read"],
+    "ab.aq.res.mid":      ["Основное на месте, но кое-что стоит перечитать", "The main points are there, but a few things are worth a second look"],
+    "ab.aq.res.low":      ["Похоже, раздел ещё не читан", "It looks as though the section has not been read yet"],
+    "ab.aq.reread.h":     ["Вернуться стоит сюда", "Worth going back to"],
+    "ab.aq.saved":        ["Прошлый результат", "Your last result"],
+    "ab.aq.aria":         ["Варианты ответа", "Answer options"],
+    "ab.aq.progress":     ["Ход теста по разделу", "Progress through the section quiz"],
+
+    /* ===== история проекта (2.5) ===== */
+    "ab.history.h":       ["История проекта", "The project's history"],
+    "ab.history.p":       ["Проект существует меньше месяца, и половина вех в этой ленте — не новые возможности, а переделки того, что уже было и работало плохо. Это не оговорка: почти всё, чем сейчас можно пользоваться, сначала вышло в виде, который пришлось переписать.",
+                           "The project is less than a month old, and half the milestones in this timeline are not new features but rebuilds of things that already existed and worked badly. That is not an apology: nearly everything usable here first shipped in a form that had to be rewritten."],
+    /* Итог под лентой собирается из самого массива (js/ui.js): число вех
+       и крайние даты нигде не записаны словами и потому не отстанут от
+       списка — ровно та же причина, по которой плитки чисел проекта
+       считаются из данных, а не стоят в разметке. */
+    "ab.history.sum":     ["{w} · с {a} по {b}", "{w} · from {a} to {b}"],
+
     "ab.tech.h":          ["Как это устроено", "How it is built"],
-    "ab.tech.p":          ["Статическая страница без сборки, фреймворков и зависимостей: HTML, CSS и обычный JavaScript. Компас, парламентская диаграмма, график динамики, спектр и диаграмма-паук рисуются в SVG прямо в браузере. Тема по умолчанию системная — берётся из настроек операционной системы и меняется вместе с ней, пока вы не выберете светлую или тёмную вручную.",
-                           "A static page with no build step, no framework and no dependencies: HTML, CSS and plain JavaScript. The compass, the hemicycle, the trend chart, the spectrum and the radar are all drawn as SVG in the browser. The default theme follows the system — it is taken from the operating system's settings and changes with them until you pick light or dark by hand."],
+    "ab.tech.p":          ["Статическая страница без сборки, фреймворков и зависимостей: HTML, CSS и обычный JavaScript. Компас, парламентская диаграмма, график динамики, спектр и диаграмма-паук рисуются в SVG прямо в браузере. Тема по умолчанию системная — берётся из настроек операционной системы и меняется вместе с ней, пока вы не выберете светлую или тёмную вручную. Сама разметка при этом написана по-русски и помечена атрибутами перевода, а не собирается скриптом: без JavaScript страница остаётся полноценным русским документом — без графиков, но со всем текстом и всеми числами.",
+                           "A static page with no build step, no framework and no dependencies: HTML, CSS and plain JavaScript. The compass, the hemicycle, the trend chart, the spectrum and the radar are all drawn as SVG in the browser. The default theme follows the system — it is taken from the operating system's settings and changes with them until you pick light or dark by hand. The markup itself is written in Russian and tagged with translation attributes rather than assembled by a script: without JavaScript the page stays a fully readable Russian document — no charts, but all of the text and all of the numbers."],
     "ab.tech.p2":         ["Доступность: точки компаса и элементы легенд достижимы с клавиатуры, у графика динамики есть таблица данных как альтернатива цвету, цвет нигде не остаётся единственным кодом, а анимации выключаются по <code>prefers-reduced-motion</code>.",
                            "Accessibility: compass dots and legend items are reachable from the keyboard, the trend chart offers a data table as an alternative to colour, colour is never the only code anywhere, and animations switch off under <code>prefers-reduced-motion</code>."],
     "ab.tech.cta":        ["Исходный код открыт: <a href=\"https://github.com/Arbuzyakaby/Russian-Political-Compass\" target=\"_blank\" rel=\"noopener noreferrer\">github.com/Arbuzyakaby/Russian-Political-Compass</a>. Замечания к координатам, данным и формулировкам вопросов — через issues.",
