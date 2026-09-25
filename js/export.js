@@ -10,7 +10,7 @@
    Кому нужен «настоящий» CSV с запятой — есть JSON, он без компромиссов.
 
    Картинка компаса собирается из живого SVG: узел клонируется вместе
-   с текущим созывом, фильтром и слоем траекторий, а переменные темы
+   с текущим созывом, фильтром и слоем заявленных позиций, а переменные темы
    разворачиваются в конкретные цвета — иначе отдельный файл не знал бы,
    чему равен var(--tag). ============ */
 (function(PC){
@@ -109,13 +109,18 @@
     return toCSV(rows);
   }
 
-  function trajectoriesCSV(){
-    var rows = [[t("csv.id"), t("csv.party"), t("csv.year"), t("csv.x"), t("csv.y"), t("csv.changed")]];
+  /* Заявленная и реальная позиция в одной строке: столбцы идут парами,
+     чтобы разрыв можно было посчитать в таблице самому, а готовое число
+     стоит рядом — для тех, кому считать не нужно. */
+  function claimsCSV(){
+    var rows = [[t("csv.id"), t("csv.party"), t("csv.declaredX"), t("csv.declaredY"),
+                 t("csv.x"), t("csv.y"), t("csv.gap"), t("csv.claimNote")]];
     PC.PARTIES.forEach(function(p){
-      if(!p.history) return;
-      p.history.forEach(function(h){
-        rows.push([p.id, L(p, "name"), h.year, num(h.x.toFixed(1)), num(h.y.toFixed(1)), L(h, "note")]);
-      });
+      var d = p.declared;
+      if(!d) return;
+      rows.push([p.id, L(p, "name"), num(d.x.toFixed(1)), num(d.y.toFixed(1)),
+                 num(p.x.toFixed(1)), num(p.y.toFixed(1)),
+                 num(Math.hypot(p.x - d.x, p.y - d.y).toFixed(1)), L(d, "note")]);
     });
     return toCSV(rows);
   }
@@ -158,7 +163,7 @@
       source: "Интерактивный политический компас партий РФ",
       url: location.origin + location.pathname,
       exported: new Date().toISOString(),
-      note: "Координаты и траектории — экспертная оценка, а не результат измерения. " +
+      note: "Координаты, реальные и заявленные, — экспертная оценка, а не результат измерения. " +
             "Оси: X — экономика (−10 плановая … +10 рыночная), " +
             "Y — отношение к власти государства (−10 свободы … +10 этатизм).",
       totalSeats: PC.TOTAL_SEATS,
@@ -189,10 +194,8 @@
           leader:L(p, "leader"), color:p.color, x:p.x, y:p.y, seats:seats,
           subAxes:p.sub, theses:L(p, "theses"), why:L(p, "why")
         };
-        if(p.history){
-          out.history = p.history.map(function(h){
-            return { year:h.year, x:h.x, y:h.y, note:L(h, "note") };
-          });
+        if(p.declared){
+          out.declared = { x:p.declared.x, y:p.declared.y, note:L(p.declared, "note") };
         }
         return out;
       })
@@ -288,17 +291,15 @@
       ".node.you .you-mark{fill:" + v("accent") + ";stroke:" + v("tag-halo") + ";stroke-width:1.6;}",
       ".node.you .you-halo{fill:" + v("accent") + ";opacity:.14;}",
       ".node.you .tag{fill:" + v("accent") + ";}",
-      ".trails{opacity:1;}",
-      ".trail-casing{fill:none;stroke:" + v("tag-halo") +
-        ";stroke-linecap:round;stroke-linejoin:round;opacity:.9;}",
-      /* ширина и прозрачность у каждого отрезка свои и стоят
-         атрибутами — в стилях им места нет, иначе они перебьют
-         нарастание толщины, которым и показано направление */
-      ".trail-seg{fill:none;stroke-linecap:round;stroke-linejoin:round;}",
-      ".trail-dot{stroke:" + v("tag-halo") + ";stroke-width:1.4;}",
+      ".claims{opacity:1;}",
+      ".claim{opacity:.8;}",
+      ".claim-casing{stroke:" + v("tag-halo") + ";stroke-width:4.4;stroke-linecap:round;opacity:.9;}",
+      ".claim-line{stroke-width:1.6;stroke-dasharray:4 3.5;stroke-linecap:round;}",
+      ".claim-head{stroke:" + v("tag-halo") + ";stroke-width:1;stroke-linejoin:round;}",
+      ".claim-dot{fill:" + v("tag-halo") + ";stroke-width:2;stroke-dasharray:2.6 2;}",
       /* перекрестие и пульсация — состояния наведения, в файле им не место */
       ".cross,.node .pulse,.node .ring,.node .seat.empty{display:none;}",
-      ".node.muted,.trail.muted{display:none;}"
+      ".node.muted,.claim.muted{display:none;}"
     ].join("\n");
   }
 
@@ -322,16 +323,16 @@
     clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
     clone.setAttribute("width", SIZE);
     clone.setAttribute("height", SIZE);
-    /* слой траекторий в файле показываем только если он включён на экране */
-    if(!PC.compass.trailsOn()){
-      var t = clone.querySelector(".trails");
+    /* слой заявленных позиций в файле показываем только если он включён на экране */
+    if(!PC.compass.claimsOn()){
+      var t = clone.querySelector(".claims");
       if(t) t.remove();
     }
     /* фон: без него прозрачный PNG в тёмной теме выглядит пустым листом */
     var bg = document.createElementNS(PC.geom.NS, "rect");
     bg.setAttribute("x", 0); bg.setAttribute("y", 0);
     bg.setAttribute("width", SIZE); bg.setAttribute("height", SIZE);
-    bg.setAttribute("fill", v("bg") || "#06080e");
+    bg.setAttribute("fill", v("bg") || "#0b0d11");
     clone.insertBefore(bg, clone.firstChild);
 
     var style = document.createElementNS(PC.geom.NS, "style");
@@ -351,7 +352,7 @@
       var canvas = document.createElement("canvas");
       canvas.width = px; canvas.height = px;
       var ctx = canvas.getContext("2d");
-      ctx.fillStyle = v("bg") || "#06080e";
+      ctx.fillStyle = v("bg") || "#0b0d11";
       ctx.fillRect(0, 0, px, px);
       ctx.drawImage(img, 0, 0, px, px);
       canvas.toBlob(function(blob){
@@ -378,8 +379,8 @@
       run:function(){ downloadText(partiesCSV(), fileName("partii", "csv"), "text/csv"); } },
     { id:"seats", label:"ex.seats", hint:"ex.seats.h",
       run:function(){ downloadText(seatsCSV(), fileName("mandaty", "csv"), "text/csv"); } },
-    { id:"traj",  label:"ex.traj",  hint:"ex.traj.h",
-      run:function(){ downloadText(trajectoriesCSV(), fileName("traektorii", "csv"), "text/csv"); } },
+    { id:"claims", label:"ex.claims", hint:"ex.claims.h",
+      run:function(){ downloadText(claimsCSV(), fileName("zayavleno-i-na-dele", "csv"), "text/csv"); } },
     { id:"sub",   label:"ex.sub",   hint:"ex.sub.h",
       run:function(){ downloadText(subaxesCSV(), fileName("pod-osi", "csv"), "text/csv"); } },
     { id:"votes", label:"ex.votes", hint:"ex.votes.h",
@@ -463,7 +464,7 @@
   PC.exporter = {
     init:init, download:download,
     compassSVG:compassSVG, compassPNG:compassPNG,
-    partiesCSV:partiesCSV, seatsCSV:seatsCSV, trajectoriesCSV:trajectoriesCSV,
+    partiesCSV:partiesCSV, seatsCSV:seatsCSV, claimsCSV:claimsCSV,
     subaxesCSV:subaxesCSV, votesCSV:votesCSV,
     datasetJSON:datasetJSON, quizCSV:quizCSV
   };

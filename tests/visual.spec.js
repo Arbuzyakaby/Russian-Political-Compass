@@ -323,19 +323,22 @@ test("кастомный список созывов меняет созыв н�
   await page.waitForFunction(() => document.querySelectorAll("#svg .node").length > 0);
 });
 
-test("траектории: подложка под линией и фокус на одном маршруте", async ({ page }) => {
-  await page.locator("#trailBtn").click();
-  await expect(page.locator("#svg")).toHaveClass(/show-trails/);
+test("заявленные позиции: слой включён сразу, фокус на одной паре, чип прячет", async ({ page }) => {
+  const svg = page.locator("#svg");
+  await expect(svg).toHaveClass(/show-claims/);
 
-  const trails = page.locator("#svg .trail");
-  expect(await trails.count()).toBeGreaterThan(1);
-  /* у каждой траектории есть подложка цветом полотна: без неё
-     пересечения читаются как штриховка */
-  expect(await page.locator("#svg .trail-casing").count()).toBe(await trails.count());
+  const pairs = page.locator("#svg .claim");
+  expect(await pairs.count()).toBeGreaterThan(5);
+  /* у каждой пары есть полая точка — без неё стрелка ни к чему не ведёт */
+  expect(await page.locator("#svg .claim-dot").count()).toBe(await pairs.count());
 
-  await trails.first().hover();
-  await expect(page.locator("#svg .trails")).toHaveClass(/has-focus/);
-  await expect(trails.first()).toHaveClass(/is-focus/);
+  await page.locator('#svg .claim[data-id="ldpr"] .claim-dot').hover();
+  await expect(page.locator("#svg .claims")).toHaveClass(/has-focus/);
+  await expect(page.locator('#svg .claim[data-id="ldpr"]')).toHaveClass(/is-focus/);
+
+  await page.locator("#claimBtn").click();
+  await expect(svg).not.toHaveClass(/show-claims/);
+  await expect(page.locator("#claimBtn")).toHaveAttribute("aria-pressed", "false");
 });
 
 test("карточка партии открывается со сводкой о партии", async ({ page }) => {

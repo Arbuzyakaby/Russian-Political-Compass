@@ -98,6 +98,13 @@
       hEn:"A full audit",
       p:"Версия без единой новой возможности: целиком про то, что уже есть и местами не работает. Боковая панель переписана, полноэкранный SRPC научился помещаться в телефон, а выключенные анимации оказались выключены по-настоящему — до этого бесконечные из них шли тысячу циклов в секунду.",
       pEn:"A release with not one new feature: entirely about what already exists and in places does not work. The side panel was rewritten, full-screen SRPC learned to fit on a phone, and animations switched off turned out to be genuinely off — until then the endless ones had been running a thousand cycles a second."
+    },
+    {
+      v:"3.0 «Висла»", date:"2026-09-25",
+      h:"Слова и дела",
+      hEn:"Words and deeds",
+      p:"Первая версия с именем реки. У каждой партии теперь две точки: где она стоит на деле и где — по собственным словам, и стрелка между ними. Данные переведены на IX созыв, избранный в сентябре 2026 года, голосований стало двадцать восемь, а траектории ушли: пять оценок подряд выглядели измерением, которым не были.",
+      pEn:"The first version named after a river. Every party now has two dots — where it actually stands and where it says it stands — with an arrow between them. The data moved to the IX convocation elected in September 2026, the votes grew to twenty-eight, and the trajectories went: five estimates in a row looked like a measurement they never were."
     }
   ];
 })(window.PC = window.PC || {});

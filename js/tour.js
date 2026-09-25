@@ -41,8 +41,8 @@
 
    ---------- шаги, которых может не быть ----------
 
-   Половина целей — необязательные узлы: кнопка траекторий прячется,
-   если у партий нет истории, карточка Lumen выключается настройкой,
+   Половина целей — необязательные узлы: кнопка заявленных позиций прячется,
+   если у партий их нет, карточка Lumen выключается настройкой,
    кнопка «наверх» — тоже. Шаг, чьей цели на странице нет или она
    скрыта, просто выпадает из маршрута, и нумерация считается по
    оставшимся. Тур не должен показывать пустой прямоугольник и
@@ -60,7 +60,7 @@
     { key:"conv",     tab:"compass", sel:".conv-select",     pad:10, place:"bottom" },
     { key:"search",   tab:"compass", sel:"#searchWrap",      pad:8,  place:"bottom" },
     { key:"side",     tab:"compass", sel:".side-flip",       pad:10, place:"left" },
-    { key:"trails",   tab:"compass", sel:"#trailBtn",        pad:8,  place:"bottom" },
+    { key:"claims",   tab:"compass", sel:"#claimBtn",        pad:8,  place:"bottom" },
     { key:"export",   tab:"compass", sel:"#exportBtn",       pad:8,  place:"bottom" },
     { key:"quiz",     tab:"compass", sel:"#tab-quiz",        pad:8,  place:"bottom" },
     { key:"settings", tab:"compass", sel:"#settingsBtn",     pad:8,  place:"bottom" }

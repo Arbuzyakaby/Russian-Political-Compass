@@ -143,7 +143,7 @@
    на белом, ссылки раскрываются адресами. */
 @media print{
   .grain,.read-bar,.to-top,.toasts,.tools,.tabs,.tabs-sentinel,
-  .chips,.trail-chip,.export-wrap,.conv-select,.xs,.sheet,.sheet-scrim,
+  .chips,.claim-chip,.export-wrap,.conv-select,.xs,.sheet,.sheet-scrim,
   .data-toggle,.co-card .chart-toolbar,
   .foot-col,.foot-call,.foot-figures,.tip,.c-tip,.hemi-center{display:none!important;}
   body{background:#fff!important;color:#000;}

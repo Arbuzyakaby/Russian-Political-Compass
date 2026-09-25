@@ -74,6 +74,12 @@
 .qr-poles{display:flex;justify-content:space-between;font-size:calc(9.5px * var(--text-k));color:var(--muted-2);margin-top:5px;}
 .qr-summary{font-size:calc(13.5px * var(--text-k));line-height:1.6;color:var(--body);margin-bottom:20px;}
 .qr-summary b{color:var(--text);font-weight:700;}
+/* строка о заявленных позициях (3.0) — вторичная к основному итогу,
+   поэтому мельче и с пунктирной чертой слева: тот же знак «заявлено»,
+   что у полой точки на компасе */
+.qr-said{font-size:calc(12.5px * var(--text-k));line-height:1.6;color:var(--body);
+  margin:-8px 0 20px;padding-left:12px;border-left:2px dashed var(--stroke-2,var(--stroke));}
+.qr-said b{color:var(--text);font-weight:700;}
 
 .qr-side{display:flex;flex-direction:column;gap:14px;}
 .mini-compass{width:100%;height:auto;display:block;border-radius:14px;background:var(--surface);
@@ -100,6 +106,10 @@
   text-overflow:ellipsis;white-space:nowrap;}
 .qr-row .track{flex:1;min-width:40px;height:7px;border-radius:4px;background:var(--surface-2);
   border:1px solid var(--stroke);overflow:hidden;}
+/* полая метка на полосе — совпадение с заявленной позицией партии */
+.qr-row .track{position:relative;overflow:visible;}
+.qr-row .said{position:absolute;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;
+  border:2px dashed;background:var(--bg);box-sizing:border-box;pointer-events:auto;}
 .qr-row .fill{display:block;height:100%;width:0;border-radius:4px;
   transition:width .8s cubic-bezier(.2,.9,.3,1);}
 .qr-row .m{font-size:calc(11.5px * var(--text-k));font-weight:650;color:var(--text);flex:none;width:38px;text-align:right;

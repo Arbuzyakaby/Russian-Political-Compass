@@ -62,7 +62,7 @@ test("порядок скриптов: зависимости раньше по�
    создаваемые экраны (тест, карточка партии, меню экспорта) сюда не
    входят: их id живут в том же файле, что и их разметка. */
 const STATIC_IDS = [
-  "app.js:q", "app.js:clearBtn", "app.js:convSelect", "app.js:trailBtn", "app.js:lead",
+  "app.js:q", "app.js:clearBtn", "app.js:convSelect", "app.js:claimBtn", "app.js:lead",
   "theme.js:themeSeg",
   "i18n.js:langSeg",
   "settings.js:setSheet", "settings.js:setScrim", "settings.js:settingsBtn",
@@ -351,11 +351,16 @@ test("номер версии совпадает во всех местах, г�
   assert.equal(foot[1].trim(), PC.VERSION_LABEL,
     `в подвале «${foot[1].trim()}», а PC.VERSION_LABEL — «${PC.VERSION_LABEL}»`);
 
+  /* С 3.0 у версии есть имя, и по-английски оно своё: английская
+     подсказка обязана назвать номер и английское имя реки, а не
+     русскую подпись — кириллицы в английских строках быть не должно. */
   const tips = PC.i18n.entry("foot.version.tip");
-  tips.forEach((tip, lang) => {
-    assert.ok(tip.includes(PC.VERSION_LABEL),
-      `подсказка к версии (${lang ? "en" : "ru"}) не упоминает ${PC.VERSION_LABEL}: ${tip}`);
-  });
+  assert.ok(tips[0].includes(PC.VERSION_LABEL),
+    `подсказка к версии (ru) не упоминает ${PC.VERSION_LABEL}: ${tips[0]}`);
+  assert.ok(tips[1].includes(PC.VERSION) && tips[1].includes(PC.VERSION_NAME.en),
+    `подсказка к версии (en) не упоминает ${PC.VERSION} и ${PC.VERSION_NAME.en}: ${tips[1]}`);
+  assert.equal(PC.versionLabel("en"), PC.VERSION + " “" + PC.VERSION_NAME.en + "”");
+  assert.equal(PC.versionLabel("ru"), PC.VERSION_LABEL);
 
   const footTitle = html.match(/class="foot-version"[\s\S]*?title="([^"]+)"/);
   assert.ok(footTitle[1].includes(PC.VERSION_LABEL),

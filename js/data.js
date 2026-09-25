@@ -29,11 +29,14 @@
    изменений, сравнивая запись в pc-welcome с этой строкой), и потому он
    обязан оставаться голым числом, которое можно сопоставить с
    package.json. VERSION_LABEL — тот же номер, каким его видит человек:
-   у линии 2.X есть приставка RPC, и подвал, приветствие и CHANGELOG
-   подписаны ею. Приставка кончится вместе с линией: 3.0 выйдет без неё,
-   и тогда две строки снова сойдутся в одну. */
-var VERSION = "2.5";
-var VERSION_LABEL = "RPC 2.5";
+   у линии 2.X была приставка RPC, а с 3.0 у выпусков есть имя —
+   гидроним, название реки. Подвал, приветствие и CHANGELOG подписаны
+   номером вместе с именем; машинный номер остаётся голым. VERSION_NAME
+   нужен отдельно, чтобы английский интерфейс мог назвать реку
+   по-английски, не разбирая строку подписи. */
+var VERSION = "3.0";
+var VERSION_NAME = { ru:"Висла", en:"Vistula" };
+var VERSION_LABEL = VERSION + " «" + VERSION_NAME.ru + "»";
 
 /* Созывы, от нового к старому — в этом порядке они и стоят в списке
    над компасом. Необязательное поле draft означает, что созыв заведён
@@ -44,7 +47,8 @@ var VERSION_LABEL = "RPC 2.5";
    зашито в код. Подробный порядок действий — в разделе README
    «Как внести новый созыв». */
 var CONVOCATIONS = [
-  { id:9, label:"IX созыв", years:"2026–2031", draft:true, en:{ label:"IX convocation" } },
+  { id:10, label:"X созыв",  years:"2031–2036", draft:true, en:{ label:"X convocation" } },
+  { id:9, label:"IX созыв",   years:"2026–2031", en:{ label:"IX convocation" } },
   { id:8, label:"VIII созыв", years:"2021–2026", en:{ label:"VIII convocation" } },
   { id:7, label:"VII созыв",  years:"2016–2021", en:{ label:"VII convocation" } },
   { id:6, label:"VI созыв",   years:"2011–2016", en:{ label:"VI convocation" } },
@@ -65,7 +69,7 @@ var SUBAXES = [
 ];
 
 var TOTAL_SEATS = 450;
-var CURRENT_CONVOCATION = 8;   /* созыв, мандаты которого лежат в поле seats */
+var CURRENT_CONVOCATION = 9;   /* созыв, мандаты которого лежат в поле seats */
 
 /* Мандаты партии в конкретном созыве. null — партии в этом созыве
    не существовало (не участвовала / не была зарегистрирована), 0 —
@@ -122,6 +126,13 @@ function voteAgreement(a, b){
 
 PC.VERSION = VERSION;
 PC.VERSION_LABEL = VERSION_LABEL;
+PC.VERSION_NAME = VERSION_NAME;
+/* Подпись версии на языке интерфейса: в английском тексте русское имя
+   реки было бы единственной кириллицей на странице. */
+PC.versionLabel = function(lang){
+  if(lang === undefined) lang = PC.i18n && !PC.i18n.isRu() ? "en" : "ru";
+  return lang === "ru" ? VERSION_LABEL : VERSION + " “" + VERSION_NAME.en + "”";
+};
 PC.TOTAL_SEATS = TOTAL_SEATS;
 PC.CONVOCATIONS = convocations();
 PC.CONVOCATIONS_ALL = CONVOCATIONS;

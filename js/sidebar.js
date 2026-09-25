@@ -259,25 +259,33 @@
       '<div id="cmpResult"></div></div>';
   }
 
-  /* Траектория партии словами: те же точки, что рисует слой «Траектории»
-     на компасе, но здесь их видно без включения слоя и с полным текстом
-     пояснения — на поле оно доступно только по наведению. */
-  function trailBlock(p){
-    if(!p.history || p.history.length < 2) return "";
-    var from = p.history[0], to = p.history[p.history.length - 1];
-    var dx = to.x - from.x, dy = to.y - from.y;
-    function move(d, negKey, posKey){
-      if(Math.abs(d) < .5) return t("side.noShift");
-      return t(d < 0 ? negKey : posKey, { d:Math.abs(d).toFixed(1) });
+  /* Заявленная и реальная позиция словами: те же две точки, что рисует
+     слой «Заявленное» на компасе, но здесь их видно без включения слоя и
+     с полным текстом пояснения — на поле оно доступно только по наведению.
+     Сдвиг описывается от слов к делу: «на деле — правее на 3.7», потому
+     что вопрос читателя звучит именно так: «а где она на самом деле?». */
+  function claimBlock(p){
+    var d = p.declared;
+    if(!d) return "";
+    var dx = p.x - d.x, dy = p.y - d.y;
+    var gap = PC.compass && PC.compass.gapOf ? PC.compass.gapOf(p) : Math.sqrt(dx * dx + dy * dy);
+    function move(v, negKey, posKey){
+      if(Math.abs(v) < .5) return t("side.noShift");
+      return t(v < 0 ? negKey : posKey, { d:Math.abs(v).toFixed(1) });
     }
-    return '<div class="sect trail-sect"><h4>' + esc(t("side.trail")) + '</h4>' +
-      '<ol class="tline">' + p.history.map(function(h){
-        return '<li><span class="y">' + h.year + '</span>' +
-          '<span class="c">' + fmt(h.x) + ' / ' + fmt(h.y) + '</span>' +
-          '<p>' + esc(L(h, "note")) + '</p></li>';
-      }).join("") + '</ol>' +
-      '<div class="hist-note">' + esc(t("side.trailSum", {
-        from:from.year, to:to.year,
+    function row(cls, key, x, y){
+      return '<div class="claim-row ' + cls + '"><i style="--c:' + esc(p.color) + '"></i>' +
+        '<span class="k">' + esc(t(key)) + '</span>' +
+        '<span class="v">' + fmt(x) + ' / ' + fmt(y) + '</span></div>';
+    }
+    return '<div class="sect claim-sect"><h4>' + esc(t("side.claim")) + '</h4>' +
+      '<div class="claim-rows">' +
+        row("said", "side.claimSaid", d.x, d.y) +
+        row("done", "side.claimDone", p.x, p.y) +
+        '<div class="claim-gap"><b>' + gap.toFixed(1) + '</b><span>' + esc(t("side.claimGap")) + '</span></div>' +
+      '</div>' +
+      '<div class="note"><p>' + esc(L(d, "note")) + '</p></div>' +
+      '<div class="hist-note">' + esc(t("side.claimSum", {
         dx:move(dx, "side.left", "side.right"),
         dy:move(dy, "side.down", "side.up")
       })) + '</div></div>';
@@ -338,7 +346,7 @@
         neighbourBlock(p) +
         compareBlock(p) +
         (PC.votes ? PC.votes.partyBlock(p) : "") +
-        trailBlock(p) +
+        claimBlock(p) +
       '</div>';
 
     body.scrollTop = 0;

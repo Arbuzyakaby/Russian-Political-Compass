@@ -76,7 +76,7 @@
     function paint(){
       if(state.active){
         /* Переход между карточками двух РАЗНЫХ партий (например, при
-           просмотре траекторий одной за другой) — это обновление данных,
+           переходе по соседям на компасе одной за другой) — это обновление данных,
            а не первое открытие карточки: полный стартовый разъезд полей
            анимацией здесь неуместен, он выглядит как перезагрузка панели. */
         var freshOpen = !rendered || rendered === "list";
@@ -159,30 +159,34 @@
       if(PC.dropdown) PC.dropdown.sync(convSelect);
     }
 
-    /* Слой траекторий: выбор запоминается, потому что это режим просмотра,
-       а не разовое действие — вернувшись, человек ожидает увидеть поле
-       таким, каким оставил. applyTrails — общая точка входа: ею же
-       пользуется PC.resetTrails, чтобы «Сбросить настройки» гасило слой
-       и на самом компасе, а не только в localStorage. */
-    var trailBtn = document.getElementById("trailBtn");
-    var trailsOn = false;
-    function applyTrails(on){
-      trailsOn = on;
-      PC.store.set("pc-trails", on ? "1" : "0");
-      PC.compass.setTrails(on);
-      if(trailBtn) trailBtn.setAttribute("aria-pressed", String(on));
+    /* Слой заявленных позиций: выбор запоминается, потому что это режим
+       просмотра, а не разовое действие — вернувшись, человек ожидает
+       увидеть поле таким, каким оставил. В отличие от траекторий, которые
+       он заменил, слой включён по умолчанию: разрыв между словом и делом —
+       главное, что появилось в 3.0, и прятать его за кнопкой значило бы
+       показывать его только тем, кто и так знает, где искать. applyClaims —
+       общая точка входа: ею же пользуется PC.resetClaims, чтобы «Сбросить
+       настройки» возвращало слой и на самом компасе, а не только в
+       localStorage. */
+    var claimBtn = document.getElementById("claimBtn");
+    var claimsOn = true;
+    function applyClaims(on){
+      claimsOn = on;
+      PC.store.set("pc-claims", on ? "1" : "0");
+      PC.compass.setClaims(on);
+      if(claimBtn) claimBtn.setAttribute("aria-pressed", String(on));
     }
-    if(trailBtn){
-      if(!PC.compass.hasTrails()){
-        trailBtn.hidden = true;
+    if(claimBtn){
+      if(!PC.compass.hasClaims()){
+        claimBtn.hidden = true;
       }else{
-        applyTrails(PC.store.get("pc-trails", "0") === "1");
-        trailBtn.addEventListener("click", function(){ applyTrails(!trailsOn); });
+        applyClaims(PC.store.get("pc-claims", "1") === "1");
+        claimBtn.addEventListener("click", function(){ applyClaims(!claimsOn); });
       }
     }
-    PC.resetTrails = function(){
-      PC.store.remove("pc-trails");
-      applyTrails(false);
+    PC.resetClaims = function(){
+      PC.store.remove("pc-claims");
+      applyClaims(true);
     };
 
     PC.exporter.init();

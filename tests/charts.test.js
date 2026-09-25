@@ -80,7 +80,7 @@ test("экспорт знает про все классы, которыми н�
     "gs-sheen-a", "gs-sheen-b", "gs-sheen-c",
     "quad", "lens-rim", "frame", "frame-inner",
     "grid-minor", "grid-major", "axis", "origin", "tick",
-    "axis-cap", "quad-cap", "trail-casing", "trail-seg", "trail-dot", "tag-leader"
+    "axis-cap", "quad-cap", "claim-casing", "claim-line", "claim-head", "claim-dot", "tag-leader"
   ];
   for(const cls of BOARD){
     assert.ok(compass.includes('"' + cls + '"') || compass.includes("class:\"" + cls + "\"") ||

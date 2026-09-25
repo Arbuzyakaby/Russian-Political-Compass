@@ -156,23 +156,22 @@
 .note{background:var(--surface);border:1px solid var(--stroke);border-radius:12px;padding:13px 14px;}
 .note p{font-size:calc(12.5px * var(--text-k));line-height:1.6;color:var(--body);}
 
-/* ---------- лента траектории партии ---------- */
-/* Вертикальная линия — псевдоэлемент списка, а не отдельная разметка:
-   она должна кончаться на последней точке, поэтому у последнего пункта
-   собственная заглушка цветом подложки не нужна — линия просто короче
-   на высоту его нижнего отступа. */
-.tline{list-style:none;position:relative;margin-top:4px;padding-left:20px;}
-.tline::before{content:"";position:absolute;left:4px;top:6px;bottom:14px;width:1px;
-  background:linear-gradient(180deg,var(--accent-line),color-mix(in srgb,var(--accent-line) 20%,transparent));}
-/* сбрасываем оформление списка тезисов (.sect li): у ленты свой маркер,
-   свой отступ и никакой ступенчатой анимации по пунктам */
-.tline li{position:relative;padding:0 0 13px;animation:none;font-size:inherit;color:inherit;}
-.tline li:last-child{padding-bottom:2px;}
-.tline li::before{content:"";position:absolute;left:-20px;top:5px;width:9px;height:9px;border-radius:50%;
-  background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
-.tline .y{font-size:calc(11px * var(--text-k));font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
-.tline .c{font-size:calc(10px * var(--text-k));color:var(--muted-2);margin-left:8px;font-variant-numeric:tabular-nums;}
-.tline p{font-size:calc(12px * var(--text-k));line-height:1.55;color:var(--body);margin-top:3px;}
+/* ---------- заявлено и на деле (3.0) ---------- */
+/* Две строки с координатами и число разрыва справа. Маркер строки
+   повторяет вид точки на компасе: полый пунктирный кружок — заявленная
+   позиция, сплошной — реальная. Одинаковый смысл выглядит одинаково
+   и на поле, и в карточке. */
+.claim-rows{display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;margin:4px 0 10px;}
+.claim-row{display:flex;align-items:center;gap:9px;grid-column:1;}
+.claim-row i{width:10px;height:10px;border-radius:50%;flex:none;box-sizing:border-box;}
+.claim-row.said i{border:2px dashed var(--c);}
+.claim-row.done i{background:var(--c);}
+.claim-row .k{font-size:calc(12px * var(--text-k));color:var(--muted);}
+.claim-row .v{margin-left:auto;font-size:calc(12.5px * var(--text-k));font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.claim-gap{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:center;
+  padding:6px 12px;border-left:1px solid var(--stroke);}
+.claim-gap b{font-size:calc(20px * var(--text-k));line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+.claim-gap span{font-size:calc(10px * var(--text-k));color:var(--muted-2);margin-top:4px;text-align:center;}
 
 .pitem:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
 

@@ -33,13 +33,13 @@
      затем четыре, появившиеся в 2.0. Точка — цвет-образец в меню:
      подложка и акцент темы, по которым её узнают, не открывая. */
   var THEMES = [
-    { id:"system",    key:"set.theme.system",    bg:"linear-gradient(135deg,#f1efea 50%,#08090d 50%)", dot:"#f0b25f" },
-    { id:"dark",      key:"set.theme.dark",      bg:"#08090d", dot:"#f0b25f" },
-    { id:"light",     key:"set.theme.light",     bg:"#f1efea", dot:"#a1541c" },
-    { id:"paper",     key:"set.theme.paper",     bg:"#f7f2e6", dot:"#b23a2e" },
+    { id:"system",    key:"set.theme.system",    bg:"linear-gradient(135deg,#ecebe6 50%,#0b0d11 50%)", dot:"#a5b4fc" },
+    { id:"dark",      key:"set.theme.dark",      bg:"#0b0d11", dot:"#a5b4fc" },
+    { id:"light",     key:"set.theme.light",     bg:"#ecebe6", dot:"#1d5f5a" },
+    { id:"paper",     key:"set.theme.paper",     bg:"#efede7", dot:"#0b3d91" },
     { id:"alaska",    key:"set.theme.alaska",    bg:"#dde6f0", dot:"#14548c" },
-    { id:"neon",      key:"set.theme.neon",      bg:"#07060f", dot:"#ff4d9d" },
-    { id:"fireplace", key:"set.theme.fireplace", bg:"#16100c", dot:"#ff8a3d" }
+    { id:"neon",      key:"set.theme.neon",      bg:"#0c0716", dot:"#c6ff3d" },
+    { id:"fireplace", key:"set.theme.fireplace", bg:"#160c0e", dot:"#ffc478" }
   ];
 
   /* Цвет строки браузера на мобильных. В разметке стоят два <meta
@@ -49,9 +49,9 @@
      переключении подменяется отдельный тег без медиазапроса: он
      перекрывает оба исходных. */
   var BAR = {
-    light:"#f1efea", dark:"#08090d",
-    paper:"#f7f2e6", alaska:"#dde6f0",
-    neon:"#07060f",  fireplace:"#16100c"
+    light:"#ecebe6", dark:"#0b0d11",
+    paper:"#efede7", alaska:"#dde6f0",
+    neon:"#0c0716",  fireplace:"#160c0e"
   };
 
   var root = document.documentElement;

@@ -243,39 +243,34 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .node.you:hover .seat,.node.you:focus-visible .seat{opacity:1;}
 .tip-dot.you{background:var(--accent);}
 
-/* ---- траектории партий во времени (переписано в 2.4.1) ----
+/* ---- заявленные позиции (3.0) ----
    Слой всегда есть в DOM: включение — смена прозрачности, а не
    перерисовка. pointer-events отключены у выключенного слоя, иначе
-   невидимые узлы маршрута перехватывали бы наведение на точки партий.
+   невидимые полые точки перехватывали бы наведение на точки партий.
 
-   Направление читается толщиной, а не стрелкой: линия набирает вес от
-   прошлого к настоящему (значения ширины и прозрачности приходят
-   атрибутами из js/compass.js, потому что у каждого отрезка они свои).
-   Поэтому здесь нет ни правил ширины линии, ни анимации бегущего
-   штриха, которая была до 2.4.1: у кометного хвоста направление видно
-   и без движения. */
-.trails{opacity:0;pointer-events:none;transition:opacity .4s ease;}
-svg.compass.show-trails .trails{opacity:1;pointer-events:auto;}
-.trail{transition:opacity .3s ease;}
-.trail.muted{opacity:.08;pointer-events:none;}
+   Заявленная точка полая и с пунктирным контуром, реальная — сплошная:
+   различие читается без легенды, даже в чёрно-белой печати. Линия
+   пунктирная по той же причине — это не путь, который партия прошла,
+   а расстояние между словом и делом. */
+.claims{opacity:0;pointer-events:none;transition:opacity .4s ease;}
+svg.compass.show-claims .claims{opacity:1;pointer-events:auto;}
+.claim{opacity:.72;transition:opacity .3s ease;}
+.claim.muted{opacity:0;pointer-events:none;}
 
-/* подложка: у каждого отрезка своя, шире его линии и цветом полотна */
-.trail-casing{fill:none;stroke:var(--tag-halo);stroke-linecap:round;
-  stroke-linejoin:round;opacity:.9;transition:opacity .25s ease;}
-.trail-seg{fill:none;stroke-linecap:round;stroke-linejoin:round;
-  transition:opacity .25s ease;}
-.trail-dot{cursor:pointer;stroke:var(--tag-halo);stroke-width:1.4;
-  transition:r .2s cubic-bezier(.34,1.5,.5,1),opacity .2s ease;}
-.trail-dot:hover{r:6.4;opacity:1;}
+/* подложка цветом полотна: там, где стрелки пересекаются, верхняя
+   прорезает нижнюю, и видно, какая идёт поверх */
+.claim-casing{stroke:var(--tag-halo);stroke-width:4.4;stroke-linecap:round;opacity:.9;}
+.claim-line{stroke-width:1.6;stroke-dasharray:4 3.5;stroke-linecap:round;}
+.claim-head{stroke:var(--tag-halo);stroke-width:1;stroke-linejoin:round;}
+.claim-dot{cursor:pointer;fill:var(--tag-halo);stroke-width:2;stroke-dasharray:2.6 2;
+  transition:r .2s cubic-bezier(.34,1.5,.5,1);}
+.claim-dot:hover{r:7;}
 
 /* ---- режим фокуса ----
-   Пока курсор на одном маршруте, остальные почти гаснут: сравнивать
-   восемь траекторий разом всё равно невозможно, а вопрос у читателя
-   всегда про одну партию. Сам маршрут в фокусе js/compass.js
-   переставляет поверх точек — иначе короткий путь прячется под
-   собственным кружком партии. */
-.trails.has-focus .trail:not(.is-focus){opacity:.1;}
-.trails.has-focus .trail:not(.is-focus) .trail-casing{opacity:0;}
-.trail.is-focus .trail-seg,.trail.active .trail-seg{opacity:1;}
-.trail.is-focus .trail-seg,.trail.active .trail-seg{opacity:1;}
+   Пока курсор на одной паре, остальные гаснут: сравнивать одиннадцать
+   стрелок разом невозможно, а вопрос у читателя всегда про одну партию. */
+.claims.has-focus .claim:not(.is-focus){opacity:.08;}
+.claim.is-focus,.claim.active{opacity:1;}
+.claim.is-focus .claim-line,.claim.active .claim-line{stroke-width:2.2;}
+.tip-dot--hollow{background:transparent !important;border:2px dashed;box-sizing:border-box;}
 

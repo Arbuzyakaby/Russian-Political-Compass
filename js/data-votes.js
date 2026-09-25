@@ -201,6 +201,20 @@ PC.VOTES = [
     }
   },
   {
+    id:"torture-2021", conv:8, date:"2021-10-14", topic:"state", axis:"y",
+    title:"Парламентское расследование пыток в ФСИН",
+    summary:"Предложение КПРФ создать комиссию Госдумы по расследованию пыток в колониях после публикации видеозаписей из саратовской тюремной больницы.",
+    tally:"отклонено: против — 258 депутатов «Единой России», за — вся оппозиция",
+    why:"Первое крупное голосование VIII созыва и самое чистое разделение по оси государства в наборе: все четыре фракции меньшинства — от КПРФ до «Новых людей» — поддержали расследование, «Единая Россия» провалила его почти в полном составе.",
+    pos:{ er:"against", kprf:"for", sr:"for", ldpr:"for", nl:"for" },
+    en:{
+      title:"A parliamentary inquiry into torture in the prison service",
+      summary:"A KPRF proposal to set up a Duma commission on torture in penal colonies after videos from the Saratov prison hospital were published.",
+      tally:"rejected: 258 United Russia deputies against, the whole opposition in favour",
+      why:"The first major vote of the VIII convocation and the cleanest split along the authority axis in the set: all four minority factions — from the KPRF to New People — backed the inquiry, and United Russia sank it almost to a member."
+    }
+  },
+  {
     id:"dnr-2022", conv:8, date:"2022-02-22", topic:"foreign", axis:"y",
     title:"Признание ДНР и ЛНР",
     summary:"Ратификация договоров о дружбе и взаимопомощи с самопровозглашёнными республиками.",
@@ -226,6 +240,34 @@ PC.VOTES = [
       summary:"Article 207.3 of the Criminal Code: up to 15 years in prison for spreading “knowingly false information” about the actions of the Armed Forces.",
       tally:"passed unanimously",
       why:"Passed in all three readings in a single day with no votes against. The strongest restriction on free speech across all convocations — and not a single difference between the factions: on the authority axis the spread of parties in the VIII convocation has all but vanished."
+    }
+  },
+  {
+    id:"echr-2022", conv:8, date:"2022-06-07", topic:"foreign", axis:"y",
+    title:"Отказ исполнять решения ЕСПЧ",
+    summary:"Решения Европейского суда по правам человека, вступившие в силу после 15 марта 2022 года, в России больше не исполняются.",
+    tally:"принят; фракция КПРФ воздержалась",
+    why:"Разрыв с последним внешним механизмом защиты прав граждан поддержали все фракции, кроме КПРФ: коммунисты воздержались почти в полном составе. По этому голосованию видно, что заявленная КПРФ защита гражданских прав иногда всё же доходит до кнопки.",
+    pos:{ er:"for", kprf:"abstain", sr:"for", ldpr:"for", nl:"for" },
+    en:{
+      title:"Refusing to enforce ECHR judgments",
+      summary:"Judgments of the European Court of Human Rights that entered into force after 15 March 2022 are no longer enforced in Russia.",
+      tally:"passed; the KPRF faction abstained",
+      why:"The break with the last external mechanism protecting citizens' rights was backed by every faction except the KPRF, whose members abstained almost to a man. This vote shows that the KPRF's stated defence of civil rights does sometimes reach the voting button."
+    }
+  },
+  {
+    id:"agents-2022", conv:8, date:"2022-06-29", topic:"state", axis:"y",
+    title:"Закон о контроле за деятельностью иноагентов",
+    summary:"Единый закон об «иностранных агентах»: статус можно присвоить за «иностранное влияние» без иностранного финансирования, с запретами на преподавание, госзаказ и работу с детьми.",
+    tally:"принят; «Новые люди» большинством воздержались, КПРФ в основном не голосовала",
+    why:"Одно из немногих голосований созыва, где «Новые люди» не поддержали охранительный закон: десять депутатов воздержались, трое голосовали за. Большинство фракции КПРФ в голосовании не участвовало, четверо были против — в наборе это записано как воздержание: поддержки фракция не дала.",
+    pos:{ er:"for", kprf:"abstain", sr:"for", ldpr:"for", nl:"abstain" },
+    en:{
+      title:"Law on the control of foreign agents' activities",
+      summary:"A single law on “foreign agents”: the label can be assigned for “foreign influence” without foreign funding, with bans on teaching, public contracts and work with children.",
+      tally:"passed; New People mostly abstained, most of the KPRF did not vote",
+      why:"One of the few votes of the convocation in which New People did not back a restrictive law: ten deputies abstained and three voted in favour. Most of the KPRF faction took no part in the vote and four voted against — the set records this as an abstention: the faction gave no support."
     }
   },
   {
@@ -257,6 +299,20 @@ PC.VOTES = [
     }
   },
   {
+    id:"declarations-2023", conv:8, date:"2023-01-25", topic:"state", axis:"y",
+    title:"Отмена публикации деклараций депутатов",
+    summary:"Сведения о доходах и имуществе депутатов и сенаторов перестают публиковаться; декларации подаются, но остаются закрытыми.",
+    tally:"принят; КПРФ в основном против, «Справедливая Россия» воздержалась",
+    why:"Голосование о прозрачности самой власти разделило оппозицию: КПРФ голосовала против, «Справедливая Россия» большинством воздержалась, а ЛДПР и «Новые люди» поддержали закрытие деклараций вместе с «Единой Россией».",
+    pos:{ er:"for", kprf:"against", sr:"abstain", ldpr:"for", nl:"for" },
+    en:{
+      title:"Ending publication of deputies' declarations",
+      summary:"Information on the income and assets of deputies and senators is no longer published; declarations are still filed but stay closed.",
+      tally:"passed; the KPRF mostly against, A Just Russia abstained",
+      why:"A vote on the transparency of power itself split the opposition: the KPRF voted against, A Just Russia mostly abstained, while the LDPR and New People backed closing the declarations together with United Russia."
+    }
+  },
+  {
     id:"gender-2023", conv:8, date:"2023-07-14", topic:"state", axis:"y",
     title:"Запрет смены пола",
     summary:"Запрет медицинских вмешательств для смены пола и изменения пола в документах, расторжение браков, в которых один из супругов сменил пол.",
@@ -268,6 +324,20 @@ PC.VOTES = [
       summary:"A ban on medical interventions for gender reassignment and on changing gender in documents; marriages in which one spouse has changed gender are dissolved.",
       tally:"passed unanimously",
       why:"A continuation of the 2013 and 2022 laws on the traditionalism sub-axis — and again with no differences between the factions, New People included."
+    }
+  },
+  {
+    id:"draftage-2023", conv:8, date:"2023-07-25", topic:"state", axis:"y",
+    title:"Повышение призывного возраста до 30 лет",
+    summary:"Верхняя граница призыва на срочную службу поднята с 27 до 30 лет с 1 января 2024 года, выезд за границу после получения повестки запрещён.",
+    tally:"328 за, 13 против, 27 воздержались",
+    why:"«Новые люди» — единственная фракция, выступившая против: тринадцать голосов «против» — это почти вся её фракция. КПРФ закон поддержала вместе с «Единой Россией». Позиции ЛДПР и «Справедливой России» в наборе не приводятся — надёжной разбивки по ним нет.",
+    pos:{ er:"for", kprf:"for", nl:"against" },
+    en:{
+      title:"Raising the conscription age to 30",
+      summary:"The upper age limit for military conscription is raised from 27 to 30 from 1 January 2024, and leaving the country after receiving a summons is prohibited.",
+      tally:"328 for, 13 against, 27 abstentions",
+      why:"New People were the only faction to oppose it: the thirteen votes against are almost the entire faction. The KPRF backed the law together with United Russia. The LDPR's and A Just Russia's positions are not given — there is no reliable breakdown for them."
     }
   },
   {
@@ -285,17 +355,59 @@ PC.VOTES = [
     }
   },
   {
+    id:"taxreform-2024", conv:8, date:"2024-07-10", topic:"econ", axis:"x",
+    title:"Прогрессивная шкала НДФЛ",
+    summary:"Налоговая реформа: пять ступеней подоходного налога от 13 до 22%, налог на прибыль 25%, расширение порога упрощённой системы для малого бизнеса.",
+    tally:"409 за (90,9%)",
+    why:"Редкий случай, когда экономическое голосование совпало с тем, чего годами требовали левые: прогрессивную шкалу поддержали и «Единая Россия», и КПРФ, и «Справедливая Россия». Коммунисты оговорились, что дивиденды стоило бы облагать по той же шкале, но за закон голосовали. Позиции ЛДПР и «Новых людей» в наборе не приводятся.",
+    pos:{ er:"for", kprf:"for", sr:"for" },
+    en:{
+      title:"A progressive income tax scale",
+      summary:"Tax reform: five personal income tax brackets from 13 to 22%, a 25% corporate profit tax, and a higher threshold for the simplified regime for small business.",
+      tally:"409 for (90.9%)",
+      why:"A rare case of an economic vote matching what the left had demanded for years: the progressive scale was backed by United Russia, the KPRF and A Just Russia alike. The communists noted that dividends ought to be taxed on the same scale, but voted for the law. The LDPR's and New People's positions are not given."
+    }
+  },
+  {
     id:"childfree-2024", conv:8, date:"2024-11-12", topic:"state", axis:"y",
     title:"Запрет «пропаганды чайлдфри»",
     summary:"Штрафы за распространение информации, «склоняющей к отказу от деторождения», в СМИ, кино, рекламе и интернете.",
     tally:"принят единогласно",
-    why:"Самое свежее голосование в наборе и ещё одно единогласное по под-оси традиционализма. Для компаса это важный сигнал: фракции VIII созыва, заметно различающиеся по экономике, по культурной повестке неразличимы.",
+    why:"Ещё одно единогласное голосование по под-оси традиционализма. Для компаса это важный сигнал: фракции VIII созыва, заметно различающиеся по экономике, по культурной повестке неразличимы.",
     pos:{ er:"for", kprf:"for", ldpr:"for", sr:"for", nl:"for" },
     en:{
       title:"Ban on “child-free propaganda”",
       summary:"Fines for spreading information “inducing people to refuse to have children” in the media, film, advertising and on the internet.",
       tally:"passed unanimously",
-      why:"The most recent vote in the set and another unanimous one on the traditionalism sub-axis. For the compass this is an important signal: the VIII-convocation factions, clearly different on economics, are indistinguishable on the cultural agenda."
+      why:"Another unanimous vote on the traditionalism sub-axis. For the compass this is an important signal: the VIII-convocation factions, clearly different on economics, are indistinguishable on the cultural agenda."
+    }
+  },
+  {
+    id:"extremism-2025", conv:8, date:"2025-07-22", topic:"state", axis:"y",
+    title:"Штрафы за поиск экстремистских материалов",
+    summary:"Административный штраф от 3 до 5 тысяч рублей за умышленный поиск в интернете материалов из федерального списка экстремистских и доступ к ним; запрет рекламы VPN.",
+    tally:"306 за, 67 против, 22 воздержались",
+    why:"Самое массовое «против» созыва: КПРФ и «Новые люди» голосовали против, «Справедливая Россия» воздержалась. Для «Новых людей» — первое голосование, где заявленная защита свободы интернета совпала с поведением фракции. Позиция ЛДПР в наборе не приводится.",
+    pos:{ er:"for", kprf:"against", nl:"against", sr:"abstain" },
+    en:{
+      title:"Fines for searching for extremist materials",
+      summary:"An administrative fine of 3,000–5,000 roubles for deliberately searching online for materials on the federal list of extremist materials and accessing them; a ban on advertising VPNs.",
+      tally:"306 for, 67 against, 22 abstentions",
+      why:"The largest “against” of the convocation: the KPRF and New People voted against, A Just Russia abstained. For New People it was the first vote in which its stated defence of internet freedom matched the faction's behaviour. The LDPR's position is not given."
+    }
+  },
+  {
+    id:"vat-2025", conv:8, date:"2025-11-20", topic:"econ", axis:"x",
+    title:"Повышение НДС до 22%",
+    summary:"Основная ставка НДС с 1 января 2026 года повышается с 20 до 22%, порог НДС для упрощённой системы снижен с 60 до 10 млн рублей.",
+    tally:"343 за; принят голосами «Единой России» и ЛДПР",
+    why:"Второе повышение НДС за два созыва и первое, которое ЛДПР поддержала: в 2018 году фракция голосовала против. КПРФ, «Справедливая Россия» и «Новые люди» закон не поддержали, но надёжной разбивки на «против» и «воздержались» по ним нет, поэтому их позиции в наборе не приводятся.",
+    pos:{ er:"for", ldpr:"for" },
+    en:{
+      title:"Raising VAT to 22%",
+      summary:"The standard VAT rate rises from 20 to 22% from 1 January 2026, and the VAT threshold for the simplified regime drops from 60 to 10 million roubles.",
+      tally:"343 for; passed with the votes of United Russia and the LDPR",
+      why:"The second VAT rise in two convocations and the first the LDPR supported: in 2018 the faction voted against. The KPRF, A Just Russia and New People did not back the law, but there is no reliable split into “against” and “abstain” for them, so their positions are not given."
     }
   }
 ];

@@ -112,7 +112,7 @@
         return { x:clamp(e.x, -10, 10), y:clamp(e.y, -10, 10),
                  answered:e.answered || 0, ts:e.ts || 0,
                  mode:MODES.indexOf(e.mode) > -1 ? e.mode : "full",
-                 code:typeof e.code === "string" ? e.code : null };
+                 code:typeof e.code === "string" ? QC.upgradeCode(e.code) : null };
       }).slice(-HIST_MAX);
     }
   }
@@ -585,6 +585,20 @@
   }
 
   /* ---------- экран 3: результат ---------- */
+  /* Строка о заявленных позициях (3.0): с кем человек совпадает по тому,
+     что партии говорят о себе, и совпадает ли это с тем, кто ближе по
+     делам. Совпадение двух ответов — тоже результат, и о нём сказано
+     отдельной фразой, а не пропущено. */
+  function saidLine(pt, best){
+    var said = QC.saidBest(pt);
+    if(!said) return "";
+    var text = said.p.id === best.p.id
+      ? t("res.said.same", { name:esc(L(said.p, "name")), m:said.said })
+      : t("res.said.diff", { said:esc(L(said.p, "name")), m:said.said,
+                             done:esc(L(best.p, "name")), m2:best.match });
+    return '<p class="qr-said">' + text + '</p>';
+  }
+
   function renderResult(){
     var src  = shared ? shared.answers : answers;
     var runMode = shared ? shared.mode : (result ? result.mode : mode);
@@ -625,6 +639,7 @@
               best:esc(L(best.p, "name")), m:best.match, d:best.d.toFixed(1), far:esc(L(far.p, "name"))
             }) +
             (skipped ? esc(t("res.skipped", { n:skipped, statements:PC.i18n.pl(skipped, "word.statement") })) : "") + '</p>' +
+          saidLine(pt, best) +
           '<div class="quiz-actions">' +
             '<button type="button" class="btn primary" id="qrCompass">' + esc(t("res.showCompass")) + '</button>' +
             '<button type="button" class="btn" id="qrReview">' + esc(t("res.review")) + '</button>' +
@@ -646,7 +661,10 @@
                 '<i style="background:' + esc(r.p.color) + '"></i>' +
                 '<span class="n">' + esc(L(r.p, "short")) + '</span>' +
                 '<span class="track"><span class="fill" data-w="' + r.match + '" style="background:' +
-                  esc(r.p.color) + '"></span></span>' +
+                  esc(r.p.color) + '"></span>' +
+                  (r.said !== undefined ? '<span class="said" style="left:' + r.said + '%;border-color:' +
+                    esc(r.p.color) + '" title="' + esc(t("res.saidTick", { m:r.said })) + '"></span>' : "") +
+                '</span>' +
                 '<span class="m">' + r.match + '%</span></button>';
             }).join("") +
           '</div>' +
@@ -727,8 +745,20 @@
   }
 
   function hashCode(){
-    var m = /^#\/?result\/([sx]?[a-e-]+)/.exec(location.hash || "");
+    var m = /^#\/?result\/([0-9]?[sx]?[a-e-]+)/.exec(location.hash || "");
     return m ? m[1] : null;
+  }
+
+  /* Ссылка из 1.x или 2.x (3.0). Молча открыть пустой тест было бы
+     хуже всего: человек, которому прислали результат, решил бы, что
+     сайт сломан. Поэтому — одна фраза о том, что случилось, и тест,
+     который можно пройти самому. Адрес заменяется на #/quiz, чтобы
+     перезагрузка страницы не показывала то же сообщение снова. */
+  function refuseLegacy(){
+    replaceHash("#/quiz");
+    setTimeout(function(){
+      if(PC.ui) PC.ui.toast(t("res.legacyLink", { v:PC.versionLabel ? PC.versionLabel() : PC.VERSION }), true);
+    }, 400);
   }
 
   /* Счётчик на ярлыке вкладки. В разметке он статичный («40»), потому что
@@ -777,6 +807,7 @@
       document.addEventListener("keydown", onKey);
       return;
     }
+    if(code && QC.isLegacyCode(code)) refuseLegacy();
     if(result) view = "result";
     idx = firstUnanswered();
     render();
@@ -799,6 +830,7 @@
     encodeAnswers: encodeAnswers,
     decodeAnswers: decodeAnswers,
     decodeMode: decodeMode,
+    isLegacyCode: QC.isLegacyCode,
     shareURL: shareURL,
     openShared: openShared,
     history: function(){ return history.slice(); },

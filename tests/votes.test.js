@@ -93,10 +93,12 @@ test("близость на компасе не совпадает с близо
      этот тест, а не читатель — текст и набор обязаны расходиться шумно. */
   assert.ok(dist(er, ldpr) < dist(sr, ldpr),
     "по координатам ЛДПР ближе к «Единой России», чем к «Справедливой России»");
-  assert.equal(PC.voteAgreement(sr, ldpr).ratio, 1,
-    "при этом со «Справедливой Россией» ЛДПР совпала во всех общих голосованиях");
-  assert.ok(PC.voteAgreement(er, ldpr).ratio < 1,
-    "а с ближайшей по полю «Единой Россией» — разошлась хотя бы раз");
+  const srL = PC.voteAgreement(sr, ldpr), erL = PC.voteAgreement(er, ldpr);
+  assert.deepEqual([srL.same, srL.common], [19, 20],
+    "при этом со «Справедливой Россией» ЛДПР совпала в 19 голосованиях из 20 общих");
+  assert.deepEqual([erL.same, erL.common], [18, 23],
+    "а с ближайшей по полю «Единой Россией» — разошлась в пяти из двадцати трёх");
+  assert.ok(srL.ratio > erL.ratio);
 });
 
 test("partyBlock: карточка партии не показывает голосования чужих созывов", () => {

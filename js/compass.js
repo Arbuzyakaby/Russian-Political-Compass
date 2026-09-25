@@ -5,8 +5,8 @@
   var t = PC.t, L = PC.L;
   var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, radius = G.radius, el = U.el;
 
-  var svg, cross, defs, trails;
-  var trailsOn = false;
+  var svg, cross, defs, claims;
+  var claimsOn = true;
   var obstacles = [];          // занятые зоны: подписи осей, точки, уже размещённые ярлыки
   /* 3px хватало на площадь самого текста, но не на его обводку-halo
      (stroke-width 3–3.4px в compass.css, нужную для читаемости подписи
@@ -398,207 +398,123 @@
     });
   }
 
-  /* ---------- траектории партий во времени (переписано в 2.4.1) ----------
+  /* ---------- заявленные позиции (3.0) ----------
 
-     Необязательный слой: путь партии от самой ранней известной позиции
-     к нынешней. Что было не так со старой версией и почему она
-     переписана целиком, а не подлатана:
+     Слой отвечает на вопрос, которого компас раньше не задавал: где
+     партия стоит по собственным словам и насколько это далеко от того,
+     где она стоит на деле. У каждой партии две точки: сплошная — реальная
+     позиция (программа, законы, голосования фракции), полая — заявленная
+     (название, устав, предвыборная риторика). Стрелка идёт от слов к делу:
+     её длина и есть разрыв.
 
-     1. Она врала. Партии с малоподвижной историей (КПРФ, «Единая
-        Россия») укладывали все точки внутри пары соседних кружков, и
-        прежний код растягивал такой маршрут веером от текущей точки —
-        то есть рисовал исторические позиции не там, где они были.
-        Проект, который в каждой карточке объясняет, откуда взялась
-        координата, не может подменять координаты ради картинки.
-        Растяжки больше нет: все узлы стоят ровно на своих числах.
-     2. Направление читалось только по стрелке в конце, а стрелка
-        требовала своего <marker> в defs на каждую партию — одиннадцать
-        определений ради одиннадцати треугольников.
-     3. Сорок годов поверх поля. Годы были подписаны текстом прямо на
-        маршруте: пять на партию, помноженные на восемь маршрутов,
-        на поле, где всего одиннадцать точек.
+     Слой заменил траектории, которые жили здесь с 2.2 по RPC 2.5.
+     Траектория отвечала на вопрос «как партия двигалась», но каждая её
+     точка была такой же оценкой, как нынешняя, — пять оценок подряд
+     выглядели измерением, которым не были. Разрыв между словом и делом
+     проверяется лучше: вторую его половину можно сверить с таблицей
+     голосований на соседней вкладке.
 
-     Что вместо этого:
+     Стрелка не заходит под кружок партии: она обрывается на его краю,
+     и наконечник рисуется отдельным треугольником, а не маркером из
+     defs, — маркер на партию означал бы одиннадцать определений ради
+     одиннадцати треугольников. Короче двух делений разрыв рисуется без
+     наконечника: у стрелки длиной в сам наконечник направления не
+     прочесть, и точка просто стоит рядом с кружком. */
+  var GAP_ARROW = 1.2;       /* в единицах шкалы: короче — без наконечника */
 
-     - Путь идёт гладкой кривой (Катмулл-Ром, переведённый в кубические
-       Безье), а не ломаной: движение партии — процесс, и угловатая
-       ломаная приписывала ему рывки, которых в данных нет.
-     - Толщина линии растёт от прошлого к настоящему. Это и есть замена
-       стрелке: у «кометного хвоста» направление видно в любой точке
-       маршрута, а не только на конце, и читается даже когда маршрут
-       короткий. Заодно исчезли одиннадцать маркеров из defs.
-     - Узлы тоже растут к настоящему, и год показывает подсказка при
-       наведении, а не текст на поле. Поле снова чистое.
-     - Короткий маршрут больше не надувается, а честно остаётся
-       коротким: «партия почти не двигалась» — это факт о партии, и
-       показывать его нужно, а не прятать.
-     - Пока курсор на маршруте, весь слой поднимается над точками
-       (raiseTrails): иначе короткий путь оказывается под собственной
-       точкой партии и его не видно вовсе. Порядок восстанавливается,
-       как только фокус снят. */
-
-  /* Гладкая кривая через все точки. Катмулл-Ром с натяжением 0.5:
-     кривая проходит ровно через узлы (в отличие от B-сплайна) и не
-     даёт выбросов на резких поворотах (в отличие от натяжения 1). */
-  function smoothPath(pts){
-    if(pts.length < 2) return "";
-    if(pts.length === 2){
-      return "M" + f(pts[0].sx) + "," + f(pts[0].sy) + "L" + f(pts[1].sx) + "," + f(pts[1].sy);
-    }
-    var d = "M" + f(pts[0].sx) + "," + f(pts[0].sy);
-    for(var i = 0; i < pts.length - 1; i++){
-      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
-      d += "C" + f(p1.sx + (p2.sx - p0.sx) / 6) + "," + f(p1.sy + (p2.sy - p0.sy) / 6) +
-           " " + f(p2.sx - (p3.sx - p1.sx) / 6) + "," + f(p2.sy - (p3.sy - p1.sy) / 6) +
-           " " + f(p2.sx) + "," + f(p2.sy);
-    }
-    return d;
+  function gapOf(p){
+    var d = p.declared;
+    return d ? Math.sqrt((d.x - p.x) * (d.x - p.x) + (d.y - p.y) * (d.y - p.y)) : 0;
   }
-  function f(v){ return Math.round(v * 10) / 10; }
 
-  /* До 2.4.2 слой траекторий переставлялся в документе на время фокуса,
-     чтобы маршрут не прятался под точкой партии. Приём работал, но ломал
-     наведение: перестановка узла посреди обработки mouseenter отменяет
-     парный mouseleave, и подсказка, открытая с узла маршрута, оставалась
-     висеть на экране навсегда. Теперь слой просто рисуется после точек
-     и лежит над ними всегда — он и так виден только при включённой
-     кнопке «Траектории», а подложка под каждым отрезком не даёт ему
-     замазать кружки. Ничего переставлять не нужно. */
-
-  function drawTrails(){
-    trails = el("g", { "class":"trails" });
-    svg.appendChild(trails);
+  function drawClaims(){
+    claims = el("g", { "class":"claims" });
+    svg.appendChild(claims);
 
     PC.PARTIES.forEach(function(p){
-      var h = p.history;
-      if(!h || h.length < 2) return;
+      var d = p.declared;
+      if(!d) return;
       var seats = PC.seatsOf(p);
       if(seats === null) return;
 
-      var pts = h.map(function(step){
-        var c = px(step.x, step.y);
-        return { sx:c.sx, sy:c.sy, step:step };
-      });
+      var from = px(d.x, d.y), to = px(p.x, p.y);
+      var vx = to.sx - from.sx, vy = to.sy - from.sy;
+      var len = Math.sqrt(vx * vx + vy * vy);
+      var g = el("g", { "class":"claim", "data-id":p.id });
 
-      var g = el("g", { "class":"trail", "data-id":p.id });
-
-      /* Путь — не одна линия, а цепочка отрезков нарастающей толщины и
-         плотности: это и есть замена стрелке, направление видно в любой
-         точке маршрута. Каждый отрезок рисуется по общей кривой и
-         показывается только на своём куске (обрезка segmentBand),
-         поэтому стыки не толстеют вдвое, а сама кривая остаётся гладкой.
-
-         Под каждым отрезком идёт своя подложка цветом полотна, шире его
-         ровно на два с половиной пикселя: там, где два маршрута
-         пересекаются, верхний прорезает нижний, и видно, какой идёт
-         поверх, — приём из картографии, где так разводят развязки.
-         Одна подложка на весь путь не подошла бы: под тонким началом
-         маршрута она читалась бы как отдельная широкая серая лента. */
-      var N = pts.length - 1;
-      var casing = el("g", { "class":"trail-casings" });
-      var lines  = el("g");
-      g.appendChild(casing);
-      g.appendChild(lines);
-
-      for(var i = 0; i < N; i++){
-        var seg = smoothPath(pts.slice(Math.max(0, i - 1), Math.min(pts.length, i + 3)));
-        var k = N === 1 ? 1 : i / (N - 1);        /* 0 — самый старый отрезок */
-        var w = 1.6 + k * 2.4;
-        var clip = "url(#trailSeg-" + p.id + "-" + i + ")";
-        casing.appendChild(el("path", {
-          "class":"trail-casing", d:seg,
-          "stroke-width":(w + 2.6).toFixed(2), "clip-path":clip
-        }));
-        lines.appendChild(el("path", {
-          "class":"trail-seg", d:seg, stroke:p.color,
-          "stroke-width":w.toFixed(2),
-          opacity:(0.5 + k * 0.5).toFixed(2),
-          "clip-path":clip
-        }));
-        var cp = el("clipPath", { id:"trailSeg-" + p.id + "-" + i, clipPathUnits:"userSpaceOnUse" });
-        cp.appendChild(el("path", { d:segmentBand(pts, i) }));
-        defs.appendChild(cp);
+      if(len > 1){
+        var ux = vx / len, uy = vy / len;
+        var rTo = radius(seats) + 2, rFrom = 6.5;
+        var arrow = gapOf(p) >= GAP_ARROW && len > rTo + rFrom + 10;
+        var head = arrow ? 7 : 0;
+        var x1 = from.sx + ux * rFrom, y1 = from.sy + uy * rFrom;
+        var x2 = to.sx - ux * (rTo + head), y2 = to.sy - uy * (rTo + head);
+        if(len > rTo + rFrom){
+          g.appendChild(el("line", { "class":"claim-casing", x1:f(x1), y1:f(y1), x2:f(x2), y2:f(y2) }));
+          g.appendChild(el("line", { "class":"claim-line", x1:f(x1), y1:f(y1), x2:f(x2), y2:f(y2), stroke:p.color }));
+        }
+        if(arrow){
+          var tx = to.sx - ux * rTo, ty = to.sy - uy * rTo;
+          var bx = tx - ux * head, by = ty - uy * head;
+          var nx = -uy * 4.2, ny = ux * 4.2;
+          g.appendChild(el("path", {
+            "class":"claim-head", fill:p.color,
+            d:"M" + f(tx) + "," + f(ty) + "L" + f(bx + nx) + "," + f(by + ny) + "L" + f(bx - nx) + "," + f(by - ny) + "Z"
+          }));
+        }
       }
 
-      /* Узлы: чем ближе к сегодняшнему дню, тем крупнее и плотнее. */
-      pts.forEach(function(pt, i){
-        var k = i / (pts.length - 1);
-        var last = i === pts.length - 1;
-        if(last) return;                 /* финиш — это сама точка партии */
-        var dot = el("circle", {
-          "class":"trail-dot", cx:f(pt.sx), cy:f(pt.sy),
-          r:(2.6 + k * 1.8).toFixed(2), fill:p.color,
-          opacity:(0.55 + k * 0.4).toFixed(2)
-        });
-        g.appendChild(dot);
-        function enter(){
-          focusOn();
-          PC.tip.showHTML(
-            '<div class="tip-top"><span class="tip-dot" style="background:' + U.esc(p.color) + '"></span>' +
-            '<span class="tip-name">' + U.esc(L(p, "name")) + ' · ' + pt.step.year + '</span></div>' +
-            '<div class="tip-ideo">' + U.esc(L(pt.step, "note")) + '</div>' +
-            '<div class="tip-meta">' +
-              '<span>' + U.esc(t("side.econ")) + ' <b>' + U.fmt(pt.step.x) + '</b></span>' +
-              '<span>' + U.esc(t("side.state")) + ' <b>' + U.fmt(pt.step.y) + '</b></span>' +
-            '</div>' +
-            '<div class="tip-hint">' + U.esc(t("tip.trail", { x:U.fmt(p.x), y:U.fmt(p.y) })) + '</div>',
-            pt.sx, pt.sy);
-        }
-        dot.addEventListener("mouseenter", enter);
-        dot.addEventListener("mouseleave", function(){ PC.tip.hide(); focusOff(); });
+      var dot = el("circle", {
+        "class":"claim-dot", cx:f(from.sx), cy:f(from.sy), r:"5.2", stroke:p.color, tabindex:"-1"
       });
+      g.appendChild(dot);
 
-      /* Наведение на любую часть маршрута переводит весь слой в режим
-         фокуса: CSS приглушает соседние траектории, а эта поднимается
-         над точками. Класс вешается на сам слой, а не на документ, —
-         на странице может не быть компаса вовсе. */
+      function enter(){
+        focusOn();
+        PC.tip.showHTML(
+          '<div class="tip-top"><span class="tip-dot tip-dot--hollow" style="border-color:' + U.esc(p.color) + '"></span>' +
+          '<span class="tip-name">' + U.esc(L(p, "name")) + ' · ' + U.esc(t("tip.claim")) + '</span></div>' +
+          '<div class="tip-ideo">' + U.esc(L(d, "note")) + '</div>' +
+          '<div class="tip-meta">' +
+            '<span>' + U.esc(t("side.claimSaid")) + ' <b>' + U.fmt(d.x) + ' / ' + U.fmt(d.y) + '</b></span>' +
+            '<span>' + U.esc(t("side.claimDone")) + ' <b>' + U.fmt(p.x) + ' / ' + U.fmt(p.y) + '</b></span>' +
+          '</div>' +
+          '<div class="tip-hint">' + U.esc(t("tip.claimGap", { d:gapOf(p).toFixed(1) })) + '</div>',
+          from.sx, from.sy);
+      }
+      dot.addEventListener("mouseenter", enter);
+      dot.addEventListener("mouseleave", function(){ PC.tip.hide(); focusOff(); });
+
+      /* Пока курсор на одной паре точек, остальные пары гаснут: вопрос
+         у читателя всегда про одну партию, а одиннадцать стрелок разом
+         сравнить глазом невозможно. */
       function focusOn(){
-        trails.classList.add("has-focus");
+        claims.classList.add("has-focus");
         g.classList.add("is-focus");
       }
       function focusOff(){
-        trails.classList.remove("has-focus");
+        claims.classList.remove("has-focus");
         g.classList.remove("is-focus");
       }
       g.addEventListener("mouseenter", focusOn);
       g.addEventListener("mouseleave", focusOff);
 
-      trails.appendChild(g);
+      claims.appendChild(g);
     });
 
-    svg.classList.toggle("show-trails", trailsOn);
+    svg.classList.toggle("show-claims", claimsOn);
   }
+  function f(v){ return Math.round(v * 10) / 10; }
 
-  /* Полоса вокруг i-го отрезка ломаной: прямоугольник по направлению
-     отрезка, расширенный настолько, чтобы гладкая кривая на этом куске
-     заведомо в него попала. Служит обрезкой для отрезка переменной
-     толщины — см. комментарий в drawTrails. */
-  function segmentBand(pts, i){
-    var a = pts[i], b = pts[i + 1];
-    var vx = b.sx - a.sx, vy = b.sy - a.sy;
-    var len = Math.sqrt(vx * vx + vy * vy) || 1;
-    var ux = vx / len, uy = vy / len;          /* вдоль отрезка */
-    var nx = -uy, ny = ux;                     /* поперёк */
-    var W = 26;                                /* запас на прогиб кривой */
-    var head = (i === pts.length - 2) ? 0 : 0.5;   /* стык делим пополам */
-    var tail = (i === 0) ? 0 : 0.5;
-    var x1 = a.sx - ux * tail, y1 = a.sy - uy * tail;
-    var x2 = b.sx + ux * head, y2 = b.sy + uy * head;
-    return "M" + f(x1 + nx * W) + "," + f(y1 + ny * W) +
-           "L" + f(x2 + nx * W) + "," + f(y2 + ny * W) +
-           "L" + f(x2 - nx * W) + "," + f(y2 - ny * W) +
-           "L" + f(x1 - nx * W) + "," + f(y1 - ny * W) + "Z";
-  }
-
-  /* Слой включается без перерисовки поля: кривые уже построены,
+  /* Слой включается без перерисовки поля: стрелки уже построены,
      переключается только их видимость. */
-  function setTrails(on){
-    trailsOn = !!on;
-    if(svg) svg.classList.toggle("show-trails", trailsOn);
-    if(!trailsOn) PC.tip.hide();
+  function setClaims(on){
+    claimsOn = !!on;
+    if(svg) svg.classList.toggle("show-claims", claimsOn);
+    if(!claimsOn) PC.tip.hide();
   }
-  function hasTrails(){
-    return PC.PARTIES.some(function(p){ return p.history && p.history.length > 1; });
+  function hasClaims(){
+    return PC.PARTIES.some(function(p){ return !!p.declared; });
   }
 
   /* ---------- перекрестие от осей до точки (переписано в 2.4.1) ----------
@@ -732,18 +648,18 @@
         leaderLine(g, place, r, p.color);
         obstacles.push(place.rect);
 
-        /* Наведение на партию подсвечивает и её траекторию: вопрос
-           «куда эта партия двигалась» задают, глядя на точку, а не на
-           клубок пунктиров. */
-        function focusTrail(on){
-          if(!trails) return;
-          var line = trails.querySelector('.trail[data-id="' + p.id + '"]');
-          if(!line) return;
-          trails.classList.toggle("has-focus", on);
-          line.classList.toggle("is-focus", on);
+        /* Наведение на партию подсвечивает и её заявленную точку:
+           вопрос «а что она сама о себе говорит» задают, глядя на
+           кружок, а не на клубок стрелок. */
+        function focusClaim(on){
+          if(!claims) return;
+          var pair = claims.querySelector('.claim[data-id="' + p.id + '"]');
+          if(!pair) return;
+          claims.classList.toggle("has-focus", on);
+          pair.classList.toggle("is-focus", on);
         }
-        function enter(){ PC.tip.show(p, c.sx, c.sy); showCross(c.sx, c.sy, p.color, p.x, p.y); focusTrail(true); }
-        function leave(){ PC.tip.hide(); hideCross(); focusTrail(false); }
+        function enter(){ PC.tip.show(p, c.sx, c.sy); showCross(c.sx, c.sy, p.color, p.x, p.y); focusClaim(true); }
+        function leave(){ PC.tip.hide(); hideCross(); focusClaim(false); }
         g.addEventListener("mouseenter", enter);
         g.addEventListener("mouseleave", leave);
         g.addEventListener("focus", enter);
@@ -927,7 +843,7 @@
     drawBoard();
     drawCaptions();
     drawNodes();
-    drawTrails();
+    drawClaims();
     if(prevStyle === null) svg.removeAttribute("style"); else svg.setAttribute("style", prevStyle);
   }
 
@@ -946,8 +862,8 @@
       n.setAttribute("tabindex", muted ? "-1" : "0");
       n.setAttribute("aria-hidden", muted ? "true" : "false");
     });
-    /* траектория живёт по тем же правилам, что и её точка */
-    svg.querySelectorAll(".trail").forEach(function(t){
+    /* заявленная точка живёт по тем же правилам, что и реальная */
+    svg.querySelectorAll(".claim").forEach(function(t){
       t.classList.toggle("muted", !visibleIds.has(t.dataset.id));
       t.classList.toggle("active", t.dataset.id === activeId);
     });
@@ -966,6 +882,6 @@
   }
 
   PC.compass = { draw:draw, sealSVG:sealSVG, redraw:redraw, onDraw:onDraw, syncNodes:syncNodes, hideCross:hideCross,
-                 setTrails:setTrails, hasTrails:hasTrails,
-                 trailsOn:function(){ return trailsOn; } };
+                 setClaims:setClaims, hasClaims:hasClaims, gapOf:gapOf,
+                 claimsOn:function(){ return claimsOn; } };
 })(window.PC = window.PC || {});

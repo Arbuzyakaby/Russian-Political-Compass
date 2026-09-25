@@ -45,11 +45,17 @@ test("Мандаты по созывам · CSV: только реально с�
   assert.ok(!rows.some(r => r[4] === "—"), "прочерков в длинной таблице быть не должно");
 });
 
-test("Траектории · CSV: точка на каждый год у партий с историей", () => {
-  const rows = parseCSV(PC.exporter.trajectoriesCSV());
-  const expected = PC.PARTIES.reduce((n, p) => n + (p.history ? p.history.length : 0), 0);
-  assert.equal(rows.length - 1, expected);
-  assert.ok(expected > 0, "в данных должна быть хотя бы одна траектория");
+test("Заявлено и на деле · CSV: строка на партию, разрыв посчитан верно", () => {
+  const rows = parseCSV(PC.exporter.claimsCSV());
+  assert.equal(rows.length - 1, PC.PARTIES.filter(p => p.declared).length);
+  for(const r of rows.slice(1)){
+    const p = PC.partyById(r[0]);
+    const num = s => Number(String(s).replace(",", "."));
+    assert.equal(num(r[2]), p.declared.x);
+    assert.equal(num(r[4]), p.x);
+    assert.ok(Math.abs(num(r[6]) - Math.hypot(p.x - p.declared.x, p.y - p.declared.y)) < 0.051,
+      `${p.id}: разрыв в CSV посчитан неверно`);
+  }
 });
 
 test("Всё · JSON: валиден, полон и честен про источник", () => {
@@ -63,7 +69,8 @@ test("Всё · JSON: валиден, полон и честен про исто
 
   const er = data.parties.find(p => p.id === "er");
   assert.equal(er.seats[String(PC.CURRENT_CONVOCATION)], PC.partyById("er").seats);
-  assert.ok(Array.isArray(er.history));
+  assert.ok(!("history" in er), "траектории убраны в 3.0 и в выгрузку попадать не должны");
+  assert.deepEqual([er.declared.x, er.declared.y], [PC.partyById("er").declared.x, PC.partyById("er").declared.y]);
   const nl = data.parties.find(p => p.id === "nl");
   assert.ok(!(4 in nl.seats), "созывы без участия партии в JSON не попадают");
 });

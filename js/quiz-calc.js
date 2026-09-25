@@ -126,8 +126,26 @@
      противоположных партий совпадение честно упирается в ноль. */
   function ranking(pt){
     return PC.calc.rankParties(pt).map(function(r){
-      return { p:r.p, d:r.d, match: Math.round(clamp(1 - r.d / MAX_DIST, 0, 1) * 100) };
+      var out = { p:r.p, d:r.d, match: Math.round(clamp(1 - r.d / MAX_DIST, 0, 1) * 100) };
+      /* С 3.0 — второе совпадение, с тем, что партия говорит о себе.
+         Шкала та же, чтобы два процента можно было сравнивать напрямую:
+         «по словам 81%, по делам 42%» — это и есть разрыв, увиденный
+         глазами того, кто прошёл тест. */
+      var d = r.p.declared;
+      if(d){
+        out.dSaid = Math.sqrt((pt.x - d.x) * (pt.x - d.x) + (pt.y - d.y) * (pt.y - d.y));
+        out.said = Math.round(clamp(1 - out.dSaid / MAX_DIST, 0, 1) * 100);
+      }
+      return out;
     });
+  }
+
+  /* Ближайшая партия по заявленным позициям — отдельно от ranking(),
+     потому что порядок там задан реальными координатами. */
+  function saidBest(pt){
+    var list = ranking(pt).filter(function(r){ return r.said !== undefined; });
+    list.sort(function(a, b){ return a.dSaid - b.dSaid; });
+    return list[0] || null;
   }
 
   /* ---------- кодирование результата в ссылку ---------- */
@@ -137,18 +155,27 @@
      в адресе, и не ломается, если мессенджер обрежет ссылку — короткий
      хвост просто не декодируется, а не даёт неверный результат.
 
-     Ведущая буква — метка версии, и она обязательна по той же причине,
-     по которой нужна сама нормировка: код из двадцати ответов и двадцати
-     прочерков невозможно отличить от стандартного прохождения, где
-     половина вопросов пропущена, а считать их нужно по-разному.
+     Код начинается с цифры «3» — номера формата ссылки. До 3.0 её не
+     было, и ссылки 1.x и 2.x открывались по тем же правилам, что и
+     новые. С 3.0 их поддержка прекращена: ранжирование теперь идёт по
+     данным IX созыва и двум точкам у каждой партии, и старая ссылка
+     показала бы чужой результат рядом с числами, которых в момент её
+     выдачи не существовало. Код без «3» распознаётся как старый
+     (isLegacyCode), и интерфейс говорит об этом прямо, а не молча
+     открывает пустой тест.
+
+     После номера — метка версии теста, и она обязательна по той же
+     причине, по которой нужна сама нормировка: код из двадцати ответов
+     и двадцати прочерков невозможно отличить от стандартного
+     прохождения, где половина вопросов пропущена, а считать их нужно
+     по-разному.
        «s» — короткая версия (тело кода в порядке STD, 40 символов);
        «x» — расширенная (тело в порядке всех 90);
        без метки — стандартная версия, 40 символов.
-     Стандартное прохождение метки не получает намеренно: все ссылки,
-     выданные версиями 1.x, продолжают открываться и означают ровно то
-     же самое. Буквы «s» и «x» в алфавите ответов не встречаются,
-     поэтому метку нельзя спутать с первым ответом. */
+     Ни цифры, ни буквы «s» и «x» в алфавите ответов не встречаются,
+     поэтому ни номер, ни метку нельзя спутать с первым ответом. */
   var CODE = "abcde";
+  var LINK_VER = "3";
 
   /* выборка, в порядке которой пишется и читается тело кода */
   function codeList(m){ return m === "long" ? ALL : STD; }
@@ -159,18 +186,32 @@
       var a = src[q.id];
       return a === undefined ? "-" : CODE.charAt(a + 2);
     }).join("");
-    return codeTag(m) + body;
+    return LINK_VER + codeTag(m) + body;
+  }
+  function isCurrentCode(code){
+    return typeof code === "string" && code.charAt(0) === LINK_VER;
+  }
+  /* Код ссылки из 1.x или 2.x: без номера формата, только метка и тело. */
+  function isLegacyCode(code){
+    return typeof code === "string" && /^[sx]?[a-e-]{20,}$/.test(code);
+  }
+  /* Старый код из собственной истории прохождений в localStorage — не
+     ссылка, пришедшая снаружи: ответы в нём те же и на те же вопросы,
+     поэтому его достаточно дописать номером формата. Чужие ссылки так
+     не «чинятся» намеренно — см. комментарий выше. */
+  function upgradeCode(code){
+    return isLegacyCode(code) ? LINK_VER + code : code;
   }
   function decodeMode(code){
-    if(typeof code !== "string") return "full";
-    var c = code.charAt(0);
+    if(!isCurrentCode(code)) return "full";
+    var c = code.charAt(1);
     return c === "x" ? "long" : c === "s" ? "short" : "full";
   }
   function decodeAnswers(code){
-    if(typeof code !== "string") return null;
+    if(!isCurrentCode(code)) return null;
     var m = decodeMode(code);
     var list = codeList(m);
-    var body = codeTag(m) ? code.slice(1) : code;
+    var body = code.slice(1 + codeTag(m).length);
     var clean = body.replace(/[^a-e-]/g, "");
     if(clean.length !== list.length) return null;
     var out = {}, any = false;
@@ -189,8 +230,9 @@
     REACH: REACH, MAX_DIST: MAX_DIST,
     questionsFor: questionsFor, modeOfList: modeOfList, maxesFor: maxesFor,
     scoreOf: scoreOf, subScoreOf: subScoreOf, contributions: contributions,
-    axisBreakdown: axisBreakdown, ranking: ranking,
-    codeList: codeList, codeTag: codeTag,
+    axisBreakdown: axisBreakdown, ranking: ranking, saidBest: saidBest,
+    codeList: codeList, codeTag: codeTag, LINK_VER: LINK_VER,
+    isCurrentCode: isCurrentCode, isLegacyCode: isLegacyCode, upgradeCode: upgradeCode,
     encodeAnswers: encodeAnswers, decodeMode: decodeMode, decodeAnswers: decodeAnswers,
     shareURL: shareURL
   };

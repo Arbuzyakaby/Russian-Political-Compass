@@ -1,7 +1,7 @@
 /* Данные партий. Координаты: x — экономика (−10 левые … +10 правые),
    y — отношение к государству (−10 либертарианство … +10 этатизм).
    lp — предпочтительная сторона подписи: top | bottom | left | right.
-   seats — мандаты в Госдуме VIII созыва (текущий созыв, база по умолчанию).
+   seats — мандаты в Госдуме IX созыва (текущий созыв, база по умолчанию).
    seatsBy — мандаты по прошлым созывам {id_созыва: число}; отсутствие ключа
    означает, что партия в этом созыве не участвовала / не была зарегистрирована.
    leader — нынешний руководитель партии (на некоторых партиях — коллегиальное
@@ -15,12 +15,19 @@
    существует с 1989 года, а другую основал продюсер компьютерной игры.
    Это описание, а не оценка: оценка живёт в why.
 
-   history — необязательная траектория партии во времени: точки от самой
-   ранней к самой поздней, последняя совпадает с текущими x/y. Это такая же
-   экспертная оценка, как и основные координаты: положение выведено из
-   программ и риторики соответствующих лет, а не измерено. Партии без
-   заметного дрейфа поля history не имеют — рисовать стрелку длиной
-   в полделения смысла нет.
+   x/y — реальная позиция: где партия стоит по программе, законам,
+   которые она вносит, и тому, как голосует её фракция.
+
+   declared — заявленная позиция: где партия стоит по собственным
+   словам — по названию, уставу, предвыборной риторике и тому, как она
+   описывает себя сама. Это тоже экспертная оценка, но другого вопроса:
+   не «что партия делает», а «кем она себя называет». На компасе
+   заявленная точка рисуется полой и соединяется стрелкой с реальной;
+   note объясняет, откуда взялся разрыв. Поле обязательно у каждой
+   партии: нулевой разрыв — тоже факт, и у «Яблока» он почти нулевой.
+
+   С 3.0 траекторий (поле history) больше нет: пять точек на партию
+   давали видимость измерения там, где было четыре оценки подряд.
 
    sub — разложение обеих координат на шесть более узких шкал в той же
    системе −10…+10. Три из них уточняют экономическую ось (property,
@@ -39,12 +46,15 @@
 PC.PARTIES = [
   {
     id:"er", name:"Единая Россия", short:"Единая Россия", tag:"Единая Россия", lp:"left",
-    seats:324, seatsBy:{7:343, 6:238, 5:315, 4:223}, color:"#2f6fe0", x:3.2, y:8.2,
+    seats:349, seatsBy:{8:324, 7:343, 6:238, 5:315, 4:223}, color:"#2f6fe0", x:3.2, y:8.2,
     ideology:"Государственный консерватизм, центризм «партии власти»",
     summary:"Партия власти, созданная в 2001 году слиянием «Единства» и «Отечества» и с тех пор не терявшая большинства в Госдуме. Собственной идеологии в привычном смысле не имеет: её позиция — это позиция исполнительной власти, оформленная в программу.",
     leader:"Дмитрий Медведев (председатель партии)",
     sub:{ property:1.0, redistribution:4.5, regulation:4.0,
           civil:8.5, centralization:9.0, tradition:7.1 },
+    declared:{ x:-0.5, y:3.0,
+      note:"Называет себя партией «народного большинства» и центром: в программе — «социальное государство», поддержка гражданских инициатив и «развитие демократических институтов».",
+      en:{ note:"Calls itself the party of the “people's majority” and of the centre: its platform speaks of a “social state”, support for civic initiatives and “the development of democratic institutions”." } },
     theses:[
       "Полная поддержка курса исполнительной власти и президента",
       "Государственный капитализм: госкорпорации в стратегических отраслях при сохранении рынка",
@@ -64,28 +74,19 @@ PC.PARTIES = [
         "Reinforcing the power vertical and centralised management of the regions"
       ],
       why:"Right of centre on the economy — the party keeps market institutions and private property intact and backs big business, even though the key sectors stay under state control. On the vertical axis it sits near the maximum: United Russia is institutionally the backbone of strong centralised power and votes consistently to widen the state's authority."
-    },
-    history:[
-      { year:2003, x:2.4, y:6.4, note:"Партия центристского большинства: ставка на стабильность и экономический рост, вертикаль ещё достраивается",
-        en:{ note:"The party of a centrist majority: a bet on stability and economic growth, with the power vertical still under construction" } },
-      { year:2007, x:3.0, y:7.2, note:"«План Путина»: консолидация вертикали, госкорпорации в стратегических отраслях",
-        en:{ note:"“Putin's Plan”: consolidation of the vertical and state corporations in strategic sectors" } },
-      { year:2011, x:2.6, y:7.6, note:"После протестной зимы — консервативный поворот и ужесточение законов о митингах и НКО",
-        en:{ note:"After the winter of protest — a conservative turn and tighter laws on rallies and NGOs" } },
-      { year:2016, x:3.0, y:7.9, note:"Суверенитет и традиционные ценности как рамка повестки, экономика — умеренно рыночная",
-        en:{ note:"Sovereignty and traditional values as the framing of the agenda; the economy stays moderately market-based" } },
-      { year:2021, x:3.2, y:8.2, note:"Мобилизационный консерватизм: расширение полномочий государства при сохранении рынка",
-        en:{ note:"Mobilisation conservatism: the state's powers expand while the market is preserved" } }
-    ]
+    }
   },
   {
     id:"ldpr", name:"ЛДПР", short:"ЛДПР", tag:"ЛДПР", lp:"left",
-    seats:21, seatsBy:{7:39, 6:56, 5:40, 4:36}, color:"#eab308", x:1.0, y:7.0,
+    seats:23, seatsBy:{8:21, 7:39, 6:56, 5:40, 4:36}, color:"#eab308", x:1.0, y:7.0,
     ideology:"Национал-популизм, державный дирижизм",
     summary:"Старейшая из ныне действующих партий страны: основана в 1989 году и до смерти Владимира Жириновского в 2022-м была построена вокруг его фигуры. Голосует с большинством, но занимает нишу громкого национал-популизма, который «Единая Россия» себе позволить не может.",
     leader:"Леонид Слуцкий",
     sub:{ property:-1.0, redistribution:1.5, regulation:2.5,
           civil:7.5, centralization:8.5, tradition:5.0 },
+    declared:{ x:2.0, y:-2.0,
+      note:"Само название обещает либерализм и демократию, а устав — центристскую партию. Ни то, ни другое не видно ни в программе, ни в голосованиях.",
+      en:{ note:"The very name promises liberalism and democracy, and the charter a centrist party. Neither shows up in the platform or in the voting record." } },
     theses:[
       "Сильное централизованное унитарное государство без национальных республик",
       "Национал-патриотическая и антимигрантская повестка",
@@ -105,26 +106,19 @@ PC.PARTIES = [
         "A hard line abroad and wider powers for the security services"
       ],
       why:"The economic platform is inconsistent and oscillates around the centre, which puts the party just right of zero. On the authority axis it has historically demanded the strongest possible vertical and the widest state powers, giving it one of the highest statism scores on the board."
-    },
-    history:[
-      { year:2003, x:0.2, y:6.2, note:"Популистская эклектика Жириновского: рыночные лозунги вперемешку с требованием госрегулирования цен",
-        en:{ note:"Zhirinovsky's populist eclecticism: market slogans mixed with demands for state price controls" } },
-      { year:2011, x:0.4, y:6.6, note:"Усиление национал-патриотического ядра повестки",
-        en:{ note:"The national-patriotic core of the agenda hardens" } },
-      { year:2016, x:0.8, y:6.8, note:"Смещение к поддержке силового блока и жёсткой миграционной политики",
-        en:{ note:"A shift toward backing the security bloc and a hard migration policy" } },
-      { year:2022, x:1.0, y:7.0, note:"После смены руководства — дисциплинированная системная лояльность вместо прежнего эпатажа",
-        en:{ note:"After the change of leadership — disciplined systemic loyalty in place of the old showmanship" } }
-    ]
+    }
   },
   {
     id:"kprf", name:"КПРФ", short:"КПРФ", tag:"КПРФ", lp:"bottom",
-    seats:57, seatsBy:{7:42, 6:92, 5:57, 4:52}, color:"#dc2626", x:-8.0, y:4.8,
+    seats:37, seatsBy:{8:57, 7:42, 6:92, 5:57, 4:52}, color:"#dc2626", x:-8.0, y:4.8,
     ideology:"Марксизм-ленинизм, левый национал-патриотизм",
-    summary:"Прямая наследница КПСС и крупнейшая оппозиционная фракция все пять созывов подряд. Совмещает требование вернуть экономику государству с державной риторикой, из-за чего по вопросам суверенитета голосует заодно с властью, а по социальным — против неё.",
+    summary:"Прямая наследница КПСС и крупнейшая оппозиционная фракция все шесть созывов подряд. Совмещает требование вернуть экономику государству с державной риторикой, из-за чего по вопросам суверенитета голосует заодно с властью, а по социальным — против неё.",
     leader:"Геннадий Зюганов",
     sub:{ property:-9.5, redistribution:-8.5, regulation:-6.0,
           civil:2.0, centralization:6.0, tradition:6.4 },
+    declared:{ x:-9.0, y:-2.5,
+      note:"Говорит о себе как о защитнице «народовластия», честных выборов и гражданских свобод против «партии власти» — то есть заявляет позицию заметно ниже той, что следует из её державной программы.",
+      en:{ note:"Presents itself as the defender of “people's power”, fair elections and civil liberties against the ruling party — a claim that sits well below where its great-power platform places it." } },
     theses:[
       "Национализация недр, банков и стратегических отраслей промышленности",
       "Государственное планирование экономики и контроль над ценами",
@@ -135,7 +129,7 @@ PC.PARTIES = [
     en:{
       name:"Communist Party (KPRF)", short:"KPRF", tag:"KPRF",
       ideology:"Marxism-Leninism, left national patriotism",
-      summary:"The direct heir of the Soviet Communist Party and the largest opposition faction in all five convocations. It pairs a demand to return the economy to the state with great-power rhetoric, so on sovereignty it votes with the authorities and on social policy against them.",
+      summary:"The direct heir of the Soviet Communist Party and the largest opposition faction in all six convocations. It pairs a demand to return the economy to the state with great-power rhetoric, so on sovereignty it votes with the authorities and on social policy against them.",
       leader:"Gennady Zyuganov",
       theses:[
         "Nationalisation of natural resources, banks and strategic industry",
@@ -144,26 +138,19 @@ PC.PARTIES = [
         "Soviet nostalgia combined with great-power patriotic rhetoric"
       ],
       why:"The demand for nationalisation and planned management of the economy places the party at the left edge of the scale. On the vertical it shows marked but not extreme statism: the KPRF looks to the Soviet model of a strong state, yet regularly campaigns for fair elections and against particular restrictions on civil rights."
-    },
-    history:[
-      { year:2003, x:-8.6, y:5.6, note:"Ортодоксальная советская повестка: национализация и восстановление плановой модели",
-        en:{ note:"An orthodox Soviet agenda: nationalisation and restoration of the planned model" } },
-      { year:2011, x:-8.2, y:4.0, note:"Кампания «За честные выборы»: избирательные права выходят на первый план",
-        en:{ note:"The “For Fair Elections” campaign: electoral rights move to the front of the agenda" } },
-      { year:2016, x:-8.0, y:4.4, note:"Возврат к державной риторике при сохранении критики выборной системы",
-        en:{ note:"A return to great-power rhetoric while criticism of the electoral system persists" } },
-      { year:2021, x:-8.0, y:4.8, note:"Патриотическая консолидация: споры с властью сместились с прав на экономику",
-        en:{ note:"Patriotic consolidation: the quarrel with the authorities moves from rights to the economy" } }
-    ]
+    }
   },
   {
     id:"sr", name:"Справедливая Россия", short:"СР", tag:"Справедливая Россия", lp:"right",
-    seats:27, seatsBy:{7:23, 6:64, 5:38}, color:"#f97316", x:-5.0, y:4.0,
+    seats:17, seatsBy:{8:27, 7:23, 6:64, 5:38}, color:"#f97316", x:-5.0, y:4.0,
     ideology:"Социал-демократия с патриотическим уклоном",
     summary:"Собрана в 2006 году как вторая, «левая нога» партийной системы, а в 2021-м поглотила движения Захара Прилепина и Геннадия Семигина. Место в спектре — социал-демократия: перераспределение и социальные выплаты без национализации.",
     leader:"Сергей Миронов",
     sub:{ property:-4.5, redistribution:-7.5, regulation:-3.0,
           civil:2.0, centralization:4.5, tradition:5.5 },
+    declared:{ x:-7.0, y:0.0,
+      note:"Заявляет себя партией «нового социализма» и оппозицией курсу правительства; в риторике — ставка на справедливость, а не на сильное государство.",
+      en:{ note:"Describes itself as the party of “new socialism” and an opposition to the government's course; its rhetoric stakes everything on fairness rather than on a strong state." } },
     theses:[
       "Прогрессивная шкала налогообложения и налог на роскошь",
       "Базовый доход, отмена пенсионной реформы, рост социальных выплат",
@@ -183,26 +170,19 @@ PC.PARTIES = [
         "A patriotic mobilisation agenda after the merger with For Truth"
       ],
       why:"A moderately left position: the party demands redistribution and social guarantees but not the wholesale nationalisation the communists call for. On the vertical it sits above the centre because of its systemic loyalty and support for strong state power, which grew after the merger with the patriotic wing."
-    },
-    history:[
-      { year:2006, x:-4.4, y:2.2, note:"Создание партии как левоцентристской «второй ноги» системы",
-        en:{ note:"The party is founded as the centre-left “second leg” of the system" } },
-      { year:2011, x:-5.6, y:1.4, note:"Пик оппозиционности: часть фракции поддержала протесты и требование честных выборов",
-        en:{ note:"Peak opposition: part of the faction backed the protests and the demand for fair elections" } },
-      { year:2016, x:-4.8, y:3.0, note:"Возврат к системной лояльности, социальная повестка без политических требований",
-        en:{ note:"A return to systemic loyalty: a social agenda stripped of political demands" } },
-      { year:2021, x:-5.0, y:4.0, note:"Объединение с «За правду» и «Патриотами России»: патриотическая мобилизационная рамка поверх социал-демократии",
-        en:{ note:"Merger with For Truth and Patriots of Russia: a patriotic mobilisation frame laid over social democracy" } }
-    ]
+    }
   },
   {
     id:"nl", name:"Новые люди", short:"Новые люди", tag:"Новые люди", lp:"top",
-    seats:13, color:"#f43f5e", x:6.0, y:1.1,
+    seats:19, seatsBy:{8:13}, color:"#f43f5e", x:6.0, y:1.1,
     ideology:"Либеральный центризм, про-предпринимательский прагматизм",
     summary:"Самая молодая партия в Думе: основана в 2020 году владельцем косметической компании Faberlic Алексеем Нечаевым и с первой попытки взяла мандаты. Обращается к малому бизнесу и городским профессионалам, а не к идеологизированному избирателю.",
     leader:"Алексей Нечаев",
     sub:{ property:5.0, redistribution:6.5, regulation:6.5,
           civil:2.0, centralization:0.0, tradition:1.3 },
+    declared:{ x:5.5, y:-5.0,
+      note:"Позиционирует себя как партию «свободных людей» против запретов и блокировок — от защиты мессенджеров до гуманизации законов. Голосует при этом ближе к большинству.",
+      en:{ note:"Positions itself as the party of “free people” against bans and blocking — from defending messaging apps to a more humane legal code. It votes, meanwhile, closer to the majority." } },
     theses:[
       "Снижение налоговой и административной нагрузки на малый и средний бизнес",
       "Ставка на цифровую экономику, стартапы и креативные индустрии",
@@ -226,12 +206,15 @@ PC.PARTIES = [
   },
   {
     id:"yabloko", name:"Яблоко", short:"Яблоко", tag:"Яблоко", lp:"bottom",
-    seats:0, seatsBy:{7:0, 6:0, 5:0, 4:4}, color:"#22c55e", x:-3.0, y:-8.0,
+    seats:0, seatsBy:{8:0, 7:0, 6:0, 5:0, 4:4}, color:"#22c55e", x:-3.0, y:-8.0,
     ideology:"Социальный либерализм, правозащитная демократия",
     summary:"Основана в 1993 году Григорием Явлинским и была в Думе до 2003 года; с тех пор мандатов не получает, но остаётся действующей партией. Единственная в списке, чья программа целиком построена вокруг прав человека, независимого суда и антивоенной позиции.",
     leader:"Николай Рыбаков",
     sub:{ property:-1.5, redistribution:-6.0, regulation:-1.5,
           civil:-9.5, centralization:-8.0, tradition:-6.5 },
+    declared:{ x:-2.5, y:-8.5,
+      note:"Разрыв почти нулевой: программа и публичная позиция партии совпадают с тем, что следует из её действий.",
+      en:{ note:"The gap is almost nil: the party's platform and public stance match what its actions imply." } },
     theses:[
       "Верховенство права, независимость судов, свобода слова и собраний",
       "Демократизация выборов, парламентская республика, децентрализация власти",
@@ -251,24 +234,19 @@ PC.PARTIES = [
         "A consistent anti-war and anti-militarist position"
       ],
       why:"Economically left of centre: a market with European-style social policy. On the vertical axis it occupies the extreme libertarian point — no other party on the board builds its platform around limiting state power and defending human rights so consistently."
-    },
-    history:[
-      { year:2003, x:-1.0, y:-6.4, note:"Наследие 1990-х: рыночные реформы с социальными поправками, демократическая повестка",
-        en:{ note:"The legacy of the 1990s: market reform with social corrections and a democratic agenda" } },
-      { year:2011, x:-2.2, y:-7.2, note:"Социальный поворот: доступное жильё, здравоохранение, критика сырьевой ренты",
-        en:{ note:"A social turn: affordable housing, healthcare, criticism of resource rent" } },
-      { year:2021, x:-3.0, y:-8.0, note:"Правозащита и антивоенная позиция как ядро программы",
-        en:{ note:"Human rights and an anti-war stance become the core of the platform" } }
-    ]
+    }
   },
   {
     id:"kr", name:"Коммунисты России", short:"Коммунисты России", tag:"Коммунисты России", lp:"top",
-    seats:0, seatsBy:{7:0}, color:"#8b1f3f", x:-9.0, y:5.5,
+    seats:0, seatsBy:{8:0, 7:0}, color:"#8b1f3f", x:-9.0, y:5.5,
     ideology:"Ортодоксальный коммунизм сталинистского толка",
     summary:"Партия-спутник, созданная в 2009 году и известная прежде всего критикой КПРФ «слева» и программой «10 сталинских ударов по капитализму». Мандатов не получала ни разу, но стабильно участвует в выборах.",
     leader:"Максим Сурайкин",
     sub:{ property:-10.0, redistribution:-9.5, regulation:-7.5,
           civil:3.5, centralization:6.5, tradition:6.5 },
+    declared:{ x:-9.5, y:3.0,
+      note:"Требует «народовластия» Советов и ставит его рядом со сталинской моделью, из-за чего заявленная точка лежит ниже реальной.",
+      en:{ note:"Demands the “people's power” of the Soviets and places it next to the Stalinist model, so the stated point sits below the real one." } },
     theses:[
       "Полная национализация экономики и возврат к плановой советской модели",
       "Реабилитация фигуры Сталина и мобилизационной модели государства",
@@ -292,12 +270,15 @@ PC.PARTIES = [
   },
   {
     id:"pens", name:"Партия пенсионеров за социальную справедливость", short:"Партия пенсионеров", tag:"Партия пенсионеров", lp:"bottom",
-    seats:0, seatsBy:{7:0}, color:"#a855f7", x:-4.2, y:3.2,
+    seats:0, seatsBy:{8:0, 7:0}, color:"#a855f7", x:-4.2, y:3.2,
     ideology:"Левый социальный консерватизм",
     summary:"Одна из старейших малых партий: возникла в 1997 году и всю историю строит повестку вокруг одной темы — доходов и социальных гарантий старшего поколения. Политических требований не выдвигает и в конфликт с властью не входит.",
     leader:"Эрик Праздников",
     sub:{ property:-3.0, redistribution:-8.0, regulation:-1.6,
           civil:1.0, centralization:3.0, tradition:5.6 },
+    declared:{ x:-4.5, y:0.5,
+      note:"Называет себя независимой от власти партией социальной справедливости; на деле в конфликт с властью не входит.",
+      en:{ note:"Calls itself a party of social justice independent of the authorities; in practice it never picks a fight with them." } },
     theses:[
       "Повышение пенсий, индексация выплат работающим пенсионерам",
       "Бесплатная медицина и лекарственное обеспечение для старшего поколения",
@@ -321,12 +302,15 @@ PC.PARTIES = [
   },
   {
     id:"green", name:"Российская экологическая партия «Зелёные»", short:"Зелёные", tag:"«Зелёные»", lp:"top",
-    seats:0, seatsBy:{7:0}, color:"#10b981", x:-1.0, y:-1.5,
+    seats:0, seatsBy:{8:0, 7:0}, color:"#10b981", x:-1.0, y:-1.5,
     ideology:"Экологизм, умеренный центризм",
     summary:"Экологическая партия с корнями в движении «Кедр» начала 1990-х, перезапущенная в 2019 году. Единственная в списке, у которой отраслевая повестка заменяет идеологическую: рамка «левые — правые» прикладывается к ней плохо.",
     leader:"Сопредседатели: А. Кудзагова, Р. Хвостов, А. Нагибин, С. Шахматов",
     sub:{ property:0.5, redistribution:-1.5, regulation:-2.0,
           civil:-3.0, centralization:-3.5, tradition:2.0 },
+    declared:{ x:-1.5, y:-3.5,
+      note:"Делает упор на общественный экологический контроль и местное самоуправление — заявленная точка чуть ниже реальной.",
+      en:{ note:"Stresses public environmental oversight and local self-government — the stated point sits a little below the real one." } },
     theses:[
       "Экологическая безопасность как приоритет государственной политики",
       "Ужесточение ответственности промышленности за загрязнение",
@@ -350,12 +334,15 @@ PC.PARTIES = [
   },
   {
     id:"rodina", name:"Родина", short:"Родина", tag:"Родина", lp:"right",
-    seats:1, seatsBy:{7:1, 4:37}, color:"#b45309", x:2.0, y:6.2,
+    seats:1, seatsBy:{8:1, 7:1, 4:37}, color:"#b45309", x:2.0, y:6.2,
     ideology:"Национал-консерватизм, державный патриотизм",
     summary:"Создана в 2003 году как левопатриотический блок, распущена в 2006-м и возрождена в 2012-м уже национал-консервативной партией. Сегодня держит один мандат и близка к «Единой России», но говорит о «русском вопросе» и миграции прямее.",
     leader:"Алексей Журавлёв",
     sub:{ property:-1.0, redistribution:2.0, regulation:5.0,
           civil:5.5, centralization:5.0, tradition:8.1 },
+    declared:{ x:-1.0, y:4.0,
+      note:"Помнит о себе как о левопатриотическом блоке 2003 года и говорит о «социальной справедливости»; программа и голосования давно правее.",
+      en:{ note:"Remembers itself as the left-patriotic bloc of 2003 and speaks of “social justice”; its platform and votes have long sat further right." } },
     theses:[
       "Защита традиционных ценностей и русской национальной идентичности",
       "Мощный оборонно-промышленный комплекс и мобилизационная экономика",
@@ -375,24 +362,19 @@ PC.PARTIES = [
         "A hard migration policy, with the “Russian question” at the centre of the agenda"
       ],
       why:"The economy sits near the centre with a slight rightward shift: the party does not demand nationalisation but insists on state stewardship of strategic industries. Its high statism comes from a cult of the strong state, mobilisation rhetoric and the priority of security over personal freedoms."
-    },
-    history:[
-      { year:2003, x:-2.5, y:5.0, note:"Левопатриотический блок: природная рента, изъятие сверхдоходов сырьевых компаний",
-        en:{ note:"A left-patriotic bloc: resource rent and the clawback of windfall profits from commodity firms" } },
-      { year:2012, x:1.0, y:5.8, note:"Воссоздание партии: экономический популизм уходит, остаётся национал-консерватизм",
-        en:{ note:"The party is re-founded: economic populism recedes and national conservatism remains" } },
-      { year:2021, x:2.0, y:6.2, note:"Оборонно-промышленная повестка и «русский вопрос» вместо перераспределения",
-        en:{ note:"A defence-industrial agenda and the “Russian question” in place of redistribution" } }
-    ]
+    }
   },
   {
     id:"ppd", name:"Партия Прямой Демократии", short:"Прямая демократия", tag:"ППД", lp:"top",
-    seats:0, seatsBy:{7:0}, color:"#06b6d4", x:2.5, y:-7.0,
+    seats:0, seatsBy:{8:0, 7:0}, color:"#06b6d4", x:2.5, y:-7.0,
     ideology:"Цифровая прямая демократия, технолибертарианство",
     summary:"Основана в 2020 году продюсером игры World of Tanks Вячеславом Макаровым вокруг одной идеи: законы должны приниматься прямым электронным голосованием граждан. В Думу не проходила и остаётся скорее технологическим проектом, чем массовой партией.",
     leader:"Татьяна Колнауз",
     sub:{ property:2.0, redistribution:2.0, regulation:3.5,
           civil:-7.5, centralization:-9.5, tradition:-4.0 },
+    declared:{ x:2.0, y:-9.0,
+      note:"Разрыв невелик: партия не входила в Думу и проверить заявленное на голосованиях нельзя, поэтому обе точки выведены из программы.",
+      en:{ note:"The gap is small: the party has never sat in the Duma, so its claims cannot be checked against votes and both points come from the platform." } },
     theses:[
       "Электронные референдумы: граждане голосуют по законам напрямую",
       "Сокращение роли бюрократии и посреднических представительных институтов",

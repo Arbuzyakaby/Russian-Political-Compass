@@ -159,7 +159,7 @@
   /* ---------- разметка ----------
      data-i18n          — текстовое содержимое узла
      data-i18n-html     — то же, но со вставкой разметки (в словаре есть <b>)
-     data-i18n-attr     — "placeholder:search.placeholder;title:trails.title"
+     data-i18n-attr     — "placeholder:search.placeholder;title:claims.title"
      Русский текст остаётся в HTML и подменяется только при lang !== ru,
      поэтому для русского эта функция не трогает ни один узел. */
   function applyDom(root){

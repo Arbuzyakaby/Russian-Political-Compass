@@ -259,7 +259,7 @@ test("код ответов кодируется и раскодируется �
     list.forEach((q, i) => { if(i % 3) src[q.id] = [-2, -1, 1, 2][i % 4]; });
 
     const code = PC.quiz.encodeAnswers(src, mode);
-    assert.match(code, /^[sx]?[a-e-]+$/, "в коде только безопасные для адреса символы");
+    assert.match(code, /^3[sx]?[a-e-]+$/, "в коде только безопасные для адреса символы и номер формата 3");
     assert.equal(PC.quiz.decodeMode(code), mode);
 
     /* Объекты приходят из другого realm (модули исполняются в vm), поэтому
@@ -283,16 +283,16 @@ test("метка версии: длина кода и признак верси�
   Q.forEach(q => { src[q.id] = 1; });
 
   const long = PC.quiz.encodeAnswers(src, "long");
-  assert.equal(long.charAt(0), "x");
-  assert.equal(long.length, Q.length + 1);
+  assert.equal(long.slice(0, 2), "3x");
+  assert.equal(long.length, Q.length + 2);
 
   const short = PC.quiz.encodeAnswers(src, "short");
-  assert.equal(short.charAt(0), "s");
-  assert.equal(short.length, STD.length + 1);
+  assert.equal(short.slice(0, 2), "3s");
+  assert.equal(short.length, STD.length + 2);
 
   const std = PC.quiz.encodeAnswers(src, "full");
-  assert.equal(std.length, STD.length, "код стандартной версии прежней длины — старые ссылки живут");
-  assert.match(std, /^[a-e-]+$/, "у стандартной версии метки нет");
+  assert.equal(std.length, STD.length + 1, "у стандартной версии только номер формата");
+  assert.match(std, /^3[a-e-]+$/, "у стандартной версии метки версии нет");
   assert.equal(PC.quiz.decodeMode(std), "full");
 
   /* и главное: по метке результат восстанавливается тот же, что был
@@ -325,7 +325,7 @@ test("ссылка на результат ведёт на маршрут, ко�
     assert.ok(url.startsWith("https://"), "ссылка должна быть абсолютной");
     /* тот же разбор, что в js/quiz.js: hashCode ждёт необязательную метку
        версии перед телом кода */
-    const m = /#\/result\/([sx]?[a-e-]+)$/.exec(url);
+    const m = /#\/result\/(3[sx]?[a-e-]+)$/.exec(url);
     assert.ok(m, `адрес не похож на маршрут результата: ${url}`);
     assert.equal(PC.quiz.decodeMode(m[1]), mode);
     assert.ok(PC.quiz.decodeAnswers(m[1]), `${mode}: код из ссылки не читается`);

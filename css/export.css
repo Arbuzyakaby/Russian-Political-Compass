@@ -30,9 +30,9 @@
 .ei-label{font-size:calc(12.5px * var(--text-k));font-weight:650;color:var(--text);}
 .ei-hint{font-size:calc(10.5px * var(--text-k));color:var(--muted);line-height:1.35;}
 
-/* ---- чип слоя траекторий ---- */
-.trail-chip{display:inline-flex;align-items:center;gap:6px;}
-.trail-chip .ico{font-size:calc(11px * var(--text-k));opacity:.85;}
+/* ---- чип слоя заявленных позиций ---- */
+.claim-chip{display:inline-flex;align-items:center;gap:6px;}
+.claim-chip .ico{font-size:calc(11px * var(--text-k));opacity:.85;}
 
 /* ---- карточка результата в тесте ---- */
 .qr-share{display:block;margin-top:22px;padding:20px 22px 22px;border-radius:var(--radius);
@@ -65,7 +65,7 @@
   .export-menu{width:min(290px,calc(100vw - 48px));}
   .export-wrap{width:100%;order:4;}
   .export-wrap .export-btn{width:100%;justify-content:center;}
-  .trail-chip{width:100%;justify-content:center;order:2;}
+  .claim-chip{width:100%;justify-content:center;order:2;}
   .qr-share{padding:16px;}
   .qr-share-tools .btn{flex:1;}
 }

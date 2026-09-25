@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Русский политический компас: партии России на двух осях — экономика и отношение к власти государства. Мандаты в Госдуме по созывам IV–VIII, ключевые голосования и тест на 90 утверждений в трёх версиях. Рус. полит компас без регистрации и рекламы.">
+<meta name="description" content="Русский политический компас: партии России на двух осях — экономика и отношение к власти государства. Мандаты в Госдуме по созывам IV–IX, ключевые голосования и тест на 90 утверждений в трёх версиях. Рус. полит компас без регистрации и рекламы.">
 <meta name="color-scheme" content="light dark">
 <!-- цвет строки браузера на мобильных: свой для каждой темы, иначе
      панель остаётся белой над тёмной страницей -->
-<meta name="theme-color" content="#06080e" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#eceff6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ecebe6" media="(prefers-color-scheme: light)">
 <meta name="author" content="Arbuzyakaby">
 <!-- canonical и og:url требуют постоянного адреса: до своего домена
      ставить их было не на что, GitHub Pages давал бы адрес не проекта,
@@ -26,13 +26,13 @@
 <meta property="og:site_name" content="Русский политический компас">
 <meta property="og:url" content="https://rupolitcompass.website/">
 <meta property="og:title" content="Русский политический компас — партии РФ на двух осях">
-<meta property="og:description" content="Русский полит компас: партии России на двух независимых осях — экономика и отношение к власти государства. Мандаты по созывам IV–VIII, ключевые голосования и тест на 90 утверждений.">
+<meta property="og:description" content="Русский полит компас: партии России на двух независимых осях — экономика и отношение к власти государства. Мандаты по созывам IV–IX, ключевые голосования и тест на 90 утверждений.">
 <meta property="og:image" content="https://rupolitcompass.website/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="674">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Русский политический компас — партии РФ на двух осях">
-<meta name="twitter:description" content="Русский полит компас: партии России на двух независимых осях, мандаты по созывам IV–VIII и тест на 90 утверждений.">
+<meta name="twitter:description" content="Русский полит компас: партии России на двух независимых осях, мандаты по созывам IV–IX и тест на 90 утверждений.">
 <meta name="twitter:image" content="https://rupolitcompass.website/assets/og-image.png">
 <!-- Иконка вкладки и логотип в шапке берут уменьшенную копию. Полная,
      на 512 пикселей, весит 235 КБ и до 2.1 скачивалась при каждой
@@ -160,7 +160,7 @@
       "featureList": [
         "Компас партий по двум осям",
         "Разложение позиции на шесть под-осей",
-        "Мандаты в Госдуме по созывам IV–VIII",
+        "Мандаты в Госдуме по созывам IV–IX",
         "Ключевые голосования и матрица совпадений фракций",
         "Тест на 90 утверждений с разбором ответов, стандартная версия на 40 и короткая на 20",
         "Семь тем оформления и настройки интерфейса",
@@ -173,7 +173,7 @@
       "@type": "Dataset",
       "@id": "https://rupolitcompass.website/#dataset",
       "name": "Координаты партий РФ, мандаты по созывам и ключевые голосования",
-      "description": "Экспертная оценка положения российских партий по осям «экономика» и «отношение к власти государства», разложение на шесть под-осей, мандаты в Госдуме IV–VIII созывов и позиции фракций по знаковым законопроектам.",
+      "description": "Экспертная оценка положения российских партий по осям «экономика» и «отношение к власти государства», разложение на шесть под-осей, мандаты в Госдуме IV–IX созывов и позиции фракций по знаковым законопроектам.",
       "url": "https://rupolitcompass.website/",
       "license": "https://creativecommons.org/licenses/by/4.0/",
       "creator": { "@type": "Person", "name": "Arbuzyakaby" },
@@ -239,7 +239,7 @@
     <button type="button" class="tab" data-tab="quiz" role="tab" id="tab-quiz"
             aria-controls="panel-quiz" aria-selected="false" tabindex="-1"><span data-i18n="tab.quiz">Тест</span><span class="tab-badge">40</span></button>
     <button type="button" class="tab" data-tab="votes" role="tab" id="tab-votes"
-            aria-controls="panel-votes" aria-selected="false" tabindex="-1"><span data-i18n="tab.votes">Голосования</span><span class="tab-badge">20</span></button>
+            aria-controls="panel-votes" aria-selected="false" tabindex="-1"><span data-i18n="tab.votes">Голосования</span><span class="tab-badge">28</span></button>
     <button type="button" class="tab" data-tab="about" role="tab" id="tab-about"
             aria-controls="panel-about" aria-selected="false" tabindex="-1"><span data-i18n="tab.about">О проекте</span></button>
   </nav>
@@ -257,10 +257,10 @@
             <button type="button" class="chip" data-filter="duma" aria-pressed="false" data-i18n="filter.duma">В Госдуме</button>
             <button type="button" class="chip" data-filter="nonduma" aria-pressed="false" data-i18n="filter.nonduma">Без мандатов</button>
           </div>
-          <button type="button" class="chip trail-chip" id="trailBtn" aria-pressed="false"
-                  title="Показать, как смещались позиции партий во времени"
-                  data-i18n-attr="title:trails.title">
-            <span class="ico" aria-hidden="true">↗</span><span data-i18n="trails.btn">Траектории</span>
+          <button type="button" class="chip claim-chip" id="claimBtn" aria-pressed="true"
+                  title="Показать, где партии стоят по собственным словам — полая точка и стрелка к реальной позиции"
+                  data-i18n-attr="title:claims.title">
+            <span class="ico" aria-hidden="true">◌</span><span data-i18n="claims.btn">Заявленное</span>
           </button>
           <div class="export-wrap" id="exportWrap">
             <button type="button" class="chip export-btn" id="exportBtn"
@@ -351,8 +351,8 @@
 
       <section class="card chart-card" data-reveal aria-label="Динамика мандатов по созывам">
         <div class="chart-head">
-          <h3 data-i18n="ch.trend.h">Динамика мандатов, IV–VIII созывы</h3>
-          <p data-i18n="ch.trend.p">Мандаты по итогам выборов 2003–2021. Разрыв линии означает, что партия в том созыве не участвовала. Клик по графику переключает созыв на всей странице.</p>
+          <h3 data-i18n="ch.trend.h">Динамика мандатов, IV–IX созывы</h3>
+          <p data-i18n="ch.trend.p">Мандаты по итогам выборов 2003–2026. Разрыв линии означает, что партия в том созыве не участвовала. Клик по графику переключает созыв на всей странице.</p>
         </div>
         <div class="chart-toolbar" role="group" aria-label="Шкала графика" data-i18n-attr="aria-label:ch.trend.scale">
           <button type="button" class="trend-mode" data-mode="seats" aria-pressed="true" data-i18n="ch.trend.seats">Мандаты</button>
@@ -446,11 +446,11 @@
            Теперь сверху одно предложение и три числа, а объяснения
            убраны под раскрывающиеся заголовки: кто пришёл за таблицей,
            видит таблицу; кто пришёл разобраться, раскрывает и читает. -->
-      <p class="votes-lede" data-reveal data-i18n="votes.lede.short">Программу можно написать какой угодно — голосование уже поступок. Двадцать законопроектов 2004–2024 годов и позиция каждой фракции по каждому из них.</p>
+      <p class="votes-lede" data-reveal data-i18n="votes.lede.short">Программу можно написать какой угодно — голосование уже поступок. Двадцать восемь законопроектов 2004–2025 годов и позиция каждой фракции по каждому из них.</p>
 
       <div class="votes-figures" data-reveal>
-        <span class="vf"><b id="vfCount">20</b> <span data-i18n="votes.s1">голосований</span></span>
-        <span class="vf"><b>2004–2024</b> <span data-i18n="votes.s2">годы</span></span>
+        <span class="vf"><b id="vfCount">28</b> <span data-i18n="votes.s1">голосований</span></span>
+        <span class="vf"><b>2004–2025</b> <span data-i18n="votes.s2">годы</span></span>
         <span class="vf"><b id="vfFactions">6</b> <span data-i18n="votes.s3">фракций</span></span>
       </div>
 
@@ -475,7 +475,7 @@
         <div class="ag-wrap" id="votesMatrix"></div>
         <details class="chart-why">
           <summary data-i18n="how.open">Как это читать</summary>
-          <p data-i18n="votes.agreementWhy">Что здесь видно: расстояние на компасе измеряет программы, а матрица — поведение, и совпадают они не всегда. ЛДПР и «Справедливая Россия» стоят на поле почти втрое дальше друг от друга, чем ЛДПР от «Единой России», — и при этом совпали во всех общих голосованиях.</p>
+          <p data-i18n="votes.agreementWhy">Что здесь видно: расстояние на компасе измеряет программы, а матрица — поведение, и совпадают они не всегда. ЛДПР и «Справедливая Россия» стоят на поле почти втрое дальше друг от друга, чем ЛДПР от «Единой России», — и при этом совпали в девятнадцати голосованиях из двадцати общих.</p>
         </details>
       </section>
     </div>
@@ -495,7 +495,7 @@
           по двум независимым осям, и рядом с ним — объяснение, почему оно именно такое.</p>
         <p data-i18n="ab.hero.p2">Компас не голосует за вас и никого не рекламирует. Он показывает, как программы и публичная
           риторика партий раскладываются по двум измерениям, насколько далеко партии отстоят друг от друга
-          и как менялся состав Госдумы за пять созывов подряд.</p>
+          и как менялся состав Госдумы за шесть созывов подряд.</p>
       </article>
 
       <!-- Числа проекта одной строкой. Раздел состоит из тринадцати
@@ -510,7 +510,7 @@
       <div class="about-stats" data-reveal>
         <div class="ab-st"><b id="abStParties">11</b><span>партий на поле</span></div>
         <div class="ab-st"><b id="abStQuiz">90</b><span>утверждений в тесте</span></div>
-        <div class="ab-st"><b id="abStVotes">20</b><span>ключевых голосований</span></div>
+        <div class="ab-st"><b id="abStVotes">28</b><span>ключевых голосований</span></div>
         <div class="ab-st"><b id="abStConv">5</b><span>созывов Госдумы</span></div>
         <div class="ab-st"><b id="abStSub">6</b><span>под-осей у каждой партии</span></div>
         <div class="ab-st"><b id="abStLangs">2</b><span>языка интерфейса</span></div>
@@ -579,6 +579,7 @@
         </ol>
         <p data-i18n="ab.src.p2">У каждой партии в карточке есть раздел «Почему такие координаты» — там разбор конкретной позиции.
           Это и есть главное содержание проекта: не цифра, а обоснование, с которым можно спорить.</p>
+        <p data-i18n="ab.src.p3">С 3.0 у каждой партии две точки. Сплошная — реальная позиция, выведенная из всех четырёх источников. Полая — заявленная: где партия стоит по собственному названию, уставу и предвыборной риторике, то есть по третьему источнику, взятому отдельно. Стрелка между ними и есть разрыв между словом и делом — у «Яблока» он почти нулевой, у ЛДПР и КПРФ самый длинный на поле.</p>
       </article>
 
       <article class="card about-card about-card--wide" id="ab-sub" data-reveal>
@@ -892,7 +893,7 @@
         <li>
           <span class="wel-ico" aria-hidden="true">◎</span>
           <b data-i18n="wel.p1.h">Посмотрите на поле</b>
-          <span data-i18n="wel.p1.p">Одиннадцать партий, пять созывов Думы и графики, которые следуют за выбранным созывом.</span>
+          <span data-i18n="wel.p1.p">Одиннадцать партий, шесть созывов Думы и графики, которые следуют за выбранным созывом.</span>
         </li>
         <li>
           <span class="wel-ico" aria-hidden="true">✦</span>
@@ -907,11 +908,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">У проекта появилась своя история. В разделе «О проекте» — лента из десяти вех: от первого выпуска — компас на одном языке и тест на сорок утверждений — до нынешнего. Рядом с каждой датой сказано не только что добавилось, но и зачем: половина вех — это переделки того, что уже было и работало плохо.</li>
-        <li data-i18n="wel.up.l2">Тест по самому разделу «О проекте». Десять вопросов о том, как устроен компас: две оси, вес ключевых утверждений, что проект про себя не утверждает, где лежат ваши ответы. У каждого ответа есть разбор, а верный всегда написан в одной из карточек раздела — не угадывается, а читается.</li>
-        <li data-i18n="wel.up.l3">Нижний лист настроек перестал перелетать. На телефоне панель выезжала снизу по пружинной кривой и на мгновение открывала под собой семьдесят пикселей пустоты — ровно там, где у листа должен быть край экрана. Теперь она приезжает в свою конечную точку и останавливается.</li>
-        <li data-i18n="wel.up.l4">Из разбора ответа можно уйти в раздел. Ссылка «читать в разделе» прокручивает страницу к той самой карточке и сразу зажигает её чип в оглавлении — не тот, мимо которого страница проезжала по дороге, как это бывало раньше при плавной прокрутке.</li>
-        <li data-i18n="wel.up.l5">Номер версии стал RPC 2.5. Приставка обозначает линию: всё, что выходит между 2.4.3 и большой переделкой, подписано RPC. Она кончится вместе с линией — 3.0 выйдет без неё, обычным номером.</li>
+        <li data-i18n="wel.up.l1">Заявлено и на деле. У каждой партии на компасе теперь две точки: сплошная — где она стоит по программе, законам и голосованиям, полая — где она стоит по собственным словам. Стрелка идёт от слов к делу, и её длина — это разрыв. В карточке партии — обе пары координат и объяснение, откуда разрыв взялся.</li>
+        <li data-i18n="wel.up.l2">IX созыв. Мандаты по итогам выборов в Госдуму в сентябре 2026 года: «Единая Россия» — 349, КПРФ — 37, ЛДПР — 23, «Новые люди» — 19, «Справедливая Россия» — 17, «Родина» — 1. Графики, коалиции и список партий по умолчанию показывают новый созыв.</li>
+        <li data-i18n="wel.up.l3">Восемь новых голосований VIII созыва — от парламентского расследования пыток до НДС 22%, — всего двадцать восемь. Матрица совпадений пересчитана: ЛДПР и «Справедливая Россия» больше не совпадают во всём.</li>
+        <li data-i18n="wel.up.l4">Все темы, кроме «Аляски», переписаны с нуля: графит, лён, газета, синтвейв и новый камин. Траектории партий из проекта убраны. Ссылки на результат теста из версий 1.x и 2.x больше не открываются — результат теперь сравнивается и с заявленными позициями партий.</li>
+        <li data-i18n="wel.up.l5">У версий теперь есть имена. Эта — 3.0 «Висла»: номер снова без приставки, а имя — гидроним, название реки.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1494,7 +1495,7 @@
     <dl class="foot-figures" data-reveal>
       <div><dt data-i18n="ft.fig.parties">Партий на поле</dt><dd id="footParties">11</dd></div>
       <div><dt data-i18n="ft.fig.convs">Созывов Госдумы</dt><dd>5</dd></div>
-      <div><dt data-i18n="ft.fig.votes">Ключевых голосований</dt><dd id="footVotes">20</dd></div>
+      <div><dt data-i18n="ft.fig.votes">Ключевых голосований</dt><dd id="footVotes">28</dd></div>
       <div><dt data-i18n="ft.fig.sub">Под-осей у каждой партии</dt><dd>6</dd></div>
     </dl>
 
@@ -1503,7 +1504,7 @@
         <div class="foot-mark" aria-hidden="true"><img src="assets/icon-96.png" alt="" width="96" height="96" loading="lazy" decoding="async"></div>
         <div>
           <h2 data-i18n="doc.title.compass">Политический компас партий РФ</h2>
-          <p data-i18n="ft.about">Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по пяти созывам Госдумы.</p>
+          <p data-i18n="ft.about">Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по шести созывам Госдумы.</p>
           <p class="foot-privacy" data-i18n="foot.privacy">Без счётчиков, аналитики и внешних запросов</p>
         </div>
       </div>
@@ -1521,9 +1522,9 @@
       <div class="foot-col" data-reveal>
         <h3 data-i18n="ft.data.h">Данные</h3>
         <ul>
-          <li data-i18n-html="ft.data.l1">Созывы <b>IV–VIII</b>, 2003–2021</li>
+          <li data-i18n-html="ft.data.l1">Созывы <b>IV–IX</b>, 2003–2026</li>
           <li data-i18n-html="ft.data.l2"><b>450</b> мандатов в каждом созыве</li>
-          <li data-i18n-html="ft.data.l3"><b>20</b> ключевых голосований</li>
+          <li data-i18n-html="ft.data.l3"><b>28</b> ключевых голосований</li>
           <li data-i18n="ft.data.l4">Координаты — экспертная оценка</li>
           <li><a href="#/about"><span data-i18n="ft.data.l5">Как они выведены</span><span class="arr" aria-hidden="true">→</span></a></li>
         </ul>
@@ -1542,7 +1543,7 @@
     </div>
 
     <div class="foot-bottom">
-      <p data-i18n="ft.legal">Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–VIII, 2003–2021, всего 450 мест); переключить созыв можно над компасом. Координаты и лидеры партий — экспертная оценка и данные на текущий момент; материал не является агитацией.</p>
+      <p data-i18n="ft.legal">Мандаты указаны по итогам выборов в Государственную Думу соответствующего созыва (IV–IX, 2003–2026, всего 450 мест); переключить созыв можно над компасом. Координаты и лидеры партий — экспертная оценка и данные на текущий момент; материал не является агитацией.</p>
       <span class="foot-meta">
         <span>2026</span>
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
@@ -1552,7 +1553,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия RPC 2.5: у раздела «О проекте» появилась лента истории проекта — десять вех от первого выпуска до нынешнего — и тест на десять вопросов по самому разделу, с разбором каждого ответа и ссылкой на карточку, где этот ответ написан; нижний лист настроек перестал перелетать свою конечную точку на телефоне; номер версии получил приставку RPC — она кончится вместе с линией 2.X">RPC 2.5</span>
+              title="Версия 3.0 «Висла»: у каждой партии две точки — где она стоит на деле и где по собственным словам; данные IX созыва; двадцать восемь голосований и пересчитанная матрица совпадений; все темы, кроме «Аляски», переписаны; траектории убраны; ссылки на результат из 1.x и 2.x больше не открываются">3.0 «Висла»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
