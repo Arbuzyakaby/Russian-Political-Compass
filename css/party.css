@@ -47,6 +47,9 @@
 .party-lead{margin:22px 0 30px;max-width:34em;font-size:calc(17px * var(--text-k));line-height:1.65;color:var(--body);text-wrap:pretty;}
 .party-hero-cta{display:flex;flex-wrap:wrap;gap:12px;}
 #panel-party .btn.party-cta{min-height:56px;padding:0 30px;font-size:17px;font-weight:700;box-shadow:0 14px 34px -14px var(--accent);}
+/* при крупном тексте (до 200%) подписи кнопок шапки переносятся,
+   а не уходят за край экрана */
+#panel-party .party-hero-cta .btn{max-width:100%;white-space:normal;height:auto;line-height:1.25;text-align:center;}
 #panel-party .btn.party-cta-2{min-height:56px;padding:0 24px;font-size:16px;background:color-mix(in srgb,var(--text) 9%,transparent);}
 .party-hero .party-meta{margin-top:20px;}
 .party-hero-art{display:grid;place-items:center;min-width:0;}

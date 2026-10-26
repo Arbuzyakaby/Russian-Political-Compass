@@ -125,7 +125,10 @@
   .tab > span:not(.tab-short):not(.tab-badge){position:absolute;width:1px;height:1px;overflow:hidden;
     clip:rect(0 0 0 0);white-space:nowrap;}
   .tab-badge,.tab-more,.tab-indicator{display:none!important;}
-  .shell .tabs .tab .tab-short{display:block;font-size:calc(11.5px * var(--text-k))!important;
+  /* подписи панели растут с размером текста, но не дальше 15 px —
+     как у панели вкладок iOS при крупном шрифте: иначе пять подписей
+     на 320 px обрезались бы до двух букв */
+  .shell .tabs .tab .tab-short{display:block;font-size:min(calc(11.5px * var(--text-k)),15px)!important;
     font-weight:650;letter-spacing:-.005em;line-height:1.2!important;white-space:nowrap;
     max-width:100%;overflow:hidden;text-overflow:ellipsis;}
   .tab[aria-selected="true"] .tab-short{color:var(--text);}
