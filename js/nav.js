@@ -101,7 +101,8 @@
     }
     if(changed || (opts && opts.force)){
       listeners.forEach(function(fn){ fn(current); });
-      if(!(opts && opts.keepScroll)) window.scrollTo({ top:0, behavior:"smooth" });
+      if(!(opts && opts.keepScroll)) window.scrollTo({ top:0,
+        behavior:window.matchMedia("(prefers-reduced-motion:reduce)").matches ? "instant" : "smooth" });
     }
   }
 

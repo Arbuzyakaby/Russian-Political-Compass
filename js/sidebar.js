@@ -127,6 +127,7 @@
                '<span class="sw" style="background:' + esc(p.color) + '"></span>' +
                '<span class="nm">' + esc(L(p, "name")) +
                  '<small>' + esc(L(p, "ideology")) + '</small>' +
+                 '<span class="mobile-coordinates">' + esc(t("mobile.coords", { x:fmt(p.x), y:fmt(p.y) })) + '</span>' +
                  '<span class="share" aria-hidden="true"><i style="width:' +
                    Math.max(seats ? 1.5 : 0, share).toFixed(2) + '%;background:' + esc(p.color) +
                  '"></i></span>' +

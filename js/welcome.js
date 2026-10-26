@@ -247,7 +247,8 @@
     });
     document.getElementById("welQuiz").addEventListener("click", function(){
       close();
-      PC.nav.go("quiz");
+      if(PC.nav) PC.nav.go("quiz");
+      else location.hash = "#/quiz";
     });
     el.querySelectorAll(".wel-lang").forEach(function(b){
       b.addEventListener("click", function(){ pickLang(b.dataset.lang); });

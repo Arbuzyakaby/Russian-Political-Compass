@@ -90,7 +90,7 @@
     if(state.active){
       if(!force && rendered === nextKey) return;
     }
-    if(identityChanged && PC.motion){
+    if(identityChanged && PC.motion && !window.matchMedia("(max-width:720px), (pointer:coarse) and (max-width:1050px)").matches){
       PC.motion.flip(document.getElementById("sideFlip"), paint);
     }else{
       paint();
@@ -104,6 +104,7 @@
     syncNodes();
     renderSide(true);
     PC.charts.render(state.active);
+    if(PC.mobile) PC.mobile.selected(state.active);
   }
 
   function refresh(){
@@ -287,14 +288,15 @@
        рисует, пока его не позовут. */
     if(PC.srpc) PC.srpc.init();
     if(PC.tour) PC.tour.init();
-    /* последним из всего: приветственный экран закрывает собой готовую
-       страницу, а не строящуюся — под размытием должен стоять компас
-       с точками, а не пустая сетка */
+    /* Приветствие уже запущено welcome-boot.js. Повторный вызов безопасен
+       и остаётся запасным путём при изменении порядка загрузки. */
     PC.welcome.init();
+    document.getElementById("welTour").disabled = false;
     /* Нативные списки подменяются своими только после того, как модули
        разложили в них варианты: до этого оформленной оказалась бы пустая
        кнопка, а варианты доехали бы в скрытый <select>. */
     PC.dropdown.init();
+    if(PC.mobile) PC.mobile.init();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
        цвета марок — графики пересобираем. */
@@ -302,12 +304,10 @@
       PC.charts.render(state.active);
     });
 
-    /* Скрытая вкладка выпадает из раскладки: у контейнеров нулевая ширина,
-       а getBBox() внутри display:none возвращает нули. Поэтому компас и
-       графики пересобираются при каждом возврате на вкладку. */
+    /* Компас восстанавливает точки после теста; аналитика использует кэш
+       данных и пересчитывает геометрию через ResizeObserver. */
     PC.nav.onChange(function(tab){
       if(tab !== "compass") return;
-      PC.charts.invalidate();
       PC.compass.redraw();
       PC.charts.render(state.active);
     });

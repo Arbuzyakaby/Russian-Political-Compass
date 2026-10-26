@@ -1,12 +1,17 @@
 {
   "name": "politcompass",
-  "version": "3.1.1",
+  "version": "3.2",
   "private": true,
   "description": "Интерактивный политический компас партий РФ — статическая страница без сборки, русский и английский интерфейс, шесть тем оформления",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
     "test:visual": "playwright test",
+    "prepare:release": "node scripts/prepare-release.cjs",
     "serve": "node tests/server.js"
   },
-  "license": "CC-BY-4.0"
+  "license": "CC-BY-4.0",
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "esbuild": "0.28.2"
+  }
 }

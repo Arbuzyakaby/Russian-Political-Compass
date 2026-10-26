@@ -119,6 +119,12 @@
       hEn:"Rewritten documentation",
       p:"README переписан с нуля и дополнен новыми скриншотами компаса, результата теста и мобильного интерфейса. Появились отдельные руководства пользователя и разработчика, описание методологии и инструкция по выпуску обновлений. Устаревшие описания заменены актуальными, номер версии согласован на сайте и в коде.",
       pEn:"The README has been rewritten with new screenshots of the compass, a quiz result and the mobile interface. Separate user and developer guides, a methodology reference and release instructions explain the current app. Outdated descriptions have been replaced, and the version number is consistent across the site and code."
+    },
+    {
+      v:"3.2 «Висла»", vEn:"3.2 “Vistula”", date:"2026-10-26",
+      h:"Удобнее на телефоне", hEn:"A better mobile experience",
+      p:"Переработаны мобильная навигация, размеры текста и управление касаниями. У графиков появилась таблица значений, построение аналитики отложено до появления на экране. Оптимизированы фоны и загрузка стилей, обновлено техническое SEO.",
+      pEn:"Reworked mobile navigation, typography and touch controls. Charts include readable values and analytics render near the viewport. Optimized backgrounds and stylesheet loading, and updated technical SEO."
     }
   ];
 })(window.PC = window.PC || {});

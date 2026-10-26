@@ -14,11 +14,10 @@
    языка на поле не осталось кириллицы. Скриншоты всё же снимаются —
    но как приложение к отчёту, а не как критерий.
 
-   Запуск (Playwright ставится отдельно, в зависимости проекта он
-   не входит — иначе «страница без сборки и зависимостей» перестала бы
-   быть правдой):
+   Запуск браузерных проверок:
 
-       npm i -D @playwright/test && npx playwright install chromium
+       npm install --package-lock=false
+       npx playwright install chromium webkit
        npm run test:visual
 
    Сервер поднимается сам, см. playwright.config.js. ============ */
@@ -136,6 +135,7 @@ test("парламентская диаграмма: ровно 450 мест и 
 
 test("график динамики прорисован и таблица данных повторяет его", async ({ page }) => {
   await scrollThrough(page);
+  await page.locator("#trend").scrollIntoViewIfNeeded();
   await expect(page.locator("#trend svg .trend-line").first()).toBeVisible();
   await expect(page.locator("#trendLegend .tleg")).not.toHaveCount(0);
 

@@ -152,7 +152,7 @@
      прозрачна (--card-a это 4.8% белого) и картинка видна как есть,
      а в светлой та же подложка — 88% белого, под которой от снимка
      не осталось бы ничего. */
-  --hero-bg:url("../assets/hero-bg.png");
+  --hero-bg:url("../assets/hero-bg.webp");
   --hero-veil-a:var(--card-a);
   --hero-veil-b:var(--card-b);
 
@@ -396,7 +396,7 @@
   --chart-grid:rgba(23,28,30,.08);
   --chart-axis:rgba(23,28,30,.20);
   --chart-empty:rgba(23,28,30,.10);
-  --hero-bg:url("../assets/hero-bg-white.png");
+  --hero-bg:url("../assets/hero-bg-white.webp");
   --hero-veil-a:rgba(255,255,255,.72);
   --hero-veil-b:rgba(255,255,255,.46);
   --tip-bg:rgba(255,255,255,.97);
@@ -471,7 +471,7 @@
   --chart-grid:rgba(17,17,17,.10);
   --chart-axis:rgba(17,17,17,.26);
   --chart-empty:rgba(17,17,17,.12);
-  --hero-bg:url("../assets/hero-bg-white.png");
+  --hero-bg:url("../assets/hero-bg-white.webp");
   --hero-veil-a:rgba(250,249,246,.82);
   --hero-veil-b:rgba(244,242,236,.58);
   --tip-bg:rgba(250,249,246,.98);
@@ -589,7 +589,7 @@
   --chart-axis:rgba(10,31,51,.26);
   --chart-empty:rgba(10,31,51,.13);
 
-  --hero-bg:url("../assets/hero-bg-white.png");
+  --hero-bg:url("../assets/hero-bg-white.webp");
   --hero-veil-a:rgba(232,242,252,.76);
   --hero-veil-b:rgba(206,226,245,.56);
 
@@ -668,7 +668,7 @@
   --chart-grid:rgba(200,170,255,.09);
   --chart-axis:rgba(200,170,255,.20);
   --chart-empty:rgba(200,170,255,.12);
-  --hero-bg:url("../assets/hero-bg.png");
+  --hero-bg:url("../assets/hero-bg.webp");
   --hero-veil-a:rgba(22,13,40,.52);
   --hero-veil-b:rgba(12,7,22,.30);
   --tip-bg:rgba(18,10,32,.95);
@@ -743,7 +743,7 @@
   --chart-grid:rgba(255,200,180,.08);
   --chart-axis:rgba(255,200,180,.18);
   --chart-empty:rgba(255,200,180,.11);
-  --hero-bg:url("../assets/hero-bg.png");
+  --hero-bg:url("../assets/hero-bg.webp");
   --hero-veil-a:rgba(40,22,24,.50);
   --hero-veil-b:rgba(22,12,14,.28);
   --tip-bg:rgba(30,16,19,.95);

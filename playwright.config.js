@@ -6,18 +6,18 @@
    Файл лежит в репозитории, чтобы прогон настраивался одной командой,
    когда он нужен:
 
-       npm i -D @playwright/test && npx playwright install chromium
+       npm install --package-lock=false && npx playwright install chromium webkit
        npm run test:visual
 
    Сервер поднимается сам из tests/server.js — тридцать строк на
    node:http вместо ещё одного пакета. */
 "use strict";
 
-const PORT = 4173;
+const PORT = Number(process.env.PC_PORT) || 4173;
 
 module.exports = {
   testDir: "./tests",
-  testMatch: /visual\.spec\.js$/,
+  testMatch: /(?:visual|mobile)\.spec\.js$/,
   /* Отрисовка компаса считается по метрикам текста, а параллельные
      воркеры на одной машине дают разный тайминг загрузки шрифта —
      раскладка подписей начинает «плавать» от прогона к прогону. */
@@ -44,7 +44,9 @@ module.exports = {
   },
 
   projects: [
-    { name: "chromium", use: { browserName: "chromium" } }
+    { name: "chromium", testMatch:/visual\.spec\.js$/, use: { browserName: "chromium" } },
+    { name: "mobile-chromium", testMatch:/mobile\.spec\.js$/, use: { browserName:"chromium", viewport:{width:390,height:844}, isMobile:true, hasTouch:true } },
+    { name: "mobile-webkit", testMatch:/mobile\.spec\.js$/, use: { browserName:"webkit", viewport:{width:390,height:844}, isMobile:true, hasTouch:true } }
   ],
 
   webServer: {

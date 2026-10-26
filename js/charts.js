@@ -18,6 +18,27 @@
   var trendMode = "seats";/* seats | share — что на оси Y графика динамики */
   var activeId = null;
   var lastKey = null;     /* последнее состояние, на котором графики уже отрисованы */
+  var sections = [], observer;
+
+  function scheduleSection(node, paint, key){
+    if(!node) return;
+    var section = sections.filter(function(s){ return s.node === node; })[0];
+    if(!section){
+      section = { node:node, watch:node.closest(".chart-card") || node.parentElement,
+        paint:paint, key:null, rendered:null, visible:false };
+      sections.push(section);
+      if(observer) observer.observe(section.watch);
+    }
+    section.key = key;
+    var rect = section.watch.getBoundingClientRect();
+    section.visible = rect.width > 0 && rect.bottom >= -200 && rect.top <= window.innerHeight + 200;
+    if(!observer || section.visible) flushSection(section);
+  }
+  function flushSection(section){
+    if(section.rendered === section.key || !section.node.getClientRects().length) return;
+    section.paint();
+    section.rendered = section.key;
+  }
 
   /* ---------- цвет марок ---------- */
   function hexToRgb(h){
@@ -788,6 +809,16 @@
 
   /* ---------- сборка ---------- */
   function init(){
+    if(window.IntersectionObserver){
+      observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          sections.filter(function(s){ return s.watch === entry.target; }).forEach(function(section){
+            section.visible = entry.isIntersecting;
+            if(section.visible) flushSection(section);
+          });
+        });
+      }, { rootMargin:"200px" });
+    }
     host.stats       = document.getElementById("stats");
     host.hemi        = document.getElementById("hemi");
     host.hemiLegend  = document.getElementById("hemiLegend");
@@ -834,19 +865,13 @@
       });
     });
 
-    var t = null, lastW = 0;
-    window.addEventListener("resize", function(){
-      clearTimeout(t);
-      t = setTimeout(function(){    /* размер в ключ не входит — перерисовываем напрямую */
-        var w = host.hemi.clientWidth;
-        /* На телефоне resize приходит, когда прячется адресная строка —
-           ширина при этом прежняя, и пересобирать дугу незачем (2.2). */
-        if(!w || w === lastW) return;
-        lastW = w;
-        renderHemicycle();
-        renderTrend();
-      }, 180);
-    });
+    var frame = null;
+    function resized(){
+      if(frame !== null) return;
+      frame = requestAnimationFrame(function(){ frame = null; render(activeId); });
+    }
+    if(window.ResizeObserver) new ResizeObserver(resized).observe(host.hemi);
+    else window.addEventListener("resize", resized, { passive:true });
   }
 
   /* Графики зависят только от созыва и выбранной партии — поиск и фильтры
@@ -855,6 +880,7 @@
   function render(active){
     if(!host.stats) return;
     activeId = active || null;
+    if(!host.hemi.clientWidth) return;
     /* В ключе — всё, от чего зависит готовая картинка: созыв, выбранная
        партия, тема (она задаёт цвета марок) и плотность с кеглем (они
        меняют ширину контейнеров, а графики рисуются в пикселях). Без
@@ -862,28 +888,22 @@
        под прежнюю ширину до первого перехода по вкладкам. */
     var root = document.documentElement.dataset;
     var key = [PC.convocationInfo().id, activeId, root.theme,
-               root.density, root.textsize].join("|");
+               root.density, root.textsize, root.font, PC.i18n.current(), host.hemi.clientWidth].join("|");
     if(key === lastKey) return;
-    /* Сменилась только выбранная партия — дугу не пересобираем, а лишь
-       переносим подсветку. До 2.2 на телефоне выбор фракции перерисовывал
-       весь полукруг на глазах. */
-    var onlyActive = lastKey && host.hemi._highlight &&
-      lastKey.split("|").filter(function(v, i){ return i !== 1; }).join("|") ===
-      key.split("|").filter(function(v, i){ return i !== 1; }).join("|");
     lastKey = key;
-    renderStats();
-    if(onlyActive) host.hemi._highlight(activeId);
-    else renderHemicycle();
-    renderTrend();
-    renderSpectrum();
-    renderRadar();
-    if(PC.coalition) PC.coalition.render();
+    scheduleSection(host.stats, renderStats, key);
+    scheduleSection(host.hemi, renderHemicycle, key);
+    scheduleSection(host.trend, renderTrend, key);
+    scheduleSection(host.spectrum, renderSpectrum, key);
+    scheduleSection(host.radar, renderRadar, key);
+    if(PC.coalition) scheduleSection(document.getElementById("coalition"), PC.coalition.render, key);
   }
 
   /* Сброс кэша: после возврата на вкладку компаса размеры контейнеров
      изменились, хотя ключ состояния прежний. */
   function invalidate(){
     lastKey = null;
+    sections.forEach(function(s){ s.rendered = null; });
     if(PC.coalition) PC.coalition.invalidate();
   }
 

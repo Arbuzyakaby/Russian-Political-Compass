@@ -151,9 +151,9 @@ test("у карточки «О проекте» свой фон в каждой 
   );
 });
 
-test("слой движения подключается последним", () => {
-  assert.equal(styles[styles.length - 1], "css/motion.css",
-    "css/motion.css уточняет правила из других файлов и обязан идти после них");
+test("мобильные уточнения следуют за слоем движения", () => {
+  assert.equal(styles[styles.length - 1], "css/mobile.css");
+  assert.equal(styles[styles.length - 2], "css/motion.css");
 });
 
 /* Стеклянный слой уточняет поверхности, объявленные компонентами,
@@ -163,7 +163,7 @@ test("слой движения подключается последним", ()
 test("стекло подключается после компонентов и до слоя движения", () => {
   const glass = styles.indexOf("css/glass.css");
   assert.ok(glass > -1, "css/glass.css не подключён");
-  assert.equal(glass, styles.length - 2, "css/glass.css должен идти прямо перед css/motion.css");
+  assert.equal(glass, styles.indexOf("css/motion.css") - 1, "css/glass.css должен идти прямо перед css/motion.css");
   for(const name of ["css/layout.css", "css/ui.css", "css/settings.css", "css/coalition.css"]){
     assert.ok(styles.indexOf(name) < glass, `${name} обязан идти раньше css/glass.css`);
   }
@@ -231,10 +231,11 @@ test("структурированные данные разбираются и 
   }
 });
 
-test("обе языковые версии объявлены для поисковика", () => {
-  assert.match(html, /hreflang="ru"/);
-  assert.match(html, /hreflang="en"/);
-  assert.match(html, /hreflang="x-default"/);
+test("единый canonical не выдаёт JS-перевод за отдельную HTML-страницу", () => {
+  assert.match(html, /rel="canonical" href="https:\/\/rupolitcompass.website\/"/);
+  assert.ok(!html.includes('hreflang="en"'));
+  assert.match(html, /id="project-summary"/);
+  assert.match(html, /data-i18n="seo.p1"/);
 });
 
 test("разметка: язык, кодировка, вьюпорт и описание на месте", () => {

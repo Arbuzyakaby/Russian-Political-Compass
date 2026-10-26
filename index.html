@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Русский политический компас: партии России на двух осях — экономика и отношение к власти государства. Мандаты в Госдуме по созывам IV–IX, ключевые голосования и тест на 90 утверждений в трёх версиях. Рус. полит компас без регистрации и рекламы.">
 <meta name="color-scheme" content="light dark">
 <!-- цвет строки браузера на мобильных: свой для каждой темы, иначе
@@ -14,12 +14,7 @@
      ставить их было не на что, GitHub Pages давал бы адрес не проекта,
      а форка/юзернейма -->
 <link rel="canonical" href="https://rupolitcompass.website/">
-<!-- две языковые версии живут по одному адресу и переключаются
-     параметром ?lang=; hreflang сообщает поисковику, что это не
-     дубликаты, а варианты одной страницы -->
-<link rel="alternate" hreflang="ru" href="https://rupolitcompass.website/">
-<link rel="alternate" hreflang="en" href="https://rupolitcompass.website/?lang=en">
-<link rel="alternate" hreflang="x-default" href="https://rupolitcompass.website/">
+<!-- ?lang=en switches the UI; the original Russian HTML is canonical. -->
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:locale:alternate" content="en_US">
@@ -55,66 +50,51 @@
      сниппет и ничего не выиграть. -->
 <title>Русский политический компас — партии РФ на двух осях</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Переменные начертания, а не набор статических: в стилях проекта
-     давно стоят промежуточные веса (550, 650, 750), и со статическими
-     файлами браузер округлял их до ближайшего из четырёх — половина
-     задуманной градации иерархии пропадала.
-
-     С 2.1 запрос разделён надвое и ни одна его половина не задерживает
-     первую отрисовку.
-
-     Базовые начертания (Inter, Manrope) стоят в стеке --font-body и
-     --font-display последними, после системных шрифтов: на macOS и
-     Windows до них дело не доходит вовсе, а нужны они там, где системного
-     гротеска нужного качества нет. Поэтому запрос помечен media="print"
-     и переключается на all в onload — браузер скачивает файл, но не
-     держит из-за него отрисовку. Текст показывается системным шрифтом
-     сразу, а не через «невидимый» период ожидания.
-
-     IBM Plex Sans Condensed и Fraunces обслуживают настройку «Шрифт»
-     (js/settings.js, data-font на <html>): они заменяют --font-display
-     в узком и антиквенном режиме. Раньше их скачивали все — включая
-     тех, кто этих режимов никогда не включит, — а это две гарнитуры
-     с кириллицей в каждой загрузке страницы. Теперь они подтягиваются
-     в тот момент, когда переключатель действительно выбран. -->
-<link rel="stylesheet" media="print" onload="this.media='all'"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&display=swap">
-<noscript>
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Manrope:wght@400..800&display=swap">
-</noscript>
-
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/header.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/compass.css">
 <link rel="stylesheet" href="css/sidebar.css">
-<link rel="stylesheet" href="css/charts.css">
-<link rel="stylesheet" href="css/radar.css">
-<link rel="stylesheet" href="css/coalition.css">
-<link rel="stylesheet" href="css/votes.css">
-<link rel="stylesheet" href="css/quiz.css">
-<link rel="stylesheet" href="css/export.css">
-<link rel="stylesheet" href="css/about.css">
-<link rel="stylesheet" href="css/about-quiz.css">
-<link rel="stylesheet" href="css/chain.css">
+<link rel="stylesheet" href="css/charts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/charts.css"></noscript>
+<link rel="stylesheet" href="css/radar.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/radar.css"></noscript>
+<link rel="stylesheet" href="css/coalition.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/coalition.css"></noscript>
+<link rel="stylesheet" href="css/votes.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/votes.css"></noscript>
+<link rel="stylesheet" href="css/quiz.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/quiz.css"></noscript>
+<link rel="stylesheet" href="css/export.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/export.css"></noscript>
+<link rel="stylesheet" href="css/about.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/about.css"></noscript>
+<link rel="stylesheet" href="css/about-quiz.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/about-quiz.css"></noscript>
+<link rel="stylesheet" href="css/chain.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/chain.css"></noscript>
 <link rel="stylesheet" href="css/footer.css">
-<link rel="stylesheet" href="css/select.css">
-<link rel="stylesheet" href="css/settings.css">
-<link rel="stylesheet" href="css/people.css">
+<link rel="stylesheet" href="css/select.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/select.css"></noscript>
+<link rel="stylesheet" href="css/settings.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/settings.css"></noscript>
+<link rel="stylesheet" href="css/people.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/people.css"></noscript>
 <link rel="stylesheet" href="css/ui.css">
 <link rel="stylesheet" href="css/welcome.css">
-<link rel="stylesheet" href="css/tour.css">
-<link rel="stylesheet" href="css/srpc.css">
-<link rel="stylesheet" href="css/eggs.css">
+<link rel="stylesheet" href="css/tour.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/tour.css"></noscript>
+<link rel="stylesheet" href="css/srpc.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/srpc.css"></noscript>
+<link rel="stylesheet" href="css/eggs.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/eggs.css"></noscript>
 <!-- стекло уточняет поверхности, описанные выше, поэтому идёт после них -->
 <link rel="stylesheet" href="css/glass.css">
 <!-- слой движения подключается последним: часть его правил намеренно
      уточняет уже описанное выше, и каскад решает это без !important -->
 <link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/mobile.css">
 
 <!-- Структурированные данные. Три сущности вместо одной: сайт (для
      сниппета с поиском), само приложение (компас — это инструмент,
@@ -151,6 +131,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
+      "softwareVersion": "3.2",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -199,7 +180,7 @@
 <div class="grain" aria-hidden="true"></div>
 <noscript>
   <p class="noscript-note">Компас, графики и тест рисуются в браузере на JavaScript —
-    без него страница остаётся пустой. Включите JavaScript, чтобы увидеть данные.</p>
+    включите его для интерактивных разделов. Описание проекта и методологии доступно ниже.</p>
 </noscript>
 <div class="shell">
 
@@ -280,9 +261,10 @@
           <svg class="compass" id="svg" viewBox="0 0 660 660" preserveAspectRatio="xMidYMid meet"
                role="img" aria-label="Политический компас: партии по осям экономики и отношения к государству"
                data-i18n-attr="aria-label:compass.aria"></svg>
-          <div class="tip" id="tip" role="tooltip"></div>
+          <div class="tip" id="tip" role="tooltip" aria-label="Информация о точке" data-i18n-attr="aria-label:mobile.tip"></div>
         </div>
 
+        <p class="mobile-map-note" data-i18n="mobile.mapNote">Коснитесь точки или выберите партию в списке под картой. В списке видны названия и координаты, в легенде — направления осей.</p>
         <div class="legend">
           <div><b>←</b> <span data-i18n="legend.left">Плановая экономика, национализация</span></div>
           <div><b>→</b> <span data-i18n="legend.right">Свободный рынок, частная инициатива</span></div>
@@ -811,7 +793,13 @@
     </div>
   </section>
 
-  </main>
+    <section class="card seo-intro" aria-labelledby="project-summary">
+    <h2 id="project-summary" data-i18n="seo.h">Русский политический компас: партии России и ваши взгляды</h2>
+    <p data-i18n="seo.p1">Сравните 11 российских партий по двум осям: экономике и отношению к государственной власти. Компас показывает реальные и заявленные позиции, а аналитика — распределение 450 мандатов Госдумы IV–IX созывов и позиции фракций по ключевым голосованиям.</p>
+    <p data-i18n="seo.p2">Тест политических взглядов содержит 20, 40 или 90 утверждений. Ответы и результаты сохраняются только в вашем браузере. Координаты партий — экспертные оценки с пояснениями, а совпадение в тесте не является рекомендацией, за кого голосовать.</p>
+    <a href="#/about" data-i18n="seo.method">Методология, источники и ограничения оценок</a>
+  </section>
+</main>
 
 </div>
 
@@ -908,11 +896,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">README переписан с нуля: краткое описание проекта, возможности и быстрый запуск.</li>
-        <li data-i18n="wel.up.l2">Добавлены новые скриншоты компаса, демонстрационного результата теста и мобильного интерфейса.</li>
-        <li data-i18n="wel.up.l3">Подготовлены отдельные руководства пользователя и разработчика с навигацией по разделам.</li>
-        <li data-i18n="wel.up.l4">Методология объясняет координаты, формулы теста и ограничения сравнения. Инструкция по выпуску описывает проверки, коммит и тег.</li>
-        <li data-i18n="wel.up.l5">Устаревшие описания заменены актуальными. Версия 3.1.1 согласована на сайте, в документации и коде.</li>
+        <li data-i18n="wel.up.l1">Мобильный интерфейс: крупные кнопки, читаемый текст и навигация в две строки.</li>
+        <li data-i18n="wel.up.l2">Компас выбирает ближайшую точку касанием и открывает карточку под картой.</li>
+        <li data-i18n="wel.up.l3">Значения профиля по под-осям доступны в таблице; матрица голосований прокручивается внутри своего блока.</li>
+        <li data-i18n="wel.up.l4">Графики строятся по мере появления на экране. Фоны стали легче, а лишние шрифты не загружаются.</li>
+        <li data-i18n="wel.up.l5">Обновлены техническое SEO, описание проекта без JavaScript и мобильные браузерные проверки.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1553,7 +1541,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 3.1.1 «Висла»: новая документация, руководства пользователя и разработчика, методология и свежие скриншоты">3.1.1 «Висла»</span>
+              title="Версия 3.2 «Висла»: мобильный интерфейс, управление касаниями, производительность и техническое SEO">3.2 «Висла»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1562,20 +1550,22 @@
   </div>
 </footer>
 
-<script src="js/data.js" defer></script>
+<script src="js/data.js" defer fetchpriority="high"></script>
+<script src="js/utils.js" defer fetchpriority="high"></script>
+<script src="js/i18n-misc.js" defer fetchpriority="high"></script>
+<script src="js/i18n.js" defer fetchpriority="high"></script>
+<script src="js/welcome.js" defer fetchpriority="high"></script>
+<script src="js/welcome-boot.js" defer fetchpriority="high"></script>
+<script src="js/i18n-shell.js" defer></script>
+<script src="js/i18n-compass.js" defer></script>
+<script src="js/i18n-quiz.js" defer></script>
+<script src="js/i18n-about.js" defer></script>
 <script src="js/data-parties.js" defer></script>
 <script src="js/data-votes.js" defer></script>
 <script src="js/data-people.js" defer></script>
 <script src="js/data-history.js" defer></script>
 <script src="js/data-quiz-about.js" defer></script>
-<script src="js/utils.js" defer></script>
 <script src="js/calc.js" defer></script>
-<script src="js/i18n-shell.js" defer></script>
-<script src="js/i18n-compass.js" defer></script>
-<script src="js/i18n-quiz.js" defer></script>
-<script src="js/i18n-about.js" defer></script>
-<script src="js/i18n-misc.js" defer></script>
-<script src="js/i18n.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/select.js" defer></script>
 <script src="js/motion.js" defer></script>
@@ -1598,8 +1588,8 @@
 <script src="js/export.js" defer></script>
 <script src="js/srpc.js" defer></script>
 <script src="js/tour.js" defer></script>
-<script src="js/welcome.js" defer></script>
 <script src="js/eggs.js" defer></script>
+<script src="js/mobile.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>

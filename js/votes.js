@@ -154,7 +154,7 @@
   function renderMatrix(parties){
     if(!matrixHost) return;
     matrixHost.innerHTML =
-      '<table class="ag-table"><caption class="sr-only">' + esc(t("votes.agreementAria")) + '</caption>' +
+      '<div class="matrix-scroll" tabindex="0" role="region" aria-label="' + esc(t("votes.agreementAria")) + '"><table class="ag-table"><caption class="sr-only">' + esc(t("votes.agreementAria")) + '</caption>' +
       '<thead><tr><td></td>' +
         parties.map(function(p){
           return '<th scope="col" data-col="' + esc(p.id) + '" title="' + esc(L(p, "short")) + '">' +
@@ -166,7 +166,7 @@
           esc(L(a, "short")) + "</th>" +
           parties.map(function(b){ return agreementCell(a, b); }).join("") + "</tr>";
       }).join("") +
-      "</tbody></table>" +
+      "</tbody></table></div>" +
       '<div class="ag-scale">' +
         '<span>' + esc(t("votes.scaleLow")) + '</span><i></i><span>' + esc(t("votes.scaleHigh")) + '</span>' +
       '</div>' +

@@ -12,10 +12,12 @@
 "use strict";
 
 const http = require("node:http");
+const https = require("node:https");
 const fs = require("node:fs");
 const path = require("node:path");
+const { gzipSync } = require("node:zlib");
 
-const ROOT = path.join(__dirname, "..");
+const ROOT = process.env.PC_ROOT || path.join(__dirname, "..");
 const PORT = Number(process.env.PC_PORT) || 4173;
 
 const TYPES = {
@@ -24,12 +26,13 @@ const TYPES = {
   ".css":"text/css; charset=utf-8",
   ".json":"application/json; charset=utf-8",
   ".png":"image/png",
+  ".webp":"image/webp",
   ".svg":"image/svg+xml",
   ".xml":"application/xml; charset=utf-8",
   ".txt":"text/plain; charset=utf-8"
 };
 
-const server = http.createServer((req, res) => {
+const handler = (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const rel = decodeURIComponent(url.pathname);
   const file = path.join(ROOT, rel === "/" ? "index.html" : rel);
@@ -45,12 +48,19 @@ const server = http.createServer((req, res) => {
       res.writeHead(404, { "content-type":"text/plain; charset=utf-8" }).end("not found");
       return;
     }
+    const compressed = /gzip/.test(req.headers["accept-encoding"] || "") && /\.(html|js|css|json|xml|txt)$/.test(file);
     res.writeHead(200, {
       "content-type": TYPES[path.extname(file)] || "application/octet-stream",
-      "cache-control": "no-store"
-    }).end(data);
+      "cache-control": "no-store",
+      "vary": "Accept-Encoding",
+      ...(compressed ? { "content-encoding":"gzip" } : {})
+    }).end(compressed ? gzipSync(data) : data);
   });
-});
+};
+// Optional HTTPS keeps local audit traffic comparable to the public HTTPS site.
+const server = process.env.PC_TLS_CERT && process.env.PC_TLS_KEY
+  ? https.createServer({ cert:fs.readFileSync(process.env.PC_TLS_CERT), key:fs.readFileSync(process.env.PC_TLS_KEY) }, handler)
+  : http.createServer(handler);
 
 server.listen(PORT, () => {
   console.log(`static server on http://localhost:${PORT}`);

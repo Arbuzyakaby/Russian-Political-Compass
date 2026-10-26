@@ -1,0 +1,99 @@
+{
+  "release": "3.2",
+  "baselineVersion": "3.1.1",
+  "baselineCommit": "87f92c1a735c2a6d418dc37a24163d127bf67a22",
+  "date": "2026-10-26",
+  "lighthouseVersion": "13.5.0",
+  "formFactor": "mobile",
+  "protocol": "HTTPS (local)",
+  "compression": "gzip",
+  "throttling": {
+    "rttMs": 150,
+    "throughputKbps": 1638.4,
+    "requestLatencyMs": 562.5,
+    "downloadThroughputKbps": 1474.5600000000002,
+    "uploadThroughputKbps": 675,
+    "cpuSlowdownMultiplier": 4
+  },
+  "runs": [
+    {
+      "phase": "before",
+      "run": 1,
+      "performance": 70.0,
+      "accessibility": 97.0,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 5488.101499999997,
+      "tbtMs": 236,
+      "cls": 0.00953312659991838,
+      "transferBytes": 637539
+    },
+    {
+      "phase": "before",
+      "run": 2,
+      "performance": 72.0,
+      "accessibility": 97.0,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 5525.4829,
+      "tbtMs": 224,
+      "cls": 0,
+      "transferBytes": 637539
+    },
+    {
+      "phase": "before",
+      "run": 3,
+      "performance": 70.0,
+      "accessibility": 97.0,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 5499.543900000001,
+      "tbtMs": 303,
+      "cls": 0,
+      "transferBytes": 637539
+    },
+    {
+      "phase": "after",
+      "run": 1,
+      "performance": 94.0,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 2969.794,
+      "tbtMs": 68,
+      "cls": 0.00857729118087728,
+      "transferBytes": 292791
+    },
+    {
+      "phase": "after",
+      "run": 2,
+      "performance": 94.0,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 2973.4880000000003,
+      "tbtMs": 69,
+      "cls": 0.00857729118087728,
+      "transferBytes": 292791
+    },
+    {
+      "phase": "after",
+      "run": 3,
+      "performance": 94.0,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 2983.299,
+      "tbtMs": 70,
+      "cls": 0.00857729118087728,
+      "transferBytes": 292791
+    }
+  ],
+  "interactionSample": {
+    "cpuSlowdown": 4,
+    "maxEventDurationMs": 200,
+    "events": 21,
+    "scenario": "Quiz navigation, start, answer, next, votes navigation, settings open/close",
+    "fieldINP": false
+  }
+}

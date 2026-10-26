@@ -208,6 +208,20 @@
       note.textContent = t("ch.radar.legend");
       box.appendChild(note);
     }
+    /* Values remain readable on small screens and without SVG hover. */
+    if(series.length){
+      var table = document.createElement("table");
+      table.className = "rad-values";
+      table.innerHTML = '<caption class="sr-only">' + esc(t("ch.radar.aria")) + '</caption><thead><tr><th scope="col">' +
+        esc(t("side.subaxes")) + '</th>' + series.map(function(s){
+          return '<th scope="col">' + esc(s.label) + '</th>';
+        }).join("") + '</tr></thead><tbody>' + axes.map(function(ax){
+          return '<tr><th scope="row">' + esc(axisName(ax.id)) + '</th>' + series.map(function(s){
+            return '<td>' + esc(fmt(s.values[ax.id])) + '</td>';
+          }).join("") + '</tr>';
+        }).join("") + '</tbody>';
+      box.appendChild(table);
+    }
     return svg;
   }
 

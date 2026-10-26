@@ -30,6 +30,7 @@
      точка пользователя, у которой нет ни мандатов, ни идеологии. */
   function showHTML(html, sx, sy){
     if(!tip) return;
+    if(window.matchMedia("(hover:none)").matches) return;
     tip.innerHTML = html;
 
     var pos = toPlotPx(sx, sy);
