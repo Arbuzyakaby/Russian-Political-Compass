@@ -192,6 +192,7 @@
     PC.exporter.init();
 
     document.addEventListener("keydown", function(e){
+      if(e.defaultPrevented || PC.utils.modalOpen()) return;
       if(PC.nav.current() !== "compass") return;
       if(e.key === "Escape"){
         if(document.activeElement === input && input.value){

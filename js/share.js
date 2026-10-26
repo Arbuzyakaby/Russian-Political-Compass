@@ -403,7 +403,7 @@
   }
 
   /* ---------- блок в результатах теста ---------- */
-  function mount(host, pt){
+  function mount(host, pt, resultURL){
     if(!host) return;
     var fmt = PC.store.get("pc-share-format", "square");
     if(!FORMATS[fmt]) fmt = "square";
@@ -478,7 +478,7 @@
           title:t("card.shareTitle"),
           /* ссылка на результат уходит вместе с картинкой: картинку
              в ленте видно, но по ней нельзя открыть разбор ответов */
-          url:PC.quiz.shareURL(PC.store.getJSON("pc-quiz-answers", {}) || {}, PC.quiz.mode()),
+          url:resultURL,
           text:t("card.shareText", {
             q:PC.quiz.quadrant(pt.x, pt.y),
             x:PC.utils.fmt(pt.x), y:PC.utils.fmt(pt.y)

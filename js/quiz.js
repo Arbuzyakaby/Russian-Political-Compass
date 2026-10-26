@@ -57,7 +57,7 @@
 
   var host;                       /* контейнер вкладки */
   var answers = {};               /* id вопроса -> −2…+2 */
-  var result = null;              /* { x, y, answered, ts, mode } */
+  var result = null;              /* завершённый результат со снимком answers */
   var history = [];               /* прошлые результаты, от старых к новым */
   var idx = 0;                    /* текущий вопрос в активной выборке */
   var view = "intro";             /* intro | run | result */
@@ -67,6 +67,43 @@
 
   function activeQuestions(){ return questionsFor(mode); }
   function score(){ return scoreOf(answers, activeQuestions()); }
+
+  function copyAnswers(src, list){
+    var out = {};
+    (list || ALL).forEach(function(q){
+      var v = src && src[q.id];
+      if(typeof v === "number" && v >= -2 && v <= 2) out[q.id] = Math.round(v);
+    });
+    return out;
+  }
+
+  function snapshot(src, m){
+    var saved = copyAnswers(src, questionsFor(m));
+    var pt = scoreOf(saved, questionsFor(m));
+    pt.answers = saved;
+    return pt;
+  }
+
+  /* Старые результаты не содержали снимка. Восстанавливаем его из
+     истории либо черновика только при совпадении счёта: смешивать
+     прежние координаты с уже отредактированными ответами нельзя. */
+  function restoreResult(r){
+    if(!r || !isFinite(r.x) || !isFinite(r.y) ||
+       typeof r.x !== "number" || typeof r.y !== "number") return null;
+    var rm = MODES.indexOf(r.mode) > -1 ? r.mode : "full";
+    var sources = r.answers ? [r.answers] : history.slice().reverse().filter(function(e){
+      return e.mode === rm && e.ts === (r.ts || 0) && e.code;
+    }).map(function(e){ return decodeAnswers(e.code); }).concat([answers]);
+    for(var i = 0; i < sources.length; i++){
+      if(!sources[i]) continue;
+      var pt = snapshot(sources[i], rm);
+      if(Math.abs(pt.x - r.x) > 1e-6 || Math.abs(pt.y - r.y) > 1e-6 ||
+         pt.answered !== (r.answered || 0)) continue;
+      pt.ts = r.ts || 0;
+      return pt;
+    }
+    return null;
+  }
 
   /* Те же ответы в разрезе шести узких шкал. Умолчание для list — выборка
      сохранённого результата, а не та, что выбрана в интерфейсе прямо
@@ -90,20 +127,8 @@
     var savedMode = PC.store.get(KEY_MODE, "full");
     mode = MODES.indexOf(savedMode) > -1 ? savedMode : "full";
 
-    var a = PC.store.getJSON(KEY_ANS, null);
-    if(a && typeof a === "object"){
-      ALL.forEach(function(q){
-        var v = a[q.id];
-        if(typeof v === "number" && v >= -2 && v <= 2) answers[q.id] = Math.round(v);
-      });
-    }
+    answers = copyAnswers(PC.store.getJSON(KEY_ANS, null));
     var r = PC.store.getJSON(KEY_RES, null);
-    if(r && typeof r.x === "number" && typeof r.y === "number"){
-      var rm = MODES.indexOf(r.mode) > -1 ? r.mode : "full";
-      result = { x:clamp(r.x, -10, 10), y:clamp(r.y, -10, 10),
-                 answered:r.answered || 0, total:r.total || questionsFor(rm).length,
-                 mode:rm, ts:r.ts || 0 };
-    }
     var h = PC.store.getJSON(KEY_HIST, null);
     if(Array.isArray(h)){
       history = h.filter(function(e){
@@ -115,6 +140,9 @@
                  code:typeof e.code === "string" ? QC.upgradeCode(e.code) : null };
       }).slice(-HIST_MAX);
     }
+    result = restoreResult(r);
+    if(result) PC.store.setJSON(KEY_RES, result);
+    else if(r) PC.store.remove(KEY_RES);
   }
 
   /* Повторное прохождение с теми же ответами историю не засоряет:
@@ -128,7 +156,7 @@
       if(same && last.mode === pt.mode && pt.ts - last.ts < 60000) return;
     }
     history.push({ x:pt.x, y:pt.y, answered:pt.answered, ts:pt.ts, mode:pt.mode,
-                   code:encodeAnswers(answers, pt.mode) });
+                   code:encodeAnswers(pt.answers, pt.mode) });
     if(history.length > HIST_MAX) history = history.slice(-HIST_MAX);
     saveHistory();
   }
@@ -343,7 +371,7 @@
   }
 
   function finish(){
-    result = score();
+    result = snapshot(answers, mode);
     save();
     pushHistory(result);
     view = "result";
@@ -600,7 +628,7 @@
   }
 
   function renderResult(){
-    var src  = shared ? shared.answers : answers;
+    var src  = shared ? shared.answers : (result ? result.answers : answers);
     var runMode = shared ? shared.mode : (result ? result.mode : mode);
     var list = questionsFor(runMode);
     var pt   = shared ? shared.pt : (result || score());
@@ -671,7 +699,7 @@
         '</div>' +
       '</div>';
 
-    if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt);
+    if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt, shareURL(src, runMode));
     mountSubBlock(src, pt, list);
 
     document.getElementById("qrAgain").addEventListener("click", resetAll);
@@ -783,6 +811,7 @@
 
   /* ---------- клавиатура ---------- */
   function onKey(e){
+    if(e.defaultPrevented || U.modalOpen()) return;
     if(view !== "run") return;
     if(PC.nav && PC.nav.current() !== "quiz") return;
     var tag = document.activeElement && document.activeElement.tagName;
@@ -802,6 +831,20 @@
     host = document.getElementById("quiz");
     if(!host) return;
     load();
+    window.addEventListener("hashchange", function(){
+      var nextCode = hashCode();
+      if(nextCode){
+        if(openShared(nextCode, true)) return;
+        if(QC.isLegacyCode(nextCode)) refuseLegacy();
+        shared = null;
+        view = result ? "result" : "intro";
+        render();
+      }else if(shared && /^#\/?quiz$/.test(location.hash)){
+        shared = null;
+        view = result ? "result" : "intro";
+        render();
+      }
+    });
     var code = hashCode();
     if(code && openShared(code, true)){
       document.addEventListener("keydown", onKey);

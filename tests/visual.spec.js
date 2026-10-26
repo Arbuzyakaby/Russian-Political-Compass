@@ -59,7 +59,7 @@ async function compassReady(page){
   await page.waitForFunction(() => window.PC && document.querySelectorAll("#svg .node").length > 0);
   await page.evaluate(() => (document.fonts && document.fonts.ready) || null).catch(() => {});
   await page.waitForFunction(() => {
-    const dots = document.querySelectorAll("#svg .node .dot");
+    const dots = document.querySelectorAll("#svg .node:not(.person) circle.dot");
     return dots.length > 0 &&
       Array.prototype.every.call(dots, d => Number(d.getAttribute("r")) > 0);
   });
@@ -72,7 +72,12 @@ async function compassReady(page){
 async function dismissWelcome(page){
   await page.evaluate(() => {
     localStorage.setItem("pc-welcome", window.PC.VERSION);
-    window.PC.welcome.close();
+    // Закрытие приветствия запускает 3D-пролёт. Проекции прямоугольников
+    // текста во время него не подходят для проверки пересечения подписей.
+    const flyover = window.PC.flyover;
+    window.PC.flyover = () => {};
+    try{ window.PC.welcome.close(); }
+    finally{ window.PC.flyover = flyover; }
   });
   await expect(page.locator("#welcome")).toBeHidden();
 }
@@ -87,14 +92,14 @@ test("компас отрисован: сетка, подписи осей и т
   const svg = page.locator("#svg");
   await expect(svg).toBeVisible();
 
-  await expect(svg.locator(".node:not(.you)")).toHaveCount(PARTIES);
+  await expect(svg.locator(".node:not(.you):not(.person)")).toHaveCount(PARTIES);
   await expect(svg.locator(".axis-cap")).toHaveCount(4);
   await expect(svg.locator(".quad-cap")).toHaveCount(4);
   await expect(svg.locator(".frame")).toHaveCount(1);
 
   /* у каждой точки есть видимый радиус: нулевой означает, что анимация
      появления не доиграла или сорвалась, и на поле пусто при живой разметке */
-  const radii = await svg.locator(".node .dot").evaluateAll(
+  const radii = await svg.locator(".node:not(.person) circle.dot").evaluateAll(
     nodes => nodes.map(n => Number(n.getAttribute("r")))
   );
   expect(radii.length).toBe(PARTIES);
@@ -105,7 +110,7 @@ test("компас отрисован: сетка, подписи осей и т
    ярлыки — самый заметный дефект компаса и единственный, который логика
    поймать не может. */
 test("подписи партий не накладываются друг на друга", async ({ page }) => {
-  const boxes = await page.locator("#svg .node:not(.muted) .tag").evaluateAll(
+  const boxes = await page.locator("#svg .node:not(.muted):not(.person) .tag").evaluateAll(
     nodes => nodes.map(n => {
       const b = n.getBoundingClientRect();
       return { x1:b.left, y1:b.top, x2:b.right, y2:b.bottom, t:n.textContent };
@@ -138,7 +143,7 @@ test("график динамики прорисован и таблица да�
   await expect(page.locator("#trendTableWrap")).toBeVisible();
   /* в шапке таблицы столбец на каждый созыв плюс колонка с названием */
   const cols = await page.locator("#trendTable thead th").count();
-  expect(cols).toBe(6);
+  expect(cols).toBe(7);
 });
 
 test("спектр и радар: полосы выросли, у радара шесть лучей", async ({ page }) => {
@@ -200,17 +205,14 @@ test("тест проходится до результата, и результ
 
   /* ссылка на результат должна вести на маршрут, который страница понимает */
   const url = await page.locator("#resLink").inputValue();
-  expect(url).toMatch(/#\/result\/[a-e-]{40}$/);
+  expect(url).toMatch(/#\/result\/3[a-e-]{40}$/);
 
   await page.locator("#qrCompass").click();
   await expect(page.locator("#svg .node.you")).toBeVisible();
 });
 
 test("результат открывается по ссылке и не трогает чужие ответы", async ({ page }) => {
-  const code = "a".repeat(20) + "e".repeat(20);
-  /* Запрос в адресе делает переход полноценной загрузкой: код результата
-     разбирается при инициализации теста, а смена одного лишь хеша на уже
-     открытой странице до этого разбора не доходит. */
+  const code = "3" + "a".repeat(20) + "e".repeat(20);
   await page.goto("/?shared=1#/result/" + code);
   await page.waitForFunction(() => document.querySelector(".quiz-result"));
 
@@ -260,7 +262,7 @@ test("тёмная и светлая темы дают разный фон и о
   const light = await bg();
 
   expect(dark).not.toBe(light);
-  await expect(page.locator("#svg .node:not(.you)")).toHaveCount(PARTIES);
+  await expect(page.locator("#svg .node:not(.you):not(.person)")).toHaveCount(PARTIES);
 });
 
 /* Скриншоты снимаются в конце и складываются в отчёт Playwright:
@@ -376,7 +378,7 @@ test("шесть тем: подложка меняется, светлота в�
     expect(bg, `тема ${name} не задаёт подложку`).toBeTruthy();
     backgrounds.add(bg);
 
-    expect(await page.locator("#svg .node").count()).toBe(PARTIES);
+    expect(await page.locator("#svg .node:not(.person):not(.you)").count()).toBe(PARTIES);
   }
   /* у всех шести подложка своя — совпадение означало бы, что блок
      токенов какой-то темы не подхватился и она показывается чужой */
@@ -463,11 +465,9 @@ test("расширенная версия теста: 90 вопросов, св�
   });
   /* метка версии обязательна: без неё девяносто ответов не отличить
      от стандартного прохождения с пропусками */
-  expect(url).toMatch(/#\/result\/x[a-e-]{90}$/);
+  expect(url).toMatch(/#\/result\/3x[a-e-]{90}$/);
 
-  /* Запрос в адресе делает переход полноценной загрузкой: код результата
-     разбирается при инициализации теста, а смена одного лишь хеша на уже
-     открытой странице до этого разбора не доходит. */
+  /* Проверяем открытие результата после полной загрузки документа. */
   await page.goto(url.replace("#/result/", "?shared=1#/result/"));
   await page.waitForFunction(() => document.querySelector(".quiz-result"));
   await expect(page.locator(".qr-version")).toContainText("90");
@@ -477,13 +477,9 @@ test("расширенная версия теста: 90 вопросов, св�
   await expect(page.locator("#tab-quiz .tab-badge")).toHaveText("90");
 });
 
-/* Ссылки версий 1.x обязаны открываться и означать то же самое. Это
-   не вежливость к прошлому: код стандартной версии — сорок символов
-   без метки, и любая перестановка утверждений тихо сломала бы все
-   ссылки, которыми люди уже поделились. */
-test("ссылка стандартной версии остаётся сорока символами без метки", async ({ page }) => {
-  const code = "a".repeat(20) + "e".repeat(20);
-  await page.goto("/?legacy=1#/result/" + code);
+test("ссылка стандартной версии: формат 3 и сорок ответов без метки режима", async ({ page }) => {
+  const code = "3" + "a".repeat(20) + "e".repeat(20);
+  await page.goto("/?shared=1#/result/" + code);
   await page.waitForFunction(() => document.querySelector(".quiz-result"));
   await expect(page.locator(".qr-version")).toContainText("40");
 });
@@ -519,7 +515,7 @@ test("песочница коалиций: заготовка, тип коали
 
 /* ============ НОВОЕ В 2.1.1 ============ */
 
-/* Полный путь новичка: язык → приветствие → четыре сцены обучения →
+/* Полный путь новичка: язык → приветствие → обучение →
    страница. До 2.1.1 экран «то появлялся, то нет, иногда на английском»,
    поэтому проверяется и сама последовательность, и то, что после выбора
    языка перезагруженная страница продолжает со второго шага, а не
@@ -547,13 +543,14 @@ test("приветствие: выбор языка, приветствие, о�
   await expect(page.locator("#welTitle")).toHaveText("Welcome");
 
   await page.locator("#welTour").click();
-  await expect(page.locator("#welTourStep")).toBeVisible();
-  for(let i = 0; i < 4; i++){
-    await expect(page.locator(".wt-scene.is-on")).toHaveAttribute("data-scene", String(i));
-    await expect(page.locator("#welTourText")).not.toHaveText("");
-    await expect(page.locator("#welTourText")).not.toContainText(/[а-яё]/i);
-    await page.locator("#welNext").click();
+  await expect(page.locator(".tour")).toBeVisible();
+  for(let i = 0; i < 10; i++){
+    await expect(page.locator("#tourCount")).toHaveText(`Step ${i + 1} of 10`, { ignoreCase:true });
+    await expect(page.locator("#tourText")).not.toHaveText("");
+    await expect(page.locator("#tourText")).not.toContainText(/[а-яё]/i);
+    await page.locator("#tourNext").press("ArrowRight");
   }
+  await expect(page.locator(".tour")).toBeHidden();
   await expect(welcome).toBeHidden();
 
   await page.reload();
@@ -578,4 +575,163 @@ test("сброс настроек перекрашивает меню тем", a
   await page.locator("#setReset").click();
   await expect(page.locator('.theme-chip[data-val="system"]')).toHaveAttribute("aria-checked", "true");
   await expect(page.locator('.theme-chip[data-val="fireplace"]')).toHaveAttribute("aria-checked", "false");
+});
+
+/* Регрессии целостности результата: черновик, завершённое прохождение
+   и ссылка другого человека должны оставаться разными источниками. */
+async function seedCompletedResult(page, options = {}){
+  const fixture = await page.evaluate(opts => {
+    const PC = window.PC;
+    const mode = opts.mode || "short";
+    const list = PC.quiz.questionsFor(mode);
+    const saved = Object.fromEntries(list.map(q => [q.id, 1]));
+    const draft = { ...saved };
+    if(opts.edited) draft[list[0].id] = -2;
+    const result = PC.quiz.scoreOf(saved, list);
+    const code = PC.quiz.encodeAnswers(saved, mode);
+    if(!opts.legacy) result.answers = { ...saved };
+    localStorage.setItem("pc-quiz-mode", mode);
+    localStorage.setItem("pc-quiz-answers", JSON.stringify(draft));
+    localStorage.setItem("pc-quiz-result", JSON.stringify(result));
+    localStorage.setItem("pc-quiz-history", JSON.stringify(opts.history ? [{ ...result, code }] : []));
+    localStorage.setItem("pc-settings", JSON.stringify({ motion:"off" }));
+    return { saved, draft, mode, code, coords:[PC.utils.fmt(result.x), PC.utils.fmt(result.y)] };
+  }, options);
+  await page.reload();
+  await compassReady(page);
+  await dismissWelcome(page);
+  return fixture;
+}
+
+test("регрессия P1: правка черновика не меняет сохранённый результат, разбор, экспорт и профиль", async ({ page }) => {
+  const fixture = await seedCompletedResult(page);
+  await page.locator("#tab-quiz").click();
+  const link = await page.locator("#resLink").inputValue();
+  const profile = await page.locator("#qrRadar .rad-dot title").allTextContents();
+  await page.locator("#qrReview").click();
+  await page.locator('.qopt[data-v="-2"]').click();
+  await page.locator("#quizBack").click();
+  await page.locator("#quizShowResult").click();
+  await expect(page.locator(".qr-coords .v")).toHaveText(fixture.coords);
+  await expect(page.locator("#resLink")).toHaveValue(link);
+  expect(await page.locator("#qrRadar .rad-dot title").allTextContents()).toEqual(profile);
+  const check = await page.evaluate(() => {
+    const PC = window.PC;
+    const result = PC.quiz.result();
+    const json = JSON.parse(PC.exporter.datasetJSON()).quizResult;
+    return { result, json, draft:JSON.parse(localStorage.getItem("pc-quiz-answers")),
+      breakdown:PC.quizCalc.axisBreakdown(result.answers, "x", PC.quiz.questionsFor(result.mode)).coord };
+  });
+  expect(check.draft.e1).toBe(-2);
+  expect(check.result.answers).toEqual(fixture.saved);
+  expect(check.json.permalink).toBe(link);
+  expect(check.breakdown).toBe(check.result.x);
+  await page.reload();
+  await expect(page.locator(".qr-coords .v")).toHaveText(fixture.coords);
+  await expect(page.locator("#resLink")).toHaveValue(link);
+  await page.locator("#qrReview").click();
+  await expect(page.locator('.qopt[data-v="-2"]')).toHaveAttribute("aria-pressed", "true");
+});
+
+test("регрессия P1: старый результат восстанавливается из истории без потери черновика", async ({ page }) => {
+  const fixture = await seedCompletedResult(page, { legacy:true, history:true, edited:true });
+  await page.locator("#tab-quiz").click();
+  await expect(page.locator(".qr-coords .v")).toHaveText(fixture.coords);
+  const state = await page.evaluate(() => ({
+    result:window.PC.quiz.result(), draft:JSON.parse(localStorage.getItem("pc-quiz-answers"))
+  }));
+  expect(state.result.answers).toEqual(fixture.saved);
+  expect(state.draft).toEqual(fixture.draft);
+});
+
+test("регрессия P1: невосстановимый старый результат не смешивается с новым черновиком", async ({ page }) => {
+  const fixture = await seedCompletedResult(page, { legacy:true, edited:true });
+  await page.locator("#tab-quiz").click();
+  await expect(page.locator(".quiz-intro")).toBeVisible();
+  await expect(page.locator("#quizShowResult")).toHaveCount(0);
+  expect(await page.evaluate(() => window.PC.quiz.result())).toBeNull();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("pc-quiz-answers"))))
+    .toEqual(fixture.draft);
+});
+
+test("регрессия P1: системная отправка чужой карточки не раскрывает свои ответы", async ({ page }) => {
+  const fixture = await seedCompletedResult(page, { mode:"long" });
+  const guestCode = await page.evaluate(() => window.PC.quiz.encodeAnswers({ e1:-2 }, "short"));
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "canShare", { configurable:true, value:() => true });
+    Object.defineProperty(navigator, "share", { configurable:true, value:data => {
+      window.__sharePayload = { url:data.url, text:data.text, files:data.files.length };
+      return Promise.resolve();
+    } });
+  });
+  await page.goto("/?share-test=1#/result/" + guestCode);
+  const link = await page.locator("#resLink").inputValue();
+  await page.locator("#shareSend").click();
+  await expect.poll(() => page.evaluate(() => window.__sharePayload && window.__sharePayload.url)).toBe(link);
+  const payload = await page.evaluate(() => window.__sharePayload);
+  expect(payload.files).toBe(1);
+  expect(payload.url).toContain(guestCode);
+  expect(payload.url).not.toContain(fixture.code);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("pc-quiz-answers"))))
+    .toEqual(fixture.saved);
+});
+
+test("регрессия P2: настройки не пропускают клавиши в скрытый тест или поиск", async ({ page }) => {
+  await page.locator("#tab-quiz").click();
+  await page.locator("#quizStart").click();
+  await page.locator("#settingsBtn").click();
+  await page.locator("#setClose").press("5");
+  await page.locator("#setClose").press("ArrowRight");
+  await expect(page.locator(".quiz-counter")).toHaveText("1 / 40");
+  await expect(page.locator('.qopt[aria-pressed="true"]')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("pc-quiz-answers"))).toBeNull();
+  await page.locator("#setClose").press("Escape");
+  await expect(page.locator("#setSheet")).toBeHidden();
+  await page.keyboard.press("5");
+  await expect(page.locator('.qopt[data-v="2"]')).toHaveAttribute("aria-pressed", "true");
+  await page.locator("#tab-compass").click();
+  await page.locator('#svg .node[data-id="er"] .dot').click();
+  await expect(page.locator("#sideBody .detail")).toBeVisible();
+  await page.locator("#settingsBtn").click();
+  await page.locator("#setClose").press("/");
+  await expect(page.locator("#q")).not.toBeFocused();
+  await page.locator("#setClose").press("Escape");
+  await expect(page.locator("#setSheet")).toBeHidden();
+  await expect(page.locator("#sideBody .detail")).toBeVisible();
+});
+
+test("регрессия P2: новая ссылка в том же документе обновляет результат и сохраняет личный тест", async ({ page }) => {
+  const fixture = await seedCompletedResult(page);
+  const codes = await page.evaluate(() => [
+    window.PC.quiz.encodeAnswers({ e1:-2 }, "short"),
+    window.PC.quiz.encodeAnswers({ e1:2 }, "long")
+  ]);
+  await page.evaluate(() => { window.__sameDocument = true; });
+  await page.goto("/#/result/" + codes[0]);
+  await expect(page.locator(".qr-version")).toContainText("20");
+  await page.goto("/#/result/" + codes[1]);
+  await expect(page.locator(".qr-version")).toContainText("90");
+  await expect(page.locator("#resLink")).toHaveValue(new RegExp(codes[1] + "$"));
+  expect(await page.evaluate(() => window.__sameDocument)).toBe(true);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("pc-quiz-answers"))))
+    .toEqual(fixture.saved);
+  await page.goto("/#/quiz");
+  await expect(page.locator(".qr-shared-note")).toHaveCount(0);
+  await expect(page.locator(".qr-coords .v")).toHaveText(fixture.coords);
+});
+
+test("регрессия P2: явный выбор языка заменяет lang и сохраняет параметры и ссылку результата", async ({ page }) => {
+  const code = await page.evaluate(() => window.PC.quiz.encodeAnswers({ e1:1 }, "short"));
+  await page.goto("/?lang=en&keep=1#/result/" + code);
+  for(const lang of ["ru", "en"]){
+    await page.locator("#settingsBtn").click();
+    await page.locator('#setRail [data-panel="general"]').click();
+    await page.locator('#langSeg [data-val="' + lang + '"]').click();
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    const url = new URL(page.url());
+    expect(url.searchParams.get("lang")).toBe(lang);
+    expect(url.searchParams.get("keep")).toBe("1");
+    expect(url.hash).toBe("#/result/" + code);
+    await expect(page.locator(".qr-shared-note")).toBeVisible();
+  }
 });

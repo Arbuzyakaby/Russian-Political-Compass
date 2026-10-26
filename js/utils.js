@@ -66,6 +66,12 @@
     });
   }
 
+  function modalOpen(){
+    return Array.prototype.some.call(document.querySelectorAll('[aria-modal="true"]'), function(node){
+      return node.getClientRects().length > 0;
+    });
+  }
+
   /* localStorage бросает исключение в приватном режиме и при запрете
      сторонних данных — единая безопасная обёртка вместо try/catch
      в каждом месте вызова. */
@@ -94,6 +100,6 @@
 
   PC.geom  = { SIZE:SIZE, PAD:PAD, C:C, K:K, NS:NS, px:px, radius:radius };
   PC.utils = { fmt:fmt, plural:plural, word:word, seatsLabel:seatsLabel,
-               el:el, esc:esc, clamp:clamp };
+               el:el, esc:esc, clamp:clamp, modalOpen:modalOpen };
   PC.store = store;
 })(window.PC = window.PC || {});

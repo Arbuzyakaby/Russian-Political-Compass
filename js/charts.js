@@ -775,7 +775,7 @@
     var res = PC.quiz && PC.quiz.result();
     if(res && PC.quiz.subScoreOf){
       series.push({ label:t("ch.radar.you"), color:"var(--accent)",
-                    values:PC.quiz.subScoreOf(quizAnswers()), dashed:true });
+                    values:PC.quiz.subScoreOf(res.answers || {}, PC.quiz.questionsFor(res.mode)), dashed:true });
     }
     PC.radar.render(host.radar, series);
 
@@ -784,14 +784,6 @@
         ? PC.radar.summary(series[0].values, series[1].values)
         : t("ch.radar.youHint");
     }
-  }
-
-  /* Ответы теста живут в quiz.js и наружу отдаются только результатом.
-     Радару нужен сам набор ответов, поэтому он читается тем же путём,
-     каким его читает сам тест, — из хранилища. Дублировать состояние
-     в двух модулях хуже, чем прочитать одну строку. */
-  function quizAnswers(){
-    return PC.store.getJSON("pc-quiz-answers", {}) || {};
   }
 
   /* ---------- сборка ---------- */

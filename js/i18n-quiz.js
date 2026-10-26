@@ -52,7 +52,7 @@
     "votes.for":          ["За", "For"],
     "votes.against":      ["Против", "Against"],
     "votes.abstain":      ["Воздержались", "Abstained"],
-    "votes.skip":         ["Не голосовали", "Did not vote"],
+    "votes.skip":         ["Нет данных", "No data"],
     "votes.split":        ["Раскол", "Split"],
     "votes.absent":       ["Не в Думе", "Not in the Duma"],
     "votes.result":       ["Итог", "Outcome"],

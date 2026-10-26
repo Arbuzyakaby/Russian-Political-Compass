@@ -105,6 +105,13 @@
       hEn:"Words and deeds",
       p:"Первая версия с именем реки. У каждой партии теперь две точки: где она стоит на деле и где — по собственным словам, и стрелка между ними. Данные переведены на IX созыв, избранный в сентябре 2026 года, голосований стало двадцать восемь, а траектории ушли: пять оценок подряд выглядели измерением, которым не были.",
       pEn:"The first version named after a river. Every party now has two dots — where it actually stands and where it says it stands — with an arrow between them. The data moved to the IX convocation elected in September 2026, the votes grew to twenty-eight, and the trajectories went: five estimates in a row looked like a measurement they never were."
+    },
+    {
+      v:"3.1 «Висла»", date:"2026-10-26",
+      h:"Исправления результатов теста и интерфейса",
+      hEn:"Quiz result and interface fixes",
+      p:"Сохранённый результат теперь хранит свои ответы: новое прохождение не меняет его разбор, радар, ссылку и экспорт. Исправлены отправка карточки чужого результата, переходы по ссылкам, подписи неизвестных голосов, переключение языка, горячие клавиши под диалогами и режим длинного теста в экспорте.",
+      pEn:"Saved results now keep their own answers, so a new attempt does not change their breakdown, radar, link or export. Fixes also cover guest result sharing, result links, unknown vote labels, language switching, shortcuts under dialogs and the long quiz mode in exports."
     }
   ];
 })(window.PC = window.PC || {});

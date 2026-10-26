@@ -190,9 +190,11 @@
   function set(next){
     if(LANGS.indexOf(next) === -1 || next === lang) return;
     safeSet(KEY, next);
-    /* Перезагрузка вместо перерисовки — см. комментарий в шапке файла.
-       Хеш сохраняется сам, поэтому человек остаётся на своей вкладке. */
-    location.reload();
+    /* Явный выбор обновляет и адрес: при перезагрузке параметр lang
+       имеет приоритет над хранилищем. Остальные параметры и хеш остаются. */
+    var url = new URL(location.href);
+    url.searchParams.set("lang", next);
+    location.replace(url.href);
   }
   function toggle(){ set(lang === "ru" ? "en" : "ru"); }
 
