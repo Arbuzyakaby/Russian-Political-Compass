@@ -50,6 +50,11 @@
   function supermajority(){ return Math.ceil(PC.TOTAL_SEATS * 2 / 3); }
 
   function factions(c){
+    if(PC.partyModel && PC.partyModel.list().some(function(p){ return p.inCoalition && p.seats > 0; })){
+      return PC.partyModel.hypothetical(c).filter(function(r){ return r.p.id !== "independent" && r.seats > 0; }).map(function(r){
+        var p = Object.assign({}, r.p, { seats:r.seats, seatsBy:Object.assign({}, r.p.seatsBy) }); p.seatsBy[c] = r.seats; return p;
+      }).sort(function(a,b){ return PC.seatsAt(b,c) - PC.seatsAt(a,c); });
+    }
     return PC.PARTIES
       .filter(function(p){ return PC.seatsAt(p, c) > 0; })
       .sort(function(a, b){ return PC.seatsAt(b, c) - PC.seatsAt(a, c); });
@@ -223,6 +228,8 @@
      состав коалиции выбрал читатель, и терять его из-за перекраски
      было бы так же неприятно, как терять текст в поле ввода. */
   function build(keep){
+    var oldBanner = host.card.querySelector(".scenario-banner"); if(oldBanner) oldBanner.remove();
+    if(PC.partyModel && PC.partyModel.list().some(function(p){ return p.inCoalition && p.seats > 0; })){ var banner = document.createElement("p"); banner.className = "scenario-banner"; banner.textContent = t("party.scenario"); host.card.insertBefore(banner, host.card.firstChild); }
     var list = factions(conv);
     var color = PC.charts.chartColor;
     on = {};
@@ -232,7 +239,7 @@
     host.togs.innerHTML = list.map(function(p){
       return '<button type="button" class="co-tog" data-id="' + esc(p.id) + '" aria-pressed="true">' +
         '<i style="background:' + esc(color(p.color)) + '"></i>' +
-        '<span class="n">' + esc(L(p, "short")) + '</span>' +
+        '<span class="n">' + esc(/^u/.test(p.id) ? "" : L(p, "short")) + '</span>' +
         '<b>' + PC.seatsAt(p, conv) + '</b>' +
         '<u class="co-key" hidden title="' + esc(t("co.pivotMark")) + '">' + esc(t("co.pivotShort")) + '</u>' +
       '</button>';
@@ -257,7 +264,7 @@
       '<div class="co-track">' +
         byX.map(function(p){
           return '<span class="co-seg" data-id="' + esc(p.id) + '" title="' +
-            esc(L(p, "short") + " · " + PC.seatsAt(p, conv)) + '" style="background:' +
+            esc(/^u/.test(p.id) ? "" : L(p, "short") + " · " + PC.seatsAt(p, conv)) + '" style="background:' +
             esc(color(p.color)) + ';width:' + pct(PC.seatsAt(p, conv)) + '"></span>';
         }).join("") +
       '</div>' +
@@ -265,6 +272,8 @@
         esc(t("co.markMaj", { n:majority() })) + '</em></span>' +
       '<span class="co-mark super" style="left:' + pct(supermajority()) + '"><em>' +
         esc(t("co.markSuper", { n:supermajority() })) + '</em></span>';
+
+    list.filter(function(p){return /^u/.test(p.id);}).forEach(function(p){var name=host.togs.querySelector('[data-id="'+p.id+'"] .n');if(name)name.textContent=L(p,"short");var bar=host.bar.querySelector('[data-id="'+p.id+'"]');if(bar)bar.setAttribute("title",L(p,"short")+" · "+PC.seatsAt(p,conv));});
 
     function metric(k, body, note, cls){
       return '<div class="co-metric' + (cls ? " " + cls : "") + '">' +
@@ -412,10 +421,12 @@
     /* всё, что осталось за бортом */
     var oppSeats = PC.TOTAL_SEATS - res.seats;
     tween(q("opp"), "opp", oppSeats, INT);
-    q("oppD").textContent = res.others.length
+    var independent = PC.TOTAL_SEATS - factions(conv).reduce(function(s, p){ return s + PC.seatsAt(p, conv); }, 0);
+    q("oppD").textContent = oppSeats === 0 ? t("co.oppD.none") : res.others.length
       ? t("co.oppD", { n:res.others.length,
                        v:fmt(Number(res.oppMetrics.wy.toFixed(1))) + " / " + fmt(Number(res.oppMetrics.wx.toFixed(1))) })
-      : t("co.oppD.none");
+      : t("co.independent", { n:oppSeats });
+    if(res.others.length && independent) q("oppD").textContent += " · " + t("co.independent", { n:independent });
 
     var real = isReal();
     host.reset.disabled = real;
@@ -440,7 +451,7 @@
   function render(){
     if(!host.card) return;
     var c = PC.convocationInfo().id;
-    var k = c + "|" + document.documentElement.dataset.theme + "|" + PC.i18n.current();
+    var k = c + "|" + document.documentElement.dataset.theme + "|" + PC.i18n.current() + "|" + (PC.partyModel ? JSON.stringify(PC.partyModel.list()) : "");
     if(k === key) return;
     var keep = (key !== null && c === conv) ? on : null;
     key = k;

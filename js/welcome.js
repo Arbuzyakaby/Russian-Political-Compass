@@ -75,7 +75,7 @@
   function decide(o){
     o = o || {};
     /* Чужой результат важнее любого приветствия. */
-    if(/^#\/?result\//.test(o.hash || "")) return null;
+    if(/^#\/?(?:result\/|party\/view\/)/.test(o.hash || "")) return null;
     if(o.resume === "hello") return o.resume;
     if(!o.seen) return "lang";
     if(o.seen !== o.version) return "update";
@@ -102,6 +102,7 @@
       PC.t(isUpdate ? "wel.up.lede" : "wel.lede");
     document.getElementById("welEnter").textContent =
       PC.t(isUpdate ? "wel.up.enter" : "wel.enter");
+    ["welEyebrow","welTitle","welLede","welEnter"].forEach(function(id){document.getElementById(id).removeAttribute("data-i18n");});
 
     points.hidden = isUpdate;
     news.hidden = !isUpdate;

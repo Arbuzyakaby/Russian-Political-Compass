@@ -63,6 +63,9 @@
   var view = "intro";             /* intro | run | result */
   var mode = "full";              /* long | full | short */
   var shared = null;              /* результат, открытый по чужой ссылке */
+  var compassView = null;
+  var autoTimer = null;
+  function cancelAuto(){clearTimeout(autoTimer);autoTimer=null;}
   var breakdownOpen = false;
 
   function activeQuestions(){ return questionsFor(mode); }
@@ -124,7 +127,8 @@
   function saveHistory(){ PC.store.setJSON(KEY_HIST, history); }
 
   function load(){
-    var savedMode = PC.store.get(KEY_MODE, "full");
+    var preferred = PC.store.getJSON("pc-settings", {}).quizMode;
+    var savedMode = PC.store.get(KEY_MODE, ["short", "full", "long"].indexOf(preferred) > -1 ? preferred : "full");
     mode = MODES.indexOf(savedMode) > -1 ? savedMode : "full";
 
     answers = copyAnswers(PC.store.getJSON(KEY_ANS, null));
@@ -353,6 +357,7 @@
      сделать, либо просто дублировала то же самое движение — выбор
      нельзя было спокойно передумать. */
   function answer(v){
+    cancelAuto(); var answeredIndex=idx,answeredId=activeQuestions()[idx].id;
     answers[activeQuestions()[idx].id] = v;
     save();
     host.querySelectorAll(".qopt").forEach(function(b){
@@ -362,15 +367,20 @@
     });
     var nextBtn = document.getElementById("quizNext");
     if(nextBtn) nextBtn.disabled = false;
+    if(PC.settings && PC.settings.get("autoNext") === "on") autoTimer=setTimeout(function(){autoTimer=null;if(view==="run"&&idx===answeredIndex&&activeQuestions()[idx].id===answeredId&&answers[answeredId]===v&&(!PC.nav||PC.nav.current()==="quiz"))next();},240);
   }
-  function prev(){ if(idx > 0){ idx--; render(); } }
+  function prev(){ cancelAuto();if(idx > 0){ idx--; render(); } }
   function next(){
+    cancelAuto();
     var list = activeQuestions();
     if(answers[list[idx].id] === undefined) return;
     if(idx === list.length - 1) finish(); else { idx++; render(); }
   }
 
   function finish(){
+    cancelAuto();
+    if(!activeQuestions().some(function(q){ return answers[q.id] !== undefined; })){ if(PC.ui) PC.ui.toast(t("res.empty"), true); return; }
+    compassView = null;
     result = snapshot(answers, mode);
     save();
     pushHistory(result);
@@ -381,9 +391,14 @@
     if(PC.ui && PC.ui.toast) setTimeout(function(){ PC.ui.toast(PC.t("quiz.congrats")); }, 600);
     /* точка пользователя появляется и на большом компасе */
     if(PC.compass) PC.compass.redraw();
+    if(PC.eggs && PC.eggs.quiz) PC.eggs.quiz(answers);
   }
 
   function resetAll(){
+    cancelAuto();
+    if(PC.settings && PC.settings.get("confirmReset") === "on" && Object.keys(answers).length && !window.confirm(t("quiz.confirm"))) return;
+    var previous = { answers:answers, result:result, shared:shared, mode:mode };
+    compassView = null;
     answers = {};
     result = null;
     idx = 0;
@@ -393,6 +408,7 @@
     PC.store.remove(KEY_RES);
     render();
     if(PC.compass) PC.compass.redraw();
+    if(PC.ui) PC.ui.toast(t("set.resetDone"), false, { label:t("party.undo"), duration:5000, action:function(){ answers = previous.answers; result = previous.result; shared = previous.shared; mode = previous.mode; view = result ? "result" : "intro"; save(); render(); if(PC.compass) PC.compass.redraw(); } });
   }
 
   /* ---------- разбор: как ответы сложились в координаты ---------- */
@@ -638,6 +654,7 @@
     var answered = pt.answered !== undefined ? pt.answered
                  : list.filter(function(q){ return src[q.id] !== undefined; }).length;
     var skipped = list.length - answered;
+    if(!answered){ host.textContent = t("res.empty"); return; }
 
     function bar(v){
       var w = Math.abs(v) / 10 * 50;
@@ -653,6 +670,7 @@
           '<p class="qr-version">' + esc(t("res.version", {
             v:modeName(runMode), n:list.length,
             statements:PC.i18n.pl(list.length, "word.statement") })) + '</p>' +
+          '<p class="party-meta">' + esc(t("res.completion", { n:answered, all:list.length })) + '</p>' +
           (shared ? '<p class="qr-shared-note">' + esc(t("res.sharedNote")) +
             ' <button type="button" class="btn ghost small" id="qrMine">' + esc(t("res.mine")) + '</button></p>' : "") +
           '<div class="qr-coords">' +
@@ -700,6 +718,10 @@
       '</div>';
 
     if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt, shareURL(src, runMode));
+    if(PC.partyModel && PC.partyModel.list().length){
+      var my = PC.partyModel.list().sort(function(a, b){ return PC.calc.distance(a, pt) - PC.calc.distance(b, pt); })[0];
+      var line = document.createElement("p"); line.className = "party-meta"; line.textContent = t("res.myParty", { name:my.name }); host.querySelector(".qr-main").appendChild(line);
+    }
     mountSubBlock(src, pt, list);
 
     document.getElementById("qrAgain").addEventListener("click", resetAll);
@@ -707,11 +729,13 @@
       shared = null; idx = 0; view = "run"; render();
     });
     document.getElementById("qrCompass").addEventListener("click", function(){
+      compassView = shared ? Object.assign({ shared:true, mode:runMode }, pt) : null;
       if(PC.nav) PC.nav.go("compass");
     });
     var mine = document.getElementById("qrMine");
     if(mine) mine.addEventListener("click", function(){
       shared = null;
+      compassView = null;
       if(location.hash.indexOf("#/result/") === 0) replaceHash("#/quiz");
       view = result ? "result" : "intro";
       render();
@@ -773,7 +797,7 @@
   }
 
   function hashCode(){
-    var m = /^#\/?result\/([0-9]?[sx]?[a-e-]+)/.exec(location.hash || "");
+    var m = /^#\/?result\/(.*)$/.exec(location.hash || "");
     return m ? m[1] : null;
   }
 
@@ -788,6 +812,10 @@
       if(PC.ui) PC.ui.toast(t("res.legacyLink", { v:PC.versionLabel ? PC.versionLabel() : PC.VERSION }), true);
     }, 400);
   }
+  function refuseDamaged(){
+    replaceHash("#/quiz");
+    setTimeout(function(){ if(PC.ui) PC.ui.toast(t("res.damaged"), true); }, 100);
+  }
 
   /* Счётчик на ярлыке вкладки. В разметке он статичный («40»), потому что
      без скриптов другого числа взяться неоткуда; как только версия выбрана,
@@ -795,7 +823,7 @@
      «Тест · 20 утверждений» и вкладка «Тест 40». */
   function paintTabBadge(){
     var badge = document.querySelector("#tab-quiz .tab-badge");
-    if(badge) badge.textContent = String(activeQuestions().length);
+    if(badge) badge.textContent = String(shared ? questionsFor(shared.mode).length : activeQuestions().length);
   }
 
   function render(){
@@ -831,11 +859,13 @@
     host = document.getElementById("quiz");
     if(!host) return;
     load();
+    if(PC.nav)PC.nav.onChange(function(){cancelAuto();});
     window.addEventListener("hashchange", function(){
       var nextCode = hashCode();
-      if(nextCode){
+      if(nextCode !== null){
         if(openShared(nextCode, true)) return;
         if(QC.isLegacyCode(nextCode)) refuseLegacy();
+        else refuseDamaged();
         shared = null;
         view = result ? "result" : "intro";
         render();
@@ -846,11 +876,12 @@
       }
     });
     var code = hashCode();
-    if(code && openShared(code, true)){
+    if(code !== null && openShared(code, true)){
       document.addEventListener("keydown", onKey);
       return;
     }
-    if(code && QC.isLegacyCode(code)) refuseLegacy();
+    if(code !== null && QC.isLegacyCode(code)) refuseLegacy();
+    else if(code !== null) refuseDamaged();
     if(result) view = "result";
     idx = firstUnanswered();
     render();
@@ -860,7 +891,10 @@
   PC.quiz = {
     init: init,
     render: render,
+    refreshParties:function(){if(view==="result")render();},
     result: function(){ return result; },
+    compassResult:function(){ return compassView || result; },
+    clearLocal:function(){ answers = {}; result = null; history = []; shared = null; compassView = null; view = "intro"; idx = 0; render(); },
     mode: function(){ return mode; },
     modes: function(){ return MODES.slice(); },
     questionsFor: questionsFor,

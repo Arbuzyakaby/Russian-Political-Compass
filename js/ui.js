@@ -108,21 +108,31 @@
     document.body.appendChild(toasts);
   }
 
-  function toast(text, bad){
+  var toastQueue = [], toastCount = 0;
+  function toast(text, bad, options){
     if(!toasts) return;
+    options = options || {};
+    if(toastCount >= 3){ toastQueue.push([text, bad, options]); return; }
+    toastCount++;
     var t = document.createElement("div");
     t.className = "toast" + (bad ? " bad" : "");
     t.textContent = text;
     toasts.appendChild(t);
-    /* больше трёх плашек одновременно — это уже стена: самые старые
-       уходят, не дожидаясь своего таймера */
-    while(toasts.children.length > 3) toasts.removeChild(toasts.firstChild);
+    var killed = false, timer;
     var kill = function(){
+      if(killed) return;
+      killed = true; clearTimeout(timer);
       t.classList.add("out");
-      setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 320);
+      setTimeout(function(){
+        if(t.parentNode) t.parentNode.removeChild(t);
+        toastCount--; if(toastQueue.length) toast.apply(null, toastQueue.shift());
+      }, 320);
     };
-    setTimeout(kill, bad ? 5200 : 3600);
-    t.addEventListener("click", kill);
+    if(options.action){
+      var action = document.createElement("button"); action.type = "button"; action.className = "btn small ghost"; action.textContent = options.label;
+      action.addEventListener("click", function(){ if(killed) return; options.action(); kill(); }); t.appendChild(action);
+    }
+    timer = setTimeout(kill, options.duration || (bad ? 5200 : 3600));
   }
 
   /* Переход к карточке раздела снаружи (2.5). Ровно то же, что делает

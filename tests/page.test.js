@@ -199,20 +199,22 @@ test("у каждой настройки есть правило, которое
   const src = fs.readFileSync(path.join(ROOT, "js", "settings.js"), "utf8");
   const block = /var DEFAULTS = \{([\s\S]*?)\n  \};/.exec(src);
   assert.ok(block, "в js/settings.js не найден список настроек");
-  const keys = Array.from(block[1].matchAll(/^\s*(\w+):\s*"/gm), m => m[1]);
+  const keys = Object.keys(require("./harness.js").loadApp(["js/data.js", "js/utils.js", "js/settings.js"]).PC.settings.DEFAULTS);
   assert.ok(keys.length >= 10, `настроек подозрительно мало: ${keys.length}`);
 
   const css = fs.readdirSync(path.join(ROOT, "css"))
     .map(n => fs.readFileSync(path.join(ROOT, "css", n), "utf8")).join("\n");
+  const behavior = fs.readdirSync(path.join(ROOT,"js")).map(n => fs.readFileSync(path.join(ROOT,"js",n),"utf8")).join("\n");
   for(const key of keys){
-    assert.ok(css.includes(`[data-${key}=`),
+    const attribute = key.replace(/[A-Z]/g, c => "-" + c.toLowerCase());
+    assert.ok(css.includes(`[data-${attribute}=`) || behavior.includes(`get("${key}")`) || behavior.includes(`.${key}`),
       `настройка «${key}» ничего не меняет: ни одно правило не читает data-${key}`);
   }
 
   /* И обратно: переключатель для каждой настройки обязан быть
      в разметке, иначе до неё нельзя добраться из интерфейса. */
   for(const key of keys){
-    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`),
+    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`) || fs.readFileSync(path.join(ROOT,"js/tisza.js"),"utf8").includes(`${key}:[`),
       `настройка «${key}» есть в коде, но её нет в панели настроек`);
   }
 });

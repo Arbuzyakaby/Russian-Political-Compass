@@ -80,7 +80,10 @@
     /* SRPC (2.4.2.1) */
     srpcfail: "off",     /* демонстрация сбоя в третьем звене схемы */
     /* пасхалки */
-    eggs:     "off"      /* портал вместо кнопки «наверх» и могила в углу */
+    eggs:     "off",     /* портал вместо кнопки «наверх» и могила в углу */
+    dotSize:"normal", labelMode:"all", bubbles:"off", myParties:"on",
+    startTab:"compass", convDefault:"9", quizMode:"full", autoNext:"off", confirmReset:"off",
+    colorblind:"off", lineheight:"normal", exportFormat:"png", exportScale:"2", transparent:"off", srpcStage:"3"
   };
 
   /* Почему две последние настройки выключены по умолчанию, хотя всё
@@ -132,6 +135,8 @@
     }
   }
   var state = {};
+  var OPTIONS = { density:["compact","cozy","airy"], textsize:["small","normal","large"], corners:["sharp","normal","soft"], font:["modern","compact","creative","mono"], glasslevel:["subtle","normal","strong"], speed:["slow","normal","fast"], numerals:["tabular","proportional"], hints:["open","closed"], measure:["narrow","normal"], dotSize:["small","normal","large"], labelMode:["all","duma","selected"], startTab:["compass","last","quiz","votes","party","about"], convDefault:["4","5","6","7","8","9"], quizMode:["short","full","long"], lineheight:["normal","increased"], exportFormat:["png","svg"], exportScale:["1","2","3"], srpcStage:["1","2","3","4","5","6"] };
+  function valid(key, value){ return Object.prototype.hasOwnProperty.call(DEFAULTS,key) && (OPTIONS[key] || ["on","off"]).indexOf(value) !== -1; }
   var root = document.documentElement;
   var sheet, scrim, opener, lastFocus = null;
 
@@ -139,7 +144,7 @@
     var saved = PC.store.getJSON(KEY, null) || {};
     state = {};
     Object.keys(DEFAULTS).forEach(function(k){
-      state[k] = typeof saved[k] === "string" ? saved[k] : DEFAULTS[k];
+      state[k] = valid(k, saved[k]) ? saved[k] : DEFAULTS[k];
     });
   }
   function save(){ PC.store.setJSON(KEY, state); }
@@ -170,7 +175,7 @@
   }
 
   function set(key, value){
-    if(!(key in DEFAULTS) || state[key] === value) return;
+    if(!valid(key, value) || state[key] === value) return;
     state[key] = value;
     save();
     apply();
@@ -186,6 +191,7 @@
       if(PC.compass) PC.compass.redraw();
     }
     if(key === "hints") syncHints();
+    document.dispatchEvent(new CustomEvent("pc:settings", { detail:{ key:key, value:value } }));
   }
 
   /* ---------- отрисовка состояния элементов управления ---------- */
@@ -278,7 +284,7 @@
     setTimeout(start, 60);
   }
 
-  function close(){
+  function close(callback){
     if(!sheet || sheet.hidden) return;
     moving();
     sheet.classList.remove("is-open");
@@ -286,8 +292,10 @@
     if(opener) opener.setAttribute("aria-expanded", "false");
     document.body.classList.remove("sheet-lock");
     var done = function(){
+      if(sheet.hidden) return;
       sheet.hidden = true;
       scrim.hidden = true;
+      if(typeof callback === "function") callback();
     };
     /* панель уезжает анимацией, но при выключенном движении её нет —
        ждать transitionend в этом случае значит не дождаться никогда */
@@ -295,12 +303,15 @@
        window.matchMedia("(prefers-reduced-motion: reduce)").matches){
       done();
     }else{
-      setTimeout(done, 300);
+      var ended = function(e){ if(e.target === sheet && e.propertyName === "transform"){ sheet.removeEventListener("transitionend", ended); done(); } };
+      sheet.addEventListener("transitionend", ended);
+      setTimeout(function(){ sheet.removeEventListener("transitionend", ended); done(); }, 350);
     }
     if(lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll:true });
   }
 
   function reset(){
+    var previous = Object.assign({},state), previousTheme = PC.store.get("pc-theme","system");
     PC.store.remove(KEY);
     PC.store.remove("pc-theme");
     /* Слой заявленных позиций живёт своим ключом и своим переключателем
@@ -321,7 +332,8 @@
       PC.charts.render(PC.activeId ? PC.activeId() : null);
     }
     if(PC.compass) PC.compass.redraw();
-    if(PC.ui) PC.ui.toast(PC.t("set.resetDone"));
+    document.dispatchEvent(new CustomEvent("pc:settings",{detail:{key:"*"}}));
+    if(PC.ui) PC.ui.toast(PC.t("set.resetDone"),false,{label:PC.t("party.undo"),duration:5000,action:function(){state=previous;save();apply();paint();syncHints();if(PC.theme)PC.theme.set(previousTheme);document.dispatchEvent(new CustomEvent("pc:settings",{detail:{key:"*"}}));}});
   }
 
   /* ---------- рельс разделов (2.3.1) ----------
@@ -378,7 +390,7 @@
     opener = document.getElementById("settingsBtn");
     if(!sheet || !scrim) return;
 
-    if(opener) opener.addEventListener("click", function(){ sheet.hidden ? open() : close(); });
+    if(opener){opener.addEventListener("click",function(){sheet.hidden?open():close();});opener.disabled=false;}
     scrim.addEventListener("click", close);
     var closeBtn = document.getElementById("setClose");
     if(closeBtn) closeBtn.addEventListener("click", close);
@@ -453,5 +465,5 @@
     paint();
   }
 
-  PC.settings = { init:init, get:get, set:set, open:open, close:close, DEFAULTS:DEFAULTS };
+  PC.settings = { init:init, get:get, set:set, open:open, close:close, reset:reset, selectPanel:selectPanel, valid:valid, DEFAULTS:DEFAULTS };
 })(window.PC = window.PC || {});

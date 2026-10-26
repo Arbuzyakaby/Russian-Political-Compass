@@ -125,6 +125,12 @@
       h:"Удобнее на телефоне", hEn:"A better mobile experience",
       p:"Переработаны мобильная навигация, размеры текста и управление касаниями. У графиков появилась таблица значений, построение аналитики отложено до появления на экране. Оптимизированы фоны и загрузка стилей, обновлено техническое SEO.",
       pEn:"Reworked mobile navigation, typography and touch controls. Charts include readable values and analytics render near the viewport. Optimized backgrounds and stylesheet loading, and updated technical SEO."
+    },
+    {
+      v:"4.0 «Тиса»", vEn:"4.0 “Tisza”", date:"2026-10-26",
+      h:"Ваша партия на компасе", hEn:"Your party on the compass",
+      p:"Политическая лаборатория: конструктор своих партий с эмблемами, программами, голосованиями и ссылками. Гипотетическая палата, командная палитра, новые настройки, интерактивный стол SRPC и новые пасхалки. Исправлены ссылки и пустые результаты теста, исторические карточки, экспорт и навигация.",
+      pEn:"A political lab: build your own parties with emblems, manifestos, votes and shareable links. A hypothetical house, command palette, new settings, an interactive SRPC workbench and new easter eggs. Fixes cover result links, empty quizzes, historical cards, exports and navigation."
     }
   ];
 })(window.PC = window.PC || {});

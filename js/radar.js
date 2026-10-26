@@ -195,10 +195,7 @@
     if(series.length && opts.legend !== false){
       var leg = document.createElement("div");
       leg.className = "rad-legend";
-      leg.innerHTML = series.map(function(s){
-        return '<span class="rl' + (s.dashed ? " dashed" : "") + '">' +
-               '<i style="background:' + esc(s.color) + '"></i>' + esc(s.label) + "</span>";
-      }).join("");
+      series.forEach(function(s){var span=document.createElement("span");span.className="rl"+(s.dashed?" dashed":"");var dot=document.createElement("i");dot.style.background=s.color;span.appendChild(dot);span.appendChild(document.createTextNode(s.label));leg.appendChild(span);});
       box.appendChild(leg);
     }
 
@@ -212,14 +209,10 @@
     if(series.length){
       var table = document.createElement("table");
       table.className = "rad-values";
-      table.innerHTML = '<caption class="sr-only">' + esc(t("ch.radar.aria")) + '</caption><thead><tr><th scope="col">' +
-        esc(t("side.subaxes")) + '</th>' + series.map(function(s){
-          return '<th scope="col">' + esc(s.label) + '</th>';
-        }).join("") + '</tr></thead><tbody>' + axes.map(function(ax){
-          return '<tr><th scope="row">' + esc(axisName(ax.id)) + '</th>' + series.map(function(s){
-            return '<td>' + esc(fmt(s.values[ax.id])) + '</td>';
-          }).join("") + '</tr>';
-        }).join("") + '</tbody>';
+      var caption=document.createElement("caption");caption.className="sr-only";caption.textContent=t("ch.radar.aria");table.appendChild(caption);
+      var head=document.createElement("thead"),tr=document.createElement("tr");
+      [t("side.subaxes")].concat(series.map(function(s){return s.label;})).forEach(function(text){var th=document.createElement("th");th.scope="col";th.textContent=text;tr.appendChild(th);});head.appendChild(tr);table.appendChild(head);
+      var body=document.createElement("tbody");axes.forEach(function(ax){var row=document.createElement("tr"),name=document.createElement("th");name.scope="row";name.textContent=axisName(ax.id);row.appendChild(name);series.forEach(function(s){var td=document.createElement("td");td.textContent=fmt(s.values[ax.id]);row.appendChild(td);});body.appendChild(row);});table.appendChild(body);
       box.appendChild(table);
     }
     return svg;

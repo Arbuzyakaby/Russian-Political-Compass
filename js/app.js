@@ -4,6 +4,8 @@
 
   var state = { active:null, filter:"all", query:"", convocation:PC.CURRENT_CONVOCATION };
   var rendered = null;   // что сейчас в панели: "list" или id партии
+  function mark(name){ if(window.performance && performance.mark) performance.mark(name); }
+  function measure(name, start, end){ if(window.performance && performance.measure) performance.measure(name, start, end); }
 
   /* Мандаты партии в текущем выбранном созыве. null — партия в этом
      созыве не участвовала / не существовала. */
@@ -12,9 +14,11 @@
   /* Партии, проходящие текущий фильтр, поисковый запрос и существовавшие
      в выбранном созыве. */
   function visible(){
-    return PC.PARTIES.filter(function(p){
+    return (PC.allParties ? PC.allParties() : PC.PARTIES).filter(function(p){
+      var own = /^u[1-6]$/.test(p.id);
       var seats = seatsOf(p);
-      if(seats === null) return false;
+      if(seats === null && !own) return false;
+      if(state.filter === "mine" && !own) return false;
       if(state.filter === "duma" && !seats) return false;
       if(state.filter === "nonduma" && seats) return false;
       if(state.query){
@@ -190,7 +194,7 @@
       applyClaims(true);
     };
 
-    PC.exporter.init();
+    mark("pc:export-start"); PC.exporter.init(); mark("pc:export-ready"); measure("pc:stage6","pc:export-start","pc:export-ready");
 
     document.addEventListener("keydown", function(e){
       if(e.defaultPrevented || PC.utils.modalOpen()) return;
@@ -207,13 +211,14 @@
       /* «/» — быстрый переход в поиск, но не мешаем набору текста */
       if(e.key === "/" && document.activeElement !== input && !e.ctrlKey && !e.metaKey){
         e.preventDefault();
-        input.focus();
+        if(PC.tisza) PC.tisza.openPalette(); else input.focus();
       }
     });
   }
 
   /* ---------- запуск ---------- */
   function init(){
+    mark("pc:markup"); mark("pc:data");
     /* Язык — самым первым: словарь подменяет текст готовой разметки, а
        все остальные модули строят свою разметку уже через t(). Если бы
        i18n стартовал позже, шапка успела бы показаться по-русски и
@@ -227,6 +232,7 @@
 
     PC.nav.init();
     PC.theme.init();
+    mark("pc:styles");
     PC.ui.init();
     /* до первой отрисовки блоков: иначе плитки KPI и экраны теста успели бы
        зарегистрироваться, когда наблюдателя ещё нет, и появились бы разом */
@@ -238,7 +244,9 @@
     /* до первой отрисовки компаса: drawUser() спрашивает у теста сохранённый
        результат, и при обратном порядке точка «Вы» появлялась бы на поле
        только после первого переключения вкладок */
-    PC.quiz.init();
+    PC.settings.init();
+    if(PC.partyBuilder) PC.partyBuilder.init();
+    mark("pc:calc-start"); PC.quiz.init(); mark("pc:calc-ready"); measure("pc:stage4","pc:calc-start","pc:calc-ready");
     /* Тест по разделу «О проекте» (2.5). Ставится после PC.ui.init():
        ссылка «читать в разделе» ходит через PC.ui.aboutNavGo, а тот
        знает про рельс оглавления только после того, как рельс собран. */
@@ -272,13 +280,15 @@
     if(footParties) footParties.textContent = String(n);
     var footVotes = document.getElementById("footVotes");
     if(footVotes) footVotes.textContent = String(PC.VOTES.length);
+    document.querySelectorAll("[data-conv-count]").forEach(function(e){ e.textContent = String(PC.CONVOCATIONS.length); });
+    var version = document.querySelector(".foot-version");
+    if(version) version.textContent = PC.versionLabel();
     PC.compass.onDraw(syncNodes);
-    PC.compass.draw();
+    mark("pc:draw-start"); PC.compass.draw(); mark("pc:first-draw"); measure("pc:stage5","pc:draw-start","pc:first-draw");
     syncNodes();
     renderSide(true);
     PC.charts.render(state.active);
     initControls();
-    PC.settings.init();
     /* после settings.init(): обе пасхалки смотрят на data-eggs, который
        выставляет панель настроек, и до неё атрибута на <html> ещё нет */
     PC.eggs.init();
@@ -297,6 +307,7 @@
        кнопка, а варианты доехали бы в скрытый <select>. */
     PC.dropdown.init();
     if(PC.mobile) PC.mobile.init();
+    if(PC.tisza) PC.tisza.init();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
        цвета марок — графики пересобираем. */
@@ -325,13 +336,15 @@
     /* Единственная строка, которая когда-либо уходит в консоль: в проекте
        нет ни аналитики, ни внешних запросов, и заглянувшему сюда стоит
        сказать об этом прямо. */
-    console.log("%c" + (PC.VERSION_LABEL || PC.VERSION) + "%c — ни счётчиков, ни запросов наружу; всё, что видно, посчитано здесь",
+    console.log("%c" + (PC.VERSION_LABEL || PC.VERSION) + "%c — no analytics; calculations stay in your browser",
       "font:700 13px monospace;color:#f0b25f;", "color:inherit;");
   }
 
   PC.select = select;
   PC.activeId = function(){ return state.active; };
   PC.visible = visible;
+  PC.refresh = refresh;
+  PC.filterMine = function(){ state.filter = state.filter === "mine" ? "all" : "mine"; document.querySelectorAll('.chip[data-filter]').forEach(function(c){ c.setAttribute("aria-pressed", String(c.dataset.filter === state.filter)); }); refresh(); };
   PC.seatsOf = seatsOf;
   PC.convocationInfo = convocationInfo;
   PC.setConvocation = setConvocation;

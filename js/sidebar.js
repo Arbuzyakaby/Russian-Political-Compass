@@ -99,13 +99,13 @@
   }
 
   function renderList(list, activeId){
-    var sorted = list.slice().sort(function(a, b){ return PC.seatsOf(b) - PC.seatsOf(a); });
+    var sorted = list.slice().sort(function(a, b){ return Number(/^u/.test(b.id)) - Number(/^u/.test(a.id)) || PC.seatsOf(b) - PC.seatsOf(a); });
     head(null);
     countEl.textContent = sorted.length;
     countEl.hidden = false;
 
     if(!sorted.length){
-      body.innerHTML = '<div class="empty">' + esc(t("side.empty")) + '</div>';
+      body.innerHTML = '<div class="empty"><p>' + esc(t("side.empty")) + '</p><small>' + esc(t("side.empty.hint")) + '</small></div>';
       return;
     }
 
@@ -114,28 +114,22 @@
        это или мало. Считается от всей Думы, а не от максимума в списке:
        «треть зала» — величина, а «столько же, сколько у лидера» — нет.
        У партии без мандатов дорожка остаётся, но пустая. */
-    body.innerHTML = '<div class="plist">' + sorted.map(function(p, i){
+    body.replaceChildren();
+    var rows = document.createElement("div"); rows.className = "plist";
+    if(sorted.some(function(p){return /^u/.test(p.id);})){ var heading = document.createElement("h3"); heading.className="party-subhead";heading.textContent=t("party.collection");rows.appendChild(heading); }
+    sorted.forEach(function(p, i){
       var seats = PC.seatsOf(p);
       var share = seats / PC.TOTAL_SEATS * 100;
-      return '<button type="button" class="pitem' +
-             (p.id === activeId ? " active" : "") + '"' +
-             ' data-id="' + esc(p.id) + '" tabindex="' + (i === 0 ? "0" : "-1") + '"' +
-             /* Ступенька въезда обрывается на восьмой строке: одиннадцатая
-                иначе ждала бы почти полсекунды, а это уже не «список
-                появился», а «список тормозит». */
-             ' style="animation-delay:' + Math.min(i, 8) * 32 + 'ms">' +
-               '<span class="sw" style="background:' + esc(p.color) + '"></span>' +
-               '<span class="nm">' + esc(L(p, "name")) +
-                 '<small>' + esc(L(p, "ideology")) + '</small>' +
-                 '<span class="mobile-coordinates">' + esc(t("mobile.coords", { x:fmt(p.x), y:fmt(p.y) })) + '</span>' +
-                 '<span class="share" aria-hidden="true"><i style="width:' +
-                   Math.max(seats ? 1.5 : 0, share).toFixed(2) + '%;background:' + esc(p.color) +
-                 '"></i></span>' +
-               '</span>' +
-               '<span class="mandates"><b>' + seats + '</b>' +
-                 esc(PC.i18n.pl(seats, "word.seat")) + '</span>' +
-             '</button>';
-    }).join("") + '</div>';
+      function n(tag,cls,value){var e=document.createElement(tag);if(cls)e.className=cls;if(value!=null)e.textContent=value;return e;}
+      var b=n("button","pitem"+(p.id===activeId?" active":""));b.type="button";b.dataset.id=p.id;b.tabIndex=i===0?0:-1;b.style.animationDelay=Math.min(i,8)*32+"ms";
+      var sw=n("span","sw");sw.style.background=p.color;var name=n("span","nm",L(p,"name"));
+      name.appendChild(n("small","",/^u/.test(p.id)?t("party.user"):L(p,"ideology")));
+      name.appendChild(n("span","mobile-coordinates",t("mobile.coords",{x:fmt(p.x),y:fmt(p.y)})));
+      var track=n("span","share"),fill=n("i");track.setAttribute("aria-hidden","true");fill.style.width=Math.max(seats?1.5:0,share).toFixed(2)+"%";fill.style.background=p.color;track.appendChild(fill);name.appendChild(track);
+      var mandates=n("span","mandates");if(/^u/.test(p.id)){mandates.appendChild(n("b","","◇"));}else{mandates.appendChild(n("b","",seats));mandates.appendChild(document.createTextNode(PC.i18n.pl(seats,"word.seat")));}
+      b.appendChild(sw);b.appendChild(name);b.appendChild(mandates);rows.appendChild(b);
+    });
+    body.appendChild(rows);
     body.scrollTop = 0;
   }
 
@@ -293,6 +287,8 @@
   }
 
   function renderDetail(p, animate){
+    if(!p) return;
+    if(/^u[1-6]$/.test(p.id) && PC.partyBuilder){ head(p); PC.partyBuilder.renderSidebar(p); return; }
     head(p);
     var seats = PC.seatsOf(p);
     var conv = PC.convocationInfo();
@@ -330,11 +326,11 @@
         '<div class="mandate-box">' +
           '<div class="mandate-top">' +
             '<span class="k">' + esc(t("side.duma", { conv:L(conv, "label") })) + '</span>' +
-            '<span class="v">' + seats + ' <small>' + esc(t("side.ofSeats", { n:PC.TOTAL_SEATS })) + '</small></span>' +
+            '<span class="v">' + (seats === null ? "—" : seats) + ' <small>' + esc(t("side.ofSeats", { n:PC.TOTAL_SEATS })) + '</small></span>' +
           '</div>' +
           '<div class="bar"><i id="bar" style="background:' + esc(p.color) + '"></i></div>' +
           '<div class="mandate-note">' +
-            esc(seats ? t("side.pctOfHouse", { p:pct.toFixed(1) }) : t("side.noSeats")) +
+            esc(seats === null ? t("side.notParticipated") : seats ? t("side.pctOfHouse", { p:pct.toFixed(1) }) : t("side.noSeats")) +
           '</div>' +
         '</div>' +
         histBlock(p) +

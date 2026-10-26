@@ -267,5 +267,6 @@
       '<div class="hist-note">' + esc(t("side.votesNote")) + "</div></div>";
   }
 
-  PC.votes = { init:init, render:render, partyBlock:partyBlock, STANCE:STANCE };
+  function focusVote(id){if(!PC.VOTES.some(function(v){return v.id===id;}))return;filter="all";open[id]=true;render();var card=host.querySelector('.vote-card[data-id="'+id+'"]');if(card){card.tabIndex=-1;card.scrollIntoView({block:"center"});card.focus({preventScroll:true});}}
+  PC.votes = { init:init, render:render, partyBlock:partyBlock, STANCE:STANCE, focusVote:focusVote };
 })(window.PC = window.PC || {});

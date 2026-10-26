@@ -3,7 +3,8 @@
   "use strict";
   var G = PC.geom, U = PC.utils;
   var t = PC.t, L = PC.L;
-  var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, radius = G.radius, el = U.el;
+  var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, el = U.el;
+  function radius(seats){var s=PC.settings,size=s&&s.get("dotSize"),bubbles=s&&s.get("bubbles");return (bubbles==="off"?11:G.radius(seats))*(size==="small"?.75:size==="large"?1.3:1);}
 
   var svg, cross, defs, claims;
   var claimsOn = true;
@@ -511,6 +512,7 @@
   function setClaims(on){
     claimsOn = !!on;
     if(svg) svg.classList.toggle("show-claims", claimsOn);
+    if(PC.partyBuilder)PC.partyBuilder.drawOnCompass();
     if(!claimsOn) PC.tip.hide();
   }
   function hasClaims(){
@@ -620,7 +622,7 @@
       .forEach(function(item){
         var p = item.p, seats = item.seats, c = px(p.x, p.y), r = radius(seats);
         var g = el("g", {
-          "class":"node", "data-id":p.id, tabindex:"0", role:"button",
+          "class":"node" + (seats > 0 ? " duma" : ""), "data-id":p.id, tabindex:"0", role:"button",
           "aria-label":L(p, "name") + ", " + U.seatsLabel(seats),
           transform:"translate(" + c.sx + "," + c.sy + ")"
         });
@@ -773,19 +775,19 @@
   /* Рисуется последней: к этому моменту в obstacles уже лежат все партийные
      ярлыки, поэтому подпись «Вы» встаёт в свободное место, а не поверх них. */
   function drawUser(layer, own){
-    var res = PC.quiz && PC.quiz.result();
+    var res = PC.quiz && (PC.quiz.compassResult ? PC.quiz.compassResult() : PC.quiz.result());
     if(!res) return;
 
     var c = px(res.x, res.y), r = 9;
     var g = el("g", {
       "class":"node you", tabindex:"0", role:"button",
-      "aria-label":t("node.youAria", { x:U.fmt(res.x), y:U.fmt(res.y) }),
+      "aria-label":res.shared?t("node.guest")+", X "+U.fmt(res.x)+", Y "+U.fmt(res.y):t("node.youAria", { x:U.fmt(res.x), y:U.fmt(res.y) }),
       transform:"translate(" + c.sx + "," + c.sy + ")"
     });
     g.appendChild(el("circle", { "class":"you-halo", r:r + 9 }));
     g.appendChild(el("path", { "class":"you-mark",
       d:"M0 -11 L3.1 -3.6 L11 -3.4 L4.8 1.6 L7 9.2 L0 4.8 L-7 9.2 L-4.8 1.6 L-11 -3.4 L-3.1 -3.6 Z" }));
-    var tag  = el("text", { "class":"tag" }, t("node.you"));
+    var tag  = el("text", { "class":"tag" }, t(res.shared ? "node.guest" : "node.you"));
     var seat = el("text", { "class":"seat" }, t("node.youSeat"));
     g.appendChild(tag);
     g.appendChild(seat);
@@ -845,6 +847,7 @@
     drawNodes();
     drawClaims();
     if(prevStyle === null) svg.removeAttribute("style"); else svg.setAttribute("style", prevStyle);
+    if(PC.partyBuilder) PC.partyBuilder.drawOnCompass();
   }
 
   /* Приводит точки в соответствие с фильтром и выбранной партией.

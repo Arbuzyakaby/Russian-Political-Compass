@@ -90,6 +90,8 @@
 <link rel="stylesheet" href="css/eggs.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/eggs.css"></noscript>
 <!-- стекло уточняет поверхности, описанные выше, поэтому идёт после них -->
+<link rel="stylesheet" href="css/party.css">
+<link rel="stylesheet" href="css/tisza.css">
 <link rel="stylesheet" href="css/glass.css">
 <!-- слой движения подключается последним: часть его правил намеренно
      уточняет уже описанное выше, и каскад решает это без !important -->
@@ -131,7 +133,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "3.2",
+      "softwareVersion": "4.0",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -203,7 +205,7 @@
                 data-i18n-attr="title:search.clear;aria-label:search.clear">✕</button>
         <kbd class="search-kbd" aria-hidden="true">/</kbd>
       </div>
-      <button type="button" class="gear-btn" id="settingsBtn" aria-haspopup="dialog" aria-expanded="false"
+      <button type="button" class="gear-btn" id="settingsBtn" disabled aria-haspopup="dialog" aria-expanded="false"
               title="Настройки" aria-label="Настройки"
               data-i18n-attr="title:set.title;aria-label:set.title">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -221,6 +223,7 @@
             aria-controls="panel-quiz" aria-selected="false" tabindex="-1"><span data-i18n="tab.quiz">Тест</span><span class="tab-badge">40</span></button>
     <button type="button" class="tab" data-tab="votes" role="tab" id="tab-votes"
             aria-controls="panel-votes" aria-selected="false" tabindex="-1"><span data-i18n="tab.votes">Голосования</span><span class="tab-badge">28</span></button>
+    <button type="button" class="tab" data-tab="party" role="tab" id="tab-party" aria-controls="panel-party" aria-selected="false" tabindex="-1"><span data-i18n="tab.party">Моя партия</span><span class="tab-badge">4.0</span></button>
     <button type="button" class="tab" data-tab="about" role="tab" id="tab-about"
             aria-controls="panel-about" aria-selected="false" tabindex="-1"><span data-i18n="tab.about">О проекте</span></button>
   </nav>
@@ -237,6 +240,8 @@
             <button type="button" class="chip" data-filter="all" aria-pressed="true" data-i18n="filter.all">Все</button>
             <button type="button" class="chip" data-filter="duma" aria-pressed="false" data-i18n="filter.duma">В Госдуме</button>
             <button type="button" class="chip" data-filter="nonduma" aria-pressed="false" data-i18n="filter.nonduma">Без мандатов</button>
+            <button type="button" class="chip" data-filter="mine" aria-pressed="false" data-i18n="party.mine">Мои</button>
+            <button type="button" class="chip" id="myPartiesLayer" aria-pressed="true" data-i18n="set.myParties">Мои партии</button>
           </div>
           <button type="button" class="chip claim-chip" id="claimBtn" aria-pressed="true"
                   title="Показать, где партии стоят по собственным словам — полая точка и стрелка к реальной позиции"
@@ -257,6 +262,12 @@
           </label>
         </div>
 
+        <div class="map-controls" id="mapControls">
+          <button type="button" class="btn small" id="mapMinus" aria-label="Уменьшить масштаб" data-i18n-attr="aria-label:map.minus">−</button>
+          <button type="button" class="btn small" id="mapPlus" aria-label="Увеличить масштаб" data-i18n-attr="aria-label:map.plus">+</button>
+          <button type="button" class="btn small" id="mapReset" data-i18n="compass.resetView">Сбросить вид</button>
+          <button type="button" class="btn small" id="mapList" data-i18n="compass.list">Список с координатами</button>
+        </div>
         <div class="plot" id="plot">
           <svg class="compass" id="svg" viewBox="0 0 660 660" preserveAspectRatio="xMidYMid meet"
                role="img" aria-label="Политический компас: партии по осям экономики и отношения к государству"
@@ -287,7 +298,7 @@
         </details>
       </section>
 
-      <aside class="card side" aria-label="Список партий">
+      <aside class="card side" aria-label="Список партий" data-i18n-attr="aria-label:party.listAria">
         <!-- side-flip — сам переворачивающийся блок (2.3.1): список и
              карточка партии меняются местами переворотом всей панели,
              как игральной карты, а не мгновенной подменой. Логика — в
@@ -417,6 +428,9 @@
   </section>
 
   <!-- ============ ВКЛАДКА: ГОЛОСОВАНИЯ ============ -->
+  <section class="panel" id="panel-party" role="tabpanel" aria-labelledby="tab-party" tabindex="-1" hidden>
+    <div id="partyRoot"><p class="eyebrow" data-i18n="party.kicker">ПОЛИТИЧЕСКАЯ ЛАБОРАТОРИЯ / 4.0</p><h1 data-i18n="party.title">У политики есть координаты. У вашей — тоже.</h1><p data-i18n="party.lead">Соберите партию, которая выражает ваши взгляды. От эмблемы до голосований — и найдите её место среди реальных партий.</p></div>
+  </section>
   <section class="panel" id="panel-votes" role="tabpanel" aria-labelledby="tab-votes" tabindex="-1" hidden>
     <div class="votes">
       <div class="section-head" data-reveal>
@@ -493,7 +507,7 @@
         <div class="ab-st"><b id="abStParties">11</b><span>партий на поле</span></div>
         <div class="ab-st"><b id="abStQuiz">90</b><span>утверждений в тесте</span></div>
         <div class="ab-st"><b id="abStVotes">28</b><span>ключевых голосований</span></div>
-        <div class="ab-st"><b id="abStConv">5</b><span>созывов Госдумы</span></div>
+        <div class="ab-st"><b id="abStConv" data-conv-count>6</b><span>созывов Госдумы</span></div>
         <div class="ab-st"><b id="abStSub">6</b><span>под-осей у каждой партии</span></div>
         <div class="ab-st"><b id="abStLangs">2</b><span>языка интерфейса</span></div>
       </div>
@@ -617,9 +631,7 @@
           пятёрка ответов, повлиявших сильнее прочих, и профиль по шести под-осям, наложенный на профиль
           ближайшей партии. Формула не прячется — сумма вкладов, достижимый максимум и итоговое число
           показаны прямо в таблице.</p>
-        <p class="about-note" data-i18n="ab.quiz.note">Ответы никуда не отправляются: они лежат в localStorage вашего браузера,
-          и кнопка «Сбросить ответы» стирает их полностью. Никакой аналитики, счётчиков и внешних запросов
-          в проекте нет — единственный внешний ресурс на странице это шрифты.</p>
+        <p class="about-note" data-i18n="ab.quiz.note">Ответы и результат хранятся только в браузере. Расчёты не отправляются на сервер. Ссылкой на результат и скачанным файлом вы делитесь самостоятельно; выбранные веб-шрифты могут загружаться из Google Fonts.</p>
       </article>
 
 
@@ -689,12 +701,7 @@
 
       <article class="card about-card about-card--wide about-card--tech" id="ab-tech" data-reveal>
         <h3 data-i18n="ab.tech.h">Как это устроено</h3>
-        <p data-i18n="ab.tech.p">Статическая страница без сборки, фреймворков и зависимостей: HTML, CSS и обычный JavaScript.
-          Компас, парламентская диаграмма, график динамики, спектр и диаграмма-паук рисуются в SVG прямо в браузере.
-          Тема по умолчанию системная — берётся из настроек операционной системы и меняется вместе с ней,
-          пока вы не выберете светлую или тёмную вручную. Сама разметка при этом написана по-русски и
-          помечена атрибутами перевода, а не собирается скриптом: без JavaScript страница остаётся
-          полноценным русским документом — без графиков, но со всем текстом и всеми числами.</p>
+        <p data-i18n="ab.tech.p">HTML, CSS и обычный JavaScript: исходники запускаются без сборки, при публикации собираются в пакет. Компас и графики рисуются в SVG прямо в браузере. Шесть тем, два языка и пять вкладок; выбранные веб-шрифты загружаются из Google Fonts. Статический русский текст доступен без JavaScript, а интерактивные расчёты требуют его включения.</p>
 
         <!-- SRPC (2.4): блок-цепочка кода в духе PVFP и FGDRI из настроек.
              Схема стоит внутри этой карточки, а не отдельным блоком, потому
@@ -896,11 +903,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Мобильный интерфейс: крупные кнопки, читаемый текст и навигация в две строки.</li>
-        <li data-i18n="wel.up.l2">Компас выбирает ближайшую точку касанием и открывает карточку под картой.</li>
-        <li data-i18n="wel.up.l3">Значения профиля по под-осям доступны в таблице; матрица голосований прокручивается внутри своего блока.</li>
-        <li data-i18n="wel.up.l4">Графики строятся по мере появления на экране. Фоны стали легче, а лишние шрифты не загружаются.</li>
-        <li data-i18n="wel.up.l5">Обновлены техническое SEO, описание проекта без JavaScript и мобильные браузерные проверки.</li>
+        <li data-i18n="wel.up.l1">Моя партия: шесть шагов от названия и эмблемы до программы и голосований.</li>
+        <li data-i18n="wel.up.l2">Свои партии на компасе, ссылки, импорт и экспорт; гипотетическая палата на 450 мест.</li>
+        <li data-i18n="wel.up.l3">SRPC: живые замеры, панель звена, раскладки, масштаб, управление циклом и экспорт.</li>
+        <li data-i18n="wel.up.l4">Командная палитра Ctrl+K, поиск настроек, резервные копии и новые пасхалки.</li>
+        <li data-i18n="wel.up.l5">Исправлены пустые и чужие результаты теста, повреждённые ссылки, исторические карточки и оформление экспорта.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1275,7 +1282,7 @@
             </span>
             <div>
               <b data-i18n="set.privacy.p1.t">Нулевая телеметрия</b>
-              <span data-i18n="set.privacy.p1.d">Ни счётчиков, ни аналитики, ни сторонних запросов при загрузке — сеть видит только файлы самой страницы.</span>
+              <span data-i18n="set.privacy.p1.d">Ни счётчиков, ни аналитики. Файлы сайта приходят с хостинга; выбранные веб-шрифты могут загружаться из Google Fonts.</span>
             </div>
           </div>
           <div class="pvfp-point">
@@ -1284,7 +1291,7 @@
             </span>
             <div>
               <b data-i18n="set.privacy.p2.t">Состояние только у вас</b>
-              <span data-i18n="set.privacy.p2.d">Тема, язык, ответы теста и вот эти настройки лежат в localStorage браузера и никогда не покидают устройство.</span>
+              <span data-i18n="set.privacy.p2.d">Тема, язык, ответы, свои партии и черновик хранятся в localStorage. Передать их можно самостоятельно: ссылкой или файлом.</span>
             </div>
           </div>
           <div class="pvfp-point">
@@ -1323,7 +1330,7 @@
       <div class="srpc-card">
         <span class="srpcf-badge" data-i18n="srpc.badge">Собственный протокол проекта</span>
         <h4 data-i18n="srpc.title">SRPC — Static Render Pipeline Chain</h4>
-        <p data-i18n="srpc.lead">Страница собирается конвейером из шести этапов: разметка, стили, данные, расчёты, отрисовка, экспорт. Ни сборщика, ни сервера, ни единого запроса наружу — весь путь от файла до картинки проходит в вашем браузере. Схема этого пути стоит во вкладке «О проекте», а здесь её можно разложить на столе и рассмотреть каждое звено отдельно.</p>
+        <p data-i18n="srpc.lead">Шесть этапов: разметка, стили, данные, расчёты, отрисовка, экспорт. Исходники запускаются без сборки, при публикации собираются в пакет. Данные и расчёты остаются в браузере; выбранные веб-шрифты могут загружаться из Google Fonts. На столе можно исследовать файлы, измерения и зависимости каждого этапа.</p>
 
         <ul class="srpc-steps">
           <li><b>01</b><span data-i18n="ab.chain.s1">Разметка</span></li>
@@ -1482,7 +1489,7 @@
          списка, а это не ссылки, а масштаб набора данных. -->
     <dl class="foot-figures" data-reveal>
       <div><dt data-i18n="ft.fig.parties">Партий на поле</dt><dd id="footParties">11</dd></div>
-      <div><dt data-i18n="ft.fig.convs">Созывов Госдумы</dt><dd>5</dd></div>
+      <div><dt data-i18n="ft.fig.convs">Созывов Госдумы</dt><dd data-conv-count>6</dd></div>
       <div><dt data-i18n="ft.fig.votes">Ключевых голосований</dt><dd id="footVotes">28</dd></div>
       <div><dt data-i18n="ft.fig.sub">Под-осей у каждой партии</dt><dd>6</dd></div>
     </dl>
@@ -1493,7 +1500,7 @@
         <div>
           <h2 data-i18n="doc.title.compass">Политический компас партий РФ</h2>
           <p data-i18n="ft.about">Партии России на двух независимых осях: экономика и отношение к власти государства. С обоснованием каждой координаты и данными по шести созывам Госдумы.</p>
-          <p class="foot-privacy" data-i18n="foot.privacy">Без счётчиков, аналитики и внешних запросов</p>
+          <p class="foot-privacy" data-i18n="foot.privacy">Без счётчиков и аналитики · Шрифты Google загружаются при выборе</p>
         </div>
       </div>
 
@@ -1522,7 +1529,7 @@
         <h3 data-i18n="ft.proj.h">Проект</h3>
         <ul>
           <li><a href="https://github.com/Arbuzyakaby/Russian-Political-Compass" target="_blank" rel="noopener noreferrer"><span data-i18n="ft.proj.l1">Исходный код на GitHub</span><span class="arr" aria-hidden="true">→</span></a></li>
-          <li data-i18n="ft.proj.l2">Статическая страница без сборки</li>
+          <li data-i18n="ft.proj.l2">Исходники без сборки; публикация пакетом</li>
           <li data-i18n="ft.proj.l3">Ответы теста — только в браузере</li>
           <li data-i18n="ft.proj.l4">Русский и английский интерфейс</li>
           <li class="foot-promo"><a href="https://arbuzyakaby.github.io/lumen-photo-editor/" target="_blank" rel="noopener noreferrer"><span data-i18n="ft.proj.lumen">Lumen — фоторедактор автора</span><span class="arr" aria-hidden="true">→</span></a></li>
@@ -1541,7 +1548,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 3.2 «Висла»: мобильный интерфейс, управление касаниями, производительность и техническое SEO">3.2 «Висла»</span>
+              title="Версия 4.0 «Тиса»: конструктор партий, рабочий стол SRPC, настройки и исправления">4.0 «Тиса»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1560,6 +1567,7 @@
 <script src="js/i18n-compass.js" defer></script>
 <script src="js/i18n-quiz.js" defer></script>
 <script src="js/i18n-about.js" defer></script>
+<script src="js/i18n-party.js" defer></script>
 <script src="js/data-parties.js" defer></script>
 <script src="js/data-votes.js" defer></script>
 <script src="js/data-people.js" defer></script>
@@ -1590,6 +1598,9 @@
 <script src="js/tour.js" defer></script>
 <script src="js/eggs.js" defer></script>
 <script src="js/mobile.js" defer></script>
+<script src="js/party-model.js" defer></script>
+<script src="js/party-builder.js" defer></script>
+<script src="js/tisza.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>

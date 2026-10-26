@@ -85,18 +85,14 @@
     }
 
     function rebuild(){
-      pop.innerHTML = Array.prototype.map.call(native.options, function(o, i){
-        return '<button type="button" class="xs-opt" role="option" data-i="' + i + '"' +
-               ' aria-selected="' + (i === native.selectedIndex) + '"' +
-               ' tabindex="-1">' +
-               (o.dataset.color
-                 ? '<span class="xs-dot" style="background:' + esc(o.dataset.color) + '"></span>'
-                 : "") +
-               '<span class="xs-opt-t">' + esc(o.textContent.split(" · ")[0]) + '</span>' +
-               (o.dataset.note ? '<span class="xs-opt-n">' + esc(o.dataset.note) + '</span>' : "") +
-               '<svg class="xs-tick" viewBox="0 0 12 12" aria-hidden="true">' +
-               '<path d="M2.5 6.4 5 8.8 9.5 3.4"/></svg></button>';
-      }).join("");
+      pop.replaceChildren();
+      Array.prototype.forEach.call(native.options,function(o,i){
+        var b=document.createElement("button");b.type="button";b.className="xs-opt";b.setAttribute("role","option");b.dataset.i=i;b.setAttribute("aria-selected",String(i===native.selectedIndex));b.tabIndex=-1;
+        function span(cls,text){var e=document.createElement("span");e.className=cls;if(text!=null)e.textContent=text;return e;}
+        if(o.dataset.color){var dot=span("xs-dot");dot.style.background=o.dataset.color;b.appendChild(dot);}
+        b.appendChild(span("xs-opt-t",o.textContent.split(" · ")[0]));if(o.dataset.note)b.appendChild(span("xs-opt-n",o.dataset.note));
+        var svg=PC.utils.el("svg",{class:"xs-tick",viewBox:"0 0 12 12","aria-hidden":"true"});svg.appendChild(PC.utils.el("path",{d:"M2.5 6.4 5 8.8 9.5 3.4"}));b.appendChild(svg);pop.appendChild(b);
+      });
       inst.options = Array.prototype.slice.call(pop.querySelectorAll(".xs-opt"));
       inst.options.forEach(function(b){
         b.addEventListener("click", function(){ pick(Number(b.dataset.i)); });
@@ -190,6 +186,7 @@
   }
 
   function init(root){
+    instances = instances.filter(function(i){ if(i.native.isConnected) return true; if(openOne === i){ i.close(false); openOne = null; } return false; });
     (root || document).querySelectorAll("select:not([data-xs-ready])").forEach(build);
   }
 

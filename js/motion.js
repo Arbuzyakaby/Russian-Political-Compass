@@ -134,6 +134,7 @@
   /* Регистрирует ещё не виденные элементы. Вызывается и после
      перерисовки блоков, которые строит JS (плитки KPI, экраны теста). */
   function scan(root){
+    pending = pending.filter(function(n){ if(n.isConnected) return true; if(io) io.unobserve(n); return false; });
     var scope = root || document;
     var nodes = scope.querySelectorAll("[data-reveal]");
     nodes.forEach(function(node){

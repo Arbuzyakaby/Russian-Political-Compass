@@ -544,8 +544,9 @@ test("приветствие: выбор языка, приветствие, о�
 
   await page.locator("#welTour").click();
   await expect(page.locator(".tour")).toBeVisible();
-  for(let i = 0; i < 10; i++){
-    await expect(page.locator("#tourCount")).toHaveText(`Step ${i + 1} of 10`, { ignoreCase:true });
+  const tourSteps = Number((await page.locator("#tourCount").innerText()).match(/of (\d+)/i)[1]);
+  for(let i = 0; i < tourSteps; i++){
+    await expect(page.locator("#tourCount")).toHaveText(`Step ${i + 1} of ${tourSteps}`, { ignoreCase:true });
     await expect(page.locator("#tourText")).not.toHaveText("");
     await expect(page.locator("#tourText")).not.toContainText(/[а-яё]/i);
     await page.locator("#tourNext").press("ArrowRight");

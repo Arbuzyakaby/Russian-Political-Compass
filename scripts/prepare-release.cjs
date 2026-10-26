@@ -16,6 +16,12 @@ const styles = [...new Set(Array.from(html.matchAll(/<link[^>]+rel="stylesheet"[
 const scripts = Array.from(html.matchAll(/<script src="(js\/[^"]+)"[^>]*><\/script>/g), m => m[1]);
 const boundary = scripts.indexOf("js/welcome-boot.js") + 1;
 if(boundary < 2 || scripts.at(-1) !== "js/app.js") throw new Error("Unexpected script entrypoints");
+for(const file of ["js/party-model.js","js/party-builder.js","js/i18n-party.js","js/tisza.js"]){
+  if(!scripts.includes(file)) throw new Error("Missing 4.0 module: " + file);
+}
+for(const file of ["css/party.css","css/tisza.css"]){
+  if(!styles.includes(file)) throw new Error("Missing 4.0 stylesheet: " + file);
+}
 function writeAsset(source, prefix, loader){
   const code = transformSync(source, { loader, minify:true, target:"es2020", legalComments:"none" }).code;
   const hash = createHash("sha256").update(code).digest("hex").slice(0,12);

@@ -37,10 +37,13 @@ function makeNode(tag){
     removeAttribute(k){ delete this.attributes[k]; },
     hasAttribute(k){ return k in this.attributes; },
     appendChild(c){ this.children.push(c); return c; },
+    append(...nodes){ this.children.push(...nodes); },
+    replaceChildren(...nodes){ this.children = nodes; },
     insertBefore(c){ this.children.unshift(c); return c; },
     removeChild(c){ this.children = this.children.filter(x => x !== c); return c; },
     remove(){},
     addEventListener(){},
+    dispatchEvent(){},
     removeEventListener(){},
     querySelector(){ return null; },
     querySelectorAll(){ return []; },
@@ -61,6 +64,7 @@ function makeStorage(){
     getItem: k => (map.has(k) ? map.get(k) : null),
     setItem: (k, v) => { map.set(k, String(v)); },
     removeItem: k => { map.delete(k); },
+    key: i => Array.from(map.keys())[i] || null,
     clear: () => map.clear(),
     get length(){ return map.size; }
   };
@@ -68,9 +72,9 @@ function makeStorage(){
 
 const DEFAULT_FILES = [
   "js/data.js", "js/data-parties.js", "js/data-votes.js", "js/data-people.js", "js/utils.js", "js/calc.js",
-  "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js", "js/i18n-about.js", "js/i18n-misc.js", "js/i18n.js",
+  "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js", "js/i18n-about.js", "js/i18n-misc.js", "js/i18n-party.js", "js/i18n.js",
   "js/quiz-data.js", "js/quiz-calc.js", "js/quiz.js",
-  "js/votes.js", "js/charts.js", "js/coalition.js", "js/export.js"
+  "js/party-model.js", "js/votes.js", "js/charts.js", "js/coalition.js", "js/export.js"
 ];
 
 /* Собирает окружение и исполняет в нём перечисленные файлы проекта
@@ -93,6 +97,7 @@ function loadApp(files = DEFAULT_FILES, seed = null){
     createElementNS: (ns, tag) => makeNode(tag),
     createTextNode: t => ({ textContent:t }),
     getElementById: () => null,
+    dispatchEvent(){},
     querySelector: () => null,
     querySelectorAll: () => [],
     addEventListener(){},
@@ -101,9 +106,11 @@ function loadApp(files = DEFAULT_FILES, seed = null){
 
   const sandbox = {
     console,
+    btoa:s => Buffer.from(s, "binary").toString("base64"), atob:s => Buffer.from(s, "base64").toString("binary"),
     setTimeout, clearTimeout, setInterval, clearInterval,
     Date, Math, JSON, isFinite, parseInt, parseFloat,
     document,
+    CustomEvent: function(type,options){this.type=type;this.detail=options&&options.detail;},
     localStorage: storage,
     location: { origin:"https://example.org", pathname:"/compass/", host:"example.org",
                 search:"", hash:"" },
@@ -160,4 +167,4 @@ function parseCSV(text){
   return rows;
 }
 
-module.exports = { loadApp, parseCSV, makeNode, makeStorage, ROOT };
+module.exports = { loadApp, parseCSV, makeNode, makeStorage, ROOT, DEFAULT_FILES };

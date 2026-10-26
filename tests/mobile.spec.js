@@ -2,10 +2,10 @@
 const { test, expect } = require("@playwright/test");
 
 async function ready(page, lang = "ru"){
-  await page.addInitScript(() => {
+  await page.addInitScript(version => {
     localStorage.setItem("pc-lang", "ru");
-    localStorage.setItem("pc-welcome", "3.2");
-  });
+    localStorage.setItem("pc-welcome", version);
+  }, require("../package.json").version);
   await page.goto("/?lang=" + lang);
   await page.waitForFunction(() => window.PC && PC.mobile &&
     [...document.querySelectorAll('#svg .node:not(.you):not(.person)')].length === PC.PARTIES.length &&
@@ -22,7 +22,7 @@ for(const width of [320, 360, 390, 430, 768]){
     await page.setViewportSize({ width, height:844 });
     for(const lang of ["ru", "en"]){
       await ready(page, lang);
-      for(const route of ["compass", "quiz", "votes", "about"]){
+      for(const route of ["compass", "quiz", "votes", "party", "about"]){
         await page.evaluate(route => PC.nav.go(route), route);
         await expect(page.locator("#panel-" + route)).toBeVisible();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);

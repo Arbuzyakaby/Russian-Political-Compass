@@ -1,0 +1,110 @@
+{
+  "release": "4.0",
+  "baselineVersion": "3.2",
+  "baselineCommit": "b25d297",
+  "date": "2026-10-26",
+  "lighthouseVersion": "13.5.0",
+  "formFactor": "mobile",
+  "protocol": "HTTP (localhost, both freshly packaged releases)",
+  "compression": "gzip",
+  "runs": [
+    {
+      "phase": "before",
+      "run": 1,
+      "performance": 78,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4547.747,
+      "tbtMs": 109,
+      "cls": 0.00857729118087728,
+      "transferBytes": 577719
+    },
+    {
+      "phase": "before",
+      "run": 2,
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4554.0135,
+      "tbtMs": 118,
+      "cls": 0.00857729118087728,
+      "transferBytes": 577719
+    },
+    {
+      "phase": "before",
+      "run": 3,
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4549.8885,
+      "tbtMs": 116,
+      "cls": 0.00857729118087728,
+      "transferBytes": 577719
+    },
+    {
+      "phase": "after",
+      "run": 1,
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4789.3595000000005,
+      "tbtMs": 57,
+      "cls": 0.004513552784798461,
+      "transferBytes": 613126
+    },
+    {
+      "phase": "after",
+      "run": 2,
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4703.0075,
+      "tbtMs": 118,
+      "cls": 0.004513552784798461,
+      "transferBytes": 613126
+    },
+    {
+      "phase": "after",
+      "run": 3,
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4784.280999999999,
+      "tbtMs": 58,
+      "cls": 0.004513552784798461,
+      "transferBytes": 613126
+    }
+  ],
+  "notes": [
+    "Three sequential cold loads per release using the same Chromium, server and Lighthouse mobile simulation.",
+    "Historical HTTPS results in performance-3.2.json use a different protocol and are not mixed into this comparison."
+  ],
+  "medians": {
+    "before": {
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4549.8885,
+      "tbtMs": 116,
+      "cls": 0.00857729118087728,
+      "transferBytes": 577719
+    },
+    "after": {
+      "performance": 77,
+      "accessibility": 100,
+      "bestPractices": 81,
+      "seo": 100,
+      "lcpMs": 4784.280999999999,
+      "tbtMs": 58,
+      "cls": 0.004513552784798461,
+      "transferBytes": 613126
+    }
+  }
+}

@@ -488,5 +488,6 @@
     });
   }
 
-  PC.share = { mount:mount, render:render, toBlob:toBlob, FORMATS:FORMATS };
+  function partyData(p){var code=PC.partyModel.encode(p);return code?{title:p.name,text:p.slogan||PC.t("party.user"),url:location.origin+location.pathname+location.search+"#/party/view/"+code}:null;}
+  PC.share = { mount:mount, render:render, toBlob:toBlob, FORMATS:FORMATS, partyData:partyData };
 })(window.PC = window.PC || {});

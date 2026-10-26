@@ -6,12 +6,13 @@
    компаса подписчики пересобирают отрисовку. ============ */
 (function(PC){
   "use strict";
-  var TABS = ["compass", "quiz", "votes", "about"];
+  var TABS = ["compass", "quiz", "votes", "party", "about"];
   var TITLES = {
     compass: "doc.title.compass",
     quiz:    "doc.title.quiz",
     votes:   "doc.title.votes",
-    about:   "doc.title.about"
+    about:   "doc.title.about",
+    party:   "doc.title.party"
   };
   var current = "compass";
   var listeners = [];
@@ -26,6 +27,8 @@
   function fromHash(){
     var h = (location.hash || "").replace(/^#\/?/, "");
     if(/^result\//.test(h)) return "quiz";
+    if(/^party(?:\/|$)/.test(h)) return "party";
+    if(h === "srpc") return "about";
     return TABS.indexOf(h) === -1 ? "compass" : h;
   }
 
@@ -97,8 +100,9 @@
        обновление страницы теряло бы открытый результат. */
     if(!(opts && opts.silent) && fromHash() !== name){
       var hash = "#/" + name;
-      if(location.hash !== hash) history.replaceState(null, "", hash);
+      if(location.hash !== hash) history.pushState(null, "", hash);
     }
+    PC.store.set("pc-last-tab", current);
     if(changed || (opts && opts.force)){
       listeners.forEach(function(fn){ fn(current); });
       if(!(opts && opts.keepScroll)) window.scrollTo({ top:0,
@@ -133,9 +137,17 @@
       });
     });
 
-    current = fromHash();
+    var preferences = PC.store.getJSON("pc-settings", {});
+    var initial = preferences.startTab === "last" ? PC.store.get("pc-last-tab", "compass") : preferences.startTab;
+    current = location.hash ? fromHash() : TABS.indexOf(initial) >= 0 ? initial : "compass";
     paint();
     window.addEventListener("hashchange", function(){ go(fromHash(), { silent:true }); });
+    window.addEventListener("popstate", function(){ go(fromHash(), { silent:true }); });
+    var skip = document.querySelector(".skip-link");
+    if(skip) skip.addEventListener("click", function(e){
+      e.preventDefault(); var panel = document.getElementById("panel-" + current);
+      if(panel){ panel.focus(); panel.scrollIntoView({ block:"start" }); }
+    });
   }
 
   PC.nav = { init:init, go:go, onChange:onChange, current:function(){ return current; } };

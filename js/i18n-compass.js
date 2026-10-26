@@ -56,8 +56,7 @@
     /* Пустое состояние объясняет, что делать дальше, а не только
        сообщает о неудаче: «ничего не найдено» — это тупик, а подсказка
        про фильтр и другое написание — выход из него. */
-    "side.empty":         ["Под этот запрос ничего не подошло.<br>Попробуйте короче или проверьте фильтр над полем — возможно, партия скрыта им.",
-                           "Nothing matched that.<br>Try a shorter query, or check the filter above the field — the party may be hidden by it."],
+    "side.empty":         ["Ничего не найдено","No matches"],
     "side.back":          ["← Все партии", "← All parties"],
     "side.leader":        ["Лидер партии", "Party leader"],
     "side.econ":          ["Экономика", "Economy"],

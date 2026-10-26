@@ -726,23 +726,16 @@
 
   /* ---------- 3. Идеологический спектр ---------- */
   function specColumn(key, title, left, right){
-    var list = PC.PARTIES.slice().sort(function(a, b){ return a[key] - b[key]; });
-    return '<div class="spec-col"><h4>' + title + '</h4>' +
-      '<div class="poles"><span>' + left + '</span><span>' + right + '</span></div>' +
-      list.map(function(p){
-        var v = p[key], w = Math.abs(v)/10*50, l = v < 0 ? 50 - w : 50;
-        return '<div class="srow' + (p.id === activeId ? " hi" : "") + '" data-id="' + esc(p.id) + '">' +
-          '<div class="lab">' + esc(L(p, "short")) + '<b>' + fmt(v) + '</b></div>' +
-          '<div class="track"><span class="fill" data-left="' + l.toFixed(2) + '" data-w="' + w.toFixed(2) + '"' +
-            ' style="left:50%;background:' + esc(chartColor(p.color)) + '"></span></div></div>';
-      }).join("") +
-      '<div class="spec-scale"><span>−10</span><span>0</span><span>+10</span></div></div>';
+    var list = (PC.allParties ? PC.allParties() : PC.PARTIES).filter(function(p){ return /^u[1-6]$/.test(p.id) || seatsAt(p, PC.convocationInfo().id) !== null; }).sort(function(a, b){ return a[key] - b[key]; });
+    function n(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+    var col=n("div","spec-col"),poles=n("div","poles");poles.append(n("span","",left),n("span","",right));col.append(n("h4","",title),poles);
+    list.forEach(function(p){var v=p[key],w=Math.abs(v)/10*50,l=v<0?50-w:50,row=n("button","srow"+(p.id===activeId?" hi":""));row.type="button";row.dataset.id=p.id;
+      var lab=n("div","lab",L(p,"short"));lab.appendChild(n("b","",fmt(v)));var track=n("div","track"),fill=n("span","fill");fill.dataset.left=l.toFixed(2);fill.dataset.w=w.toFixed(2);fill.style.left="50%";fill.style.background=chartColor(p.color);track.appendChild(fill);row.append(lab,track);col.appendChild(row);
+    });var scale=n("div","spec-scale");scale.append(n("span","","−10"),n("span","","0"),n("span","","+10"));col.appendChild(scale);return col;
   }
   var spectrumGrown = false;
   function renderSpectrum(){
-    host.spectrum.innerHTML =
-      specColumn("x", t("ch.spec.econ"), t("ch.spec.planned"), t("ch.spec.market")) +
-      specColumn("y", t("ch.spec.state"), t("ch.spec.liberty"), t("ch.spec.statism"));
+    host.spectrum.replaceChildren(specColumn("x", t("ch.spec.econ"), t("ch.spec.planned"), t("ch.spec.market")), specColumn("y", t("ch.spec.state"), t("ch.spec.liberty"), t("ch.spec.statism")));
     host.spectrum.querySelectorAll(".srow").forEach(function(row){
       row.style.cursor = "pointer";
       row.addEventListener("click", function(){ PC.select(row.dataset.id); });
@@ -773,19 +766,18 @@
      он отвечает на вопрос про партии, а не про читателя: две точки,
      стоящие рядом на компасе, здесь расходятся, и видно, чем именно. */
   var radarPick = null;
+  var radarActive = null;
   function renderRadar(){
     if(!host.radar || !PC.radar) return;
-    var list = PC.PARTIES;
+    var list = PC.allParties ? PC.allParties() : PC.PARTIES;
     if(!radarPick || !PC.partyById(radarPick)) radarPick = activeId || list[0].id;
-    if(activeId && activeId !== radarPick) radarPick = activeId;
+    if(activeId && activeId !== radarActive) radarPick = activeId;
+    radarActive = activeId;
     var p = PC.partyById(radarPick);
 
     var sel = host.radarPick;
-    if(sel && !sel.options.length){
-      sel.innerHTML = list.map(function(o){
-        return '<option value="' + esc(o.id) + '" data-color="' + esc(o.color) + '">' +
-               esc(L(o, "short")) + "</option>";
-      }).join("");
+    if(sel){
+      sel.replaceChildren(); list.forEach(function(o){ var option=document.createElement("option");option.value=o.id;option.dataset.color=o.color;option.textContent=L(o,"short");sel.appendChild(option); });
     }
     if(sel && sel.value !== radarPick){
       sel.value = radarPick;

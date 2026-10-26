@@ -212,8 +212,8 @@
     var m = decodeMode(code);
     var list = codeList(m);
     var body = code.slice(1 + codeTag(m).length);
-    var clean = body.replace(/[^a-e-]/g, "");
-    if(clean.length !== list.length) return null;
+    if(code.length > 92 || !/^[a-e-]+$/.test(body) || body.length !== list.length) return null;
+    var clean = body;
     var out = {}, any = false;
     list.forEach(function(q, i){
       var v = CODE.indexOf(clean.charAt(i));

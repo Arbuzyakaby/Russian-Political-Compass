@@ -1,6 +1,6 @@
 /* ============ Пасхалки ============
 
-   Пять штук, все выключаются одним переключателем в настройках
+   Тринадцать штук, все выключаются одним переключателем в настройках
    (data-eggs на <html>), потому что шутка, от которой нельзя
    отказаться, — уже не шутка.
 
@@ -37,7 +37,16 @@
       чтобы не мешать им, а совпасть с их нажатиями случайно длинная
       точная последовательность не может.
 
-   Все пять живут отдельно от остальной страницы: ни один другой
+   6. Тиса / Висла в поиске: волна на компасе и река в подвале.
+   7. Пять кликов по версии: лента имён выпусков.
+   8. Абсолютный центр / четыре угла своей партии.
+   9. Одинаковые ответы на все вопросы теста.
+   10. Шесть звеньев SRPC в ровную линию: золотые связи и бесконечность.
+   11. Клавиша `: терминал help, parties, whoami, rivers, exit.
+   12. #/teapot: самовар и HTTP-шутка 418.
+   13. Ночная смена с 03:00 до 04:00 местного времени.
+
+   Все пасхалки живут отдельно от остальной страницы: ни один другой
    модуль про них не знает, и удаление этого файла ничего не
    сломает, кроме самих шуток. ============ */
 (function(PC){
@@ -45,7 +54,16 @@
 
   var grave = null;
 
-  function on(){ return document.documentElement.dataset.eggs !== "off"; }
+  function on(){ return document.documentElement.dataset.eggs === "on"; }
+  var IDS = ["portal", "grave", "22", "50", "konami", "river", "rivers", "centre", "agree", "pipeline", "terminal", "teapot", "night"];
+  function found(id){
+    if(!on() || IDS.indexOf(id) < 0) return;
+    var saved = PC.store.getJSON("pc-eggs-found", []);
+    if(!Array.isArray(saved)) saved = [];
+    saved = saved.filter(function(s){ return IDS.indexOf(s) >= 0; });
+    if(saved.indexOf(id) < 0){ saved.push(id); PC.store.setJSON("pc-eggs-found", saved); }
+    var counter = document.getElementById("eggsFound"); if(counter) counter.textContent = PC.t("set.found", { n:saved.length, m:IDS.length });
+  }
 
   function reduced(){
     return document.documentElement.dataset.motion === "off" ||
@@ -59,7 +77,8 @@
   function initPortal(btn){
     if(!btn) return;
     btn.addEventListener("click", function(){
-      if(!on() || reduced()) return;
+      if(!on()) return;
+      found("portal"); if(reduced()) return;
       btn.classList.remove("fired");
       /* перезапуск анимации: без принудительной перерисовки браузер
          склеит снятие и возврат класса в одно ничего */
@@ -116,6 +135,7 @@
        Подпись для скринридера даёт сама сцена — img с aria-label. */
     grave.querySelector("svg").setAttribute("aria-label", PC.t("egg.grave.tip"));
     document.body.appendChild(grave);
+    grave.addEventListener("click", function(){ found("grave"); });
 
     /* Появляется, когда подвал дошёл до низа экрана. Наблюдатель, а не
        обработчик прокрутки: ui.js уже слушает scroll, и второй слушатель
@@ -138,7 +158,7 @@
     var root = document.documentElement;
     q.addEventListener("input", function(){
       var hit = on() && !reduced() && q.value.trim() === "22";
-      if(hit && !root.classList.contains("catch22") && PC.ui) PC.ui.toast(PC.t("egg.c22"));
+      if(hit && !root.classList.contains("catch22") && PC.ui){ found("22"); PC.ui.toast(PC.t("egg.c22")); }
       root.classList.toggle("catch22", hit);
     });
   }
@@ -171,6 +191,7 @@
     q.addEventListener("input", function(){
       var hit = on() && q.value.trim() === "50";
       if(hit && !jubilee50Fired){
+        found("50");
         if(PC.ui) PC.ui.toast(PC.t("egg.c50"));
         if(!reduced()) spawnConfetti();
       }
@@ -189,6 +210,7 @@
                 "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight"];
   var konamiStep = 0;
   function fireKonami(){
+    found("konami");
     if(PC.ui) PC.ui.toast(PC.t("egg.konami"));
     if(reduced()) return;
     var svg = document.getElementById("svg");
@@ -219,6 +241,73 @@
     initCatch22();
     initJubilee50();
     initKonami();
+    initTisza();
+  }
+
+  var riverTimer = null, aligned = false, consoleDialog = null, teapot = null;
+  function river(){
+    if(!on()) return; found("river");
+    var root = document.documentElement; root.classList.remove("egg-river");
+    if(!reduced()){ void root.offsetWidth; root.classList.add("egg-river"); }
+    if(PC.ui) PC.ui.toast(PC.t("eggs.rivers"));
+    clearTimeout(riverTimer); riverTimer = setTimeout(function(){ root.classList.remove("egg-river"); }, 5000);
+  }
+  function party(p){
+    if(!on()) return;
+    if(Math.abs(p.x) < .00001 && Math.abs(p.y) < .00001){ found("centre"); PC.ui.toast(PC.t("eggs.centre")); }
+    else if(Math.abs(p.x) === 10 && Math.abs(p.y) === 10){ found("centre"); PC.ui.toast(PC.t("eggs.corner." + ((p.y > 0 ? 0 : 2) + (p.x > 0 ? 1 : 0)))); }
+  }
+  function quiz(answers){
+    if(!on()) return; var values = Object.keys(answers).map(function(k){ return answers[k]; });
+    if(values.length >= 20 && values.every(function(v){ return v === values[0]; })){ found("agree"); PC.ui.toast(PC.t("eggs.agree")); }
+  }
+  function pipeline(cards, canvas){
+    if(!on() || cards.length !== 6) return;
+    function coordinate(c,key){var n=parseFloat(c.style&&c.style[key]);return isFinite(n)?n:key==="left"?c.offsetLeft:c.offsetTop;}
+    var sorted=cards.slice().sort(function(a,b){return coordinate(a,"left")-coordinate(b,"left");}),y=sorted.map(function(c){return coordinate(c,"top");});
+    var gaps=sorted.slice(1).map(function(c,i){return coordinate(c,"left")-coordinate(sorted[i],"left");});
+    var hit = Math.max.apply(null,y)-Math.min.apply(null,y)<=4 && Math.min.apply(null,gaps)>sorted[0].offsetWidth && Math.max.apply(null,gaps)-Math.min.apply(null,gaps)<=4;
+    if(hit && !aligned){
+      found("pipeline"); if(!reduced()) canvas.classList.add("egg-golden");
+      var infinity = document.createElement("span"); infinity.className="egg-infinity"; infinity.textContent="∞"; canvas.appendChild(infinity);
+      setTimeout(function(){ canvas.classList.remove("egg-golden"); infinity.remove(); },1200);
+    } aligned=hit;
+  }
+  function terminal(){
+    if(!on() || PC.utils.modalOpen()) return; found("terminal");
+    if(!consoleDialog){
+      consoleDialog=document.createElement("dialog");consoleDialog.className="egg-terminal";consoleDialog.setAttribute("aria-modal","true");consoleDialog.setAttribute("aria-label",PC.t("eggs.terminal"));
+      var title=document.createElement("h2");title.textContent=PC.t("eggs.terminal");var output=document.createElement("pre"),form=document.createElement("form"),input=document.createElement("input");input.autocomplete="off";input.spellcheck=false;input.setAttribute("aria-label",PC.t("eggs.terminal"));form.appendChild(input);consoleDialog.append(title,output,form);document.body.appendChild(consoleDialog);
+      form.addEventListener("submit",function(e){
+        e.preventDefault(); var command=input.value.trim().toLowerCase(),response=""; input.value="";
+        if(command==="exit"){consoleDialog.close();return;}
+        if(command==="help")response="help · parties · whoami · rivers · exit";
+        else if(command==="parties")response=PC.allParties().map(function(p){return PC.L(p,"short")+"  "+PC.utils.fmt(p.x)+" / "+PC.utils.fmt(p.y);}).join("\n");
+        else if(command==="whoami"){var r=PC.quiz.result();response=r?"X "+PC.utils.fmt(r.x)+" / Y "+PC.utils.fmt(r.y):"—";}
+        else if(command==="rivers")response=PC.t("eggs.rivers");else response="? help";
+        output.textContent=(output.textContent+"\n> "+command+"\n"+response).slice(-12000);output.scrollTop=output.scrollHeight;
+      });
+    } consoleDialog.showModal();consoleDialog.querySelector("input").focus();
+  }
+  function showTeapot(){
+    if(location.hash!=="#/teapot" || !on()){if(teapot){teapot.remove();teapot=null;}return;}found("teapot");if(teapot)return;
+    teapot=document.createElement("dialog");teapot.className="egg-teapot";teapot.setAttribute("aria-modal","true");teapot.setAttribute("aria-label",PC.t("eggs.teapot"));
+    var h=document.createElement("h2");h.textContent="418";var art=PC.utils.el("svg",{viewBox:"0 0 200 180","aria-hidden":"true",fill:"none",stroke:"currentColor","stroke-width":4});
+    art.appendChild(PC.utils.el("path",{d:"M65 50h70v70q-35 30-70 0Zm-5 0h80M80 40h40M100 25v15M82 135v20m36-20v20M70 157h60M135 65q55-20 35 40l-35 8M65 70 30 60l20 40 15 5M85 60v60m15-60v68m15-68v60"}));
+    var p=document.createElement("p");p.textContent=PC.t("eggs.teapot");var b=document.createElement("button");b.className="btn";b.textContent=PC.t("party.close");b.addEventListener("click",function(){location.hash="#/compass";});teapot.append(h,art,p,b);document.body.appendChild(teapot);teapot.addEventListener("cancel",function(){location.hash="#/compass";});teapot.showModal();
+  }
+  function night(){
+    var existing=document.querySelector(".egg-night"),hour=new Date().getHours();if(existing)existing.remove();
+    if(on()&&hour>=3&&hour<4){found("night");var p=document.createElement("p");p.className="egg-night";p.textContent="🦉 "+PC.t("eggs.night");document.querySelector(".site-footer").appendChild(p);}
+  }
+  function initTisza(){
+    var q=document.getElementById("q");if(q)q.addEventListener("input",function(){if(/^(тиса|tisza|висла|vistula)$/i.test(q.value.trim()))river();});
+    var version=document.querySelector(".foot-version"),clicks=0,last=0;
+    if(version){version.tabIndex=0;version.addEventListener("click",function(){if(!on())return;var now=Date.now();clicks=now-last>2000?1:clicks+1;last=now;if(clicks===5){found("rivers");PC.ui.toast(PC.t("eggs.rivers"));clicks=0;}});version.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();version.click();}});}
+    document.addEventListener("keydown",function(e){if(e.key!=="`"||e.ctrlKey||e.metaKey||e.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;e.preventDefault();terminal();});
+    var count=document.createElement("p");count.id="eggsFound";count.className="party-meta";document.getElementById("setPanel-general").appendChild(count);
+    function sync(){var saved=PC.store.getJSON("pc-eggs-found",[]);count.textContent=PC.t("set.found",{n:Array.isArray(saved)?new Set(saved.filter(function(id){return IDS.indexOf(id)>=0;})).size:0,m:IDS.length});night();showTeapot();if(!on()){document.documentElement.classList.remove("catch22","egg-river");if(consoleDialog&&consoleDialog.open)consoleDialog.close();document.querySelectorAll(".egg-infinity").forEach(function(n){n.remove();});}}
+    document.addEventListener("pc:settings",function(e){if(e.detail.key==="eggs")sync();});window.addEventListener("hashchange",showTeapot);sync();
   }
 
   /* ---------- 3D-пролёт над компасом (2.2) ----------
@@ -235,5 +324,5 @@
     setTimeout(function(){ plot.classList.remove("flyover"); }, 3000);
   };
 
-  PC.eggs = { init:init };
+  PC.eggs = { init:init, party:party, quiz:quiz, pipeline:pipeline, found:found, IDS:IDS };
 })(window.PC = window.PC || {});
