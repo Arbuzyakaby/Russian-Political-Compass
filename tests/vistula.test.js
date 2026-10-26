@@ -173,10 +173,10 @@ test("траекторий нет ни в данных, ни в коде, ни �
 
 /* ---------- имя версии ---------- */
 
-test("у версии 3.1 сохранено имя-гидроним на обоих языках", () => {
-  assert.equal(PC.VERSION, "3.1");
+test("у версии 3.1.1 сохранено имя-гидроним на обоих языках", () => {
+  assert.equal(PC.VERSION, "3.1.1");
   assert.deepEqual({ ...PC.VERSION_NAME }, { ru:"Висла", en:"Vistula" });
-  assert.equal(PC.VERSION_LABEL, "3.1 «Висла»");
+  assert.equal(PC.VERSION_LABEL, "3.1.1 «Висла»");
   assert.ok(!/RPC/.test(PC.VERSION_LABEL), "приставка RPC осталась в 3.0");
-  assert.equal(en.versionLabel(), "3.1 “Vistula”");
+  assert.equal(en.versionLabel(), "3.1.1 “Vistula”");
 });

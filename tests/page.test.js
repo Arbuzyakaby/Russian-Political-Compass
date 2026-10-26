@@ -343,7 +343,7 @@ test("номер версии совпадает во всех местах, г�
   assert.ok(PC.VERSION_LABEL.includes(PC.VERSION),
     `человеческий номер «${PC.VERSION_LABEL}» не содержит машинного «${PC.VERSION}»`);
 
-  assert.ok(pkg.version.startsWith(PC.VERSION),
+  assert.equal(pkg.version, PC.VERSION,
     `package.json объявляет ${pkg.version}, а код — ${PC.VERSION}`);
 
   const foot = html.match(/class="foot-version"[\s\S]*?>([^<]+)<\/span>/);
@@ -455,7 +455,7 @@ test("у каждой вехи истории есть обе локали и д
   for(const item of ru.HISTORY){
     assert.match(item.date, /^\d{4}-\d{2}-\d{2}$/, `у вехи ${item.v} дата не в формате ISO: ${item.date}`);
     assert.ok(String(item.v).trim(), "у вехи нет номера версии");
-    for(const field of ["h", "p"]){
+    for(const field of ["v", "h", "p"]){
       assert.ok(String(ru.L(item, field) || "").trim(), `${item.v}.${field} пуст`);
       const value = String(en.L(item, field) || "");
       assert.ok(value.trim(), `${item.v}.${field} пуст в английской версии`);

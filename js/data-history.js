@@ -1,10 +1,10 @@
 /* ============ Данные: вехи проекта ============
 
-   Десять записей, из которых собирается лента истории в разделе
+   Вехи и последние выпуски, из которых собирается лента истории в разделе
    «О проекте» (js/ui.js, initHistory). Здесь только данные: ни одной
    функции, ни одного обращения к DOM — как в соседних js/data-*.js.
 
-   Почему десять, а не тридцать три (столько версий в CHANGELOG.md).
+   Почему здесь не все версии из CHANGELOG.md.
    Лента отвечает на вопрос «как проект дошёл до нынешнего вида», а не
    «что менялось между выпусками»: на второй вопрос отвечает сам
    CHANGELOG, и пересказывать его здесь значило бы завести второй
@@ -16,7 +16,7 @@
 
    Формат записи:
 
-     v     — номер версии или диапазон, печатается как есть;
+     v     — номер версии или диапазон; vEn — перевод подписи при наличии;
      date  — ISO-дата выпуска, по ней лента и упорядочена;
      h     — заголовок вехи, одной строкой;
      p     — что и зачем; hEn/pEn — то же по-английски.
@@ -100,18 +100,25 @@
       pEn:"A release with not one new feature: entirely about what already exists and in places does not work. The side panel was rewritten, full-screen SRPC learned to fit on a phone, and animations switched off turned out to be genuinely off — until then the endless ones had been running a thousand cycles a second."
     },
     {
-      v:"3.0 «Висла»", date:"2026-09-25",
+      v:"3.0 «Висла»", vEn:"3.0 “Vistula”", date:"2026-09-25",
       h:"Слова и дела",
       hEn:"Words and deeds",
       p:"Первая версия с именем реки. У каждой партии теперь две точки: где она стоит на деле и где — по собственным словам, и стрелка между ними. Данные переведены на IX созыв, избранный в сентябре 2026 года, голосований стало двадцать восемь, а траектории ушли: пять оценок подряд выглядели измерением, которым не были.",
       pEn:"The first version named after a river. Every party now has two dots — where it actually stands and where it says it stands — with an arrow between them. The data moved to the IX convocation elected in September 2026, the votes grew to twenty-eight, and the trajectories went: five estimates in a row looked like a measurement they never were."
     },
     {
-      v:"3.1 «Висла»", date:"2026-10-26",
+      v:"3.1 «Висла»", vEn:"3.1 “Vistula”", date:"2026-10-26",
       h:"Исправления результатов теста и интерфейса",
       hEn:"Quiz result and interface fixes",
       p:"Сохранённый результат теперь хранит свои ответы: новое прохождение не меняет его разбор, радар, ссылку и экспорт. Исправлены отправка карточки чужого результата, переходы по ссылкам, подписи неизвестных голосов, переключение языка, горячие клавиши под диалогами и режим длинного теста в экспорте.",
       pEn:"Saved results now keep their own answers, so a new attempt does not change their breakdown, radar, link or export. Fixes also cover guest result sharing, result links, unknown vote labels, language switching, shortcuts under dialogs and the long quiz mode in exports."
+    },
+    {
+      v:"3.1.1 «Висла»", vEn:"3.1.1 “Vistula”", date:"2026-10-26",
+      h:"Новая документация",
+      hEn:"Rewritten documentation",
+      p:"README переписан с нуля и дополнен новыми скриншотами компаса, результата теста и мобильного интерфейса. Появились отдельные руководства пользователя и разработчика, описание методологии и инструкция по выпуску обновлений. Устаревшие описания заменены актуальными, номер версии согласован на сайте и в коде.",
+      pEn:"The README has been rewritten with new screenshots of the compass, a quiz result and the mobile interface. Separate user and developer guides, a methodology reference and release instructions explain the current app. Outdated descriptions have been replaced, and the version number is consistent across the site and code."
     }
   ];
 })(window.PC = window.PC || {});

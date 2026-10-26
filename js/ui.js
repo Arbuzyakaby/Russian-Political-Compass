@@ -417,7 +417,7 @@
   }
 
   /* ---------- лента истории проекта (2.5) ----------
-     Десять вех из js/data-history.js. Строится скриптом, как и рельс
+     Вехи из js/data-history.js. Строится скриптом, как и рельс
      оглавления, и по той же причине: список, написанный в разметке
      руками, пришлось бы держать в двух языках и править на каждый
      выпуск — и однажды он бы отстал.
@@ -447,7 +447,7 @@
       var head = document.createElement("div");
       var v = document.createElement("span");
       v.className = "y";
-      v.textContent = item.v;
+      v.textContent = PC.L(item, "v");
       var when = document.createElement("span");
       when.className = "c";
       when.textContent = histDate(item.date);

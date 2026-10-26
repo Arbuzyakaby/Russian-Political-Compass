@@ -34,6 +34,8 @@ test("после перезагрузки на выбранном языке э�
 test("просмотренное в этой версии не показывается, в прошлой — показывает изменения", () => {
   assert.equal(decide({ hash:"", seen:V, version:V }), null);
   assert.equal(decide({ hash:"", seen:"2.0", version:V }), "update");
+  assert.equal(decide({ hash:"", seen:"3.1", version:V }), "update");
+  assert.equal(decide({ hash:"", seen:"3.1.0", version:V }), "update");
 });
 
 test("по ссылке на результат экран не показывается никогда", () => {
