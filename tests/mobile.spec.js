@@ -30,7 +30,10 @@ for(const width of [320, 360, 390, 430, 768]){
         const box = await tab.boundingBox();
         expect(Math.round(box.height)).toBeGreaterThanOrEqual(44);
         if(width <= 720){
-          expect(await page.locator(".tabs").evaluate(e => getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(2);
+          /* 4.1: пять вкладок одной плавающей панелью у нижнего края */
+          expect(await page.locator(".tabs").evaluate(e => getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(5);
+          const bar = await page.locator(".tabs").boundingBox();
+          expect(bar.y + bar.height).toBeGreaterThan(page.viewportSize().height - 40);
           expect(await page.locator("#q").evaluate(e => parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(16);
         }
       }
@@ -51,7 +54,8 @@ test("одиночное касание выбирает ближайшую па
   await expect(page.locator("#tip")).toBeHidden();
   await expect(page.locator("#sideBack")).toBeFocused();
   const side = await page.locator(".side").boundingBox();
-  expect(side.y).toBeGreaterThanOrEqual(95);
+  /* полоса вкладок с 4.1 внизу экрана, карточка прокручивается к самому верху */
+  expect(side.y).toBeGreaterThanOrEqual(0);
   expect(side.y).toBeLessThan(200);
   await page.locator("#sideBack").tap();
   await expect(page.locator("#sideBack")).toBeHidden();
@@ -119,6 +123,8 @@ test("настройки, темы, крупный текст и поля пои
   expect(await page.locator(".pitem .nm").first().evaluate(e => parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(28);
   await page.locator("#settingsBtn").tap();
   await expect(page.locator("#setSheet")).toBeVisible();
+  /* лист выезжает снизу — размеры меряются после окончания движения */
+  await expect.poll(async () => { const b = await page.locator("#setSheet").boundingBox(); return Math.round(b.y + b.height); }).toBeLessThanOrEqual(845);
   const sheet = await page.locator("#setSheet").boundingBox();
   expect(sheet.x).toBeGreaterThanOrEqual(0);
   expect(sheet.x + sheet.width).toBeLessThanOrEqual(391);

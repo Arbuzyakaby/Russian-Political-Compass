@@ -178,13 +178,34 @@
 
     /* ===== история проекта (2.5) ===== */
     "ab.history.h":       ["История проекта", "The project's history"],
-    "ab.history.p":       ["Проект существует меньше месяца, и половина вех в этой ленте — не новые возможности, а переделки того, что уже было и работало плохо. Это не оговорка: почти всё, чем сейчас можно пользоваться, сначала вышло в виде, который пришлось переписать.",
-                           "The project is less than a month old, and half the milestones in this timeline are not new features but rebuilds of things that already existed and worked badly. That is not an apology: nearly everything usable here first shipped in a form that had to be rewritten."],
-    /* Итог под лентой собирается из самого массива (js/ui.js): число вех
-       и крайние даты нигде не записаны словами и потому не отстанут от
-       списка — ровно та же причина, по которой плитки чисел проекта
-       считаются из данных, а не стоят в разметке. */
-    "ab.history.sum":     ["{w} · с {a} по {b}", "{w} · from {a} to {b}"],
+    "ab.history.p":       ["Проект существует меньше месяца, и половина вех в этом дереве — не новые возможности, а переделки того, что уже было и работало плохо. Это не оговорка: почти всё, чем сейчас можно пользоваться, сначала вышло в виде, который пришлось переписать.",
+                           "The project is less than a month old, and half the milestones in this tree are not new features but rebuilds of things that already existed and worked badly. That is not an apology: nearly everything usable here first shipped in a form that had to be rewritten."],
+    /* ===== дерево версий (4.1) =====
+       Итог под деревом собирается из самих данных (js/history-tree.js):
+       число выпусков, веток и дней нигде не записано словами и потому
+       не отстанет от CHANGELOG — та же причина, по которой плитки чисел
+       проекта считаются, а не стоят в разметке. Три формы слов нужны для
+       склонения: «39 выпусков», «5 веток», «51 день». */
+    "ab.ht.sum":          ["{n} · {m} · за {k}", "{n} · {m} · over {k}"],
+    "ab.ht.w.rel":        [["выпуск", "выпуска", "выпусков"], ["release", "releases"]],
+    "ab.ht.w.br":         [["ветка", "ветки", "веток"], ["branch", "branches"]],
+    "ab.ht.w.day":        [["день", "дня", "дней"], ["day", "days"]],
+    "ab.ht.aria":         ["Дерево версий проекта", "The project's version tree"],
+    "ab.ht.legend":       ["Ветки: выберите, чтобы подсветить", "Branches: pick one to highlight it"],
+    "ab.ht.only":         ["Только вехи", "Milestones only"],
+    "ab.ht.hint":         ["Новое сверху. Выберите выпуск, чтобы прочитать о нём; стрелки вверх и вниз ходят по дереву.",
+                           "Newest on top. Pick a release to read about it; the up and down arrows walk the tree."],
+    "ab.ht.panel":        ["Выбранный выпуск", "Selected release"],
+    "ab.ht.cur":          ["сейчас", "current"],
+    "ab.ht.ms":           ["Веха", "Milestone"],
+    "ab.ht.branch":       ["ветка", "branch"],
+    "ab.ht.close":        ["Закрыть карточку", "Close the card"],
+    "ab.ht.newer":        ["Новее", "Newer"],
+    "ab.ht.older":        ["Старее", "Older"],
+    "ab.ht.forked":       ["Ответвилась от {v}", "Forked from {v}"],
+    "ab.ht.cont":         ["Продолжает {v}", "Continues {v}"],
+    "ab.ht.merged":       ["Влита ветка {v}", "Merges the {v} branch"],
+    "ab.ht.mergedInto":   ["Влилась в {v}", "Merged into {v}"],
 
     "ab.tech.h":          ["Как это устроено", "How it is built"],
     "ab.tech.p":          ["HTML, CSS и обычный JavaScript: исходники запускаются без сборки, при публикации собираются в пакет. Компас и графики рисуются в SVG прямо в браузере. Шесть тем, два языка и пять вкладок; выбранные веб-шрифты загружаются из Google Fonts. Статический русский текст доступен без JavaScript, а интерактивные расчёты требуют его включения.","HTML, CSS and plain JavaScript: sources run directly and releases are bundled. The compass and charts are rendered as SVG in your browser. Six themes, two languages and five tabs; selected web fonts load from Google Fonts. Static Russian text is available without JavaScript; interactive calculations require it."],

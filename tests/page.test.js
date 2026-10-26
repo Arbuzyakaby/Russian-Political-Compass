@@ -151,9 +151,12 @@ test("у карточки «О проекте» свой фон в каждой 
   );
 });
 
-test("мобильные уточнения следуют за слоем движения", () => {
-  assert.equal(styles[styles.length - 1], "css/mobile.css");
-  assert.equal(styles[styles.length - 2], "css/motion.css");
+/* С 4.1 за мобильным слоем идёт оболочка приложения: нижняя панель
+   вкладок и листы переопределяют раскладку из css/mobile.css. */
+test("мобильные уточнения и оболочка приложения следуют за слоем движения", () => {
+  assert.equal(styles[styles.length - 1], "css/app.css");
+  assert.equal(styles[styles.length - 2], "css/mobile.css");
+  assert.equal(styles[styles.length - 3], "css/motion.css");
 });
 
 /* Стеклянный слой уточняет поверхности, объявленные компонентами,

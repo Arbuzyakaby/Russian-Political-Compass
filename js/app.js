@@ -307,6 +307,7 @@
        кнопка, а варианты доехали бы в скрытый <select>. */
     PC.dropdown.init();
     if(PC.mobile) PC.mobile.init();
+    if(PC.appShell) PC.appShell.init();
     if(PC.tisza) PC.tisza.init();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт

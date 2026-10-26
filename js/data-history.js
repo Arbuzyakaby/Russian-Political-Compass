@@ -1,7 +1,8 @@
 /* ============ Данные: вехи проекта ============
 
    Вехи и последние выпуски, из которых собирается лента истории в разделе
-   «О проекте» (js/ui.js, initHistory). Здесь только данные: ни одной
+   «О проекте» (js/ui.js, initHistory → js/history-tree.js: вехи показываются
+   в карточке узла дерева версий; само дерево — ниже, PC.RELEASES). Здесь только данные: ни одной
    функции, ни одного обращения к DOM — как в соседних js/data-*.js.
 
    Почему здесь не все версии из CHANGELOG.md.
@@ -132,5 +133,168 @@
       p:"Политическая лаборатория: конструктор своих партий с эмблемами, программами, голосованиями и ссылками. Гипотетическая палата, командная палитра, новые настройки, интерактивный стол SRPC и новые пасхалки. Исправлены ссылки и пустые результаты теста, исторические карточки, экспорт и навигация.",
       pEn:"A political lab: build your own parties with emblems, manifestos, votes and shareable links. A hypothetical house, command palette, new settings, an interactive SRPC workbench and new easter eggs. Fixes cover result links, empty quizzes, historical cards, exports and navigation."
     }
+  ];
+
+  /* ============ Дерево версий (4.1) ============
+
+     Вехи выше — рассказ, а дерево — карта: на нём все выпуски из
+     CHANGELOG.md, по одному узлу на запись заголовка «## [версия] — дата».
+     Рисует его js/history-tree.js, здесь только данные.
+
+     PC.ARCS — линии выпусков («ветки»):
+       id    — ключ; lane — дорожка на графе (0 — ствол, 1 — боковая ветка);
+       label — подпись, одинаковая на обоих языках; name/nameEn — имя реки,
+               которое носят выпуски линии (у 1.x и 2.x его нет);
+       d/dEn — строка о линии для легенды и карточки.
+
+     PC.RELEASES — выпуски по возрастанию даты, при равенстве дат — в
+     порядке версий (как и вехи, не сортируются на лету; проверяется тестом):
+       v     — номер так, как он записан в заголовке CHANGELOG;
+       date  — ISO-дата; arc — id линии;
+       s/sEn — одно-два предложения о выпуске;
+       ms    — если выпуск стоит в PC.HISTORY, то точное значение v той
+               вехи: длинный текст вехи показывается в карточке узла;
+               2.3 замыкает веху «2.1–2.3»;
+       from  — у первого выпуска линии: от какого выпуска она выросла;
+       merge — выпуск, ветка которого влилась в этот;
+       pin   — узел остаётся и в режиме «только вехи» (развилка);
+       cur   — текущая версия, ровно один такой узел.
+     Родитель остальных узлов — предыдущий выпуск той же линии. ============ */
+  PC.ARCS = [
+    { id:"v1", lane:0, label:"1.x",
+      d:"Первые выпуски: компас, тест, экспорт, голосования и песочница коалиций.",
+      dEn:"The first releases: the compass, the quiz, export, votes and the coalition sandbox." },
+    { id:"v2", lane:0, label:"2.x",
+      d:"Оформление, приветствие, настройки и люди на поле.",
+      dEn:"Design, the welcome screen, settings and people on the board." },
+    { id:"rpc", lane:1, label:"RPC 2.X",
+      d:"Боковая линия: ответвилась от 2.4.3 и влилась в 3.0.",
+      dEn:"A side line: forked from 2.4.3 and merged into 3.0." },
+    { id:"v3", lane:0, label:"3.x", name:"Висла", nameEn:"Vistula",
+      d:"Слова и дела, девятый созыв, мобильный интерфейс.",
+      dEn:"Words and deeds, the ninth convocation, the mobile interface." },
+    { id:"v4", lane:0, label:"4.x", name:"Тиса", nameEn:"Tisza",
+      d:"Своя партия на компасе и новый интерфейс.",
+      dEn:"Your own party on the compass and a new interface." }
+  ];
+
+  PC.RELEASES = [
+    { v:"1.0.0", date:"2026-09-06", arc:"v1", ms:"1.0",
+      s:"Первый полный релиз: компас на двух осях, аналитика по пяти созывам, тест и раздел о проекте.",
+      sEn:"The first full release: a two-axis compass, analytics for five convocations, a quiz and an About section." },
+    { v:"1.1.0", date:"2026-09-07", arc:"v1", ms:"1.1",
+      s:"Экспорт данных, слой траекторий на компасе и карточка результата для соцсетей.",
+      sEn:"Data export, a trails layer on the compass and a shareable result card." },
+    { v:"1.1.1", date:"2026-09-07", arc:"v1",
+      s:"Исправления по итогам ручного тестирования: меню экспорта, траектории, тест и боковая панель.",
+      sEn:"Fixes after manual testing: the export menu, trails, the quiz and the side panel." },
+    { v:"1.3.0", date:"2026-09-07", arc:"v1",
+      s:"Ревизия кода: исправления ошибок, 39 автотестов и слой премиального оформления.",
+      sEn:"A code review: bug fixes, 39 automated tests and a layer of visual polish." },
+    { v:"1.3.0.1", date:"2026-09-07", arc:"v1",
+      s:"Кнопка «Дальше» в тесте наконец решает сама: клик по варианту больше не листает вопрос.",
+      sEn:"The quiz “Next” button now does the moving: picking an answer no longer skips ahead by itself." },
+    { v:"1.4.0", date:"2026-09-10", arc:"v1", ms:"1.4",
+      s:"Английская версия целиком, шесть под-осей, ключевые голосования, разбор результата теста и ссылки на него.",
+      sEn:"A full English version, six sub-axes, landmark votes, a quiz result breakdown and result links." },
+    { v:"1.4.1", date:"2026-09-10", arc:"v1",
+      s:"Короткая версия теста: 20 утверждений и 2–3 минуты вместо 5–7.",
+      sEn:"A short quiz: 20 statements and 2–3 minutes instead of 5–7." },
+    { v:"1.5.0", date:"2026-09-11", arc:"v1", ms:"1.5",
+      s:"Песочница коалиций: фракции включаются кнопками, пороги 226 и 300 видны на полосе мандатов.",
+      sEn:"The coalition sandbox: factions toggle with buttons and the 226 and 300 thresholds show on the seat bar." },
+    { v:"1.5.1", date:"2026-09-11", arc:"v1",
+      s:"Ещё десять ключевых голосований — всего двадцать, 2004–2024.",
+      sEn:"Ten more landmark votes — twenty in total, 2004–2024." },
+    { v:"1.5.2", date:"2026-09-11", arc:"v1",
+      s:"Кнопки песочницы больше не ломают график динамики.",
+      sEn:"Sandbox buttons no longer break the trend chart." },
+    { v:"1.5.3", date:"2026-09-11", arc:"v1",
+      s:"Матрица совпадений переделана: расходящаяся шкала цвета вместо «электронной таблицы».",
+      sEn:"The agreement matrix was redesigned with a diverging colour scale instead of a spreadsheet look." },
+    { v:"1.5.4", date:"2026-09-11", arc:"v1",
+      s:"Строка мандатов у точки больше не перекрывает подпись соседней партии.",
+      sEn:"A dot's seat count no longer covers a neighbouring party's label." },
+    { v:"1.5.5", date:"2026-09-12", arc:"v1",
+      s:"Три пасхалки к круглому номеру версии и карточка о короткой версии теста.",
+      sEn:"Three easter eggs for a round version number and a card about the short quiz." },
+    { v:"1.6.0", date:"2026-09-12", arc:"v1", ms:"1.6",
+      s:"Новая акцентная пара, свой тон у каждой вкладки, меню настроек и переделанный слой траекторий.",
+      sEn:"A new accent pair, a tone of its own for every tab, a settings menu and a rebuilt trails layer." },
+    { v:"1.6.1", date:"2026-09-12", arc:"v1",
+      s:"Три шрифта в настройках: «Современный», «Компактный» и «Творческий».",
+      sEn:"Three fonts in settings: Modern, Compact and Creative." },
+    { v:"1.6.2", date:"2026-09-12", arc:"v1",
+      s:"Подписи порогов коалиции больше не наезжают друг на друга на узком экране.",
+      sEn:"Coalition threshold labels no longer collide on a narrow screen." },
+    { v:"2.0.0", date:"2026-09-12", arc:"v2", from:"1.6.2", ms:"2.0",
+      s:"Вторая большая версия: тест на 90 утверждений, шесть тем, стекло и аналитика коалиций.",
+      sEn:"The second major version: a 90-statement quiz, six themes, glass surfaces and coalition analytics." },
+    { v:"2.0.1", date:"2026-09-12", arc:"v2",
+      s:"Переключатель шрифта в настройках больше не наезжает на своё описание.",
+      sEn:"The font switch in settings no longer overlaps its own description." },
+    { v:"2.1.0", date:"2026-09-13", arc:"v2",
+      s:"Приветственный экран, пояснения «как это читать» под графиками и оглавление раздела «О проекте».",
+      sEn:"A welcome screen, “how to read this” notes under the charts and a contents rail for the About section." },
+    { v:"2.1.1", date:"2026-09-13", arc:"v2",
+      s:"Исправленное приветствие, короткое обучение и интерфейс в духе Apple.",
+      sEn:"A fixed welcome screen, a short tour and an Apple-inspired interface." },
+    { v:"2.1.1.1", date:"2026-09-13", arc:"v2",
+      s:"Исправлена ошибка 405 при выборе языка в приветствии, чаще всего в приватном окне.",
+      sEn:"Fixed a 405 error when choosing a language in the welcome screen, mostly in private windows." },
+    { v:"2.2", date:"2026-09-13", arc:"v2",
+      s:"3D-пролёт над компасом, тема «Прованс», новые настройки и слово автора.",
+      sEn:"A 3D flyover of the compass, the Provence theme, new settings and a note from the author." },
+    { v:"2.3", date:"2026-09-13", arc:"v2", ms:"2.1–2.3",
+      s:"Консолидация: общий расчётный слой, новые способы сравнивать партии и коалиции, настройки по разделам.",
+      sEn:"A consolidation: a shared calculation layer, new ways to compare parties and coalitions, settings by section." },
+    { v:"2.3.1", date:"2026-09-13", arc:"v2",
+      s:"Анимация переворота боковой панели и полностью переработанное окно настроек.",
+      sEn:"A flip animation for the side panel and a fully reworked settings window." },
+    { v:"2.3.1.1", date:"2026-09-14", arc:"v2",
+      s:"Окно настроек фиксированной высоты, раздел «Приватность» и новый «Состав палаты».",
+      sEn:"A fixed-height settings window, a Privacy section and a new chamber composition view." },
+    { v:"2.3.2", date:"2026-09-14", arc:"v2",
+      s:"Юбилейный выпуск: слоистый редизайн компаса и первый человек на поле вместо партии.",
+      sEn:"The anniversary release: a layered compass redesign and the first person, not a party, on the board." },
+    { v:"2.3.3", date:"2026-09-15", arc:"v2",
+      s:"Точечный выпуск: давняя ошибка подписи на поле, живее приветствие и новые витрины.",
+      sEn:"A small release: an old label bug on the board, a livelier welcome and new showcases." },
+    { v:"2.4", date:"2026-09-17", arc:"v2", ms:"2.4",
+      s:"Трое людей на поле, живая схема собственного кода и липкий рельс оглавления «О проекте».",
+      sEn:"Three people on the board, a live diagram of the code and a sticky contents rail for the About section." },
+    { v:"2.4.1", date:"2026-09-17", arc:"v2",
+      s:"Выпуск про поле компаса: стекло вместо слоёв, траектории переписаны с нуля.",
+      sEn:"A release about the compass board: glass instead of layers, trails rewritten from scratch." },
+    { v:"2.4.2", date:"2026-09-17", arc:"v2",
+      s:"Правки после 2.4.1: стекло стало заметным, исправлены три ошибки поля.",
+      sEn:"Follow-ups to 2.4.1: the glass became visible and three board bugs were fixed." },
+    { v:"2.4.2.1", date:"2026-09-18", arc:"v2", ms:"2.4.2.1",
+      s:"Выпуск про то, что видно: обучение по живой странице, полноэкранный SRPC и переписанная тема «Аляска».",
+      sEn:"A release about what is actually visible: a tour of the live page, full-screen SRPC and a rewritten Alaska theme." },
+    { v:"2.4.3", date:"2026-09-18", arc:"v2", ms:"2.4.3",
+      s:"Генеральная ревизия перед 3.0: ни одной новой возможности, боковая панель переписана.",
+      sEn:"A full audit before 3.0: not a single new feature, and the side panel rewritten." },
+    { v:"RPC 2.5", date:"2026-09-20", arc:"rpc", from:"2.4.3", pin:true,
+      s:"Первый и единственный выпуск линии RPC: лента истории проекта и тест по разделу «О проекте».",
+      sEn:"The first and only release of the RPC line: a project history timeline and a quiz on the About section." },
+    { v:"3.0", date:"2026-09-25", arc:"v3", from:"2.4.3", merge:"RPC 2.5", ms:"3.0 «Висла»",
+      s:"Большая переделка: заявленные координаты партий, IX созыв, 28 голосований и переписанные темы.",
+      sEn:"A big rework: declared party coordinates, the IX convocation, 28 votes and rewritten themes." },
+    { v:"3.1", date:"2026-10-26", arc:"v3", ms:"3.1 «Висла»",
+      s:"Сохранённый результат теста хранит собственные ответы; исправления ссылок и интерфейса.",
+      sEn:"A saved quiz result keeps its own answers; link and interface fixes." },
+    { v:"3.1.1", date:"2026-10-26", arc:"v3", ms:"3.1.1 «Висла»",
+      s:"Документация: README переписан с нуля, добавлены руководства и новые скриншоты.",
+      sEn:"Documentation: the README was rewritten, with new guides and screenshots." },
+    { v:"3.2", date:"2026-10-26", arc:"v3", ms:"3.2 «Висла»",
+      s:"Мобильный интерфейс: двухстрочная навигация, увеличенные кнопки и выбор точек касанием.",
+      sEn:"The mobile interface: two-row navigation, larger buttons and tap-to-pick compass dots." },
+    { v:"4.0", date:"2026-10-26", arc:"v4", from:"3.2", ms:"4.0 «Тиса»",
+      s:"Раздел «Моя партия»: конструктор партий, командная палитра, новые настройки и ссылки для обмена.",
+      sEn:"The “My party” section: a party builder, a command palette, new settings and shareable links." },
+    { v:"4.1", date:"2026-10-27", arc:"v4", cur:true,
+      s:"Мобильный интерфейс в стиле приложения, дерево версий, шаблоны и выборы в «Моей партии», новые настройки и исправления.",
+      sEn:"App-style mobile interface, version tree, templates and elections in “My party”, redesigned settings and fixes." }
   ];
 })(window.PC = window.PC || {});

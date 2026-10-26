@@ -67,6 +67,7 @@
   var autoTimer = null;
   function cancelAuto(){clearTimeout(autoTimer);autoTimer=null;}
   var breakdownOpen = false;
+  var focusQ = false;             /* после перехода между вопросами — фокус на текст вопроса */
 
   function activeQuestions(){ return questionsFor(mode); }
   function score(){ return scoreOf(answers, activeQuestions()); }
@@ -345,9 +346,18 @@
     document.getElementById("quizPrev").addEventListener("click", prev);
     document.getElementById("quizNext").addEventListener("click", next);
     document.getElementById("quizSkip").addEventListener("click", function(){
-      if(idx === list.length - 1) finish(); else { idx++; render(); }
+      if(idx === list.length - 1) finish(); else { idx++; focusQ = true; render(); }
     });
     document.getElementById("quizBack").addEventListener("click", function(){ view = "intro"; render(); });
+    /* Вопрос перестраивается целиком, и фокус с нажатой кнопки пропадает
+       в <body>: скринридер молчит, а клавиатурный пользователь начинает
+       обход страницы заново. Фокус на тексте вопроса возвращает и то и
+       другое; на цифры и стрелки это не влияет — это не поле ввода. */
+    if(focusQ){
+      focusQ = false;
+      var qEl = host.querySelector(".quiz-q");
+      if(qEl){ qEl.tabIndex = -1; qEl.focus({ preventScroll:true }); }
+    }
   }
 
   /* Ответ только подсвечивается и включает кнопку «Дальше» — сам переход
@@ -369,12 +379,12 @@
     if(nextBtn) nextBtn.disabled = false;
     if(PC.settings && PC.settings.get("autoNext") === "on") autoTimer=setTimeout(function(){autoTimer=null;if(view==="run"&&idx===answeredIndex&&activeQuestions()[idx].id===answeredId&&answers[answeredId]===v&&(!PC.nav||PC.nav.current()==="quiz"))next();},240);
   }
-  function prev(){ cancelAuto();if(idx > 0){ idx--; render(); } }
+  function prev(){ cancelAuto();if(idx > 0){ idx--; focusQ = true; render(); } }
   function next(){
     cancelAuto();
     var list = activeQuestions();
     if(answers[list[idx].id] === undefined) return;
-    if(idx === list.length - 1) finish(); else { idx++; render(); }
+    if(idx === list.length - 1) finish(); else { idx++; focusQ = true; render(); }
   }
 
   function finish(){

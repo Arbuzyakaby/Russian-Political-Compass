@@ -248,6 +248,7 @@
   function open(){
     if(!sheet || !sheet.hidden) return;
     lastFocus = document.activeElement;
+    if(drill()) showRoot(); else enter(null);
     sheet.hidden = false;
     scrim.hidden = false;
     if(opener) opener.setAttribute("aria-expanded", "true");
@@ -286,6 +287,10 @@
 
   function close(callback){
     if(!sheet || sheet.hidden) return;
+    /* незаконченный поиск не переживает закрытия: следующее открытие
+       начинается со списка разделов, а не с отфильтрованных строк */
+    var query = sheet.querySelector(".settings-search");
+    if(query && query.value){ query.value = ""; query.dispatchEvent(new Event("input")); }
     moving();
     sheet.classList.remove("is-open");
     scrim.classList.remove("is-open");
@@ -349,6 +354,10 @@
       var on = b.dataset.panel === id;
       b.setAttribute("aria-selected", String(on));
       b.tabIndex = on ? 0 : -1;
+      /* на телефоне рельс — горизонтальная лента: выбранный раздел
+         подъезжает в видимую часть, а не остаётся за краем экрана */
+      if(on && rail && rail.scrollWidth > rail.clientWidth)
+        rail.scrollTo({ left:Math.max(0, b.offsetLeft - 16), behavior:"smooth" });
     });
     /* Раздел меняется целиком, а не листается: без сброса прокрутки
        новая панель могла бы открыться уже прокрученной вниз, если
@@ -357,6 +366,35 @@
        поэтому его позиция не привязана к тому, какая секция видна. */
     if(panelsBox) panelsBox.scrollTop = 0;
   }
+  /* ---------- список разделов на телефоне (4.1) ----------
+     Как в настройках iOS: лист открывается списком разделов с цветными
+     иконками, нажатие уводит внутрь раздела, стрелка в шапке
+     возвращает к списку. На широком экране рельс и панель видны рядом,
+     и этого режима нет — там он только мешал бы. */
+  function drill(){ return window.matchMedia("(max-width:720px),(pointer:coarse) and (max-width:1050px)").matches; }
+  function showRoot(){
+    if(!sheet) return;
+    sheet.classList.add("is-root");
+    var back = document.getElementById("setBack"), title = document.getElementById("setTitle");
+    if(back) back.hidden = true;
+    if(title) title.textContent = PC.t("set.title");
+  }
+  function enter(id){
+    if(!sheet) return;
+    sheet.classList.remove("is-root");
+    var back = document.getElementById("setBack"), title = document.getElementById("setTitle");
+    var tab = panelTabs.filter(function(b){ return b.dataset.panel === id; })[0];
+    if(back) back.hidden = !drill();
+    if(title) title.textContent = tab ? tab.textContent.trim() : PC.t("set.title");
+  }
+  function choose(id){ selectPanel(id); if(drill()) enter(id); }
+  /* Поиск на телефоне показывает найденные строки всех разделов сразу,
+     поэтому список разделов на время поиска убирается. */
+  function searching(on){
+    if(!sheet) return;
+    sheet.classList.toggle("is-search", on);
+    if(on && drill()) sheet.classList.remove("is-root");
+  }
   function initPanels(){
     rail = document.getElementById("setRail");
     if(!rail) return;
@@ -364,7 +402,10 @@
     panelTabs = Array.prototype.slice.call(rail.querySelectorAll(".setm-tab"));
     panels = Array.prototype.slice.call(sheet.querySelectorAll(".set-group[data-panel]"));
     panelTabs.forEach(function(b, i){
-      b.addEventListener("click", function(){ selectPanel(b.dataset.panel); });
+      b.addEventListener("click", function(){
+        choose(b.dataset.panel);
+        if(drill()){ var back = document.getElementById("setBack"); if(back) back.focus({ preventScroll:true }); }
+      });
       b.addEventListener("keydown", function(e){
         var horizontal = getComputedStyle(rail).flexDirection === "row";
         var step = horizontal
@@ -394,6 +435,21 @@
     scrim.addEventListener("click", close);
     var closeBtn = document.getElementById("setClose");
     if(closeBtn) closeBtn.addEventListener("click", close);
+    /* поворот или изменение окна при открытом листе: режим списка
+       разделов включается и снимается вместе с телефонной раскладкой */
+    var phoneQuery = window.matchMedia("(max-width:720px),(pointer:coarse) and (max-width:1050px)");
+    var onLayout = function(){
+      if(sheet.hidden) return;
+      var active = sheet.querySelector('.setm-tab[aria-selected="true"]');
+      if(drill()) showRoot(); else enter(active ? active.dataset.panel : null);
+    };
+    if(phoneQuery.addEventListener) phoneQuery.addEventListener("change", onLayout);
+    var backBtn = document.getElementById("setBack");
+    if(backBtn) backBtn.addEventListener("click", function(){
+      var active = sheet.querySelector('.setm-tab[aria-selected="true"]');
+      showRoot();
+      if(active) active.focus({ preventScroll:true });
+    });
 
     sheet.querySelectorAll("[data-set-switch]").forEach(function(b){
       b.addEventListener("click", function(){
@@ -465,5 +521,5 @@
     paint();
   }
 
-  PC.settings = { init:init, get:get, set:set, open:open, close:close, reset:reset, selectPanel:selectPanel, valid:valid, DEFAULTS:DEFAULTS };
+  PC.settings = { init:init, get:get, set:set, open:open, close:close, reset:reset, selectPanel:choose, root:showRoot, drill:drill, searching:searching, valid:valid, DEFAULTS:DEFAULTS };
 })(window.PC = window.PC || {});

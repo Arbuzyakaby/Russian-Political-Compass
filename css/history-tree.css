@@ -1,0 +1,357 @@
+/* ============ ДЕРЕВО ВЕРСИЙ (4.1) ============
+
+   Оформление к js/history-tree.js: граф веток в карточке «История
+   проекта». Только токены темы — ни одного жёсткого цвета, поэтому
+   дерево одинаково живёт во всех шести темах.
+
+   Цвет ветки — переменная --c: каждая линия выпусков берёт свой токен
+   (--info, --ok, --warn, --accent-2, --accent), а всё остальное — узлы,
+   линии, чипы, карточка — читает --c и не знает, чей он.
+
+   Строки одной высоты (--ht-row), а SVG с линиями растянут на весь
+   список, поэтому вертикальная координата линии совпадает с центром
+   строки при любом размере текста. Кружки узлов — обычные элементы, а
+   не SVG: растяжение сделало бы из них овалы.
+
+   Движение — украшение: пульс текущей версии и въезд строк снимаются
+   при prefers-reduced-motion и при настройке «Анимации: выкл». ============ */
+
+/* Карточка: sticky-карточка на узком экране живёт внутри неё, а
+   overflow:hidden у .about-card делал бы карточку прокручиваемым
+   контейнером и лишал sticky смысла. clip режет так же, но
+   прокруткой не становится. Подъём при наведении выключен: дерево
+   состоит из кликабельных строк, и карточка, уезжающая из-под
+   курсора на три пикселя, мешала бы целиться. */
+#ab-history{overflow:clip;}
+#ab-history.card.about-card:hover{transform:none;box-shadow:none;}
+
+.ht{
+  --ht-v1:var(--info);
+  --ht-v2:var(--ok);
+  --ht-rpc:var(--warn);
+  --ht-v3:var(--accent-2);
+  --ht-v4:var(--accent);
+  --ht-row:calc(50px * max(1, var(--text-k)));
+  --c:var(--accent);
+  position:relative;margin-top:18px;
+}
+.ht .a-v1{--c:var(--ht-v1);}
+.ht .a-v2{--c:var(--ht-v2);}
+.ht .a-rpc{--c:var(--ht-rpc);}
+.ht .a-v3{--c:var(--ht-v3);}
+.ht .a-v4{--c:var(--ht-v4);}
+.ht .s-v1{stop-color:var(--ht-v1);}
+.ht .s-v2{stop-color:var(--ht-v2);}
+.ht .s-rpc{stop-color:var(--ht-rpc);}
+.ht .s-v3{stop-color:var(--ht-v3);}
+.ht .s-v4{stop-color:var(--ht-v4);}
+
+/* ---------- легенда ---------- */
+.ht-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;}
+.ht-legend{display:flex;flex-wrap:wrap;gap:8px;}
+.ht-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:44px;padding:0 14px;
+  font:inherit;font-size:calc(13px * var(--text-k));font-weight:600;letter-spacing:-.005em;
+  color:var(--body);background:var(--surface);
+  border:1px solid var(--stroke-2);border-radius:var(--radius-xs);
+  cursor:pointer;font-variant-numeric:tabular-nums;
+  transition:background var(--dur-1) var(--ease-out),border-color var(--dur-1) var(--ease-out),
+             color var(--dur-1) var(--ease-out),transform var(--dur-1) var(--ease-out);
+}
+@media(hover:hover) and (pointer:fine){
+  .ht-chip{min-height:36px;}
+  .ht-chip:hover{background:var(--surface-2);color:var(--text);}
+}
+.ht-chip:active{transform:scale(.97);}
+.ht-chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.ht-chip-dot{
+  flex:none;width:10px;height:10px;border-radius:50%;
+  background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent);
+}
+.ht-chip[aria-pressed="true"]{
+  color:var(--text);
+  background:color-mix(in srgb,var(--c) 15%,transparent);
+  border-color:color-mix(in srgb,var(--c) 70%,transparent);
+}
+.ht-only{--c:var(--accent);}
+.ht-only[aria-pressed="true"]{
+  background:var(--accent-soft);border-color:var(--accent-line);color:var(--text);
+}
+.ht-hint{
+  margin:12px 0 0;max-width:62ch;
+  font-size:calc(13px * var(--text-k));line-height:1.55;color:var(--muted);
+  text-wrap:pretty;
+}
+
+/* ---------- тело: дерево + карточка ---------- */
+.ht-body{margin-top:14px;display:block;}
+.ht-treewrap{min-width:0;}
+
+.ht-tree{position:relative;--ht-w:50px;}
+.ht-svg{
+  position:absolute;left:0;top:0;width:var(--ht-w);height:100%;
+  overflow:visible;pointer-events:none;
+}
+.ht-edge,.ht-glow{
+  fill:none;stroke:var(--c);stroke-linecap:round;stroke-linejoin:round;
+  transition:opacity var(--dur-2) var(--ease-out);
+}
+.ht-edge{stroke-width:2.5;}
+.ht-glow{stroke-width:9;opacity:.14;}
+.ht-edge.is-dim{opacity:.18;}
+.ht-glow.is-dim{opacity:.03;}
+
+.ht-list{list-style:none;margin:0;padding:0;position:relative;}
+.ht-li{margin:0;padding:0;list-style:none;}
+.ht-row{
+  position:relative;display:flex;align-items:center;
+  width:100%;height:var(--ht-row);
+  padding:0 8px 0 calc(var(--ht-w) + 4px);
+  font:inherit;color:var(--text);text-align:left;
+  background:transparent;border:0;border-radius:var(--radius-xs);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:background var(--dur-1) var(--ease-out),opacity var(--dur-2) var(--ease-out),
+             box-shadow var(--dur-1) var(--ease-out);
+}
+.ht-row.is-dim{opacity:.34;}
+@media(hover:hover) and (pointer:fine){
+  .ht-row:hover{background:color-mix(in srgb,var(--c) 9%,transparent);}
+}
+.ht-row.is-sel{
+  background:color-mix(in srgb,var(--c) 14%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 38%,transparent);
+}
+.ht-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.ht-row:active{background:color-mix(in srgb,var(--c) 18%,transparent);}
+
+/* Узел. Рядовой выпуск — полое кольцо, веха — залитый кружок покрупнее
+   с мягким ореолом, текущая версия — самый крупный и с пульсом. */
+.ht-dot{
+  position:absolute;top:50%;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--c);
+  transform:translate(-50%,-50%) scale(var(--s,1));
+  transition:transform var(--dur-2) var(--ease-spring),box-shadow var(--dur-2) var(--ease-out);
+}
+.ht-row.is-ms .ht-dot{
+  width:15px;height:15px;background:var(--c);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 20%,transparent);
+}
+.ht-row.is-cur .ht-dot{
+  width:19px;height:19px;background:var(--c);border-color:var(--c);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 26%,transparent),
+             0 0 18px color-mix(in srgb,var(--c) 55%,transparent);
+}
+.ht-row.is-cur .ht-dot::after{
+  content:"";position:absolute;inset:-3px;border-radius:50%;
+  border:2px solid var(--c);opacity:0;
+  animation:ht-pulse 2.8s var(--ease-out) infinite;
+}
+.ht-row:focus-visible .ht-dot,
+.ht-row.is-sel .ht-dot{--s:1.2;}
+@media(hover:hover) and (pointer:fine){
+  .ht-row:hover .ht-dot{--s:1.25;}
+}
+.ht-row.is-sel .ht-dot{box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 34%,transparent);}
+
+@keyframes ht-pulse{
+  0%{transform:scale(1);opacity:.65;}
+  70%,100%{transform:scale(2.5);opacity:0;}
+}
+
+/* Подпись */
+.ht-txt{display:flex;flex-direction:column;justify-content:center;gap:1px;flex:1;min-width:0;}
+.ht-l1{display:flex;align-items:baseline;gap:8px;min-width:0;line-height:1.25;}
+.ht-v{
+  flex:none;font-size:calc(14px * var(--text-k));font-weight:600;color:var(--body);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+.ht-row.is-ms .ht-v{font-size:calc(15px * var(--text-k));font-weight:700;color:var(--text);}
+.ht-row.is-cur .ht-v{color:var(--text);}
+.ht-nm{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:calc(13px * var(--text-k));font-weight:500;color:var(--c);
+}
+.ht-d{
+  flex:none;margin-left:auto;padding-left:6px;
+  font-size:calc(13px * var(--text-k));color:var(--muted);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.ht-l2{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:calc(13px * var(--text-k));line-height:1.3;color:var(--body);
+}
+.ht-now{
+  flex:none;align-self:center;padding:1px 8px;border-radius:6px;
+  font-size:calc(13px * var(--text-k));font-weight:650;line-height:1.35;
+  color:var(--accent-ink);background:var(--c);
+}
+
+/* Появление: строки подъезжают по очереди, когда дерево попало в кадр.
+   Анимируется только начало (from), конец берётся из обычных стилей —
+   поэтому приглушение при выборе ветки не перебивается заливкой. */
+.ht:not(.is-in) .ht-row{opacity:0;}
+.ht.is-in .ht-row{
+  animation:ht-in var(--dur-3) var(--ease-out) backwards;
+  animation-delay:calc(var(--i,0) * 32ms);
+}
+.ht.is-in .ht-svg{animation:ht-fade var(--dur-4) var(--ease-out) backwards;}
+@keyframes ht-in{from{opacity:0;transform:translate3d(0,8px,0);}}
+@keyframes ht-fade{from{opacity:0;}}
+
+/* ---------- карточка выпуска ---------- */
+.ht-panel{
+  display:none;min-width:0;
+  padding:16px 18px 18px;
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--c) 13%,transparent),transparent 130px),
+    linear-gradient(var(--glass-bg-2),var(--glass-bg-2)),
+    var(--bg);
+  border:1px solid color-mix(in srgb,var(--c) 32%,var(--stroke));
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-sm);
+  -webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter);
+}
+.ht-panel.is-open{display:block;animation:ht-pop var(--dur-2) var(--ease-out) backwards;}
+@keyframes ht-pop{from{opacity:0;transform:translate3d(0,10px,0);}}
+
+.ht-p-top{display:flex;align-items:center;gap:6px;margin:-4px -6px 8px 0;}
+.ht-p-arc{
+  display:inline-flex;align-items:center;gap:8px;margin-right:auto;
+  font-size:calc(13px * var(--text-k));font-weight:650;color:var(--text);
+}
+.ht-p-arc .ht-chip-dot{background:var(--c);}
+.ht-p-go,.ht-p-x{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;padding:0;
+  font:inherit;font-size:22px;line-height:1;color:var(--body);
+  background:transparent;border:1px solid transparent;border-radius:var(--radius-xs);
+  cursor:pointer;
+  transition:background var(--dur-1) var(--ease-out),color var(--dur-1) var(--ease-out),
+             transform var(--dur-1) var(--ease-out);
+}
+.ht-p-go svg{display:block;width:18px;height:18px;}
+@media(hover:hover) and (pointer:fine){
+  .ht-p-go,.ht-p-x{width:36px;height:36px;}
+  .ht-p-go:hover:not(:disabled),.ht-p-x:hover{background:var(--surface-2);color:var(--text);}
+}
+.ht-p-go:active:not(:disabled),.ht-p-x:active{transform:scale(.94);}
+.ht-p-go:disabled{opacity:.3;cursor:default;}
+.ht-p-go:focus-visible,.ht-p-x:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+
+.ht-p-v{
+  display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0;
+  font-family:var(--font-display);font-size:calc(32px * var(--text-k));font-weight:700;
+  line-height:1.08;letter-spacing:var(--track-display);color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.ht-p-nm{font-size:calc(17px * var(--text-k));font-weight:500;letter-spacing:-.01em;color:var(--c);}
+.ht-p-v .ht-now{font-size:calc(13px * var(--text-k));letter-spacing:0;}
+.ht-p-date{
+  margin:6px 0 14px;font-size:calc(13px * var(--text-k));color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.ht-p-s{
+  margin:0;max-width:62ch;font-size:calc(15px * var(--text-k));line-height:1.55;color:var(--text);
+  text-wrap:pretty;
+}
+.ht-p-ms{
+  margin-top:16px;padding:14px 16px;border-radius:var(--radius-xs);
+  background:color-mix(in srgb,var(--c) 9%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 20%,transparent);
+}
+.ht-p-eye{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:calc(13px * var(--text-k));font-weight:650;letter-spacing:.04em;color:var(--c);
+}
+.ht-p-eye::before{
+  content:"";width:7px;height:7px;background:var(--c);
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+}
+.ht-p-h{
+  display:block;margin-top:6px;font-size:calc(16px * var(--text-k));font-weight:650;
+  letter-spacing:-.01em;color:var(--text);
+}
+.ht-p-long{
+  margin:6px 0 0;font-size:calc(14px * var(--text-k));line-height:1.62;color:var(--body);
+  text-wrap:pretty;
+}
+.ht-p-rel{
+  list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;
+  font-size:calc(13px * var(--text-k));color:var(--muted);
+}
+.ht-p-rel li{display:flex;align-items:center;gap:9px;}
+.ht-p-rel li::before{
+  content:"";flex:none;width:5px;height:5px;border-radius:50%;background:var(--c);opacity:.8;
+}
+
+/* ---------- итог ---------- */
+.ht-sum{
+  margin-top:16px;padding-top:12px;
+  border-top:1px solid color-mix(in srgb,var(--stroke) 60%,transparent);
+  font-size:calc(13px * var(--text-k));
+  text-transform:uppercase;letter-spacing:.1em;font-weight:650;
+  color:var(--accent);font-variant-numeric:tabular-nums;
+}
+.ht-sum:empty{display:none;}
+
+/* ---------- узкий экран: карточка — лист внизу ----------
+   Дерево длиннее экрана, и карточка «под деревом» осталась бы за
+   кадром. Поэтому она липнет к нижнему краю окна, пока дерево на
+   экране, и закрывается крестиком или Esc. Снизу оставлено место под
+   кнопку «наверх», чтобы они не перекрывали друг друга (ниже — выше для
+   мобильной оболочки). */
+@media(max-width:899.98px){
+  .ht-panel.is-open{
+    position:sticky;z-index:var(--z-sticky);
+    bottom:calc(max(12px, env(safe-area-inset-bottom)) + 60px);
+    margin-top:10px;
+    max-height:min(50vh, 380px);overflow-y:auto;overscroll-behavior:contain;
+    box-shadow:var(--shadow);
+  }
+  .ht-p-v{font-size:calc(28px * var(--text-k));}
+}
+
+/* В мобильной оболочке (css/app.css) снизу ещё и панель вкладок высотой
+   около 80px, а над ней — кнопка «наверх»: лист встаёт выше обеих. */
+@media(max-width:720px),(pointer:coarse) and (max-width:1050px){
+  .ht-panel.is-open{
+    bottom:calc(env(safe-area-inset-bottom) + 148px);
+    max-height:min(40vh, 320px);
+  }
+}
+
+/* ---------- широкий экран: дерево слева, карточка справа ---------- */
+@media(min-width:900px){
+  .ht-body{
+    display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);
+    gap:32px;align-items:start;
+  }
+  .ht-panel{
+    display:block;position:sticky;top:176px;padding:20px 24px 24px;
+  }
+  .ht-p-x{display:none;}
+}
+
+/* ---------- мало места ---------- */
+@media(max-width:420px){
+  .ht-row{padding-right:4px;}
+  .ht-l1{gap:6px;}
+  .ht-chip{padding:0 12px;}
+}
+
+/* ---------- без движения ---------- */
+@media(prefers-reduced-motion:reduce){
+  .ht-row.is-cur .ht-dot::after{animation:none;}
+  .ht.is-in .ht-row,.ht.is-in .ht-svg,.ht-panel.is-open{animation:none;}
+}
+:root[data-motion="off"] .ht-row.is-cur .ht-dot::after{animation:none;}
+:root[data-motion="off"] .ht.is-in .ht-row,
+:root[data-motion="off"] .ht.is-in .ht-svg,
+:root[data-motion="off"] .ht-panel.is-open{animation:none;}
+
+@media print{
+  .ht:not(.is-in) .ht-row{opacity:1;}
+  .ht-panel{display:none;}
+}

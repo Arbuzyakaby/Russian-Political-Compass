@@ -14,6 +14,12 @@
     "tab.quiz":           ["Тест", "Quiz"],
     "tab.votes":          ["Голосования", "Votes"],
     "tab.about":          ["О проекте", "About"],
+    /* 4.1: короткие подписи нижней панели вкладок на телефоне */
+    "tab.compass.short":  ["Компас", "Compass"],
+    "tab.quiz.short":     ["Тест", "Quiz"],
+    "tab.votes.short":    ["Голоса", "Votes"],
+    "tab.party.short":    ["Партия", "Party"],
+    "tab.about.short":    ["Проект", "About"],
 
     /* ===== компас ===== */
     "stage.aria":         ["Компас партий", "Party compass"],

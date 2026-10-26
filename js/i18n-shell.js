@@ -185,9 +185,9 @@
     "tour.back":          ["Назад", "Back"],
     "tour.skip":          ["Пропустить", "Skip"],
     "tour.done":          ["Всё понятно", "Got it"],
-    "tour.tabs.h":        ["Четыре раздела", "Four sections"],
-    "tour.tabs.p":        ["Компас с аналитикой, тест, ключевые голосования Госдумы и раздел о методике. Переключаются здесь и ничего не перезагружают: адрес меняется, страница остаётся той же.",
-                           "The compass with its analytics, the quiz, the landmark Duma votes and the section on method. They switch here and reload nothing: the address changes, the page stays the same."],
+    "tour.tabs.h":        ["Пять разделов", "Five sections"],
+    "tour.tabs.p":        ["Компас с аналитикой, тест, ключевые голосования Госдумы, своя партия и раздел о методике. Переключаются здесь и ничего не перезагружают: адрес меняется, страница остаётся той же.",
+                           "The compass with its analytics, the quiz, the landmark Duma votes, your own party and the section on method. They switch here and reload nothing: the address changes, the page stays the same."],
     "tour.board.h":       ["Поле из двух осей", "A field with two axes"],
     "tour.board.p":       ["По горизонтали — экономика: слева плановая, справа рыночная. По вертикали — сколько власти отдано государству. Обе шкалы идут от −10 до +10 и независимы друг от друга.",
                            "Horizontally, the economy: planned on the left, market on the right. Vertically, how much power goes to the state. Both scales run from −10 to +10 and are independent of each other."],
@@ -296,5 +296,10 @@
     "set.privacy.note":   ["По сути — открытый исходный код и честное отсутствие трекеров, названные протоколом, чтобы это было видно с первого взгляда, а не только тем, кто дочитал подвал страницы.",
                            "In plain terms: open source code and a genuine absence of trackers, given a protocol's name so it's visible at a glance — not only to those who scroll all the way to the footer."],
 
+    /* ===== 4.1 ===== */
+    "srpc.zoomIn":        ["Приблизить", "Zoom in"],
+    "srpc.zoomOut":       ["Отдалить", "Zoom out"],
+    "set.back":           ["Все разделы настроек", "All settings sections"],
+    "keys.close":         ["Закрыть", "Close"],
   });
 })(window.PC = window.PC || {});

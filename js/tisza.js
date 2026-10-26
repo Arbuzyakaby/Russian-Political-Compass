@@ -20,25 +20,36 @@
   function collect(){
     var list = [];
     ["compass", "quiz", "votes", "party", "about"].forEach(function(tab){ list.push({ label:t("tab." + tab), type:t("tabs.label"), run:function(){ PC.nav.go(tab); } }); });
-    PC.allParties().forEach(function(p){ list.push({ label:PC.L(p, "name"), more:[p.name, p.short, p.tag, p.en && p.en.name, p.en && p.en.short].join(" "), type:t(/^u/.test(p.id) ? "party.user" : "tab.compass"), run:function(){ PC.nav.go("compass"); if(PC.activeId() === p.id) PC.select(null); PC.select(p.id); } }); });
+    PC.allParties().forEach(function(p){ list.push({ label:PC.L(p, "name"), color:p.color, more:[p.name, p.short, p.tag, p.en && p.en.name, p.en && p.en.short].join(" "), type:t(/^u/.test(p.id) ? "party.user" : "side.title"), run:function(){ PC.nav.go("compass"); if(PC.activeId() === p.id) PC.select(null); PC.select(p.id); } }); });
     PC.PEOPLE.forEach(function(p){ list.push({ label:PC.L(p, "name"), more:p.name, type:t("people.title"), run:function(){ PC.people.open(p.id); } }); });
     PC.VOTES.forEach(function(v){ list.push({ label:PC.L(v, "title"), more:v.title, type:t("tab.votes"), run:function(){ PC.nav.go("votes"); PC.votes.focusVote(v.id); } }); });
     document.querySelectorAll("#setSheet .set-row").forEach(function(row){ var name=row.querySelector(".set-name,.set-lab b,.set-label")||row.querySelector("label");if(!name)return;var group=row.closest("[data-panel]");list.push({label:name.textContent,type:t("settings.title"),run:function(){PC.settings.open();if(group)PC.settings.selectPanel(group.dataset.panel);row.scrollIntoView({block:"center"});var control=row.querySelector("button,input,select");if(control)requestAnimationFrame(function(){control.focus();});}});});
     list.push({ label:t("srpc.title"), type:"SRPC", run:function(){ PC.srpc.open(); } });
     return list;
   }
+  /* 4.1: результаты сгруппированы по типу — разделы, партии, люди,
+     голосования, настройки — с подписью группы над каждой. В 4.0 тип
+     стоял мелким шрифтом справа у каждой строки и повторялся сорок раз. */
   function paintResults(){
     var q = query.value.trim().toLowerCase(); commands = collect().filter(function(c){ return !q || (c.label + " " + (c.more || "")).toLowerCase().indexOf(q) !== -1; }).slice(0, 40); picked = 0; results.replaceChildren();
-    commands.forEach(function(c, i){ var b = btn("", function(){ closePalette(); c.run(); }); b.className = "palette-result"; b.id = "palette-option-" + i; b.setAttribute("role", "option"); b.append(el("span", "", c.label), el("small", "", c.type)); b.addEventListener("pointerenter", function(){ picked = i; highlight(); }); results.appendChild(b); });
-    if(!commands.length) results.appendChild(el("p", "party-meta", t("side.empty"))); highlight();
+    var lastType = null;
+    commands.forEach(function(c, i){
+      if(c.type !== lastType){ lastType = c.type; var head = el("div", "palette-group", c.type); head.setAttribute("role", "presentation"); results.appendChild(head); }
+      var b = btn("", function(){ closePalette(); c.run(); }); b.className = "palette-result"; b.id = "palette-option-" + i; b.setAttribute("role", "option");
+      var mark = el("i", "palette-mark"); mark.setAttribute("aria-hidden", "true"); if(c.color) mark.style.setProperty("--mark", c.color); else mark.classList.add("palette-mark--plain");
+      b.append(mark, el("span", "", c.label), el("small", "", c.type)); b.addEventListener("pointerenter", function(){ picked = i; highlight(); }); results.appendChild(b);
+    });
+    if(!commands.length) results.appendChild(el("p", "palette-empty", t("side.empty"))); highlight();
   }
-  function highlight(){ results.querySelectorAll("button").forEach(function(b, i){ b.setAttribute("aria-selected", String(i === picked)); }); if(commands.length) query.setAttribute("aria-activedescendant", "palette-option-" + picked); else query.removeAttribute("aria-activedescendant"); }
+  function highlight(){ results.querySelectorAll(".palette-result").forEach(function(b, i){ b.setAttribute("aria-selected", String(i === picked)); }); if(commands.length) query.setAttribute("aria-activedescendant", "palette-option-" + picked); else query.removeAttribute("aria-activedescendant"); }
   function closePalette(){ if(palette && palette.open){ palette.close(); if(lastFocus && lastFocus.isConnected) lastFocus.focus(); } }
   function openPalette(){
     if(!palette){
       palette = el("dialog", "command-palette"); palette.setAttribute("aria-modal", "true"); palette.setAttribute("aria-labelledby", "paletteTitle");
       var h = el("h2", "", t("palette.title")); h.id = "paletteTitle"; query = el("input"); query.type = "search"; query.placeholder = t("palette.placeholder"); query.setAttribute("role", "combobox"); query.setAttribute("aria-expanded", "true"); query.setAttribute("aria-controls", "paletteResults"); query.setAttribute("aria-autocomplete", "list"); query.setAttribute("aria-label", t("palette.title"));
-      results = el("div", "palette-results"); results.id = "paletteResults"; results.setAttribute("role", "listbox"); palette.append(h, query, results, el("p", "palette-hint", t("palette.hint"))); document.body.appendChild(palette);
+      results = el("div", "palette-results"); results.id = "paletteResults"; results.setAttribute("role", "listbox");
+      var field = el("div", "palette-field"), esc = el("kbd", "", "Esc"); esc.setAttribute("aria-hidden", "true"); field.append(query, esc);
+      palette.append(h, field, results, el("p", "palette-hint", t("palette.hint"))); document.body.appendChild(palette);
       query.addEventListener("input", paintResults); query.addEventListener("keydown", function(e){ if(e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); if(commands.length) picked = (picked + (e.key === "ArrowDown" ? 1 : -1) + commands.length) % commands.length; highlight(); var option = document.getElementById("palette-option-" + picked); if(option) option.scrollIntoView({ block:"nearest" }); } if(e.key === "Enter" && commands[picked]){ e.preventDefault(); var action = commands[picked]; closePalette(); action.run(); } });
       palette.addEventListener("click", function(e){ if(e.target === palette){ var r = palette.getBoundingClientRect(); if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closePalette(); } });
     }
@@ -80,7 +91,8 @@
   }
   function settings(){
     var sheet = document.getElementById("setSheet"), search = el("input", "settings-search"); search.type = "search"; search.placeholder = t("set.search"); search.setAttribute("aria-label", t("set.search"));
-    var panels = document.getElementById("setPanels"); panels.prepend(search);
+    /* 4.1: поиск — под шапкой листа, как в настройках iOS: он один на все разделы и виден и в списке разделов, и внутри раздела */
+    sheet.insertBefore(search, sheet.querySelector(".sheet-body"));
     Object.keys(SETTINGS).forEach(function(key){
       var def = SETTINGS[key], group = document.querySelector('#setPanels [data-panel="' + def[0] + '"]'), row = el("div", "set-row tisza-setting"); row.dataset.setting = key;
       var label = el("label", "set-name", t(key === "srpcStage" ? "srpc.failure" : "set." + key)); label.htmlFor = "setting-" + key;
@@ -111,7 +123,8 @@
         var matches = false; group.querySelectorAll(".set-row").forEach(function(row){ row.hidden = !!value && row.textContent.toLowerCase().indexOf(value) < 0; if(!row.hidden) matches = true; });
         if(value) group.hidden = !matches;
       });
-      if(!value){ var active = sheet.querySelector('.setm-tab[aria-selected="true"]'); if(active) PC.settings.selectPanel(active.dataset.panel); }
+      PC.settings.searching(!!value);
+      if(!value){ var active = sheet.querySelector('.setm-tab[aria-selected="true"]'); if(PC.settings.drill()) PC.settings.root(); else if(active) PC.settings.selectPanel(active.dataset.panel); }
     });
     var general = document.getElementById("setPanel-general"), actions = el("div", "party-actions");
     actions.append(btn(t("set.backup"), function(){ var data = backup(); if(data) PC.exporter.download(new Blob([JSON.stringify(data, null, 2)], { type:"application/json" }), "politcompass-backup.json"); }), btn(t("set.restore"), function(){ input.click(); }));
@@ -175,7 +188,10 @@
       if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); openPalette(); return; }
       if(editable() || PC.utils.modalOpen() || e.ctrlKey || e.metaKey || e.altKey) return;
       if(e.key === "/"){ e.preventDefault(); openPalette(); }
-      if(e.key === "?"){ e.preventDefault(); var dialog = el("dialog", "command-palette key-help"); dialog.setAttribute("aria-modal", "true"); dialog.setAttribute("aria-label", t("keys.title")); dialog.append(el("h2", "", t("keys.title")), el("p", "", t("keys.help")), btn(t("party.close"), function(){ dialog.close(); dialog.remove(); })); document.body.appendChild(dialog); dialog.addEventListener("close", function(){ dialog.remove(); }); dialog.showModal(); }
+      if(e.key === "?"){ e.preventDefault(); var dialog = el("dialog", "command-palette key-help"); dialog.setAttribute("aria-modal", "true"); dialog.setAttribute("aria-label", t("keys.title")); var rows = el("dl", "key-rows");
+        /* строки справки разбираются из той же фразы словаря: «клавиши — действие; …» */
+        t("keys.help").replace(/\.$/, "").split(/;\s*/).forEach(function(part){ var m = part.match(/^(.+?)(?:\s+—\s+|:\s+)(.+)$/); if(!m) return; var dt = el("dt"); m[1].split(/\s+(?:или|or)\s+/).forEach(function(k, j){ if(j) dt.append(" / "); dt.appendChild(el("kbd", "", k)); }); rows.append(dt, el("dd", "", m[2])); });
+        dialog.append(el("h2", "", t("keys.title")), rows, btn(t("keys.close"), function(){ dialog.close(); dialog.remove(); })); document.body.appendChild(dialog); dialog.addEventListener("close", function(){ dialog.remove(); }); dialog.showModal(); }
     });
     document.addEventListener("pc:settings", function(e){
       if(["*", "dotSize", "labelMode", "bubbles", "myParties", "colorblind"].indexOf(e.detail.key) !== -1){ PC.compass.redraw(); var chip = document.getElementById("myPartiesLayer"); if(chip) chip.setAttribute("aria-pressed", String(PC.settings.get("myParties") === "on")); }

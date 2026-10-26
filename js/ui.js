@@ -426,65 +426,16 @@
     return { pin:pin };
   }
 
-  /* ---------- лента истории проекта (2.5) ----------
-     Вехи из js/data-history.js. Строится скриптом, как и рельс
-     оглавления, и по той же причине: список, написанный в разметке
-     руками, пришлось бы держать в двух языках и править на каждый
-     выпуск — и однажды он бы отстал.
-
-     Итог под лентой считается из самого массива: сколько вех и от какой
-     даты до какой. Написать «десять вех, с 6 по 20 сентября» словами
-     значило бы завести одиннадцатое место, где записано то же самое, —
-     и это место разошлось бы с лентой на первой же новой записи.
-
-     Дата печатается тем же способом, что и в разделе голосований: UTC
-     принудительно, иначе у читателя восточнее Лондона «2026-09-06»
-     превращается в пятое сентября. */
-  function histDate(iso){
-    var d = new Date(iso + "T00:00:00Z");
-    if(isNaN(d)) return iso;
-    return d.toLocaleDateString(PC.i18n.isRu() ? "ru-RU" : "en-GB",
-      { day:"numeric", month:"long", year:"numeric", timeZone:"UTC" });
-  }
-
+  /* ---------- дерево версий (2.5, с 4.1 — дерево вместо ленты) ----------
+     Данные — js/data-history.js (вехи и все выпуски из CHANGELOG),
+     раскладка и отрисовка — js/history-tree.js. Здесь остаётся только
+     связка: найти узлы в разметке и отдать их модулю. Итог под деревом
+     (сколько выпусков, веток и дней) считается из самих данных: написанный
+     словами, он разошёлся бы с деревом на первой же новой записи. */
   function initHistory(){
     var host = document.getElementById("abHistory");
-    if(!host || !PC.HISTORY || !PC.HISTORY.length) return;
-
-    PC.HISTORY.forEach(function(item){
-      var li = document.createElement("li");
-
-      var head = document.createElement("div");
-      var v = document.createElement("span");
-      v.className = "y";
-      v.textContent = PC.L(item, "v");
-      var when = document.createElement("span");
-      when.className = "c";
-      when.textContent = histDate(item.date);
-      head.appendChild(v);
-      head.appendChild(when);
-
-      var h = document.createElement("b");
-      h.className = "hist-h";
-      h.textContent = PC.L(item, "h");
-
-      var p = document.createElement("p");
-      p.textContent = PC.L(item, "p");
-
-      li.appendChild(head);
-      li.appendChild(h);
-      li.appendChild(p);
-      host.appendChild(li);
-    });
-
-    var sum = document.getElementById("abHistorySum");
-    if(!sum) return;
-    var first = PC.HISTORY[0], last = PC.HISTORY[PC.HISTORY.length - 1];
-    sum.textContent = PC.t("ab.history.sum", {
-      w: PC.i18n.n(PC.HISTORY.length, "word.milestone"),
-      a: histDate(first.date),
-      b: histDate(last.date)
-    });
+    if(!host || !PC.historyTree || !PC.RELEASES || !PC.RELEASES.length) return;
+    PC.historyTree.mount(host, document.getElementById("abHistorySum"));
   }
 
   /* Числа проекта в плитках раздела: те же значения, что и в подвале,

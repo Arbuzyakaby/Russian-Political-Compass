@@ -59,6 +59,12 @@
       return { p:real, same:same, common:common, ratio:common ? same / common : null };
     });
   }
+  /* 4.1: предел ссылки P1 поднят с 1800 до 4000 знаков. Русский шаблон
+     с программой и 28 голосованиями занимает около 2600 знаков (кириллица
+     в UTF-8 и base64 втрое длиннее латиницы), и при 1800 ни одним шаблоном
+     нельзя было поделиться. 4000 знаков спокойно проходят в адресной
+     строке и в мессенджерах; формат P1 при этом не меняется. */
+  var P1_MAX = 4000;
   var FIELDS = ["id", "name", "short", "tag", "color", "emblem", "founded", "leader", "slogan", "summary", "family", "ideology", "kind", "sub", "declared", "theses", "votes", "seats", "inCoalition", "created", "updated"];
   function pack(p){ return FIELDS.map(function(k){ return p[k] === undefined ? null : p[k]; }); }
   function unpack(a){ var p = {}; FIELDS.forEach(function(k, i){ if(a[i] !== null) p[k] = a[i]; }); return p; }
@@ -67,12 +73,12 @@
     error = null;
     try{
       var code = "P1." + btoa(unescape(encodeURIComponent(JSON.stringify(pack(normalize(raw)))))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      return code.length <= 1800 ? code : fail("too-long");
+      return code.length <= P1_MAX ? code : fail("too-long");
     }catch(e){ return fail("invalid"); }
   }
   function decode(code){
     error = null;
-    if(typeof code !== "string" || code.length > 1800) return fail("too-long");
+    if(typeof code !== "string" || code.length > P1_MAX) return fail("too-long");
     if(!/^P1\.[A-Za-z0-9_-]+$/.test(code)) return fail("format");
     try{
       var body = code.slice(3), a = JSON.parse(decodeURIComponent(escape(atob(body.replace(/-/g, "+").replace(/_/g, "/")))));
@@ -135,6 +141,18 @@
     data.list.forEach(function(raw){ if(valid(raw) && save(raw, true)) added++; else skipped++; });
     return { added:added, skipped:skipped };
   }
+  /* Метод наибольших остатков: целые доли, сумма которых ровно total.
+     Общий для гипотетической палаты и для модели выборов (js/party-election.js). */
+  function apportion(weights, total){
+    var sum = weights.reduce(function(s, w){ return s + Math.max(0, w); }, 0), out = weights.map(function(){ return 0; });
+    if(!(sum > 0) || !(total > 0)) return out;
+    var k = Math.abs(sum - total) < 1e-9 ? 1 : total / sum;
+    var rows = weights.map(function(w, i){ var q = Math.max(0, w) * k; return { i:i, n:Math.floor(q), r:q - Math.floor(q) }; });
+    var rest = total - rows.reduce(function(s, r){ return s + r.n; }, 0);
+    rows.slice().sort(function(a, b){ return (b.r - a.r) || (a.i - b.i); }).slice(0, rest).forEach(function(r){ r.n++; });
+    rows.forEach(function(r){ out[r.i] = r.n; });
+    return out;
+  }
   /* Largest remainders preserve exactly 450 seats, including independents. */
   function hypothetical(conv, own){
     own = (own || list).filter(function(p){ return p.inCoalition && p.seats > 0; });
@@ -145,14 +163,13 @@
     var rows = real.map(function(p){ return { p:p, weight:PC.seatsAt(p, conv) * remaining / 450 }; });
     if(held < 450) rows.push({ p:{ id:"independent", name:"", x:0, y:0 }, weight:(450 - held) * remaining / 450 });
     own.forEach(function(p){ rows.push({ p:p, weight:requested > 450 ? p.seats / requested * 450 : p.seats }); });
-    rows.forEach(function(r){ r.seats = Math.floor(r.weight); });
-    var rest = 450 - rows.reduce(function(s, r){ return s + r.seats; }, 0);
-    rows.slice().sort(function(a, b){ return (b.weight - b.seats) - (a.weight - a.seats); }).slice(0, rest).forEach(function(r){ r.seats++; });
+    var seats = apportion(rows.map(function(r){ return r.weight; }), 450);
+    rows.forEach(function(r, i){ r.seats = seats[i]; });
     return rows;
   }
   PC.partyModel = { normalize:normalize, fromSub:fromSub, toSub:toSub, nearest:nearest, voteMatch:voteMatch,
     encode:encode, decode:decode, error:function(){ return error; }, FAMILIES:FAMILIES, KINDS:KINDS, EMBLEMS:EMBLEMS,
     load:load, list:function(){ return list.slice(); }, save:save, remove:remove, importJSON:importJSON, exportJSON:exportJSON,
-    hypothetical:hypothetical, valid:valid, KEY:KEY, DRAFT:DRAFT, LIMIT:LIMIT };
+    hypothetical:hypothetical, apportion:apportion, valid:valid, KEY:KEY, DRAFT:DRAFT, LIMIT:LIMIT };
   PC.allParties = function(){ return PC.PARTIES.concat(list); };
 })(window.PC = window.PC || {});

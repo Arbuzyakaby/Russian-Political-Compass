@@ -565,16 +565,26 @@
     var depends=document.createElement("p"); depends.textContent=t("srpc.dependencies")+": "+(index>1?t("ab.chain.s"+(index-1)):"—")+" → "+(index<6?t("ab.chain.s"+(index+1)):"—"); detail.appendChild(depends); closeBtn.focus();
   }
   function buildControls(){
+    /* 4.1: панель разложена на группы — воспроизведение, вид, сбой,
+       экспорт. В 4.0 это был ряд из одиннадцати одинаковых кнопок и
+       списков без подписей, где «3» в выпадающем списке ничего не
+       говорило о том, что это номер звена со сбоем. */
     toolbar=document.createElement("div"); toolbar.className="srpcf-toolbar";
-    function button(label,fn){ var b=document.createElement("button"); b.className="btn small"; b.type="button"; b.textContent=label; b.addEventListener("click",fn); toolbar.appendChild(b); return b; }
-    var pauseBtn=button(t("srpc.pause"),function(){ paused=!paused; pauseBtn.textContent=t(paused?"srpc.play":"srpc.pause"); applyCycle(); });
-    button(t("srpc.step"),function(){ paused=true; cycleStep=(cycleStep+1)%6; pauseBtn.textContent=t("srpc.play"); applyCycle(); });
-    function select(label,values,fn,current){ var s=document.createElement("select"); s.setAttribute("aria-label",label); values.forEach(function(v){ var o=document.createElement("option"); o.value=v[0]; o.textContent=v[1]; s.appendChild(o); }); s.value=current; s.addEventListener("change",function(){fn(s.value);}); toolbar.appendChild(s); }
-    select(t("srpc.speed"),[["0.5","×0.5"],["1","×1"],["2","×2"]],function(v){cycleSpeed=Number(v);applyCycle();},"1");
-    select(t("srpc.layout"),["snake","line","column","circle"].map(function(v){return[v,t("srpc."+v)];}),setLayout,layout);
-    select(t("srpc.failure"),["1","2","3","4","5","6"].map(function(v){return[v,v];}),function(v){PC.settings.set("srpcStage",v);PC.settings.set("srpcfail","on");},PC.settings.get("srpcStage"));
-    button("−",function(){zoom(zoomScale-.1);}); button("+",function(){zoom(zoomScale+.1);}); button(t("srpc.fit"),fit);
-    button("PNG",function(){PC.exporter.srpcBoard(canvas,"png");}); button("SVG",function(){PC.exporter.srpcBoard(canvas,"svg");});
+    toolbar.setAttribute("role","toolbar"); toolbar.setAttribute("aria-label",t("srpc.title"));
+    function group(name){ var g=document.createElement("div"); g.className="srpcf-group srpcf-group--"+name; toolbar.appendChild(g); return g; }
+    function button(host,label,fn,cls,aria){ var b=document.createElement("button"); b.className="srpcf-btn"+(cls?" "+cls:""); b.type="button"; b.textContent=label; if(aria) b.setAttribute("aria-label",aria); b.addEventListener("click",fn); host.appendChild(b); return b; }
+    function select(host,label,values,fn,current){ var w=document.createElement("label"); w.className="srpcf-select"; var cap=document.createElement("span"); cap.textContent=label; var s=document.createElement("select"); values.forEach(function(v){ var o=document.createElement("option"); o.value=v[0]; o.textContent=v[1]; s.appendChild(o); }); s.value=current; s.addEventListener("change",function(){fn(s.value);}); w.append(cap,s); host.appendChild(w); return s; }
+    var play=group("play"), view=group("view"), fail=group("fail"), out=group("export");
+    var pauseBtn=button(play,t("srpc.pause"),function(){ paused=!paused; pauseBtn.textContent=t(paused?"srpc.play":"srpc.pause"); pauseBtn.classList.toggle("is-paused",paused); applyCycle(); },"srpcf-btn--primary");
+    button(play,t("srpc.step"),function(){ paused=true; cycleStep=(cycleStep+1)%6; pauseBtn.textContent=t("srpc.play"); pauseBtn.classList.add("is-paused"); applyCycle(); });
+    select(play,t("srpc.speed"),[["0.5","×0.5"],["1","×1"],["2","×2"]],function(v){cycleSpeed=Number(v);applyCycle();},"1");
+    select(view,t("srpc.layout"),["snake","line","column","circle"].map(function(v){return[v,t("srpc."+v)];}),setLayout,layout);
+    button(view,"−",function(){zoom(zoomScale-.1);},"srpcf-btn--icon",t("srpc.zoomOut"));
+    button(view,"+",function(){zoom(zoomScale+.1);},"srpcf-btn--icon",t("srpc.zoomIn"));
+    button(view,t("srpc.fit"),fit);
+    select(fail,t("srpc.failure"),["1","2","3","4","5","6"].map(function(v){return[v,v+" · "+t("ab.chain.s"+v)];}),function(v){PC.settings.set("srpcStage",v);PC.settings.set("srpcfail","on");},PC.settings.get("srpcStage"));
+    button(out,"PNG",function(){PC.exporter.srpcBoard(canvas,"png");});
+    button(out,"SVG",function(){PC.exporter.srpcBoard(canvas,"svg");});
     stage.insertBefore(toolbar,board);
     board.addEventListener("wheel",function(e){if(e.ctrlKey){e.preventDefault();zoom(zoomScale+(e.deltaY<0?.1:-.1));}},{passive:false});
     var touches=new Map(), pinch;

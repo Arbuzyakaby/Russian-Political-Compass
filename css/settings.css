@@ -49,7 +49,7 @@
 .sheet{
   position:fixed;z-index:calc(var(--z-sheet,80) + 1);
   top:50%;left:50%;
-  width:min(760px,calc(100vw - 32px));
+  width:min(860px,calc(100vw - 32px));
   /* Высота фиксированная, а не «до стольки-то»: с max-height окно
      подстраивалось под содержимое каждого раздела и прыгало при каждом
      переключении рельса — то на треть выше, то ниже. Одна и та же
@@ -120,13 +120,37 @@ body.sheet-lock{overflow:hidden;}
   padding:10px;border-right:1px solid var(--stroke);overflow-y:auto;
 }
 .setm-tab{
-  text-align:left;font:inherit;font-size:calc(12.5px * var(--text-k));font-weight:600;letter-spacing:-.005em;
-  color:var(--muted);cursor:pointer;padding:9px 12px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;gap:10px;
+  text-align:left;font:inherit;font-size:calc(13px * var(--text-k));font-weight:600;letter-spacing:-.005em;
+  color:var(--muted);cursor:pointer;padding:8px 10px;border-radius:var(--radius-sm);
   border:1px solid transparent;background:transparent;
   transition:background var(--dur-1) var(--ease-out),color var(--dur-1) var(--ease-out),
              border-color var(--dur-1) var(--ease-out),transform var(--dur-1) var(--ease-out);
 }
 .setm-tab:hover{background:var(--surface-2);color:var(--text);}
+/* Иконка раздела (4.1) — цветная плашка, как у пунктов системных
+   настроек: раздел узнаётся по пятну раньше, чем прочитано слово.
+   Плашка — ::before тоном раздела, рисунок — ::after маской поверх неё,
+   поэтому иконки перекрашиваются вместе с темой и не требуют разметки. */
+.setm-tab{position:relative;}
+.setm-tab::before{content:"";flex:none;width:28px;height:28px;border-radius:8px;
+  background:color-mix(in srgb,var(--tone) 16%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tone) 20%,transparent);
+  transition:background var(--dur-2) var(--ease-out);}
+.setm-tab::after{content:"";position:absolute;left:16px;top:50%;width:16px;height:16px;margin-top:-8px;
+  background:var(--tone);-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat;}
+.setm-tab[aria-selected="true"]::before{background:var(--tone);}
+.setm-tab[aria-selected="true"]::after{background:var(--bg);}
+.setm-tab span{flex:1;min-width:0;}
+.setm-tab[data-panel="look"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3Cpath d='M12 4a8 8 0 0 0 0 16z' fill='%23000'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="interface"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='7' height='7' rx='1.5'/%3E%3Crect x='13' y='4' width='7' height='7' rx='1.5'/%3E%3Crect x='4' y='13' width='7' height='7' rx='1.5'/%3E%3Crect x='13' y='13' width='7' height='7' rx='1.5'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="motion"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h3l2-6 4 12 2-6h5'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="readability"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19L10 5l5 14M7 14h6M16 19l2.5-7 2.5 7'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="nav"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 18-7-4-7 4z'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="privacy"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='10' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="srpc"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='6' height='5' rx='1'/%3E%3Crect x='15' y='14' width='6' height='5' rx='1'/%3E%3Cpath d='M9 7.5h3v9h3'/%3E%3C/svg%3E");}
+.setm-tab[data-panel="general"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h10M18 7h2M4 17h4M12 17h8'/%3E%3Ccircle cx='16' cy='7' r='2'/%3E%3Ccircle cx='10' cy='17' r='2'/%3E%3C/svg%3E");}
+
 .setm-tab[aria-selected="true"]{
   background:color-mix(in srgb,var(--tone) 12%,transparent);
   color:var(--tone);border-color:var(--tone-line,var(--accent-line));
@@ -135,7 +159,7 @@ body.sheet-lock{overflow:hidden;}
 @media(max-width:680px){.setm-tab[aria-selected="true"]{transform:translateY(-2px);}}
 .setm-tab:focus-visible{outline:2px solid var(--tone);outline-offset:1px;}
 
-.setm-panels{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 20px 18px;}
+.setm-panels{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 22px 18px;}
 
 /* ---------- группы и строки ---------- */
 /* Одна открытая панель занимает всю правую половину окна — разделитель
@@ -150,15 +174,28 @@ body.sheet-lock{overflow:hidden;}
   from{opacity:0;transform:translateY(9px);}
   to{opacity:1;transform:translateY(0);}
 }
+/* Заголовок раздела с 4.1 — крупный, как заголовок экрана настроек
+   в телефоне, а не строчка капителью в девять пикселей. */
 .set-group h3{
-  font-size:calc(9.5px * var(--text-k));text-transform:uppercase;letter-spacing:.14em;font-weight:700;
-  color:var(--tone);margin-bottom:14px;
+  font-family:var(--font-display);font-size:calc(24px * var(--text-k));font-weight:780;letter-spacing:-.035em;
+  line-height:1.1;color:var(--text);margin:2px 0 16px;
 }
+/* Строки идут сгруппированными списками (4.1): соседние строки
+   сливаются в одну плашку со скруглёнными краями и тонкими
+   разделителями с отступом слева — как группы в настройках iOS.
+   Карточки-витрины и кнопки между строками разрывают группу сами:
+   скругление ставится по соседству, а не по номеру строки. */
 .set-row{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  padding:11px 0;border-top:1px solid color-mix(in srgb,var(--stroke) 55%,transparent);
+  padding:12px 16px;background:color-mix(in srgb,var(--text) 4.5%,transparent);
+  position:relative;transition:background var(--dur-1) var(--ease-out);
 }
-.set-group h3 + .set-row{border-top:0;}
+.set-row:hover{background:color-mix(in srgb,var(--text) 6.5%,transparent);}
+.set-row + .set-row::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;
+  background:color-mix(in srgb,var(--stroke) 80%,transparent);}
+.set-row:not(.set-row + .set-row){border-top-left-radius:16px;border-top-right-radius:16px;}
+.set-row:not(:has(+ .set-row)){border-bottom-left-radius:16px;border-bottom-right-radius:16px;margin-bottom:18px;}
+.set-row + .set-row[hidden] + .set-row::before{display:none;}
 .set-row[hidden]{display:none;}
 /* Строка, имеющая смысл только при включённом родительском
    переключателе: густота стекла ни о чём не говорит, когда стекла нет.
@@ -490,7 +527,10 @@ body.sheet-lock{overflow:hidden;}
   }
   .setm-tab{flex:none;white-space:nowrap;}
   .setm-panels{padding:14px 18px 18px;}
-  .set-row{flex-direction:column;align-items:flex-start;gap:9px;}
+  /* тумблеры и списки остаются справа от подписи, как в приложении;
+     в столбик складываются только строки с широкими переключателями */
+  .set-row:has(.seg,.theme-picker){flex-direction:column;align-items:stretch;gap:10px;}
+  .set-lab{min-width:0;}
   .seg{width:100%;}
   .seg button{flex:1;text-align:center;}
 }

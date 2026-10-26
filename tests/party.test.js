@@ -21,7 +21,7 @@ test("P1 links round-trip Unicode, markup-shaped text, votes and optional declar
 });
 test("P1 rejects corruption, trailing junk, excess length, unknown fields and noncanonical base64",()=>{
   const {PC}=app(),M=PC.partyModel,p=sample(PC),code=M.encode(p);
-  for(const invalid of [code+"!",code+"=",code.slice(0,-3),"P2."+code.slice(3),"P1."+"a".repeat(1800),null]){assert.equal(M.decode(invalid),null);assert.ok(M.error());}
+  for(const invalid of [code+"!",code+"=",code.slice(0,-3),"P2."+code.slice(3),"P1."+"a".repeat(4000),null]){assert.equal(M.decode(invalid),null);assert.ok(M.error());}
   const a=JSON.parse(Buffer.from(code.slice(3),"base64url").toString());a[4]="invalid";assert.equal(M.decode("P1."+Buffer.from(JSON.stringify(a)).toString("base64url")),null);assert.equal(M.error(),"schema");
 });
 test("P1 reports oversized manifests instead of truncating them",()=>{

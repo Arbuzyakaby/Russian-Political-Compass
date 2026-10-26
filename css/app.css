@@ -1,0 +1,327 @@
+/* ============ ОБОЛОЧКА ПРИЛОЖЕНИЯ (4.1) ============
+   На телефоне сайт ведёт себя как приложение: крупный заголовок
+   открытого раздела в шапке, плавающая нижняя панель вкладок под
+   большой палец и нижние листы с ручкой вместо окон по центру.
+   Слой подключается последним, после css/mobile.css, и на широком
+   экране почти ничего не меняет: только иконки во вкладках.
+
+   Нижняя панель — та же <nav class="tabs"> с теми же кнопками и тем же
+   js/nav.js. Меняется только раскладка: вторая разметка вкладок
+   разошлась бы с первой при первом же новом разделе. ============ */
+
+/* ---------- иконки и короткие подписи вкладок ---------- */
+.tab-ico{
+  width:16px;height:16px;flex:none;display:inline-block;vertical-align:-3px;margin-right:7px;
+  fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+  opacity:.7;transition:opacity var(--dur-2) var(--ease-out),transform var(--dur-2) var(--ease-spring);
+}
+.tab:hover .tab-ico,.tab[aria-selected="true"] .tab-ico{opacity:1;}
+.tab[aria-selected="true"] .tab-ico{color:var(--tone);}
+.tab-short{display:none;}
+
+/* Название раздела нужно только телефонной шапке. */
+.app-title{display:none;}
+
+@media(max-width:720px),(pointer:coarse) and (max-width:1050px){
+  /* Панель вкладок теперь фиксирована у нижнего края. Внутри .shell она
+     жила бы в его контексте наложения (z-index:1), и подвал, идущий в
+     разметке позже, ложился бы поверх неё. Без собственного z-index
+     оболочка не создаёт контекста, и панель встаёт над всей страницей. */
+  .shell{z-index:auto;}
+  body{padding-bottom:calc(92px + env(safe-area-inset-bottom));}
+  html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom));}
+
+  /* ---------- шапка: крупный заголовок экрана ----------
+     Значок и строка проекта сверху, под ними название открытого
+     раздела крупным кеглем — как заголовок экрана в iOS. Длинный h1
+     остаётся в разметке для поиска и скринридеров, но не съедает три
+     строки над компасом. */
+  .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+    gap:12px;margin:0 0 18px;padding-top:2px;}
+  .brand{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;
+    column-gap:10px;row-gap:2px;padding-right:0!important;}
+  .brand > div{display:contents;}
+  .topbar .brand-mark,.topbar .brand-mark img{width:30px;height:30px;min-width:0;min-height:0;}
+  .topbar .brand-mark{border-radius:9px;grid-row:1;overflow:hidden;}
+
+  /* ---------- шапка компаса: фильтры лентой ----------
+     Пять фильтров сеткой 3×2 занимали полэкрана над картой. Лента с
+     горизонтальной прокруткой — как сегменты в приложениях: одна
+     строка, край ленты уходит за кромку и сам подсказывает, что дальше
+     есть ещё. */
+  .stage-head{display:flex!important;flex-wrap:wrap;gap:10px;}
+  .stage-head .stage-title{flex:1 1 100%;}
+  .chips{display:flex!important;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;padding:2px 0 4px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chips .chip{flex:none;min-height:40px!important;padding:8px 15px;border-radius:999px;white-space:nowrap!important;}
+
+  /* Версии теста — сгруппированный список с отметкой выбора справа,
+     как выбор варианта в системных настройках, а не три плитки. */
+  .quiz-modes{gap:0!important;border-radius:18px;overflow:hidden;border:1px solid var(--stroke);}
+  .qmode{position:relative;border:0!important;border-radius:0!important;padding:14px 48px 14px 16px!important;
+    background:color-mix(in srgb,var(--text) 4%,transparent)!important;transform:none!important;}
+  .qmode + .qmode{box-shadow:inset 0 1px 0 var(--stroke);}
+  .qmode[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent)!important;}
+  .qmode[aria-pressed="true"]::after{content:"";position:absolute;right:18px;top:50%;width:18px;height:18px;margin-top:-9px;
+    background:var(--accent);
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;}
+
+  .stage-head .chips{display:flex!important;flex:1 1 100%;flex-wrap:nowrap;gap:6px;overflow-x:auto;
+    margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 22px),transparent);}
+  .stage-head .chips::-webkit-scrollbar{display:none;}
+  .stage-head .chip{flex:none;min-height:40px!important;padding:8px 15px;border-radius:999px;
+    white-space:nowrap!important;scroll-snap-align:start;}
+  .stage-head .claim-chip,.stage-head .export-wrap{flex:1 1 calc(50% - 5px);width:auto!important;}
+  .stage-head .export-wrap .chip{width:100%;}
+  .stage-head .claim-chip{min-height:44px!important;border-radius:14px;}
+  .stage-head .export-btn{min-height:44px!important;border-radius:14px;}
+  .stage-head .conv-select{flex:1 1 100%;}
+  .shell .brand .eyebrow{display:block;grid-row:1;grid-column:2;margin:0;
+    font-size:calc(12.5px * var(--text-k))!important;font-weight:650;letter-spacing:.01em;
+    text-transform:none;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .shell .topbar .app-title{display:block;grid-row:2;grid-column:1 / -1;margin:6px 0 0;
+    font-family:var(--font-display);font-size:calc(34px * var(--text-k))!important;font-weight:800;
+    letter-spacing:-.04em;line-height:1.05!important;color:var(--text);text-wrap:balance;}
+  .brand h1{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .brand #lead{display:none;}
+  .tools{grid-column:1 / -1;}
+  .tools.tools-solo{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));
+    width:auto;grid-column:auto;}
+  .topbar{position:relative;}
+  .gear-btn{width:44px;height:44px;}
+  .search input{height:46px;border-radius:14px;background:color-mix(in srgb,var(--text) 7%,transparent);}
+
+  /* ---------- плавающая панель вкладок ---------- */
+  .tabs,.tabs.is-stuck,:root[data-sticky="off"] .tabs{
+    position:fixed!important;top:auto!important;
+    left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    z-index:var(--z-bar,60);margin:0;width:auto;
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding:6px;
+    border-radius:26px;border:1px solid var(--glass-stroke);
+    background:color-mix(in srgb,var(--glass-bg-2) 86%,var(--bg));
+    -webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter);
+    box-shadow:var(--glass-edge),0 18px 40px -16px color-mix(in srgb,var(--bg-deep) 80%,transparent),
+               0 2px 10px -4px color-mix(in srgb,var(--bg-deep) 50%,transparent);
+    overflow:visible;isolation:isolate;
+  }
+  :root[data-glass="off"] .tabs{background:var(--bg);}
+  .tabs-sentinel{display:none;}
+  .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    min-height:54px!important;padding:5px 2px!important;border-radius:20px;
+    background:transparent!important;color:var(--muted);box-shadow:none!important;
+    -webkit-tap-highlight-color:transparent;}
+  .tab[aria-selected="true"]{color:var(--text);}
+  .tab:active{transform:scale(.94);}
+  .tab-ico{width:52px;height:30px;padding:4px 14px;margin:0;box-sizing:border-box;border-radius:999px;
+    opacity:1;transition:background var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),
+    transform var(--dur-3) var(--ease-spring);}
+  .tab[aria-selected="true"] .tab-ico{background:color-mix(in srgb,var(--tone) 20%,transparent);
+    color:var(--tone);transform:translateY(-1px);}
+  /* полное название остаётся для скринридера, глазами видна короткая подпись */
+  .tab > span:not(.tab-short):not(.tab-badge){position:absolute;width:1px;height:1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;}
+  .tab-badge,.tab-more,.tab-indicator{display:none!important;}
+  .shell .tabs .tab .tab-short{display:block;font-size:calc(11.5px * var(--text-k))!important;
+    font-weight:650;letter-spacing:-.005em;line-height:1.2!important;white-space:nowrap;
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+  .tab[aria-selected="true"] .tab-short{color:var(--text);}
+  .tab:focus-visible{outline:2px solid var(--tone);outline-offset:-2px;}
+
+  /* Прокрутка к карточкам раньше учитывала липкую полосу вкладок сверху.
+     Её там больше нет, и отступ нужен только до края экрана. */
+  .side,.chart-card,.quiz-card,.map-controls .btn{scroll-margin-top:16px!important;}
+
+  .to-top{bottom:calc(96px + env(safe-area-inset-bottom))!important;}
+  .toasts{bottom:calc(92px + env(safe-area-inset-bottom))!important;}
+
+  /* ---------- нижние листы ----------
+     Настройки и карточка человека выезжают снизу на всю ширину, с ручкой
+     сверху. Лист можно стянуть вниз за шапку (js/app-shell.js). */
+  .sheet{left:0!important;right:0;top:auto!important;bottom:0;width:100%!important;max-width:100%!important;
+    height:min(92dvh,calc(var(--mobile-viewport-height,100dvh) - max(28px,env(safe-area-inset-top))))!important;
+    max-height:none!important;border-radius:28px 28px 0 0;border-bottom:0;
+    transform:translateY(calc(100% + 24px))!important;padding-bottom:env(safe-area-inset-bottom);
+    transition:transform .38s cubic-bezier(.32,.72,0,1),opacity .2s var(--ease-out)!important;}
+  .sheet.is-open{transform:translateY(var(--sheet-drag,0px))!important;}
+  /* размытие на телефоне снято (css/mobile.css), и полупрозрачный лист
+     показывал бы страницу сквозь текст настроек — подложка плотная */
+  .sheet,.sheet-head{background:color-mix(in srgb,var(--bg) 95%,var(--text))!important;}
+  .set-foot{padding:10px 18px calc(10px + env(safe-area-inset-bottom));}
+  .set-foot p{display:none;}
+  .set-foot .btn{min-height:40px;}
+  .sheet.is-dragging{transition:none!important;}
+  .sheet::after{content:"";position:absolute;top:7px;left:50%;width:40px;height:5px;margin-left:-20px;
+    border-radius:3px;background:color-mix(in srgb,var(--text) 26%,transparent);z-index:3;pointer-events:none;}
+  .sheet-head{padding:24px 18px 14px;touch-action:none;}
+  .sheet-head h2{font-size:calc(26px * var(--text-k))!important;letter-spacing:-.035em;}
+  .sheet-close{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;}
+  .sheet-scrim{background:color-mix(in srgb,var(--bg-deep) 55%,transparent);}
+
+  /* Карточки — без резкого жёсткого контура: поверхность читается тоном. */
+  .card{border-radius:22px;}
+}
+
+@media(max-width:360px){
+  .tab-ico{width:44px;padding:4px 10px;}
+  .shell .tabs .tab .tab-short{font-size:calc(10.5px * var(--text-k))!important;}
+  .shell .topbar .app-title{font-size:calc(30px * var(--text-k))!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .sheet{transition:none!important;}
+  .tab-ico{transition:none;}
+}
+:root[data-motion="off"] .tab-ico{transition:none;}
+
+/* ============ НАСТРОЙКИ В СТИЛЕ iOS (4.1) ============
+   Почти чёрная подложка листа, на ней плотные сгруппированные карточки
+   с крупным скруглением, серые подписи групп над карточками, заголовок
+   по центру с круглыми кнопками по краям. Цвета выведены из токенов
+   темы: в светлых темах подложка серая, а карточки белые — как в
+   светлом оформлении iOS. Всё ограничено #setSheet, чтобы не задеть
+   карточку политика, которая пользуется тем же классом .sheet. */
+#setSheet{
+  --ios-bg:color-mix(in srgb,var(--bg-deep) 72%,#000);
+  --ios-card:color-mix(in srgb,var(--text) 9%,var(--bg-deep));
+  --ios-card-hi:color-mix(in srgb,var(--text) 13%,var(--bg-deep));
+  --ios-sep:color-mix(in srgb,var(--text) 13%,transparent);
+  --ios-chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14' fill='none' stroke='%23878ea3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.5 1.5L6.5 7l-5 5.5'/%3E%3C/svg%3E");
+  background:var(--ios-bg)!important;border-color:var(--ios-sep);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+:root[data-scheme="light"] #setSheet{
+  --ios-bg:color-mix(in srgb,var(--text) 6%,var(--bg));
+  --ios-card:color-mix(in srgb,#fff 90%,var(--bg));
+  --ios-card-hi:color-mix(in srgb,#fff 70%,var(--bg));
+  --ios-sep:color-mix(in srgb,var(--text) 11%,transparent);
+}
+#setSheet::before{display:none;}
+
+/* ---------- шапка: круглые кнопки и заголовок по центру ---------- */
+#setSheet .sheet-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;
+  padding:14px 14px 10px;border-bottom:0;background:var(--ios-bg)!important;}
+#setSheet .sheet-head > div{grid-column:2;grid-row:1;text-align:center;min-width:0;}
+#setSheet .sheet-head h2{margin:0;font-family:inherit;font-size:calc(17px * var(--text-k))!important;font-weight:650;
+  letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#setSheet .sheet-back,#setSheet .sheet-close{grid-row:1;width:44px!important;height:44px!important;min-width:44px!important;
+  min-height:44px!important;display:grid;place-items:center;padding:0;border:0;border-radius:50%;cursor:pointer;
+  background:var(--ios-card);color:var(--text);
+  transition:background var(--dur-1) var(--ease-out),transform var(--dur-1) var(--ease-out);}
+#setSheet .sheet-back[hidden]{display:none;}
+#setSheet .sheet-back{grid-column:1;}
+#setSheet .sheet-close{grid-column:3;justify-self:end;}
+#setSheet .sheet-back:hover,#setSheet .sheet-close:hover{background:var(--ios-card-hi);}
+#setSheet .sheet-back:active,#setSheet .sheet-close:active{transform:scale(.92);}
+#setSheet .sheet-back svg,#setSheet .sheet-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;}
+
+/* ---------- поиск под шапкой ---------- */
+#setSheet .settings-search{position:static;flex:none;width:auto;height:40px;margin:2px 16px 12px;border-radius:12px;
+  background-color:var(--ios-card);box-shadow:none;}
+#setSheet .sheet-body{background:transparent;}
+
+/* ---------- разделы: цветные плитки, как у системных настроек ---------- */
+#setSheet .setm-rail{width:236px;gap:2px;padding:4px 10px 12px 16px;border-right:0;}
+#setSheet .setm-tab{min-height:44px;padding:7px 12px;border:0;border-radius:11px;color:var(--text);
+  font-size:calc(14.5px * var(--text-k));font-weight:500;transform:none!important;}
+#setSheet .setm-tab:hover{background:var(--ios-card);}
+#setSheet .setm-tab[aria-selected="true"]{background:var(--ios-card-hi);color:var(--text);}
+#setSheet .setm-tab::before{width:30px;height:30px;border-radius:8px;background:var(--tile)!important;box-shadow:none;}
+#setSheet .setm-tab::after{left:19px;background:#fff!important;}
+#setSheet .setm-tab[data-panel="look"]{--tile:#5e5ce6;}
+#setSheet .setm-tab[data-panel="interface"]{--tile:#0a84ff;}
+#setSheet .setm-tab[data-panel="motion"]{--tile:#ff9f0a;}
+#setSheet .setm-tab[data-panel="readability"]{--tile:#30b35a;}
+#setSheet .setm-tab[data-panel="nav"]{--tile:#32ade6;}
+#setSheet .setm-tab[data-panel="privacy"]{--tile:#ff375f;}
+#setSheet .setm-tab[data-panel="srpc"]{--tile:#bf5af2;}
+#setSheet .setm-tab[data-panel="general"]{--tile:#8e8e93;}
+
+/* ---------- группы и строки ---------- */
+#setSheet .setm-panels{padding:2px 20px 26px;}
+#setSheet .set-group h3{margin:4px 16px 8px;font-family:inherit;font-size:calc(15px * var(--text-k));font-weight:600;
+  letter-spacing:-.01em;line-height:1.3;color:var(--muted);text-transform:none;}
+#setSheet .set-row{min-height:52px;padding:13px 16px;background:var(--ios-card);}
+#setSheet .set-row:hover{background:var(--ios-card-hi);}
+#setSheet .set-row + .set-row::before{left:16px;background:var(--ios-sep);}
+#setSheet .set-row:not(.set-row + .set-row){border-top-left-radius:22px;border-top-right-radius:22px;}
+#setSheet .set-row:not(:has(+ .set-row)){border-bottom-left-radius:22px;border-bottom-right-radius:22px;margin-bottom:26px;}
+#setSheet .set-lab b,#setSheet .tisza-setting .set-name{font-size:calc(16px * var(--text-k));font-weight:500;letter-spacing:-.015em;}
+#setSheet .set-lab small{font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.4;}
+/* выпадающий список — значение серым справа со стрелкой, как строка-выбор в iOS */
+#setSheet .tisza-setting select{background-color:transparent;border:0;color:var(--muted);text-align:right;text-align-last:right;
+  padding-right:24px;font-weight:500;font-size:calc(15px * var(--text-k));}
+/* сегменты — серый жёлоб и светлая «шайба» */
+#setSheet .seg{padding:2px;gap:0;border-radius:10px;background:color-mix(in srgb,var(--text) 10%,transparent);}
+#setSheet .seg button{padding:6px 12px;border-radius:8px;font-size:calc(13px * var(--text-k));font-weight:600;}
+#setSheet .seg button[aria-checked="true"]{background:color-mix(in srgb,var(--text) 22%,var(--ios-card));
+  box-shadow:0 3px 8px -2px rgba(0,0,0,.25),0 0 0 .5px rgba(0,0,0,.04);}
+:root[data-scheme="light"] #setSheet .seg button[aria-checked="true"]{background:#fff;}
+/* кнопки внутри строк — подкрашенная «пилюля», как действие в iOS */
+#setSheet .set-row .btn{border:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 16%,transparent);
+  color:var(--accent);font-weight:600;box-shadow:none;}
+#setSheet .set-row .btn:hover{background:color-mix(in srgb,var(--accent) 24%,transparent);}
+#setSheet .theme-chip{border-color:transparent;background:color-mix(in srgb,var(--text) 6%,transparent);}
+/* Переключатель — ровно как в iOS: 51×31, белый кружок 27 px.
+   Общее правило телефонного слоя растягивает любую кнопку минимум до
+   44×44, и тумблер превращался в овал с кружком, вылезающим за край. */
+button.sw[aria-checked]{width:51px!important;height:31px!important;min-width:51px!important;min-height:31px!important;
+  max-height:31px;padding:0!important;flex:none;align-self:center;border-radius:999px;
+  background:color-mix(in srgb,var(--text) 18%,transparent);}
+:root[data-scheme="light"] button.sw[aria-checked]{background:#e9e9eb;}
+button.sw[aria-checked] i{top:2px!important;left:2px!important;width:27px!important;height:27px!important;
+  box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06)!important;}
+button.sw[aria-checked="true"]{background:#34c759!important;}
+button.sw[aria-checked="true"] i{transform:translateX(20px)!important;}
+button.sw[aria-checked]:active i{width:31px!important;}
+button.sw[aria-checked="true"]:active i{transform:translateX(16px)!important;}
+/* в результатах поиска строки разных разделов идут вразбивку,
+   поэтому каждая найденная строка — отдельная скруглённая плашка */
+#setSheet.is-search .set-row:not([hidden]){border-radius:18px;margin-bottom:8px;}
+#setSheet.is-search .set-row::before{display:none;}
+#setSheet .tisza-setting{flex-wrap:nowrap;}
+#setSheet .tisza-setting select{max-width:50%;flex:none;}
+#setSheet .fgdri-card,#setSheet .pvfp-card{border:0;border-radius:22px;background:var(--ios-card);box-shadow:none;animation:none;margin-bottom:26px;}
+#setSheet .set-group > .btn.small:last-child{display:block;width:100%;min-height:48px;margin:0 0 8px;border-radius:16px;
+  background:var(--ios-card);color:var(--bad);font-size:calc(15px * var(--text-k));font-weight:600;text-align:center;}
+#setSheet .set-foot{border-top:0;background:var(--ios-bg);}
+
+@media(max-width:720px),(pointer:coarse) and (max-width:1050px){
+  #setSheet{border-radius:30px 30px 0 0;}
+  #setSheet .sheet-head{padding:24px 14px 10px;}
+  #setSheet .sheet-body{display:block;overflow-y:auto;overscroll-behavior:contain;}
+  #setSheet .setm-panels{overflow:visible;padding:2px 16px 24px;}
+  /* внутри раздела название уже стоит в шапке — подпись группы не нужна,
+     а при поиске она снова видна и показывает, из какого раздела строка */
+  #setSheet:not(.is-search) .set-group h3{display:none;}
+
+  /* Корень: список разделов одной карточкой со стрелками справа.
+     Разделитель между строками начинается после плитки иконки. */
+  #setSheet.is-root .setm-panels{display:none;}
+  #setSheet:not(.is-root) .setm-rail{display:none;}
+  #setSheet.is-root .setm-rail{display:flex;flex-direction:column;width:auto;margin:4px 16px 24px;padding:0;gap:0;
+    overflow:hidden;border:0;border-radius:22px;background:var(--ios-card);}
+  #setSheet.is-root .setm-tab,#setSheet.is-root .setm-tab[aria-selected="true"]{min-height:54px;padding:10px 40px 10px 14px;
+    border-radius:0;font-size:calc(16.5px * var(--text-k))!important;white-space:normal;
+    background:var(--ios-chev) no-repeat right 18px center / 8px 14px;}
+  #setSheet.is-root .setm-tab + .setm-tab{background:var(--ios-chev) no-repeat right 18px center / 8px 14px,
+    linear-gradient(var(--ios-sep),var(--ios-sep)) no-repeat 58px 0 / calc(100% - 58px) 1px;}
+  #setSheet.is-root .setm-tab:active{background-color:var(--ios-card-hi);}
+  #setSheet.is-root .setm-tab::after{left:21px;}
+  #setSheet.is-root .setm-tab span{font-size:inherit!important;}
+
+  #setSheet .set-foot{padding:8px 16px calc(12px + env(safe-area-inset-bottom));}
+  #setSheet .set-foot .btn{width:100%;min-height:50px;justify-content:center;border:0;border-radius:16px;
+    background:var(--ios-card);color:var(--bad);font-size:calc(16px * var(--text-k))!important;font-weight:600;}
+
+  /* панель карты на телефоне — во всю ширину, кнопки поровну */
+  .map-controls{display:grid;grid-template-columns:48px 48px minmax(0,1fr);width:100%;margin:0 0 12px;}
+  .map-controls .btn{min-height:40px!important;}
+  .map-controls #mapList{grid-column:1 / -1;}
+  /* подписи квадрантов на телефоне скрыты (css/mobile.css), а их
+     подложки оставались пустыми овалами у края карты */
+  .compass .quad-plate{display:none;}
+}
