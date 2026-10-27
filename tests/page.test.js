@@ -217,7 +217,7 @@ test("у каждой настройки есть правило, которое
   /* И обратно: переключатель для каждой настройки обязан быть
      в разметке, иначе до неё нельзя добраться из интерфейса. */
   for(const key of keys){
-    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`) || fs.readFileSync(path.join(ROOT,"js/tisza.js"),"utf8").includes(`${key}:[`),
+    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`) || fs.readFileSync(path.join(ROOT,"js/settings.js"),"utf8").includes(`${key}:[`),
       `настройка «${key}» есть в коде, но её нет в панели настроек`);
   }
 });
@@ -560,4 +560,24 @@ test("нижний лист настроек выезжает без перел�
     "на узком экране лист едет по пружинной кривой — он перелетит край экрана");
   assert.match(body, /transition-timing-function:/,
     "кривая перехода на узком экране не переопределена — останется пружина из общего правила");
+});
+
+/* С 4.2 в коде нет строк длиннее 160 знаков: плотные однострочники 3.1–4.0
+   нельзя было ни читать, ни ревьюить построчно. Исключения — файлы, где
+   длинная строка это текст, а не код: словари, данные, вопросы теста,
+   шаблоны партий, и токены темы. */
+test("в коде нет строк длиннее 160 знаков", () => {
+  const LIMIT = 160;
+  const EXEMPT = /^(?:data-.*|i18n-.*|quiz-data|party-templates|tokens)\.(?:js|css)$/;
+  const long = [];
+  for(const dir of ["js", "css"]){
+    for(const name of fs.readdirSync(path.join(ROOT, dir))){
+      if(!/\.(?:js|css)$/.test(name) || EXEMPT.test(name)) continue;
+      fs.readFileSync(path.join(ROOT, dir, name), "utf8").split(/\r?\n/).forEach((line, i) => {
+        /* строка со встроенной картинкой url("data:…") — данные, а не код: её нельзя разорвать */
+        if(line.length > LIMIT && !line.includes("url(\"data:")) long.push(`${dir}/${name}:${i + 1} (${line.length})`);
+      });
+    }
+  }
+  assert.deepEqual(long.slice(0, 10), [], `строк длиннее ${LIMIT} знаков: ${long.length}`);
 });

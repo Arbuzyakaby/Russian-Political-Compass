@@ -4,6 +4,7 @@
 
   var state = { active:null, filter:"all", query:"", convocation:PC.CURRENT_CONVOCATION };
   var rendered = null;   // что сейчас в панели: "list" или id партии
+  /* Метки для замера производительности (performance.mark). */
   function mark(name){ if(window.performance && performance.mark) performance.mark(name); }
   function measure(name, start, end){ if(window.performance && performance.measure) performance.measure(name, start, end); }
 
@@ -35,6 +36,7 @@
     });
   }
 
+  /* Текущий созыв для шапки. */
   function convocationInfo(){
     var id = state.convocation;
     return PC.CONVOCATIONS.filter(function(c){ return c.id === id; })[0] || PC.CONVOCATIONS[0];
@@ -58,6 +60,7 @@
     PC.charts.render(state.active);
   }
 
+  /* Синхронизирует узлы компаса с данными текущего созыва. */
   function syncNodes(){
     var ids = new Set(visible().map(function(p){ return p.id; }));
     PC.compass.syncNodes(ids, state.active);
@@ -111,6 +114,7 @@
     if(PC.mobile) PC.mobile.selected(state.active);
   }
 
+  /* Полная перерисовка при смене языка или данных. */
   function refresh(){
     /* если выбранная партия отфильтрована — выделение снимаем */
     if(state.active && !visible().some(function(p){ return p.id === state.active; })){
@@ -175,6 +179,7 @@
        localStorage. */
     var claimBtn = document.getElementById("claimBtn");
     var claimsOn = true;
+    /* Включает или выключает слой заявок на компасе. */
     function applyClaims(on){
       claimsOn = on;
       PC.store.set("pc-claims", on ? "1" : "0");
@@ -211,7 +216,7 @@
       /* «/» — быстрый переход в поиск, но не мешаем набору текста */
       if(e.key === "/" && document.activeElement !== input && !e.ctrlKey && !e.metaKey){
         e.preventDefault();
-        if(PC.tisza) PC.tisza.openPalette(); else input.focus();
+        if(PC.palette) PC.palette.open(); else input.focus();
       }
     });
   }
@@ -345,7 +350,15 @@
   PC.activeId = function(){ return state.active; };
   PC.visible = visible;
   PC.refresh = refresh;
-  PC.filterMine = function(){ state.filter = state.filter === "mine" ? "all" : "mine"; document.querySelectorAll('.chip[data-filter]').forEach(function(c){ c.setAttribute("aria-pressed", String(c.dataset.filter === state.filter)); }); refresh(); };
+  PC.filterMine = function(){
+    state.filter = state.filter === "mine" ? "all" : "mine";
+    document.querySelectorAll('.chip[data-filter]').forEach(function(c){
+      c.setAttribute("aria-pressed", String(c.dataset.filter === state.filter));
+
+    });
+    refresh();
+
+  };
   PC.seatsOf = seatsOf;
   PC.convocationInfo = convocationInfo;
   PC.setConvocation = setConvocation;

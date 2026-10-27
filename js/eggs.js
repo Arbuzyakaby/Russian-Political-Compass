@@ -56,6 +56,7 @@
 
   function on(){ return document.documentElement.dataset.eggs === "on"; }
   var IDS = ["portal", "grave", "22", "50", "konami", "river", "rivers", "centre", "agree", "pipeline", "terminal", "teapot", "night"];
+  /* Отмечает пасхалку найденной и сохраняет это в localStorage. */
   function found(id){
     if(!on() || IDS.indexOf(id) < 0) return;
     var saved = PC.store.getJSON("pc-eggs-found", []);
@@ -65,6 +66,7 @@
     var counter = document.getElementById("eggsFound"); if(counter) counter.textContent = PC.t("set.found", { n:saved.length, m:IDS.length });
   }
 
+  /* Учитывает настройку «меньше анимаций». */
   function reduced(){
     return document.documentElement.dataset.motion === "off" ||
            !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -122,6 +124,7 @@
     '</svg>' +
     '<span class="g-epitaph"></span>';
 
+  /* Пасхалка «могила Horse Update»: клик по надгробию. */
   function initGrave(){
     var footer = document.querySelector(".site-footer");
     if(!footer) return;
@@ -209,6 +212,7 @@
   var KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
                 "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight"];
   var konamiStep = 0;
+  /* Код Konami: запускает эффект. */
   function fireKonami(){
     found("konami");
     if(PC.ui) PC.ui.toast(PC.t("egg.konami"));
@@ -220,6 +224,7 @@
     svg.classList.add("egg-disco");
     setTimeout(function(){ svg.classList.remove("egg-disco"); }, 1500);
   }
+  /* Слушает последовательность клавиш Konami. */
   function initKonami(){
     document.addEventListener("keydown", function(e){
       if(!on()){ konamiStep = 0; return; }
@@ -245,6 +250,7 @@
   }
 
   var riverTimer = null, aligned = false, consoleDialog = null, teapot = null;
+  /* Пасхалка «река»: волны по карте. */
   function river(){
     if(!on()) return; found("river");
     var root = document.documentElement; root.classList.remove("egg-river");
@@ -263,50 +269,123 @@
   }
   function pipeline(cards, canvas){
     if(!on() || cards.length !== 6) return;
+    /* Читает координату из style, иначе берёт запасное значение. */
     function coordinate(c,key){var n=parseFloat(c.style&&c.style[key]);return isFinite(n)?n:key==="left"?c.offsetLeft:c.offsetTop;}
     var sorted=cards.slice().sort(function(a,b){return coordinate(a,"left")-coordinate(b,"left");}),y=sorted.map(function(c){return coordinate(c,"top");});
     var gaps=sorted.slice(1).map(function(c,i){return coordinate(c,"left")-coordinate(sorted[i],"left");});
-    var hit = Math.max.apply(null,y)-Math.min.apply(null,y)<=4 && Math.min.apply(null,gaps)>sorted[0].offsetWidth && Math.max.apply(null,gaps)-Math.min.apply(null,gaps)<=4;
+    var hit = Math.max.apply(null,y)-Math.min.apply(null,y)<=4 && Math.min.apply(null,gaps)>sorted[0].offsetWidth &&
+      Math.max.apply(null,gaps)-Math.min.apply(null,gaps)<=4;
     if(hit && !aligned){
       found("pipeline"); if(!reduced()) canvas.classList.add("egg-golden");
       var infinity = document.createElement("span"); infinity.className="egg-infinity"; infinity.textContent="∞"; canvas.appendChild(infinity);
       setTimeout(function(){ canvas.classList.remove("egg-golden"); infinity.remove(); },1200);
     } aligned=hit;
   }
+  /* Пасхалка «терминал»: команды в диалоге. */
   function terminal(){
     if(!on() || PC.utils.modalOpen()) return; found("terminal");
     if(!consoleDialog){
-      consoleDialog=document.createElement("dialog");consoleDialog.className="egg-terminal";consoleDialog.setAttribute("aria-modal","true");consoleDialog.setAttribute("aria-label",PC.t("eggs.terminal"));
-      var title=document.createElement("h2");title.textContent=PC.t("eggs.terminal");var output=document.createElement("pre"),form=document.createElement("form"),input=document.createElement("input");input.autocomplete="off";input.spellcheck=false;input.setAttribute("aria-label",PC.t("eggs.terminal"));form.appendChild(input);consoleDialog.append(title,output,form);document.body.appendChild(consoleDialog);
+      consoleDialog=document.createElement("dialog");
+      consoleDialog.className="egg-terminal";
+      consoleDialog.setAttribute("aria-modal","true");
+      consoleDialog.setAttribute("aria-label",PC.t("eggs.terminal"));
+      var title=document.createElement("h2");
+      title.textContent=PC.t("eggs.terminal");
+      var output=document.createElement("pre"),form=document.createElement("form"),input=document.createElement("input");
+      input.autocomplete="off";
+      input.spellcheck=false;
+      input.setAttribute("aria-label",PC.t("eggs.terminal"));
+      form.appendChild(input);
+      consoleDialog.append(title,output,form);
+      document.body.appendChild(consoleDialog);
       form.addEventListener("submit",function(e){
         e.preventDefault(); var command=input.value.trim().toLowerCase(),response=""; input.value="";
         if(command==="exit"){consoleDialog.close();return;}
         if(command==="help")response="help · parties · whoami · rivers · exit";
-        else if(command==="parties")response=PC.allParties().map(function(p){return PC.L(p,"short")+"  "+PC.utils.fmt(p.x)+" / "+PC.utils.fmt(p.y);}).join("\n");
+        else if(command==="parties")response=PC.allParties().map(function(p){
+          return PC.L(p,"short")+"  "+PC.utils.fmt(p.x)+" / "+PC.utils.fmt(p.y);
+        }).join("\n");
         else if(command==="whoami"){var r=PC.quiz.result();response=r?"X "+PC.utils.fmt(r.x)+" / Y "+PC.utils.fmt(r.y):"—";}
         else if(command==="rivers")response=PC.t("eggs.rivers");else response="? help";
         output.textContent=(output.textContent+"\n> "+command+"\n"+response).slice(-12000);output.scrollTop=output.scrollHeight;
       });
     } consoleDialog.showModal();consoleDialog.querySelector("input").focus();
   }
+  /* Показывает чайник. */
   function showTeapot(){
     if(location.hash!=="#/teapot" || !on()){if(teapot){teapot.remove();teapot=null;}return;}found("teapot");if(teapot)return;
-    teapot=document.createElement("dialog");teapot.className="egg-teapot";teapot.setAttribute("aria-modal","true");teapot.setAttribute("aria-label",PC.t("eggs.teapot"));
-    var h=document.createElement("h2");h.textContent="418";var art=PC.utils.el("svg",{viewBox:"0 0 200 180","aria-hidden":"true",fill:"none",stroke:"currentColor","stroke-width":4});
-    art.appendChild(PC.utils.el("path",{d:"M65 50h70v70q-35 30-70 0Zm-5 0h80M80 40h40M100 25v15M82 135v20m36-20v20M70 157h60M135 65q55-20 35 40l-35 8M65 70 30 60l20 40 15 5M85 60v60m15-60v68m15-68v60"}));
-    var p=document.createElement("p");p.textContent=PC.t("eggs.teapot");var b=document.createElement("button");b.className="btn";b.textContent=PC.t("party.close");b.addEventListener("click",function(){location.hash="#/compass";});teapot.append(h,art,p,b);document.body.appendChild(teapot);teapot.addEventListener("cancel",function(){location.hash="#/compass";});teapot.showModal();
+    teapot=document.createElement("dialog");
+    teapot.className="egg-teapot";
+    teapot.setAttribute("aria-modal","true");
+    teapot.setAttribute("aria-label",PC.t("eggs.teapot"));
+    var h=document.createElement("h2");
+    h.textContent="418";
+    var art=PC.utils.el("svg",{viewBox:"0 0 200 180","aria-hidden":"true",fill:"none",stroke:"currentColor","stroke-width":4});
+    art.appendChild(
+      PC.utils.el(
+        "path",
+        {
+          d:"M65 50h70v70q-35 30-70 0Zm-5 0h80M80 40h40M100 25v15M82 135v20m36-20v20M70 157h60M135 65q55-20 35 40l-35 8" +
+          "M65 70 30 60l20 40 15 5M85 60v60m15-60v68m15-68v60"
+        }
+      )
+    );
+    var p=document.createElement("p");
+    p.textContent=PC.t("eggs.teapot");
+    var b=document.createElement("button");
+    b.className="btn";
+    b.textContent=PC.t("party.close");
+    b.addEventListener("click",function(){location.hash="#/compass";});
+    teapot.append(h,art,p,b);
+    document.body.appendChild(teapot);
+    teapot.addEventListener("cancel",function(){location.hash="#/compass";});
+    teapot.showModal();
   }
+  /* Ночная сессия: тема по времени суток. */
   function night(){
     var existing=document.querySelector(".egg-night"),hour=new Date().getHours();if(existing)existing.remove();
-    if(on()&&hour>=3&&hour<4){found("night");var p=document.createElement("p");p.className="egg-night";p.textContent="🦉 "+PC.t("eggs.night");document.querySelector(".site-footer").appendChild(p);}
+    if(on()&&hour>=3&&hour<4){
+      found("night");
+      var p=document.createElement("p");
+      p.className="egg-night";
+      p.textContent="🦉 "+PC.t("eggs.night");
+      document.querySelector(".site-footer").appendChild(p);
+    }
   }
   function initTisza(){
     var q=document.getElementById("q");if(q)q.addEventListener("input",function(){if(/^(тиса|tisza|висла|vistula)$/i.test(q.value.trim()))river();});
     var version=document.querySelector(".foot-version"),clicks=0,last=0;
-    if(version){version.tabIndex=0;version.addEventListener("click",function(){if(!on())return;var now=Date.now();clicks=now-last>2000?1:clicks+1;last=now;if(clicks===5){found("rivers");PC.ui.toast(PC.t("eggs.rivers"));clicks=0;}});version.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();version.click();}});}
-    document.addEventListener("keydown",function(e){if(e.key!=="`"||e.ctrlKey||e.metaKey||e.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;e.preventDefault();terminal();});
+    if(version){
+      version.tabIndex=0;
+      version.addEventListener("click",function(){
+        if(!on())return;
+        var now=Date.now();
+        clicks=now-last>2000?1:clicks+1;
+        last=now;
+        if(clicks===5){found("rivers");PC.ui.toast(PC.t("eggs.rivers"));clicks=0;}
+      });
+      version.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();version.click();}});
+    }
+    document.addEventListener("keydown",function(e){
+      if(e.key!=="`"||e.ctrlKey||e.metaKey||e.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;
+      e.preventDefault();
+      terminal();
+    });
     var count=document.createElement("p");count.id="eggsFound";count.className="party-meta";document.getElementById("setPanel-general").appendChild(count);
-    function sync(){var saved=PC.store.getJSON("pc-eggs-found",[]);count.textContent=PC.t("set.found",{n:Array.isArray(saved)?new Set(saved.filter(function(id){return IDS.indexOf(id)>=0;})).size:0,m:IDS.length});night();showTeapot();if(!on()){document.documentElement.classList.remove("catch22","egg-river");if(consoleDialog&&consoleDialog.open)consoleDialog.close();document.querySelectorAll(".egg-infinity").forEach(function(n){n.remove();});}}
+    /* Синхронизирует видимость пасхалок с настройками. */
+    function sync(){
+      var saved=PC.store.getJSON("pc-eggs-found",[]);
+      count.textContent=PC.t(
+        "set.found",{n:Array.isArray(saved)?new Set(saved.filter(function(id){return IDS.indexOf(id)>=0;})).size:0,m:IDS.length}
+      );
+      night();
+      showTeapot();
+      if(!on()){
+        document.documentElement.classList.remove("catch22","egg-river");
+        if(consoleDialog&&consoleDialog.open)consoleDialog.close();
+        document.querySelectorAll(".egg-infinity").forEach(function(n){n.remove();});
+      }
+    }
     document.addEventListener("pc:settings",function(e){if(e.detail.key==="eggs")sync();});window.addEventListener("hashchange",showTeapot);sync();
   }
 

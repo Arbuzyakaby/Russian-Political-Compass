@@ -17,6 +17,10 @@ const FILES = ["js/data.js", "js/utils.js",
   "js/i18n-misc.js", "js/i18n-party.js", "js/i18n.js",
   "js/data-history.js", "js/history-tree.js"];
 
+/* Текущая версия — из package.json, а не зашитая строка: с каждым выпуском
+   правилась бы сама проверка, а не только данные. */
+const CURRENT = require("../package.json").version;
+
 const ru = loadApp(FILES).PC;
 const en = loadApp(FILES, { "pc-lang":"en" }).PC;
 
@@ -74,10 +78,10 @@ test("у каждого выпуска и ветки есть русский и 
   }
 });
 
-test("ровно один выпуск помечен текущим — 4.1", () => {
+test("ровно один выпуск помечен текущим и это версия из package.json", () => {
   const cur = ru.RELEASES.filter(r => r.cur);
   assert.equal(cur.length, 1);
-  assert.equal(cur[0].v, "4.1");
+  assert.equal(cur[0].v, CURRENT);
   assert.equal(cur[0].date, "2026-10-27");
   assert.equal(cur[0].arc, "v4");
   assert.equal(ru.RELEASES[ru.RELEASES.length - 1], cur[0], "текущий выпуск должен быть самым новым");
@@ -136,7 +140,7 @@ test("раскладка: узлы не накладываются, рёбра �
       if(i) assert.ok(n.y - lay.nodes[i - 1].y >= lay.row, `${n.id}: строки ближе высоты строки`);
     });
     /* новое сверху */
-    assert.equal(lay.nodes[0].id, "4.1");
+    assert.equal(lay.nodes[0].id, CURRENT);
     assert.equal(lay.nodes[lay.nodes.length - 1].id, "1.0.0");
 
     const ids = new Set(lay.nodes.map(n => n.id));
@@ -169,7 +173,7 @@ test("режим «только вехи» не рвёт линию: скрыт�
   const lay = ru.historyTree.layout(ru.RELEASES, ru.ARCS, { keyOnly:true });
   const ids = lay.nodes.map(n => n.id);
   assert.ok(!ids.includes("1.1.1"));
-  assert.ok(ids.includes("RPC 2.5") && ids.includes("4.1"));
+  assert.ok(ids.includes("RPC 2.5") && ids.includes(CURRENT));
   assert.ok(lay.edges.some(e => e.from === "1.4.0" && e.to === "1.1.0"), "1.4.0 должен тянуться к 1.1.0");
 });
 

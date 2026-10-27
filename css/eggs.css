@@ -268,16 +268,54 @@ svg.compass.egg-disco .node .dot{ animation:egg-disco 1.3s ease-in-out; }
   0%,100%{ filter:hue-rotate(0deg) saturate(1); }
   50%    { filter:hue-rotate(180deg) saturate(1.7); }
 }
-/* 4.0: river, workbench, terminal, samovar and the night session. */
-:root[data-eggs=on].egg-river #plot::after{content:"";position:absolute;inset:0;pointer-events:none;border:3px solid var(--accent);border-radius:50%;animation:tiszaWave 1.6s ease-out 3;}
+/* 4.0: река, верстак, терминал, самовар и ночная сессия. */
+:root[data-eggs=on].egg-river #plot::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border:3px solid var(--accent);border-radius:50%;
+  animation:tiszaWave 1.6s ease-out 3;
+}
 :root[data-eggs=on].egg-river .site-footer{position:relative;overflow:hidden;}
-:root[data-eggs=on].egg-river .site-footer::after{content:"";position:absolute;left:-10%;right:-10%;bottom:0;height:28px;border-radius:50% 50% 0 0;background:linear-gradient(90deg,var(--accent),var(--accent-2));opacity:.2;animation:tiszaRiver 2s ease-in-out infinite alternate;pointer-events:none;}
+:root[data-eggs=on].egg-river .site-footer::after{
+  content:"";position:absolute;left:-10%;right:-10%;bottom:0;height:28px;border-radius:50% 50% 0 0;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));opacity:.2;
+  animation:tiszaRiver 2s ease-in-out infinite alternate;pointer-events:none;
+}
 @keyframes tiszaWave{from{transform:scale(.1);opacity:.7;}to{transform:scale(1.6);opacity:0;}}
 @keyframes tiszaRiver{from{transform:translateX(-3%) rotate(-1deg);}to{transform:translateX(3%) rotate(1deg);}}
 :root[data-eggs=on] .egg-golden .srpcf-wire{stroke:#fbbf24!important;filter:drop-shadow(0 0 8px #fbbf24);}
 .egg-infinity{position:absolute;inset:12px 12px auto auto;font:48px monospace;color:#fbbf24;}
-.egg-terminal{position:fixed;inset:15vh 16px auto;width:680px;max-width:calc(100vw - 32px);margin:0 auto;border:1px solid #3d7660;border-radius:12px;background:#0a1712;color:#8ce6af;padding:24px;box-shadow:0 30px 100px #0008;font:13px/1.7 ui-monospace,monospace;}
-.egg-terminal::backdrop,.egg-teapot::backdrop{background:#0009;backdrop-filter:var(--glass-filter);}.egg-terminal h2{font:inherit;font-weight:700;}.egg-terminal pre{white-space:pre-wrap;max-height:45vh;overflow:auto;margin:18px 0;}.egg-terminal input{width:100%;border:0;border-top:1px solid #3d7660;outline:0;background:transparent;color:inherit;font:inherit;padding:12px 0;}
-.egg-teapot{position:fixed;inset:15vh 16px auto;width:400px;max-width:calc(100vw - 32px);margin:auto;text-align:center;padding:30px;background:var(--bg);color:var(--accent);border:1px solid var(--accent-line);border-radius:24px;}.egg-teapot h2{font-size:54px;}.egg-teapot svg{display:block;width:160px;margin:12px auto;}.egg-teapot p{font-size:13px;margin-bottom:24px;}.egg-night{text-align:center;color:var(--muted);font-size:11px;padding:10px;}
+.egg-terminal{
+  position:fixed;inset:15vh 16px auto;width:680px;max-width:calc(100vw - 32px);margin:0 auto;border:1px solid #3d7660;
+  border-radius:12px;background:#0a1712;color:#8ce6af;padding:24px;box-shadow:0 30px 100px #0008;
+  font:13px/1.7 ui-monospace,monospace;
+}
+.egg-terminal::backdrop,.egg-teapot::backdrop{
+  background:#0009;backdrop-filter:var(--glass-filter);
+}
+.egg-terminal h2{
+  font:inherit;font-weight:700;
+}
+.egg-terminal pre{
+  white-space:pre-wrap;max-height:45vh;overflow:auto;margin:18px 0;
+}
+.egg-terminal input{
+  width:100%;border:0;border-top:1px solid #3d7660;outline:0;background:transparent;color:inherit;font:inherit;
+  padding:12px 0;
+}
+.egg-teapot{
+  position:fixed;inset:15vh 16px auto;width:400px;max-width:calc(100vw - 32px);margin:auto;text-align:center;
+  padding:30px;background:var(--bg);color:var(--accent);border:1px solid var(--accent-line);border-radius:24px;
+}
+.egg-teapot h2{
+  font-size:54px;
+}
+.egg-teapot svg{
+  display:block;width:160px;margin:12px auto;
+}
+.egg-teapot p{
+  font-size:13px;margin-bottom:24px;
+}
+.egg-night{
+  text-align:center;color:var(--muted);font-size:11px;padding:10px;
+}
 :root[data-eggs=off] .egg-infinity,:root[data-eggs=off] .egg-night{display:none;}
 @media(prefers-reduced-motion:reduce){.egg-river #plot::after,.egg-river footer::after{animation:none!important;}}

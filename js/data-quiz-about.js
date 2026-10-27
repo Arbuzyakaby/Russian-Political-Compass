@@ -1,6 +1,6 @@
 /* ============ Данные: тест по разделу «О проекте» ============
 
-   Десять вопросов о том, как устроен сам проект. Это не второй
+   Двенадцать вопросов о том, как устроен сам проект. Это не второй
    политический тест: у него нет ни координат, ни результата, который
    можно кому-то показать, — он проверяет, что из прочитанного осталось,
    и ничего больше. Поэтому и ссылки на результат у него нет: делиться
@@ -51,6 +51,24 @@
       whyEn:"The axes are independent by design: a party can demand nationalisation and campaign for fair elections at the same time. Russian politics has plenty of such combinations, and a one-dimensional scale would collapse them into a single point."
     },
     {
+      id:"points", card:"ab-src",
+      q:"Что означает полая точка партии рядом со сплошной?",
+      qEn:"What does a party's hollow dot next to the solid one mean?",
+      a:[
+        "Прежнюю позицию партии, которую она потом сменила",
+        "Заявленную позицию — по названию, уставу и предвыборной риторике; стрелка между точками показывает разрыв между словом и делом",
+        "Позицию, которую партии присвоили участники теста"
+      ],
+      aEn:[
+        "The party's former position, which it later abandoned",
+        "The declared position — by the party's name, charter and campaign rhetoric; the arrow between the dots shows the gap between word and deed",
+        "A position assigned to the party by quiz participants"
+      ],
+      ok:1,
+      why:"Сплошная точка — реальная позиция, выведенная из всех четырёх источников; полая — заявленная, то есть по одному третьему источнику, взятому отдельно. Чем длиннее стрелка между ними, тем больше расхождение между словом и делом.",
+      whyEn:"The solid dot is the real position derived from all four sources; the hollow one is the declared position, taken from the third source alone. The longer the arrow between them, the wider the gap between word and deed."
+    },
+    {
       id:"sub", card:"ab-sub",
       q:"Как шесть под-осей связаны с точкой партии на компасе?",
       qEn:"How do the six sub-axes relate to a party's point on the compass?",
@@ -67,6 +85,24 @@
       ok:1,
       why:"Под-оси обязаны объяснять точку, а не жить своей жизнью: три экономические в среднем дают X, три политические — Y. Обратное неверно — из одной координаты три шкалы не вывести, иначе они не добавляли бы ничего нового.",
       whyEn:"The sub-axes must explain the point rather than lead a life of their own: the three economic ones average to X, the three political ones to Y. The reverse does not hold — three scales cannot be derived from one coordinate, or they would add nothing."
+    },
+    {
+      id:"votes", card:"ab-votes",
+      q:"Почему расстояние между партиями на компасе не всегда совпадает с тем, как они голосуют?",
+      qEn:"Why does the distance between parties on the compass not always match how they vote?",
+      a:[
+        "Потому что голосования в таблице приведены с ошибками",
+        "Расстояние на поле измеряет программы, матрица совпадений — поведение, и совпадают они не всегда",
+        "Потому что компас учитывает только голосования, а программы не учитывает"
+      ],
+      aEn:[
+        "Because the votes in the table contain errors",
+        "Distance on the board measures programmes, the agreement matrix measures behaviour, and the two do not always coincide",
+        "Because the compass counts only votes and ignores programmes"
+      ],
+      ok:1,
+      why:"ЛДПР и «Справедливая Россия» стоят далеко друг от друга, но разошлись лишь в одном голосовании из двадцати общих, а с ближайшей «Единой Россией» ЛДПР расходилась в пяти из двадцати трёх.",
+      whyEn:"LDPR and A Just Russia stand far apart, yet they split in only one vote out of twenty they had in common, while LDPR split with the nearest party, United Russia, in five out of twenty-three."
     },
     {
       id:"weight", card:"ab-quiz90",

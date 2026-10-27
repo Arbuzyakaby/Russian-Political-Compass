@@ -121,6 +121,7 @@
     return "hsl(" + h.toFixed(1) + " " + s.toFixed(1) + "% " + l.toFixed(1) + "%)";
   }
 
+  /* Ячейка совпадения голосов двух партий. */
   function agreementCell(a, b){
     if(a.id === b.id) return '<td class="ag-self" data-col="' + esc(b.id) + '" aria-hidden="true"></td>';
     var r = PC.voteAgreement(a, b);
@@ -151,10 +152,13 @@
       : s;
   }
 
+  /* Матрица совпадения партий. */
   function renderMatrix(parties){
     if(!matrixHost) return;
     matrixHost.innerHTML =
-      '<div class="matrix-scroll" tabindex="0" role="region" aria-label="' + esc(t("votes.agreementAria")) + '"><table class="ag-table"><caption class="sr-only">' + esc(t("votes.agreementAria")) + '</caption>' +
+      '<div class="matrix-scroll" tabindex="0" role="region" aria-label="' +
+        esc(t("votes.agreementAria")) +
+        '"><table class="ag-table"><caption class="sr-only">' + esc(t("votes.agreementAria")) + '</caption>' +
       '<thead><tr><td></td>' +
         parties.map(function(p){
           return '<th scope="col" data-col="' + esc(p.id) + '" title="' + esc(L(p, "short")) + '">' +
@@ -267,6 +271,14 @@
       '<div class="hist-note">' + esc(t("side.votesNote")) + "</div></div>";
   }
 
-  function focusVote(id){if(!PC.VOTES.some(function(v){return v.id===id;}))return;filter="all";open[id]=true;render();var card=host.querySelector('.vote-card[data-id="'+id+'"]');if(card){card.tabIndex=-1;card.scrollIntoView({block:"center"});card.focus({preventScroll:true});}}
+  /* Прокручивает к голосованию и подсвечивает его. */
+  function focusVote(id){
+    if(!PC.VOTES.some(function(v){return v.id===id;}))return;
+    filter="all";
+    open[id]=true;
+    render();
+    var card=host.querySelector('.vote-card[data-id="'+id+'"]');
+    if(card){card.tabIndex=-1;card.scrollIntoView({block:"center"});card.focus({preventScroll:true});}
+  }
   PC.votes = { init:init, render:render, partyBlock:partyBlock, STANCE:STANCE, focusVote:focusVote };
 })(window.PC = window.PC || {});

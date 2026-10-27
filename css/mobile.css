@@ -15,9 +15,14 @@ button,a,input,select,summary{touch-action:manipulation;}
 @media(max-width:720px),(pointer:coarse) and (max-width:1050px){
   :root,:root[data-textsize="small"]{--text-k:1;--pad-card:16px;}
   body{font-size:calc(16px * var(--text-k));line-height:1.6;}
+  /* Пол кегля на телефоне. Это единственное правило с !important во всём
+     слое: около 350 компонентных правил задают 9–13 px для настольной
+     вёрстки, и переписывать каждое значило бы держать два набора размеров.
+     Пол ниже 14 px (16 px у абзацев) не опускает ни один текст — размеры
+     --fs-min-* заданы в css/tokens.css и умножаются на настройку размера. */
   .shell :is(p,li,dt,dd,small,label,button,summary,a,span,td,th,b,strong,code,h3,h4),
-  .site-footer :is(p,li,dt,dd,small,label,button,summary,a,span,td,th,b,strong,code,h3,h4){font-size:max(calc(14px * var(--text-k)),1em)!important;}
-  .shell p{font-size:max(calc(16px * var(--text-k)),1em)!important;}
+  .site-footer :is(p,li,dt,dd,small,label,button,summary,a,span,td,th,b,strong,code,h3,h4){font-size:max(var(--fs-min-ui),1em)!important;}
+  .shell p{font-size:max(var(--fs-min-body),1em)!important;}
   .shell :is(p,li,small,label,summary,td,th){line-height:1.55;}
   .shell{padding:20px max(12px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));}
   .shell *{min-width:0;}
@@ -51,7 +56,7 @@ button,a,input,select,summary{touch-action:manipulation;}
   .stage-title,.section-head .hint{font-size:calc(14px * var(--text-k));}
   .chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
   .chip{font-size:calc(14px * var(--text-k));white-space:normal;overflow-wrap:anywhere;}
-  button:not([hidden]),.btn,.chip,.xs-btn,summary{min-height:44px;min-width:44px;}
+  :where(button:not([hidden]),.btn,.chip,.xs-btn,summary){min-height:44px;min-width:44px;}
   .btn,.btn.small,.side-back,.trend-mode,.xs-btn{font-size:calc(14px * var(--text-k));white-space:normal;line-height:1.45;}
   .xs-option,.set-tab{min-height:44px;font-size:calc(14px * var(--text-k));}
   .conv-select,.conv-select .xs{width:100%;}
@@ -118,7 +123,7 @@ button,a,input,select,summary{touch-action:manipulation;}
   body.welcome-lock .shell,body.welcome-lock .site-footer{filter:none;transform:none;}
 }
 @media(hover:none),(pointer:coarse){
-  button:not([hidden]),.btn,.tab,.xs-btn,summary{min-height:44px;min-width:44px;}
+  :where(button:not([hidden]),.btn,.tab,.xs-btn,summary){min-height:44px;min-width:44px;}
   .tip,.c-tip{display:none!important;}
   .node:hover .ring,.node:hover .pulse{animation:none;}
   .card{transition:border-color .15s;}

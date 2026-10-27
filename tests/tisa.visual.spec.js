@@ -52,8 +52,8 @@ test("Tisza: palette, history, skip link and settings survive keyboard use",asyn
 });
 
 test("Tisza: empty quiz, damaged links, guest mode and radar selection regressions",async({page})=>{
-  await ready(page,"quiz");await page.locator('.qmode[data-mode="short"]').click();await page.locator("#quizStart").click();for(let i=0;i<20;i++)await page.locator("#quizSkip").click();await expect(page.locator(".toasts")).toContainText("Ответьте хотя бы на один вопрос");expect(await page.evaluate(()=>localStorage.getItem("pc-quiz-result"))).toBeNull();
-  await page.evaluate(()=>location.hash="#/result/3sBAD");await expect(page.locator(".toasts")).toContainText("Ссылка повреждена");
+  await ready(page,"quiz");await page.locator('.qmode[data-mode="short"]').click();await page.locator("#quizStart").click();for(let i=0;i<20;i++)await page.locator("#quizSkip").click();await expect(page.locator(".toasts")).toContainText("ответьте хотя бы на один вопрос");expect(await page.evaluate(()=>localStorage.getItem("pc-quiz-result"))).toBeNull();
+  await page.evaluate(()=>location.hash="#/result/3sBAD");await expect(page.locator(".toasts")).toContainText("ссылка повреждена");
   await page.evaluate(()=>PC.nav.go("compass"));await page.locator("#radarBox").scrollIntoViewIfNeeded();await expect(page.locator('#radarPick option[value="kprf"]')).toHaveCount(1);await page.locator("#radarPick").evaluate(e=>{e.value="kprf";e.dispatchEvent(new Event("change"));});await page.evaluate(()=>{PC.nav.go("votes");PC.nav.go("compass");});await page.locator("#radarBox").scrollIntoViewIfNeeded();await expect(page.locator("#radarPick")).toHaveValue("kprf");
 });
 
@@ -95,5 +95,48 @@ test("Tisza review: repeated auto-next answers advance exactly one question",asy
   await ready(page,"quiz");await page.evaluate(()=>{const a={};PC.quiz.questionsFor("short").forEach(q=>a[q.id]=1);PC.store.setJSON("pc-quiz-answers",a);PC.store.set("pc-quiz-mode","short");PC.settings.set("autoNext","on");});await page.reload();await page.locator("#quizStart").click();await page.locator('.qopt[data-v="1"]').dblclick({delay:40});await expect(page.locator(".quiz-counter")).toHaveText("2 / 20");await page.waitForTimeout(350);await expect(page.locator(".quiz-counter")).toHaveText("2 / 20");
 });
 test("Tisza review: privacy erase removes the open draft from memory and storage",async({page})=>{await newParty(page,"Удалить этот черновик");await page.locator("#settingsBtn").click();await page.evaluate(()=>PC.settings.selectPanel("privacy"));await page.getByRole("button",{name:"Сбросить все локальные данные"}).click();expect(await page.evaluate(()=>localStorage.getItem("pc-party-draft"))).toBeNull();await page.locator("#setClose").click();await expect(page.locator(".party-hero")).toBeVisible();await page.getByRole("button",{name:"Создать партию ↗"}).click();await expect(page.locator("#party-name")).toHaveValue("");});
-test("Tisza: update from 3.2 to 4.1 keeps its release heading after app initialization",async({page})=>{await page.addInitScript(()=>{localStorage.setItem("pc-welcome","3.2");localStorage.setItem("pc-lang","ru");});await page.goto("/");await page.waitForFunction(()=>window.PC&&PC.settings&&PC.settings.get("dotSize")==="normal");await expect(page.locator("#welTitle")).toHaveText("Кое-что изменилось");await expect(page.locator("#welEyebrow")).toContainText('4.1 «Тиса»');await expect(page.locator("#welNews")).toContainText("Моя партия");await page.goto("/?lang=en#/about");await expect(page.locator(".foot-version")).toHaveText('4.1 “Tisza”');await expect(page.locator("#welTitle")).toHaveText("A few things have changed");});
+/* Обновление с прошлой линии на текущую: приветствие называет выпуск и
+   перечисляет изменения. Ни номер, ни пункты не зашиты в тест — они берутся
+   из package.json и словаря (wel.up.l1…l5), чтобы проверка не правилась
+   вместе с каждым выпуском. */
+test("Tisza: update from the previous line to the current one keeps its release heading after app initialization",async({page})=>{
+  await page.addInitScript(()=>{
+    localStorage.setItem("pc-welcome","3.2");
+    localStorage.setItem("pc-lang","ru");
+  });
+  await page.goto("/");
+  await page.waitForFunction(()=>window.PC&&PC.settings&&PC.settings.get("dotSize")==="normal");
+  await expect(page.locator("#welTitle")).toHaveText("Кое-что изменилось");
+  await expect(page.locator("#welEyebrow")).toContainText(await page.evaluate(()=>PC.versionLabel("ru")));
+  const news=await page.evaluate(()=>[1,2,3,4,5].map(n=>PC.t("wel.up.l"+n)));
+  for(const line of news)await expect(page.locator("#welNews")).toContainText(line);
+  await page.goto("/?lang=en#/about");
+  await expect(page.locator(".foot-version")).toHaveText(await page.evaluate(()=>PC.versionLabel("en")));
+  await expect(page.locator("#welTitle")).toHaveText("A few things have changed");
+});
 test("Tisza: rivers, night session, uniform answers and perfect pipeline are discoverable",async({page})=>{await ready(page,"compass");await page.locator("#q").fill("tisza");expect(await page.evaluate(()=>localStorage.getItem("pc-eggs-found"))).toBeNull();await page.evaluate(()=>{Date.prototype.getHours=()=>3;PC.settings.set("eggs","on");});await page.locator("#q").fill("тиса");await expect(page.locator(".site-footer .egg-night")).toHaveCount(1);await page.evaluate(()=>{document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();const a={};PC.quiz.questionsFor("short").forEach(q=>a[q.id]=1);PC.eggs.quiz(a);PC.srpc.open();});await page.getByRole("combobox",{name:"Раскладка",exact:true}).selectOption("line");await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("pc-eggs-found")||"[]"))).toEqual(expect.arrayContaining(["night","river","rivers","agree","pipeline"]));await page.evaluate(()=>PC.settings.set("eggs","off"));await expect(page.locator(".egg-night")).toHaveCount(0);});
+
+/* Предупреждение «слабо выделяется» должно стоять только у цветов, которые
+   почти сливаются с фоном темы. Раньше оно появлялось у каждого цвета палитры
+   на светлых темах: яркость фона бралась условно, а палитра вся пастельная. */
+test("Tisza: party colour warning appears only for colours that blend into the theme background",async({page})=>{
+  await ready(page,"party");
+  await page.getByRole("button",{name:/Создать партию/}).click();
+  await page.locator("#party-name").fill("Цвет");
+  await page.locator("#party-short").fill("Цвет");
+  await page.locator("#party-tag").fill("ЦВ");
+  await page.locator(".party-step").nth(1).click();
+  const weak=async()=>{
+    const found=[];
+    for(const swatch of await page.locator(".party-swatch").all()){
+      await swatch.click();
+      if((await page.locator("#partyColorWarning").innerText()).includes("слабо"))found.push(await swatch.getAttribute("aria-label"));
+    }
+    return found;
+  };
+  expect(await weak()).toEqual([]);
+  await page.evaluate(()=>{document.documentElement.dataset.theme="paper";document.documentElement.dataset.scheme="light";});
+  const onPaper=await weak();
+  expect(onPaper).toContain("#f1f5f9");
+  expect(onPaper.length).toBeLessThan(8);
+});

@@ -1,4 +1,4 @@
-/* Touch selects the nearest point, without stealing scrolling or pinch zoom. */
+/* Касание выбирает ближайшую точку компаса, не отнимая у страницы прокрутку и щипок. */
 (function(PC){
   "use strict";
   var svg, start, ignoreClickUntil = 0;
@@ -45,7 +45,8 @@
     var side = document.querySelector(".side");
     if(!side) return;
     if(id){
-      // Run after the browser's compatibility click/focus for this touch.
+      /* Ждём кадр: сначала браузер выполняет совместимые click и focus
+         для этого касания, и панель нужно обновлять уже после них. */
       requestAnimationFrame(function(){
         var back = document.getElementById("sideBack");
         if(!back || back.hidden) return;

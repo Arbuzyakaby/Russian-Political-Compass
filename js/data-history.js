@@ -293,8 +293,11 @@
     { v:"4.0", date:"2026-10-26", arc:"v4", from:"3.2", ms:"4.0 «Тиса»",
       s:"Раздел «Моя партия»: конструктор партий, командная палитра, новые настройки и ссылки для обмена.",
       sEn:"The “My party” section: a party builder, a command palette, new settings and shareable links." },
-    { v:"4.1", date:"2026-10-27", arc:"v4", cur:true,
+    { v:"4.1", date:"2026-10-27", arc:"v4",
       s:"Мобильный интерфейс в стиле приложения, дерево версий, шаблоны и выборы в «Моей партии», новые настройки и исправления.",
-      sEn:"App-style mobile interface, version tree, templates and elections in “My party”, redesigned settings and fixes." }
+      sEn:"App-style mobile interface, version tree, templates and elections in “My party”, redesigned settings and fixes." },
+    { v:"4.2", date:"2026-10-27", arc:"v4", cur:true,
+      s:"Плавный компас и аккуратная панель карты на телефоне, два новых вопроса в тесте «О проекте», вежливые сообщения; код разобран по модулям.",
+      sEn:"A smooth compass and a tidier map toolbar on phones, two new questions in the About quiz, politer messages; the code split into modules." }
   ];
 })(window.PC = window.PC || {});

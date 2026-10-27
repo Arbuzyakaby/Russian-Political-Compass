@@ -4,7 +4,11 @@
   var G = PC.geom, U = PC.utils;
   var t = PC.t, L = PC.L;
   var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, el = U.el;
-  function radius(seats){var s=PC.settings,size=s&&s.get("dotSize"),bubbles=s&&s.get("bubbles");return (bubbles==="off"?11:G.radius(seats))*(size==="small"?.75:size==="large"?1.3:1);}
+  /* Радиус круга по числу мест. */
+  function radius(seats){
+    var s=PC.settings,size=s&&s.get("dotSize"),bubbles=s&&s.get("bubbles");
+    return (bubbles==="off"?11:G.radius(seats))*(size==="small"?.75:size==="large"?1.3:1);
+  }
 
   var svg, cross, defs, claims;
   var claimsOn = true;
@@ -94,6 +98,7 @@
      когда заняты действительно все четыре. */
   var MAX_EXTRA = 26;
 
+  /* Размещает подпись партии, избегая наложений. */
   function placeLabel(tag, seat, dx, dy, r, preferred, own){
     var order = [preferred, "top", "right", "left", "bottom"].filter(function(v, i, arr){
       return OFFSETS[v] && arr.indexOf(v) === i;
@@ -171,6 +176,7 @@
   var LENS_GAP = 5;     /* зазор линзы от оси — сквозь него видно саму ось */
   var LENS_R = 7;       /* радиус внутренних углов линзы */
 
+  /* Общие определения SVG: градиенты и фильтры. */
   function drawDefs(){
     defs = el("defs");
 
@@ -428,6 +434,7 @@
     return d ? Math.sqrt((d.x - p.x) * (d.x - p.x) + (d.y - p.y) * (d.y - p.y)) : 0;
   }
 
+  /* Рисует заявленные позиции партий. */
   function drawClaims(){
     claims = el("g", { "class":"claims" });
     svg.appendChild(claims);
@@ -545,6 +552,7 @@
     svg.appendChild(cross);
   }
 
+  /* Показывает перекрестие на позиции партии. */
   function showCross(sx, sy, color, x, y){
     if(!crossParts) return;
     var P = crossParts;
@@ -615,6 +623,8 @@
       obstacles.push(ownBox.you);
     }
 
+    var colorblind = PC.settings && PC.settings.get("colorblind") === "on", shapeIndex = 0;
+
     /* крупные фракции раскладываем первыми — им достаются лучшие места */
     PC.PARTIES.map(function(p, i){ return { p:p, i:i, seats:PC.seatsOf(p) }; })
       .filter(function(item){ return item.seats !== null; })
@@ -644,6 +654,7 @@
         var seat = el("text", { "class":"seat" + (seats ? "" : " empty") }, U.seatsLabel(seats));
         g.appendChild(tag);
         g.appendChild(seat);
+        if(colorblind) accessibleMark(g, g.querySelector(".dot"), p.color, r, shapeIndex++);
         layer.appendChild(g);
 
         var place = placeLabel(tag, seat, c.sx, c.sy, r, p.lp, ownBox[p.id]);
@@ -682,6 +693,23 @@
 
     drawPeople(layer, ownBox);
     drawUser(layer, ownBox.you);
+  }
+
+  /* Форма точки для режима «для дальтоников» (настройка colorblind).
+     Цвет перестаёт быть единственным признаком партии: к нему добавляется
+     одна из четырёх форм по порядку точки, а сама точка гасится.
+     Раньше формы дорисовывал js/tisza.js после каждой отрисовки и заодно
+     переписывал радиус — теперь это делается там, где узел создаётся. */
+  function accessibleMark(g, dot, color, r, index){
+    var d = [
+      "M0-" + r + " " + r + " " + r + "-" + r + " " + r + "Z",
+      "M-" + r + "-" + r + "H" + r + "V" + r + "H-" + r + "Z",
+      "M0-" + r + " " + r + " 0 0 " + r + "-" + r + " 0Z",
+      "M-" + r + " 0H" + r + "M0-" + r + "V" + r
+    ][index % 4];
+    g.insertBefore(el("path", { "class":"accessible-mark", d:d, fill:color, stroke:"var(--dot-stroke)", "stroke-width":1.8 }), dot);
+    dot.style.opacity = "0";
+    g.appendChild(el("path", { "class":"accessible-hatch", d:"M-5 2 2-5M-2 5 5-2", stroke:"var(--bg)", "stroke-width":1.2, "pointer-events":"none" }));
   }
 
   /* ---------- точки людей (2.3.2, обобщено в 2.4) ----------

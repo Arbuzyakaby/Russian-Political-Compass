@@ -28,7 +28,8 @@
 .palette-field::before{content:"";position:absolute;left:16px;top:50%;width:18px;height:18px;margin-top:-9px;
   background:var(--muted);pointer-events:none;
   -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") center/contain no-repeat;
-          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") center/contain no-repeat;}
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") center/contain no-repeat;
+          }
 .command-palette input{width:100%;height:54px;padding:0 64px 0 46px;border-radius:16px;
   border:1px solid var(--stroke-2);background:color-mix(in srgb,var(--text) 5%,transparent);color:var(--text);
   font:inherit;font-size:17px;letter-spacing:-.01em;outline:none;
@@ -98,7 +99,12 @@
 .set-group > .btn.small:last-child:hover{background:var(--bad-soft);}
 
 :root[data-lineheight=increased] p,:root[data-lineheight=increased] li{line-height:2;}
-:root[data-label-mode=duma] #svg .node:not(.duma):not(.you):not(.my-party) .tag,:root[data-label-mode=duma] #svg .node:not(.duma):not(.you):not(.my-party) .seat,:root[data-label-mode=selected] #svg .node:not(.active):not(.you) .tag,:root[data-label-mode=selected] #svg .node:not(.active):not(.you) .seat{display:none;}
+:root[data-label-mode=duma] #svg .node:not(.duma):not(.you):not(.my-party) .tag,
+:root[data-label-mode=duma] #svg .node:not(.duma):not(.you):not(.my-party) .seat,
+:root[data-label-mode=selected] #svg .node:not(.active):not(.you) .tag,
+:root[data-label-mode=selected] #svg .node:not(.active):not(.you) .seat{
+  display:none;
+}
 :root[data-colorblind=off] .accessible-mark,:root[data-colorblind=off] .accessible-hatch{display:none;}
 
 /* ---------- панель карты ----------
@@ -112,6 +118,9 @@
 .map-controls .btn:hover{background:var(--surface-3);color:var(--text);}
 .map-controls #mapMinus,.map-controls #mapPlus{min-width:34px;padding:6px 0;font-size:calc(16px * var(--text-k));}
 .map-controls .btn{scroll-margin-top:calc(var(--mobile-nav-offset,120px) + 16px);}
+/* 4.2: пока вид карты движется (js/map-controls.js), пульсация выбранной
+   точки выключена: лишние кадры тяжёлого SVG мешают плавности. */
+.plot.is-moving .node.active .pulse{animation:none;}
 .map-coordinate-list{display:grid;gap:2px;padding:10px;}
 .map-coordinate-list[hidden]{display:none;}
 .map-coordinate-list .btn{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:48px;
@@ -173,7 +182,10 @@
 .srpcf-grip{min-width:44px;min-height:44px;display:flex;justify-content:center;align-items:center;gap:3px;touch-action:none;cursor:grab;}
 .srpcf-card{touch-action:pan-x pan-y!important;}
 .srpcf-card .srpcf-grip{touch-action:none;}
-.srpc-stage[data-paused=true] .srpcf-card,.srpc-stage[data-paused=true] .srpcf-wire,.srpc-stage[data-paused=true] .srpcf-wire-hatch{animation-play-state:paused!important;}
+.srpc-stage[data-paused=true] .srpcf-card,.srpc-stage[data-paused=true] .srpcf-wire,
+.srpc-stage[data-paused=true] .srpcf-wire-hatch{
+  animation-play-state:paused!important;
+}
 .srpcf-card::after{display:none;}
 .srpcf-card[data-failure=true]::after{display:block;animation:var(--srpc-cycle,16s) linear infinite both srpcH3;animation-delay:var(--srpc-offset,0s);}
 .srpc-stage[data-paused=true] .srpcf-card::after{animation-play-state:paused!important;}
@@ -185,7 +197,10 @@
      страницу сквозь результаты — подложка плотная */
   .command-palette{background:color-mix(in srgb,var(--bg) 95%,var(--text));}
   .palette-group{background:color-mix(in srgb,var(--bg) 95%,var(--text));}
-  .command-palette{inset:max(8px,env(safe-area-inset-top)) 8px auto;max-width:calc(100vw - 16px);max-height:calc(var(--mobile-viewport-height,100dvh) - 24px);border-radius:22px;}
+  .command-palette{
+    inset:max(8px,env(safe-area-inset-top)) 8px auto;max-width:calc(100vw - 16px);
+    max-height:calc(var(--mobile-viewport-height,100dvh) - 24px);border-radius:22px;
+  }
   .command-palette input{font-size:16px;}
   .key-rows{grid-template-columns:1fr;gap:4px;}
   .key-rows dd{margin-bottom:10px;}
@@ -196,7 +211,7 @@
   .srpcf-head h2{font-size:calc(17px * var(--text-k))!important;margin:6px 0 0;}
   .srpcf-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;}
   .srpcf-tools{display:contents;}
-  .srpcf-tools .btn{min-height:44px!important;padding:8px 12px;font-size:calc(13px * var(--text-k))!important;}
+  .srpcf-tools .btn{min-height:44px;padding:8px 12px;font-size:calc(13px * var(--text-k))!important;}
   #srpcClose{grid-column:2;grid-row:1;align-self:start;}
   #srpcReplay{grid-row:2;grid-column:1;justify-self:start;}
   #srpcReset{grid-row:2;grid-column:2;}
@@ -210,7 +225,14 @@
   .srpcf-group{flex:none;}
   .srpcf-group--export{margin-left:0;}
   .shell .srpcf-select span,.srpcf-select span{font-size:11px!important;}
-  .srpcf-btn{min-height:44px!important;}
   .srpcf-detail{inset:auto 8px 8px 8px;width:auto;max-height:70%;animation-name:srpcDetailUp;}
   @keyframes srpcDetailUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+}
+
+/* Касание: у этих кнопок свой размер, меньше общего минимума в 44 px
+   (его задаёт css/mobile.css через :where, то есть без веса). */
+@media(hover:none),(pointer:coarse){
+  .palette-result{min-height:44px;}
+  .srpcf-btn{min-height:44px;}
+  .srpcf-btn--icon{min-width:44px;}
 }

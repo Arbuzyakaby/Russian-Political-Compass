@@ -20,6 +20,7 @@
   var lastKey = null;     /* последнее состояние, на котором графики уже отрисованы */
   var sections = [], observer;
 
+  /* Откладывает отрисовку секции до её появления на экране. */
   function scheduleSection(node, paint, key){
     if(!node) return;
     var section = sections.filter(function(s){ return s.node === node; })[0];
@@ -34,6 +35,7 @@
     section.visible = rect.width > 0 && rect.bottom >= -200 && rect.top <= window.innerHeight + 200;
     if(!observer || section.visible) flushSection(section);
   }
+  /* Выполняет отложенную отрисовку секции. */
   function flushSection(section){
     if(section.rendered === section.key || !section.node.getClientRects().length) return;
     section.paint();
@@ -45,6 +47,7 @@
     h = h.replace("#", "");
     return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
   }
+  /* Перевод RGB в HSL для подбора цветов. */
   function rgbToHsl(r, g, b){
     r/=255; g/=255; b/=255;
     var mx = Math.max(r,g,b), mn = Math.min(r,g,b), h = 0, s = 0, l = (mx+mn)/2, d = mx-mn;
@@ -189,6 +192,7 @@
     return { pts:pts, gap:(r1-r0)/(rows-1), innerCount:counts[0] };
   }
 
+  /* Полукруг мест в парламенте. */
   function renderHemicycle(){
     var box = host.hemi, conv = PC.convocationInfo(), c = conv.id;
     var W = Math.max(260, box.clientWidth || 320);
@@ -260,6 +264,7 @@
       "pointer-events":"all", style:"cursor:pointer" });
     svg.appendChild(hit);
 
+    /* Ближайшая к курсору точка графика. */
     function nearest(clientX, clientY){
       var r = svg.getBoundingClientRect();
       if(!r.width) return null;
@@ -303,6 +308,7 @@
     hero.style.width = Math.round(r0 * 1.6) + "px";
     box.appendChild(hero);
 
+    /* Выводит главную карточку партии. */
     function setHero(p){
       hero.innerHTML = p
         ? '<div class="big" style="color:' + esc(chartColor(p.color)) + '">' + seatsAt(p,c) + '</div>' +
@@ -621,6 +627,7 @@
     tip.className = "c-tip";
     box.appendChild(tip);
 
+    /* Индекс точки под курсором по координате X. */
     function at(clientX){
       var r = svg.getBoundingClientRect();
       if(!r.width) return 0;
@@ -644,6 +651,7 @@
       return bestD < ih * .2 ? best : null;
     }
 
+    /* Показывает подсказку у курсора. */
     function show(clientX, clientY){
       var i = at(clientX), c = convs[i];
       var near = nearestSeries(i, clientY);
@@ -726,16 +734,36 @@
 
   /* ---------- 3. Идеологический спектр ---------- */
   function specColumn(key, title, left, right){
-    var list = (PC.allParties ? PC.allParties() : PC.PARTIES).filter(function(p){ return /^u[1-6]$/.test(p.id) || seatsAt(p, PC.convocationInfo().id) !== null; }).sort(function(a, b){ return a[key] - b[key]; });
+    var list = (PC.allParties ? PC.allParties() : PC.PARTIES).filter(function(p){
+      return /^u[1-6]$/.test(p.id) || seatsAt(p, PC.convocationInfo().id) !== null;
+
+    }).sort(function(a, b){ return a[key] - b[key]; });
     function n(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
     var col=n("div","spec-col"),poles=n("div","poles");poles.append(n("span","",left),n("span","",right));col.append(n("h4","",title),poles);
-    list.forEach(function(p){var v=p[key],w=Math.abs(v)/10*50,l=v<0?50-w:50,row=n("button","srow"+(p.id===activeId?" hi":""));row.type="button";row.dataset.id=p.id;
-      var lab=n("div","lab",L(p,"short"));lab.appendChild(n("b","",fmt(v)));var track=n("div","track"),fill=n("span","fill");fill.dataset.left=l.toFixed(2);fill.dataset.w=w.toFixed(2);fill.style.left="50%";fill.style.background=chartColor(p.color);track.appendChild(fill);row.append(lab,track);col.appendChild(row);
+    list.forEach(function(p){
+      var v=p[key],w=Math.abs(v)/10*50,l=v<0?50-w:50,
+        row=n("button","srow"+(p.id===activeId?" hi":""));
+      row.type="button";
+      row.dataset.id=p.id;
+      var lab=n("div","lab",L(p,"short"));
+      lab.appendChild(n("b","",fmt(v)));
+      var track=n("div","track"),fill=n("span","fill");
+      fill.dataset.left=l.toFixed(2);
+      fill.dataset.w=w.toFixed(2);
+      fill.style.left="50%";
+      fill.style.background=chartColor(p.color);
+      track.appendChild(fill);
+      row.append(lab,track);
+      col.appendChild(row);
     });var scale=n("div","spec-scale");scale.append(n("span","","−10"),n("span","","0"),n("span","","+10"));col.appendChild(scale);return col;
   }
   var spectrumGrown = false;
+  /* Спектр позиций по осям. */
   function renderSpectrum(){
-    host.spectrum.replaceChildren(specColumn("x", t("ch.spec.econ"), t("ch.spec.planned"), t("ch.spec.market")), specColumn("y", t("ch.spec.state"), t("ch.spec.liberty"), t("ch.spec.statism")));
+    host.spectrum.replaceChildren(
+      specColumn("x", t("ch.spec.econ"), t("ch.spec.planned"), t("ch.spec.market")),
+      specColumn("y", t("ch.spec.state"), t("ch.spec.liberty"), t("ch.spec.statism"))
+    );
     host.spectrum.querySelectorAll(".srow").forEach(function(row){
       row.style.cursor = "pointer";
       row.addEventListener("click", function(){ PC.select(row.dataset.id); });
@@ -767,6 +795,7 @@
      стоящие рядом на компасе, здесь расходятся, и видно, чем именно. */
   var radarPick = null;
   var radarActive = null;
+  /* Радарная диаграмма по подосям. */
   function renderRadar(){
     if(!host.radar || !PC.radar) return;
     var list = PC.allParties ? PC.allParties() : PC.PARTIES;
@@ -777,7 +806,15 @@
 
     var sel = host.radarPick;
     if(sel){
-      sel.replaceChildren(); list.forEach(function(o){ var option=document.createElement("option");option.value=o.id;option.dataset.color=o.color;option.textContent=L(o,"short");sel.appendChild(option); });
+      sel.replaceChildren();
+      list.forEach(function(o){
+        var option=document.createElement("option");
+        option.value=o.id;
+        option.dataset.color=o.color;
+        option.textContent=L(o,"short");
+        sel.appendChild(option);
+
+      });
     }
     if(sel && sel.value !== radarPick){
       sel.value = radarPick;
@@ -858,6 +895,7 @@
     });
 
     var frame = null;
+    /* Перерисовка при изменении размера окна. */
     function resized(){
       if(frame !== null) return;
       frame = requestAnimationFrame(function(){ frame = null; render(activeId); });

@@ -14,7 +14,7 @@ const { loadApp, ROOT } = require("./harness.js");
 const ru = loadApp().PC;
 const en = loadApp(undefined, { "pc-lang": "en" }).PC;
 
-/* Сам словарь с 2.3.1 живёт не в js/i18n.js (это движок), а в пяти
+/* Сам словарь с 2.3.1 живёт не в js/i18n.js (это движок), а в
    соседних файлах — см. шапку js/i18n.js. */
 const DICT_FILES = ["i18n-shell.js", "i18n-compass.js", "i18n-quiz.js", "i18n-about.js", "i18n-misc.js", "i18n-party.js"];
 const dictSource = DICT_FILES.map(f => fs.readFileSync(path.join(ROOT, "js", f), "utf8")).join("\n");
@@ -201,4 +201,33 @@ test("выгрузка следует за языком интерфейса", (
   assert.ok(!/[а-яА-ЯёЁ]/.test(headEn), `в английской шапке CSV кириллица: ${headEn}`);
 
   function ruLine(csv){ return csv.replace(/^﻿/, "").split("\r\n")[0]; }
+});
+
+/* С 4.2 у каждого словаря своя область. i18n-party.js копил чужие ключи
+   (настройки, SRPC, пасхалки) просто потому, что писался последним, —
+   из-за этого ключ приходилось искать по всем шести файлам. */
+test("в i18n-party.js только ключи party.*", () => {
+  const own = fs.readFileSync(path.join(ROOT, "js", "i18n-party.js"), "utf8");
+  const foreign = Array.from(own.matchAll(/^\s{4}"([\w.+-]+)":\s*\[/gm), m => m[1]).filter(key => !key.startsWith("party."));
+  assert.deepEqual(foreign, [], "чужие ключи нужно перенести в словарь их области");
+});
+
+test("ни один ключ не объявлен в двух словарях и в английском нет кириллицы", () => {
+  const owner = new Map();
+  for(const file of DICT_FILES){
+    const source = fs.readFileSync(path.join(ROOT, "js", file), "utf8");
+    for(const m of source.matchAll(/^\s{2,}"([\w.+-]+)":\s*\[/gm)){
+      assert.ok(!owner.has(m[1]), `${m[1]} есть и в ${owner.get(m[1])}, и в ${file}`);
+      owner.set(m[1], file);
+    }
+  }
+  /* кнопка языка на английской странице подписана по-русски намеренно:
+     она предлагает переключиться, и читать её должен тот, кто русский знает */
+  const RUSSIAN_IN_ENGLISH = ["lang.toggle"];
+  for(const key of owner.keys()){
+    const entry = ru.i18n.entry(key);
+    assert.ok(entry && entry[0] && entry[1], `${key}: нет одного из двух языков`);
+    if(RUSSIAN_IN_ENGLISH.includes(key)) continue;
+    assert.doesNotMatch(String(entry[1]), /[А-Яа-яЁё]/, `${key}: кириллица в английском значении`);
+  }
 });

@@ -98,7 +98,7 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
   .plate-body{ filter:none !important; }
 }
 
-/* ---- compass primitives ---- */
+/* ---- примитивы компаса ---- */
 /* ---- примитивы поля (переработаны в 2.4.2.1) ----
    Два предыдущих подхода к редизайну компаса (2.4.1, 2.4.2) занимались
    стеклом — плитой, кромкой, бликом. Оба раза результат приходилось
@@ -207,7 +207,10 @@ svg.compass{width:100%;height:100%;display:block;overflow:visible;
 .tip-name{font-size:calc(13.5px * var(--text-k));font-weight:650;line-height:1.25;letter-spacing:-.01em;}
 .tip-ideo{font-size:calc(11.5px * var(--text-k));color:var(--muted);line-height:1.45;margin-bottom:9px;}
 .tip-meta{display:flex;gap:6px;flex-wrap:wrap;}
-.tip-meta span{font-size:calc(10px * var(--text-k));color:var(--muted);background:var(--surface-2);border:1px solid var(--stroke);padding:3px 8px;border-radius:6px;}
+.tip-meta span{
+  font-size:calc(10px * var(--text-k));color:var(--muted);background:var(--surface-2);border:1px solid var(--stroke);
+  padding:3px 8px;border-radius:6px;
+}
 .tip-meta b{color:var(--text);font-weight:650;}
 .tip-hint{font-size:calc(10px * var(--text-k));color:var(--muted-2);margin-top:9px;padding-top:8px;border-top:1px solid var(--stroke);}
 

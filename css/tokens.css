@@ -756,3 +756,8 @@
 :root[data-section="quiz"]{ --tone:var(--tone-quiz); }
 :root[data-section="votes"]{ --tone:var(--tone-votes); }
 :root[data-section="about"]{ --tone:var(--tone-about); }
+
+/* Минимальные кегли телефонной вёрстки (4.2): применяются полом в css/mobile.css. */
+@media(max-width:720px),(pointer:coarse) and (max-width:1050px){
+  :root{--fs-min-ui:calc(14px * var(--text-k));--fs-min-body:calc(16px * var(--text-k));}
+}

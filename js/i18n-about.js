@@ -30,9 +30,9 @@
     "ex.quiz":            ["Мой результат · CSV", "My result · CSV"],
     "ex.quiz.h":          ["координаты и совпадение с партиями", "coordinates and match with the parties"],
     "ex.saved":           ["Файл сохранён: {name}", "File saved: {name}"],
-    "ex.failed":          ["Не удалось собрать файл", "Could not build the file"],
+    "ex.failed":          ["К сожалению, не удалось собрать файл", "Sorry, we could not build the file"],
     "ex.noCompass":       ["Компас ещё не отрисован", "The compass has not been drawn yet"],
-    "ex.noImage":         ["Не удалось собрать картинку", "Could not build the image"],
+    "ex.noImage":         ["К сожалению, не удалось собрать картинку", "Sorry, we could not build the image"],
 
     /* CSV-заголовки */
     "csv.id":             ["id", "id"],
@@ -154,8 +154,8 @@
        рассказывает совсем о другом тесте. Два разных теста с общим
        префиксом — это гарантированная путаница при первой же правке. */
     "ab.aq.h":            ["Проверьте себя по разделу", "Check yourself on this section"],
-    "ab.aq.p":            ["Десять вопросов о том, как устроен компас. Ответ на каждый написан в одной из карточек выше — это проверка прочитанного, а не викторина на эрудицию. Результат остаётся в вашем браузере и никуда не отправляется.",
-                           "Ten questions about how the compass works. The answer to each is written in one of the cards above — this checks what you have read, not what you happen to know. The result stays in your browser and is sent nowhere."],
+    "ab.aq.p":            ["Двенадцать вопросов о том, как устроен компас. Ответ на каждый написан в одной из карточек выше — это проверка прочитанного, а не викторина на эрудицию. Результат остаётся в вашем браузере и никуда не отправляется.",
+                           "Twelve questions about how the compass works. The answer to each is written in one of the cards above — this checks what you have read, not what you happen to know. The result stays in your browser and is sent nowhere."],
     "ab.aq.count":        ["Вопрос {n} из {total}", "Question {n} of {total}"],
     "ab.aq.next":         ["Дальше", "Next"],
     "ab.aq.done":         ["Показать результат", "Show the result"],
@@ -163,7 +163,7 @@
     "ab.aq.again":        ["Пройти заново", "Take it again"],
     "ab.aq.reread":       ["Читать в разделе", "Read it in the section"],
     "ab.aq.right":        ["Верно", "Correct"],
-    "ab.aq.wrong":        ["Неверно", "Not quite"],
+    "ab.aq.wrong":        ["Не совсем так", "Not quite"],
     /* Итоговый экран: заголовок, совет и список разделов к перечитыванию.
        Три строки поздравления на три диапазона — не украшение: «10 из 10»
        и «3 из 10» требуют разного продолжения, и одна общая фраза

@@ -1,7 +1,8 @@
 /* ============ Меню настроек ============
 
    До 1.6 настроек как таковых не было: в шапке стояли две кнопки (тема
-   и язык), слой траекторий (с 3.0 — заявленных позиций) включался чипом над компасом, а всё остальное
+   и язык), слой траекторий (с 3.0 — заявленных позиций) включался чипом над компасом,
+   а всё остальное
    решалось за читателя молча — плотность вёрстки, анимации, зерно на
    фоне, подсветка карточки под курсором. Каждая из этих мелочей кому-то
    мешает, и раскладывать их по углам интерфейса значит либо засорить
@@ -35,7 +36,8 @@
    панелью справа: настроек стало достаточно, что сплошная прокрутка
    всех секций подряд перестала быть самым быстрым способом найти
    нужную. Разделов восемь: к шести исходным в 2.4 добавилась
-   «Приватность» с витриной PVFP, а в 2.4.2.1 — SRPC. Рельс — обычный ARIA-tablist (initPanels ниже), он не знает
+   «Приватность» с витриной PVFP, а в 2.4.2.1 — SRPC. Рельс — обычный ARIA-tablist (initPanels ниже),
+   он не знает
    о самих настройках ничего: какая панель открыта, решает только атрибут
    data-panel на кнопке и на секции, а какие переключатели внутри панели
    что делают — по-прежнему целиком в разметке index.html и в data-* на
@@ -117,6 +119,7 @@
   };
   var fontsAsked = {};
 
+  /* Подгружает шрифт, если он выбран и ещё не подключён. */
   function ensureFont(name){
     var href = FONT_CSS[name];
     if(!href || fontsAsked[name]) return;
@@ -135,11 +138,32 @@
     }
   }
   var state = {};
-  var OPTIONS = { density:["compact","cozy","airy"], textsize:["small","normal","large"], corners:["sharp","normal","soft"], font:["modern","compact","creative","mono"], glasslevel:["subtle","normal","strong"], speed:["slow","normal","fast"], numerals:["tabular","proportional"], hints:["open","closed"], measure:["narrow","normal"], dotSize:["small","normal","large"], labelMode:["all","duma","selected"], startTab:["compass","last","quiz","votes","party","about"], convDefault:["4","5","6","7","8","9"], quizMode:["short","full","long"], lineheight:["normal","increased"], exportFormat:["png","svg"], exportScale:["1","2","3"], srpcStage:["1","2","3","4","5","6"] };
+  var OPTIONS = {
+    density:["compact","cozy","airy"],
+    textsize:["small","normal","large"],
+    corners:["sharp","normal","soft"],
+    font:["modern","compact","creative","mono"],
+    glasslevel:["subtle","normal","strong"],
+    speed:["slow","normal","fast"],
+    numerals:["tabular","proportional"],
+    hints:["open","closed"],
+    measure:["narrow","normal"],
+    dotSize:["small","normal","large"],
+    labelMode:["all","duma","selected"],
+    startTab:["compass","last","quiz","votes","party","about"],
+    convDefault:["4","5","6","7","8","9"],
+    quizMode:["short","full","long"],
+    lineheight:["normal","increased"],
+    exportFormat:["png","svg"],
+    exportScale:["1","2","3"],
+    srpcStage:["1","2","3","4","5","6"]
+  };
+  /* Проверяет ключ и значение по DEFAULTS. */
   function valid(key, value){ return Object.prototype.hasOwnProperty.call(DEFAULTS,key) && (OPTIONS[key] || ["on","off"]).indexOf(value) !== -1; }
   var root = document.documentElement;
   var sheet, scrim, opener, lastFocus = null;
 
+  /* Читает настройки из storage с проверкой. */
   function load(){
     var saved = PC.store.getJSON(KEY, null) || {};
     state = {};
@@ -174,6 +198,7 @@
     });
   }
 
+  /* Записывает значение и сразу применяет его к странице. */
   function set(key, value){
     if(!valid(key, value) || state[key] === value) return;
     state[key] = value;
@@ -315,6 +340,7 @@
     if(lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll:true });
   }
 
+  /* Сбрасывает все настройки к значениям по умолчанию. */
   function reset(){
     var previous = Object.assign({},state), previousTheme = PC.store.get("pc-theme","system");
     PC.store.remove(KEY);
@@ -338,7 +364,23 @@
     }
     if(PC.compass) PC.compass.redraw();
     document.dispatchEvent(new CustomEvent("pc:settings",{detail:{key:"*"}}));
-    if(PC.ui) PC.ui.toast(PC.t("set.resetDone"),false,{label:PC.t("party.undo"),duration:5000,action:function(){state=previous;save();apply();paint();syncHints();if(PC.theme)PC.theme.set(previousTheme);document.dispatchEvent(new CustomEvent("pc:settings",{detail:{key:"*"}}));}});
+    if(PC.ui) PC.ui.toast(
+      PC.t("set.resetDone"),
+      false,
+      {
+        label:PC.t("party.undo"),
+        duration:5000,
+        action:function(){
+          state=previous;
+          save();
+          apply();
+          paint();
+          syncHints();
+          if(PC.theme)PC.theme.set(previousTheme);
+          document.dispatchEvent(new CustomEvent("pc:settings",{detail:{key:"*"}}));
+        }
+      }
+    );
   }
 
   /* ---------- рельс разделов (2.3.1) ----------
@@ -387,6 +429,7 @@
     if(back) back.hidden = !drill();
     if(title) title.textContent = tab ? tab.textContent.trim() : PC.t("set.title");
   }
+  /* На мобильном: выбирает раздел и переходит внутрь него. */
   function choose(id){ selectPanel(id); if(drill()) enter(id); }
   /* Поиск на телефоне показывает найденные строки всех разделов сразу,
      поэтому список разделов на время поиска убирается. */
@@ -395,6 +438,7 @@
     sheet.classList.toggle("is-search", on);
     if(on && drill()) sheet.classList.remove("is-root");
   }
+  /* Вкладки и панели меню настроек с ARIA-ролями. */
   function initPanels(){
     rail = document.getElementById("setRail");
     if(!rail) return;
@@ -521,5 +565,215 @@
     paint();
   }
 
-  PC.settings = { init:init, get:get, set:set, open:open, close:close, reset:reset, selectPanel:choose, root:showRoot, drill:drill, searching:searching, valid:valid, DEFAULTS:DEFAULTS };
+  /* ---------- настройки, которых нет в разметке (4.0, перенесено в 4.2) ----------
+     Часть настроек появилась в 4.0 без своих строк в index.html. Строки
+     для них строит extend(): подпись и список вариантов из таблицы
+     EXTRA, значение читается и пишется теми же get/set. Там же — то,
+     что относится ко всему листу сразу: метка «изменено» у строки,
+     «сбросить раздел», поиск по настройкам, резервная копия и «стереть
+     всё». Вызывается один раз из PC.tisza.init, после того как
+     PC.dropdown подменил готовые списки: эти строки в подмену попадать
+     не должны.
+
+     Запись таблицы: ключ → [раздел, подписи вариантов, значения]. Подпись
+     — ключ словаря или готовый текст; без вариантов настройка —
+     переключатель «выкл/вкл». */
+  var EXTRA = {};
+  function extraTable(){
+    return {
+      dotSize:["interface", ["S", "M", "L"], ["small", "normal", "large"]],
+      labelMode:["interface", ["set.all", "set.duma", "set.selected"], ["all", "duma", "selected"]],
+      bubbles:["interface"],
+      myParties:["interface"],
+      startTab:["nav", ["tab.compass", "set.last", "tab.quiz", "tab.votes", "tab.party", "tab.about"], ["compass", "last", "quiz", "votes", "party", "about"]],
+      convDefault:["nav", PC.CONVOCATIONS.map(function(c){ return PC.L(c, "label"); }), PC.CONVOCATIONS.map(function(c){ return String(c.id); })],
+      quizMode:["general", ["20", "40", "90"], ["short", "full", "long"]],
+      autoNext:["general"],
+      confirmReset:["general"],
+      colorblind:["readability"],
+      lineheight:["readability", ["set.normal", "set.increased"], ["normal", "increased"]],
+      exportFormat:["general", ["PNG", "SVG"], ["png", "svg"]],
+      exportScale:["general", ["1×", "2×", "3×"], ["1", "2", "3"]],
+      transparent:["general"],
+      srpcStage:["srpc", ["1", "2", "3", "4", "5", "6"], ["1", "2", "3", "4", "5", "6"]]
+    };
+  }
+
+  function node(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text != null) e.textContent = text;
+    return e;
+  }
+
+  function smallButton(text, onClick){
+    var b = node("button", "btn small", text);
+    b.type = "button";
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  function addExtraRows(){
+    Object.keys(EXTRA).forEach(function(key){
+      var def = EXTRA[key];
+      var group = document.querySelector('#setPanels [data-panel="' + def[0] + '"]');
+      var row = node("div", "set-row tisza-setting");
+      row.dataset.setting = key;
+      var label = node("label", "set-name", PC.t(key === "srpcStage" ? "srpc.failure" : "set." + key));
+      label.htmlFor = "setting-" + key;
+      var control = node("select");
+      control.id = "setting-" + key;
+      var values = def[2] || ["off", "on"], labels = def[1] || ["set.off", "set.on"];
+      values.forEach(function(value, i){
+        var option = node("option", "", PC.i18nDict[labels[i]] ? PC.t(labels[i]) : labels[i]);
+        option.value = value;
+        control.appendChild(option);
+      });
+      control.value = get(key);
+      control.addEventListener("change", function(){ set(key, control.value); });
+      row.append(label, control);
+      group.appendChild(row);
+    });
+  }
+
+  /* Метка «изменено» у строк, чьё значение отличается от исходного, и
+     синхронизация строк из EXTRA после «сбросить» и восстановления. */
+  function markChanged(sheet){
+    sheet.querySelectorAll(".set-row").forEach(function(row){
+      var controls = Array.from(row.querySelectorAll("[data-set-switch],[data-set-seg]"));
+      var different = row.dataset.setting
+        ? get(row.dataset.setting) !== DEFAULTS[row.dataset.setting]
+        : controls.some(function(c){ var k = c.dataset.setSwitch || c.dataset.setSeg; return get(k) !== DEFAULTS[k]; });
+      row.classList.toggle("is-modified", different);
+      row.title = different ? PC.t("set.modified") : "";
+    });
+    Object.keys(EXTRA).forEach(function(k){
+      var control = document.getElementById("setting-" + k);
+      if(control) control.value = get(k);
+    });
+  }
+
+  /* «Сбросить раздел» с отменой: прежние значения запоминаются и
+     возвращаются кнопкой в уведомлении. */
+  function addSectionResets(){
+    document.querySelectorAll("#setPanels .set-group").forEach(function(group){
+      group.appendChild(smallButton(PC.t("set.resetSection"), function(){
+        var previous = {};
+        group.querySelectorAll("[data-set-switch],[data-set-seg],[data-setting]").forEach(function(c){
+          var k = c.dataset.setSwitch || c.dataset.setSeg || c.dataset.setting;
+          previous[k] = get(k);
+          set(k, DEFAULTS[k]);
+        });
+        PC.ui.toast(PC.t("set.resetDone"), false, {
+          label:PC.t("party.undo"),
+          duration:5000,
+          action:function(){ Object.keys(previous).forEach(function(k){ set(k, previous[k]); }); }
+        });
+      }));
+    });
+  }
+
+  /* Поиск под шапкой листа, как в настройках iOS: он один на все разделы
+     и виден и в списке разделов, и внутри раздела. */
+  function addSearch(sheet){
+    var search = node("input", "settings-search");
+    search.type = "search";
+    search.placeholder = PC.t("set.search");
+    search.setAttribute("aria-label", PC.t("set.search"));
+    sheet.insertBefore(search, sheet.querySelector(".sheet-body"));
+    search.addEventListener("input", function(){
+      var value = search.value.trim().toLowerCase();
+      document.querySelectorAll("#setPanels .set-group").forEach(function(group){
+        var matches = false;
+        group.querySelectorAll(".set-row").forEach(function(row){
+          row.hidden = !!value && row.textContent.toLowerCase().indexOf(value) < 0;
+          if(!row.hidden) matches = true;
+        });
+        if(value) group.hidden = !matches;
+      });
+      searching(!!value);
+      if(value) return;
+      var active = sheet.querySelector('.setm-tab[aria-selected="true"]');
+      if(drill()) showRoot();
+      else if(active) choose(active.dataset.panel);
+    });
+  }
+
+  /* Кнопки экспорта и импорта настроек. */
+  function addBackupButtons(){
+    var general = document.getElementById("setPanel-general");
+    var actions = node("div", "party-actions");
+    var input = node("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.hidden = true;
+    input.id = "backupImport";
+    actions.append(
+      smallButton(PC.t("set.backup"), function(){
+        var data = PC.backup.make();
+        if(data) PC.exporter.download(new Blob([JSON.stringify(data, null, 2)], { type:"application/json" }), "politcompass-backup.json");
+      }),
+      smallButton(PC.t("set.restore"), function(){ input.click(); })
+    );
+    input.addEventListener("change", async function(){
+      var file = input.files[0];
+      if(!file) return;
+      var data;
+      try{
+        if(file.size > 5000000) throw Error();
+        data = JSON.parse(await file.text());
+      }catch(e){
+        PC.ui.toast(PC.t("set.badBackup"), true);
+        return;
+      }
+      if(!PC.backup.restore(data)){
+        PC.ui.toast(PC.t("set.badBackup"), true);
+        return;
+      }
+      PC.ui.toast(PC.t("set.restored"));
+      setTimeout(function(){ location.reload(); }, 600);
+    });
+    general.append(actions, input);
+  }
+
+  /* «Стереть всё» в разделе приватности: удаляет все pc-*, но оставляет
+     в уведомлении кнопку «отменить», пока оно не исчезло. */
+  function addEraseAll(){
+    var privacy = document.getElementById("setPanel-privacy");
+    privacy.appendChild(node("p", "party-meta", "pc-my-parties · pc-party-draft · pc-settings · pc-eggs-found"));
+    privacy.appendChild(smallButton(PC.t("set.eraseAll"), function(){
+      var before = PC.backup.make();
+      if(!before) return;
+      Object.keys(before.data).forEach(function(k){ PC.store.remove(k); });
+      PC.partyModel.load();
+      PC.partyBuilder.clearLocal();
+      PC.quiz.clearLocal();
+      reset();
+      PC.compass.redraw();
+      PC.refresh();
+      PC.ui.toast(PC.t("set.resetDone"), false, {
+        label:PC.t("party.undo"),
+        duration:5000,
+        action:function(){ if(PC.backup.restore(before)) location.reload(); }
+      });
+    }));
+  }
+
+  function extend(){
+    var sheet = document.getElementById("setSheet");
+    /* таблица читает PC.CONVOCATIONS и словарь, поэтому строится здесь, а не при загрузке файла */
+    EXTRA = extraTable();
+    addSearch(sheet);
+    addExtraRows();
+    document.addEventListener("pc:settings", function(){ markChanged(sheet); });
+    addSectionResets();
+    addBackupButtons();
+    addEraseAll();
+    markChanged(sheet);
+  }
+
+  PC.settings = {
+    init:init, get:get, set:set, open:open, close:close, reset:reset, selectPanel:choose, root:showRoot, drill:drill, searching:searching,
+    valid:valid, extend:extend, DEFAULTS:DEFAULTS
+  };
 })(window.PC = window.PC || {});

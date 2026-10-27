@@ -136,7 +136,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "4.1",
+      "softwareVersion": "4.2",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -566,7 +566,7 @@
           за честные выборы — таких сочетаний в российской политике достаточно, и на одной шкале они бы слиплись.</p>
       </article>
 
-      <article class="card about-card" data-reveal>
+      <article class="card about-card" id="ab-src" data-reveal>
         <h3 data-i18n="ab.src.h">Откуда берутся координаты</h3>
         <p data-i18n="ab.src.p">Координаты — это экспертная оценка, а не результат измерения. Каждая позиция выведена
           из четырёх источников, в порядке приоритета:</p>
@@ -602,7 +602,7 @@
           видны лучше, чем в цифрах.</p>
       </article>
 
-      <article class="card about-card about-card--wide" data-reveal>
+      <article class="card about-card about-card--wide" id="ab-votes" data-reveal>
         <h3 data-i18n="ab.votes.h">Ключевые голосования</h3>
         <p data-i18n="ab.votes.p">Программу можно написать какой угодно, голосование — уже поступок. Отдельная вкладка
           собирает двадцать знаковых законопроектов — от монетизации льгот 2004 года до запрета
@@ -694,13 +694,13 @@
 
       <!-- Тест по самому разделу (2.5). Вопросы лежат в
            js/data-quiz-about.js, экраны строит js/about-quiz.js: три
-           варианта на каждый из десяти вопросов — это шестьдесят строк,
+           варианта на каждый из двенадцати вопросов — это тридцать шесть строк,
            которые в разметке пришлось бы держать в двух языках.
            Без JavaScript карточка остаётся с заголовком и абзацем;
            проверять прочитанное без скрипта всё равно нечем. -->
       <article class="card about-card about-card--wide" id="ab-quiz" data-reveal>
         <h3 data-i18n="ab.aq.h">Проверьте себя по разделу</h3>
-        <p data-i18n="ab.aq.p">Десять вопросов о том, как устроен компас. Ответ на каждый написан в одной из карточек выше — это проверка прочитанного, а не викторина на эрудицию. Результат остаётся в вашем браузере и никуда не отправляется.</p>
+        <p data-i18n="ab.aq.p">Двенадцать вопросов о том, как устроен компас. Ответ на каждый написан в одной из карточек выше — это проверка прочитанного, а не викторина на эрудицию. Результат остаётся в вашем браузере и никуда не отправляется.</p>
         <div class="aq" id="abQuiz"></div>
       </article>
 
@@ -908,11 +908,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Телефон как приложение: нижняя панель вкладок, крупные заголовки и листы, которые смахиваются вниз.</li>
-        <li data-i18n="wel.up.l2">Дерево версий вместо ленты истории: все выпуски по веткам, разбор по нажатию.</li>
-        <li data-i18n="wel.up.l3">Моя партия: шаблоны, случайная партия и симуляция выборов в Госдуму.</li>
-        <li data-i18n="wel.up.l4">Настройки в стиле iOS: список разделов с иконками и сгруппированные карточки; новая палитра команд и панель SRPC.</li>
-        <li data-i18n="wel.up.l5">Исправления: фокус при переходе между вопросами, подписи и группы в SRPC, доступные кнопки масштаба.</li>
+        <li data-i18n="wel.up.l1">Плавный компас на телефоне: приближение и перетаскивание без рывков, щипок вокруг пальцев, инерция после броска.</li>
+        <li data-i18n="wel.up.l2">Панель карты на телефоне стала аккуратнее: «Сбросить вид» и «Список» — отдельные кнопки вместо общей плашки.</li>
+        <li data-i18n="wel.up.l3">В тесте по разделу «О проекте» теперь двенадцать вопросов: добавлены вопросы про полую точку партии и про расхождение расстояний и голосований.</li>
+        <li data-i18n="wel.up.l4">Предупреждение о цвете партии показывается только у цветов, которые действительно сливаются с фоном; тексты сообщений об ошибках стали вежливее.</li>
+        <li data-i18n="wel.up.l5">Внутри: код разобран по модулям и аккуратно развёрнут, словари разложены по своим файлам; вид и поведение сайта прежние.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1557,7 +1557,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 4.1 «Тиса»: интерфейс приложения на телефоне, дерево версий, выборы в «Моей партии»">4.1 «Тиса»</span>
+              title="Версия 4.2 «Тиса»: плавный компас на телефоне, аккуратная панель карты, внутренняя уборка кода">4.2 «Тиса»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1614,6 +1614,9 @@
 <script src="js/party-templates.js" defer></script>
 <script src="js/party-builder.js" defer></script>
 <script src="js/party-campaign.js" defer></script>
+<script src="js/palette.js" defer></script>
+<script src="js/backup.js" defer></script>
+<script src="js/map-controls.js" defer></script>
 <script src="js/tisza.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>

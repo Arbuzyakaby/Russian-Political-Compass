@@ -184,7 +184,7 @@ test("экспорт по касанию отдаёт файл данных", as
 });
 
 test("приветствие работает до загрузки остальных модулей", async ({ page }) => {
-  // Packaging and source entrypoints must both show an interactive welcome early.
+  // И сборка, и исходники обязаны показать рабочее приветствие рано, не дожидаясь основных модулей.
   await page.route(/\/js\/(?:site(?:\.[a-f0-9]+)?|data-parties)\.js$/, async route => {
     await new Promise(resolve => setTimeout(resolve, 1200));
     await route.continue();

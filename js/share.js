@@ -54,6 +54,7 @@
 
   function font(size, weight){ return (weight || 600) + " " + size + "px " + FONT; }
 
+  /* Прямоугольник со скруглёнными углами на canvas. */
   function roundRect(ctx, x, y, w, h, r){
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -395,6 +396,7 @@
       d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + ".png";
   }
 
+  /* Можно ли поделиться файлом через системное меню. */
   function canShareFiles(){
     if(!navigator.share || !navigator.canShare) return false;
     try{
@@ -488,6 +490,12 @@
     });
   }
 
-  function partyData(p){var code=PC.partyModel.encode(p);return code?{title:p.name,text:p.slogan||PC.t("party.user"),url:location.origin+location.pathname+location.search+"#/party/view/"+code}:null;}
+  /* Данные партии для шаринга: ссылка и JSON. */
+  function partyData(p){
+    var code=PC.partyModel.encode(p);
+    return code?{
+      title:p.name,text:p.slogan||PC.t("party.user"),url:location.origin+location.pathname+location.search+"#/party/view/"+code
+    }:null;
+  }
   PC.share = { mount:mount, render:render, toBlob:toBlob, FORMATS:FORMATS, partyData:partyData };
 })(window.PC = window.PC || {});

@@ -289,5 +289,18 @@
        говорит, на какой день она верна. */
     "person.checked":     ["Позиция и статус сверены {date}", "Position and status verified on {date}"],
 
+    /* ===== из 4.0: компас, карта, боковая панель, люди, экспорт (перенесено из i18n-party.js в 4.2) ===== */
+    "map.minus": ["Уменьшить масштаб","Zoom out"],
+    "map.plus": ["Увеличить масштаб","Zoom in"],
+    "people.title": ["Люди","People"],
+    "ex.preferred": ["Сохранить изображение","Save image"],
+    "ex.preferred.h": ["По настройкам формата, масштаба и фона","Use your format, scale and background preferences"],
+    "side.empty.hint": ["Попробуйте другое название или снимите фильтр.","Try another name or remove the filter."],
+    "side.notParticipated": ["Не участвовала в этом созыве","Did not participate in this convocation"],
+    "node.guest": ["Чужой результат","Shared result"],
+    "co.independent": ["Независимые / не входящие в набор: {n}","Independents / outside this set: {n}"],
+    "compass.resetView": ["Сбросить вид","Reset view"],
+    "compass.list": ["Список с координатами","List with coordinates"],
+    "compass.map": ["Карта","Map"]
   });
 })(window.PC = window.PC || {});

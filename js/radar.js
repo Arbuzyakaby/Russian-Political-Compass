@@ -195,7 +195,15 @@
     if(series.length && opts.legend !== false){
       var leg = document.createElement("div");
       leg.className = "rad-legend";
-      series.forEach(function(s){var span=document.createElement("span");span.className="rl"+(s.dashed?" dashed":"");var dot=document.createElement("i");dot.style.background=s.color;span.appendChild(dot);span.appendChild(document.createTextNode(s.label));leg.appendChild(span);});
+      series.forEach(function(s){
+        var span=document.createElement("span");
+        span.className="rl"+(s.dashed?" dashed":"");
+        var dot=document.createElement("i");
+        dot.style.background=s.color;
+        span.appendChild(dot);
+        span.appendChild(document.createTextNode(s.label));
+        leg.appendChild(span);
+      });
       box.appendChild(leg);
     }
 
@@ -205,14 +213,30 @@
       note.textContent = t("ch.radar.legend");
       box.appendChild(note);
     }
-    /* Values remain readable on small screens and without SVG hover. */
+    /* Значения остаются читаемыми на маленьких экранах и без наведения мыши на SVG. */
     if(series.length){
       var table = document.createElement("table");
       table.className = "rad-values";
       var caption=document.createElement("caption");caption.className="sr-only";caption.textContent=t("ch.radar.aria");table.appendChild(caption);
       var head=document.createElement("thead"),tr=document.createElement("tr");
-      [t("side.subaxes")].concat(series.map(function(s){return s.label;})).forEach(function(text){var th=document.createElement("th");th.scope="col";th.textContent=text;tr.appendChild(th);});head.appendChild(tr);table.appendChild(head);
-      var body=document.createElement("tbody");axes.forEach(function(ax){var row=document.createElement("tr"),name=document.createElement("th");name.scope="row";name.textContent=axisName(ax.id);row.appendChild(name);series.forEach(function(s){var td=document.createElement("td");td.textContent=fmt(s.values[ax.id]);row.appendChild(td);});body.appendChild(row);});table.appendChild(body);
+      [t("side.subaxes")].concat(series.map(function(s){return s.label;})).forEach(function(text){
+        var th=document.createElement("th");
+        th.scope="col";
+        th.textContent=text;
+        tr.appendChild(th);
+      });
+      head.appendChild(tr);
+      table.appendChild(head);
+      var body=document.createElement("tbody");
+      axes.forEach(function(ax){
+        var row=document.createElement("tr"),name=document.createElement("th");
+        name.scope="row";
+        name.textContent=axisName(ax.id);
+        row.appendChild(name);
+        series.forEach(function(s){var td=document.createElement("td");td.textContent=fmt(s.values[ax.id]);row.appendChild(td);});
+        body.appendChild(row);
+      });
+      table.appendChild(body);
       box.appendChild(table);
     }
     return svg;
@@ -232,6 +256,7 @@
     return { worst:worst, mean: n ? sum / n : null };
   }
 
+  /* Сводка сравнения двух партий. */
   function summary(a, b){
     var c = compare(a, b);
     if(!c.worst) return "";

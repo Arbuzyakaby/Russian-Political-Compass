@@ -26,14 +26,17 @@
     var d = new Date(), p = function(n){ return (n < 10 ? "0" : "") + n; };
     return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
   }
+  /* Короткое имя созыва для имени файла. */
   function convSlug(){
     var c = PC.convocationInfo();
     return "sozyv-" + c.id;
   }
+  /* Имя файла с датой и расширением. */
   function fileName(kind, ext){
     return "politcompass-" + kind + "-" + stamp() + "." + ext;
   }
 
+  /* Скачивание Blob через временную ссылку. */
   function download(blob, name){
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -66,6 +69,7 @@
     if(s.indexOf(SEP) === -1 && s.indexOf('"') === -1 && !/[\r\n]/.test(s)) return s;
     return '"' + s.replace(/"/g, '""') + '"';
   }
+  /* Превращает строки в CSV с экранированием кавычек. */
   function toCSV(rows){
     return "﻿" + rows.map(function(r){ return r.map(cell).join(SEP); }).join("\r\n") + "\r\n";
   }
@@ -157,13 +161,15 @@
     return toCSV(rows);
   }
 
+  /* Полный набор данных в JSON для экспорта. */
   function datasetJSON(){
     var res = PC.quiz && PC.quiz.result();
     var data = {
       source: "Интерактивный политический компас партий РФ",
       url: location.origin + location.pathname,
       exported: new Date().toISOString(),
-      note: "Координаты, реальные и заявленные, — экспертная оценка, а не результат измерения. " +
+      note: "Координаты, реальные и заявленные, — экспертная оценка, " +
+        "а не результат измерения. " +
             "Оси: X — экономика (−10 плановая … +10 рыночная), " +
             "Y — отношение к власти государства (−10 свободы … +10 этатизм).",
       totalSeats: PC.TOTAL_SEATS,
@@ -314,10 +320,12 @@
   function light(){
     return ["light", "paper", "alaska"].indexOf(document.documentElement.dataset.theme) > -1;
   }
+  /* Цвет «стекла» для карточек экспорта по теме. */
   function glass(color, dark, lite){
     return color + ";stop-opacity:" + (light() ? lite : dark) + ";";
   }
 
+  /* SVG-экспорт компаса. */
   function compassSVG(){
     var live = document.getElementById("svg");
     if(!live) return null;
@@ -349,6 +357,7 @@
     return head + new XMLSerializer().serializeToString(clone);
   }
 
+  /* PNG-экспорт компаса: SVG рисуется в canvas с масштабом. */
   function compassPNG(scale, done){
     var svgText = compassSVG();
     if(!svgText){ note(t("ex.noCompass"), true); if(done) done(); return; }
@@ -407,8 +416,18 @@
           '<span class="ei-hint">' + U.esc(t(it.hint)) + '</span></button>';
       }).join("");
     var preferred = document.createElement("button"); preferred.type = "button"; preferred.className = "export-item"; preferred.setAttribute("role","menuitem");
-    var label = document.createElement("span"), hint = document.createElement("span"); label.className="ei-label";hint.className="ei-hint"; label.textContent=t("ex.preferred");hint.textContent=(PC.settings.get("exportFormat")||"png").toUpperCase()+" · "+(PC.settings.get("exportScale")||"2")+"×";preferred.append(label,hint); menu.prepend(preferred);
-    preferred.addEventListener("click",function(){close();if(PC.settings.get("exportFormat")==="svg")downloadText(compassSVG(),fileName("compas-"+convSlug(),"svg"),"image/svg+xml");else compassPNG(Number(PC.settings.get("exportScale"))||2);});
+    var label = document.createElement("span"), hint = document.createElement("span");
+    label.className="ei-label";
+    hint.className="ei-hint";
+    label.textContent=t("ex.preferred");
+    hint.textContent=(PC.settings.get("exportFormat")||"png").toUpperCase()+" · "+(PC.settings.get("exportScale")||"2")+"×";
+    preferred.append(label,hint);
+    menu.prepend(preferred);
+    preferred.addEventListener("click",function(){
+      close();
+      if(PC.settings.get("exportFormat")==="svg")downloadText(compassSVG(),fileName("compas-"+convSlug(),"svg"),"image/svg+xml");
+      else compassPNG(Number(PC.settings.get("exportScale"))||2);
+    });
     menu.querySelectorAll(".export-item").forEach(function(b){
       b.addEventListener("click", function(){
         var item = ITEMS.filter(function(it){ return it.id === b.dataset.id; })[0];
@@ -469,50 +488,88 @@
     });
   }
 
-  /* Inline computed paint properties resolve theme variables and layer switches. */
+  /* Встраиваемые вычисленные свойства окраски разрешают переменные темы
+     и переключатели слоёв. */
   function inlineStyles(live, clone){
     var originals = [live].concat(Array.from(live.querySelectorAll("*"))), copies = [clone].concat(Array.from(clone.querySelectorAll("*")));
-    var props = ["fill", "fill-opacity", "stroke", "stroke-width", "stroke-opacity", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "opacity", "display", "visibility", "font-family", "font-size", "font-weight", "letter-spacing", "text-anchor", "paint-order", "stop-color", "stop-opacity", "color"];
+    var props = [
+      "fill", "fill-opacity", "stroke", "stroke-width", "stroke-opacity", "stroke-dasharray", "stroke-linecap", "stroke-linejoin",
+      "opacity", "display", "visibility", "font-family", "font-size", "font-weight", "letter-spacing", "text-anchor", "paint-order",
+      "stop-color", "stop-opacity", "color"
+    ];
     originals.forEach(function(source, i){
       var style = getComputedStyle(source), copy = copies[i];
-      props.forEach(function(key){ var value = style.getPropertyValue(key); if(value && value.indexOf("var(") === -1){ value = value.replace(/url\(["']?[^)"']*#([^)'"\s]+)["']?\)/g, "url(#$1)"); copy.style.setProperty(key, value); } });
+      props.forEach(function(key){
+        var value = style.getPropertyValue(key);
+        if(value && value.indexOf("var(") === -1){
+          value = value.replace(/url\(["']?[^)"']*#([^)'"\s]+)["']?\)/g, "url(#$1)");
+          copy.style.setProperty(key, value);
+
+        }
+      });
       if(source.matches(".cross,.pulse,.ring,.touch-hit")) copy.style.display = "none";
     });
   }
+  /* Скачивает SVG или растеризует его в PNG. */
   function svgDownload(svg, format, name){
     var text = typeof svg === "string" ? svg : '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
     if(format === "svg"){ downloadText(text, name + ".svg", "image/svg+xml"); return; }
     var img = new Image(), url = URL.createObjectURL(new Blob([text], { type:"image/svg+xml;charset=utf-8" }));
     img.onload = function(){
-      var factor = PC.settings ? Number(PC.settings.get("exportScale")) || 2 : 2, canvas = document.createElement("canvas"); canvas.width = img.width * factor; canvas.height = img.height * factor;
+      var factor = PC.settings ? Number(PC.settings.get("exportScale")) || 2 : 2, canvas = document.createElement("canvas");
+      canvas.width = img.width * factor;
+      canvas.height = img.height * factor;
       canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height); URL.revokeObjectURL(url);
       canvas.toBlob(function(blob){ if(blob) download(blob, name + ".png"); else note(t("ex.noImage"), true); }, "image/png");
     };
     img.onerror = function(){ URL.revokeObjectURL(url); note(t("ex.noImage"), true); }; img.src = url;
   }
+  /* SVG-карточка партии для экспорта. */
   function partyCardSVG(raw){
     var p = PC.partyModel.normalize(raw), el = U.el, width = 900, pad = 58, cursor = 64, max = width - pad*2;
     var svg = el("svg", { xmlns:PC.geom.NS, width:width, viewBox:"0 0 900 900", "font-family":"Segoe UI,Arial,sans-serif" });
     var canvas = document.createElement("canvas"), ctx = canvas.getContext("2d");
     var content = el("g", {}); svg.appendChild(content);
+    /* Строка текста внутри карточки с переносом. */
     function line(text, size, color, weight, indent){
-      var start = pad + (indent || 0), lines = [], words = String(text).split(/\s+/), current = ""; ctx.font = (weight || 400) + " " + size + "px Segoe UI,Arial";
+      var start = pad + (indent || 0), lines = [], words = String(text).split(/\s+/), current = "";
+      ctx.font = (weight || 400) + " " + size + "px Segoe UI,Arial";
       words.forEach(function(word){
         if(ctx.measureText(current + " " + word).width > max - (indent || 0) && current){ lines.push(current); current = ""; }
-        while(ctx.measureText(word).width > max - (indent || 0) && word.length > 1){ var n = Math.max(1, Math.floor(word.length * (max - (indent || 0)) / ctx.measureText(word).width)); if(current){ lines.push(current); current = ""; } lines.push(word.slice(0,n)); word=word.slice(n); }
+        while(ctx.measureText(word).width > max - (indent || 0) && word.length > 1){
+          var n = Math.max(1, Math.floor(word.length * (max - (indent || 0)) / ctx.measureText(word).width));
+          if(current){ lines.push(current); current = ""; }
+          lines.push(word.slice(0,n));
+          word=word.slice(n);
+
+        }
         current += (current ? " " : "") + word;
       }); if(current) lines.push(current);
-      lines.forEach(function(s){ cursor += size * 1.55; content.appendChild(el("text", { x:start, y:cursor, "font-size":size, fill:color, "font-weight":weight || 400 }, s)); }); return lines.length;
+      lines.forEach(function(s){
+        cursor += size * 1.55;
+        content.appendChild(el("text", { x:start, y:cursor, "font-size":size, fill:color, "font-weight":weight || 400 }, s));
+
+      });
+      return lines.length;
     }
     var text = v("text") || "#f2f4fa", muted = v("muted") || "#9198ab", bg = v("bg") || "#0b0d11";
-    var emblem = PC.partyBuilder.emblem(p, 56); emblem.setAttribute("x", pad); emblem.setAttribute("y", cursor-18); emblem.setAttribute("color", p.color); content.appendChild(emblem);
+    var emblem = PC.partyBuilder.emblem(p, 56);
+    emblem.setAttribute("x", pad);
+    emblem.setAttribute("y", cursor-18);
+    emblem.setAttribute("color", p.color);
+    content.appendChild(emblem);
     line(t("party.user").toUpperCase()+" / "+PC.versionLabel(),14,muted,600,80); cursor += 40;
     line(p.name || t("party.noName"),38,text,700); if(p.slogan) line(p.slogan,20,muted); cursor += 24;
     line("X "+U.fmt(p.x)+"     Y "+U.fmt(p.y),28,p.color,700); cursor+=18;
     line(t("party.family."+p.family)+(p.ideology?" · "+p.ideology:""),18,muted); cursor+=12;
     if(p.summary){ line(p.summary,20,text); cursor+=20; }
     p.theses.forEach(function(s){ line("• "+s,18,text); cursor+=8; });
-    if(p.declared){ cursor+=18; line(t("party.declared")+": X "+U.fmt(p.declared.x)+" / Y "+U.fmt(p.declared.y),16,muted); if(p.declared.note) line(p.declared.note,16,muted); }
+    if(p.declared){
+      cursor+=18;
+      line(t("party.declared")+": X "+U.fmt(p.declared.x)+" / Y "+U.fmt(p.declared.y),16,muted);
+      if(p.declared.note) line(p.declared.note,16,muted);
+
+    }
     cursor+=24; var nearest=PC.partyModel.nearest(p,1)[0]; if(nearest) line(t("party.nearest")+": "+L(nearest.p,"name")+" · "+nearest.d.toFixed(1),16,muted);
     cursor+=24; line("rupolitcompass.website · "+t("party.local"),12,muted); cursor+=pad;
     svg.setAttribute("height",cursor); svg.setAttribute("viewBox","0 0 "+width+" "+cursor);
@@ -520,16 +577,45 @@
     svg.insertBefore(el("path",{d:"M58 2H842",stroke:p.color,"stroke-width":4}),content); return svg;
   }
   function partyCard(p, format){ svgDownload(partyCardSVG(p), format || "png", "my-party"); }
+  /* Экспорт доски SRPC в PNG или SVG. */
   function srpcBoard(canvas, format){
-    var svg = U.el("svg", { xmlns:PC.geom.NS, width:canvas.clientWidth, height:canvas.clientHeight, viewBox:"0 0 "+canvas.clientWidth+" "+canvas.clientHeight });
+    var svg = U.el(
+      "svg",
+      { xmlns:PC.geom.NS, width:canvas.clientWidth, height:canvas.clientHeight, viewBox:"0 0 "+canvas.clientWidth+" "+canvas.clientHeight }
+    );
     svg.appendChild(U.el("rect",{width:"100%",height:"100%",fill:v("bg")}));
-    var wires = canvas.querySelector("svg"); if(wires){ var copied = wires.cloneNode(true); inlineStyles(wires,copied); copied.setAttribute("width",canvas.clientWidth);copied.setAttribute("height",canvas.clientHeight);svg.appendChild(copied); }
+    var wires = canvas.querySelector("svg");
+    if(wires){
+      var copied = wires.cloneNode(true);
+      inlineStyles(wires,copied);
+      copied.setAttribute("width",canvas.clientWidth);
+      copied.setAttribute("height",canvas.clientHeight);
+      svg.appendChild(copied);
+
+    }
     canvas.querySelectorAll(".srpcf-card").forEach(function(c){
-      var x=c.offsetLeft,y=c.offsetTop,w=c.offsetWidth,h=c.offsetHeight,group=U.el("g",{transform:"translate("+x+","+y+")","font-family":"Segoe UI,Arial,sans-serif"});
+      var x=c.offsetLeft,
+      y=c.offsetTop,
+      w=c.offsetWidth,
+      h=c.offsetHeight,
+      group=U.el("g",{transform:"translate("+x+","+y+")","font-family":"Segoe UI,Arial,sans-serif"});
       group.appendChild(U.el("rect",{width:w,height:h,rx:14,fill:v("bg"),stroke:v("accent-line")}));
-      var cursor=30; [c.querySelector("h3").textContent,c.querySelector(".srpcf-file").textContent,c.querySelector("p").textContent,c.querySelector(".srpcf-metric").textContent].forEach(function(text,i){
-        var current="",lines=[];String(text).split(/\s+/).forEach(function(word){if((current+" "+word).length>Math.floor((w-36)/(i===0?8:6))&&current){lines.push(current);current="";}current+=(current?" ":"")+word;});if(current)lines.push(current);
-        lines.forEach(function(line){group.appendChild(U.el("text",{x:18,y:cursor,"font-size":i===0?15:11,"font-weight":i===0?700:400,fill:i===0?v("text"):v("muted")},line));cursor+=i===0?21:17;});cursor+=8;
+      var cursor=30;
+      [c.querySelector("h3").textContent,c.querySelector(".srpcf-file").textContent,c.querySelector("p").textContent,
+        c.querySelector(".srpcf-metric").textContent].forEach(function(text,i){
+        var current="",lines=[];
+        String(text).split(/\s+/).forEach(function(word){
+          if((current+" "+word).length>Math.floor((w-36)/(i===0?8:6))&&current){lines.push(current);current="";}
+          current+=(current?" ":"")+word;
+        });
+        if(current)lines.push(current);
+        lines.forEach(function(line){
+          group.appendChild(
+            U.el("text",{x:18,y:cursor,"font-size":i===0?15:11,"font-weight":i===0?700:400,fill:i===0?v("text"):v("muted")},line)
+          );
+          cursor+=i===0?21:17;
+        });
+        cursor+=8;
       }); svg.appendChild(group);
     }); svgDownload(svg,format,"srpc-workbench");
   }

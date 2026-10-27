@@ -172,7 +172,7 @@
     "res.fmtNote":        ["Формат <b>{label}</b> · {w}×{h} px", "Format <b>{label}</b> · {w}×{h} px"],
     "res.preview":        ["Предпросмотр карточки результата", "Preview of the result card"],
     "res.saved":          ["Карточка сохранена: {name}", "Card saved: {name}"],
-    "res.cardFail":       ["Не удалось собрать картинку", "Could not build the image"],
+    "res.cardFail":       ["К сожалению, не удалось собрать картинку", "Sorry, we could not build the image"],
     "res.fmt.square":     ["Квадрат · лента", "Square · feed"],
     "res.fmt.wide":       ["Широкая · превью ссылки", "Wide · link preview"],
 
@@ -181,8 +181,7 @@
                            "The link encodes every one of your answers, so it reproduces the result exactly — including the sub-axis breakdown, not just a picture. The link is not sent or stored anywhere: the whole code sits inside the address itself."],
     "res.link.copy":      ["Скопировать ссылку", "Copy link"],
     "res.link.copied":    ["Ссылка скопирована в буфер обмена", "Link copied to the clipboard"],
-    "res.link.failed":    ["Не удалось скопировать — выделите адрес вручную",
-                           "Could not copy — select the address manually"],
+    "res.link.failed":    ["Не получилось скопировать — пожалуйста, выделите адрес вручную", "Could not copy — please select the address manually"],
     "res.link.open":      ["Открыть в новой вкладке", "Open in a new tab"],
     "res.link.aria":      ["Ссылка на ваш результат", "Link to your result"],
 
@@ -255,5 +254,11 @@
                            "Your position from the quiz: economy {x}, attitude to the state {y}"],
     "seats.none":         ["нет мандатов", "no seats"],
 
+    /* ===== из 4.0: результат теста (перенесено из i18n-party.js в 4.2) ===== */
+    "res.empty": ["Пожалуйста, ответьте хотя бы на один вопрос", "Please answer at least one question"],
+    "res.damaged": ["К сожалению, ссылка повреждена","Sorry, this result link is damaged"],
+    "res.completion": ["{n} из {all} ответов","{n} of {all} questions answered"],
+    "res.myParty": ["Ближе всего из ваших партий: {name}","Closest of your parties: {name}"],
+    "quiz.confirm": ["Сбросить ответы теста?","Reset your quiz answers?"]
   });
 })(window.PC = window.PC || {});

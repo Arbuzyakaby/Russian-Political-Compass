@@ -66,7 +66,8 @@
   .qmode[aria-pressed="true"]::after{content:"";position:absolute;right:18px;top:50%;width:18px;height:18px;margin-top:-9px;
     background:var(--accent);
     -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;
-            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;}
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;
+            }
 
   .stage-head .chips{display:flex!important;flex:1 1 100%;flex-wrap:nowrap;gap:6px;overflow-x:auto;
     margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
@@ -323,9 +324,20 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px)!important;}
   #setSheet .set-foot .btn{width:100%;min-height:50px;justify-content:center;border:0;border-radius:16px;
     background:var(--ios-card);color:var(--bad);font-size:calc(16px * var(--text-k))!important;font-weight:600;}
 
-  /* панель карты на телефоне — во всю ширину, кнопки поровну */
-  .map-controls{display:grid;grid-template-columns:48px 48px minmax(0,1fr);width:100%;margin:0 0 12px;}
-  .map-controls .btn{min-height:40px!important;}
+  /* Панель карты на телефоне (4.2). Раньше это была одна стеклянная плашка
+     с тремя прозрачными кнопками и подписью-«списком» в отдельной строке:
+     выглядело как пустая рамка. Теперь каждая кнопка — своя плитка, как
+     сегменты в iOS: «−» и «+» квадратные, «Сбросить вид» занимает остаток
+     строки, «Список» — вторую строку целиком. */
+  .map-controls{
+    display:grid;grid-template-columns:44px 44px minmax(0,1fr);gap:8px;width:100%;margin:0 0 12px;padding:0;border:0;
+    border-radius:0;background:none;
+  }
+  .map-controls .btn{
+    min-height:44px;border-radius:14px;background:color-mix(in srgb,var(--text) 8%,transparent);color:var(--text);
+    font-size:calc(14px * var(--text-k));
+  }
+  .map-controls .btn:active{background:color-mix(in srgb,var(--text) 14%,transparent);}
   .map-controls #mapList{grid-column:1 / -1;}
   /* подписи квадрантов на телефоне скрыты (css/mobile.css), а их
      подложки оставались пустыми овалами у края карты */

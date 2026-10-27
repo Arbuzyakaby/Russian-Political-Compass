@@ -103,7 +103,9 @@
   box-shadow:0 1px 2px rgba(0,0,0,.10),0 3px 10px -4px rgba(0,0,0,.18);
   transition:color var(--dur-3) ease;}
 .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-.tab-badge{display:inline-block;vertical-align:1px;margin-left:7px;font-size:calc(10px * var(--text-k));font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;
+.tab-badge{
+  display:inline-block;vertical-align:1px;margin-left:7px;font-size:calc(10px * var(--text-k));font-weight:700;
+  line-height:1;padding:3px 6px;border-radius:999px;
   background:var(--surface-3);color:var(--muted-2);border:1px solid var(--stroke);}
 .tab[aria-selected="true"] .tab-badge{color:var(--tone);border-color:var(--tone-line);}
 .panel[hidden]{display:none;}

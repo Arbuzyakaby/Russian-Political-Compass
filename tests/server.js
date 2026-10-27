@@ -34,6 +34,10 @@ const TYPES = {
 
 const handler = (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  /* Адрес приходит от кого угодно, поэтому разбирается с оглядкой: битая
+     процентная запись (%E0%A4%A) и нулевой байт — не опечатка, а попытка
+     обмануть проверку пути ниже. Отвечаем 400 «плохой запрос» сразу,
+     не пытаясь угадать, что имелось в виду. */
   let rel;
   try{ rel = decodeURIComponent(url.pathname); }catch(e){ res.writeHead(400).end("bad request"); return; }
   if(rel.includes("\0")){ res.writeHead(400).end("bad request"); return; }
@@ -61,7 +65,7 @@ const handler = (req, res) => {
     }).end(compressed ? gzipSync(data) : data);
   });
 };
-// Optional HTTPS keeps local audit traffic comparable to the public HTTPS site.
+// Необязательный HTTPS: так локальные замеры сопоставимы с публичным сайтом, который открывается по https.
 const server = process.env.PC_TLS_CERT && process.env.PC_TLS_KEY
   ? https.createServer({ cert:fs.readFileSync(process.env.PC_TLS_CERT), key:fs.readFileSync(process.env.PC_TLS_KEY) }, handler)
   : http.createServer(handler);

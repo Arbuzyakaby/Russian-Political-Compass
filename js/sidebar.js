@@ -116,17 +116,35 @@
        У партии без мандатов дорожка остаётся, но пустая. */
     body.replaceChildren();
     var rows = document.createElement("div"); rows.className = "plist";
-    if(sorted.some(function(p){return /^u/.test(p.id);})){ var heading = document.createElement("h3"); heading.className="party-subhead";heading.textContent=t("party.collection");rows.appendChild(heading); }
+    if(sorted.some(function(p){return /^u/.test(p.id);})){
+      var heading = document.createElement("h3");
+      heading.className="party-subhead";
+      heading.textContent=t("party.collection");
+      rows.appendChild(heading);
+
+    }
     sorted.forEach(function(p, i){
       var seats = PC.seatsOf(p);
       var share = seats / PC.TOTAL_SEATS * 100;
       function n(tag,cls,value){var e=document.createElement(tag);if(cls)e.className=cls;if(value!=null)e.textContent=value;return e;}
-      var b=n("button","pitem"+(p.id===activeId?" active":""));b.type="button";b.dataset.id=p.id;b.tabIndex=i===0?0:-1;b.style.animationDelay=Math.min(i,8)*32+"ms";
+      var b=n("button","pitem"+(p.id===activeId?" active":""));
+      b.type="button";
+      b.dataset.id=p.id;
+      b.tabIndex=i===0?0:-1;
+      b.style.animationDelay=Math.min(i,8)*32+"ms";
       var sw=n("span","sw");sw.style.background=p.color;var name=n("span","nm",L(p,"name"));
       name.appendChild(n("small","",/^u/.test(p.id)?t("party.user"):L(p,"ideology")));
       name.appendChild(n("span","mobile-coordinates",t("mobile.coords",{x:fmt(p.x),y:fmt(p.y)})));
-      var track=n("span","share"),fill=n("i");track.setAttribute("aria-hidden","true");fill.style.width=Math.max(seats?1.5:0,share).toFixed(2)+"%";fill.style.background=p.color;track.appendChild(fill);name.appendChild(track);
-      var mandates=n("span","mandates");if(/^u/.test(p.id)){mandates.appendChild(n("b","","◇"));}else{mandates.appendChild(n("b","",seats));mandates.appendChild(document.createTextNode(PC.i18n.pl(seats,"word.seat")));}
+      var track=n("span","share"),fill=n("i");
+      track.setAttribute("aria-hidden","true");
+      fill.style.width=Math.max(seats?1.5:0,share).toFixed(2)+"%";
+      fill.style.background=p.color;
+      track.appendChild(fill);
+      name.appendChild(track);
+      var mandates=n("span","mandates");
+      if(/^u/.test(p.id)){
+        mandates.appendChild(n("b","","◇"));
+      }else{mandates.appendChild(n("b","",seats));mandates.appendChild(document.createTextNode(PC.i18n.pl(seats,"word.seat")));}
       b.appendChild(sw);b.appendChild(name);b.appendChild(mandates);rows.appendChild(b);
     });
     body.appendChild(rows);

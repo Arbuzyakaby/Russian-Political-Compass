@@ -72,6 +72,7 @@
   function activeQuestions(){ return questionsFor(mode); }
   function score(){ return scoreOf(answers, activeQuestions()); }
 
+  /* Копирует ответы и список вопросов для другого режима. */
   function copyAnswers(src, list){
     var out = {};
     (list || ALL).forEach(function(q){
@@ -81,6 +82,7 @@
     return out;
   }
 
+  /* Снимок ответов для истории. */
   function snapshot(src, m){
     var saved = copyAnswers(src, questionsFor(m));
     var pt = scoreOf(saved, questionsFor(m));
@@ -127,6 +129,7 @@
   }
   function saveHistory(){ PC.store.setJSON(KEY_HIST, history); }
 
+  /* Читает историю прохождений из storage. */
   function load(){
     var preferred = PC.store.getJSON("pc-settings", {}).quizMode;
     var savedMode = PC.store.get(KEY_MODE, ["short", "full", "long"].indexOf(preferred) > -1 ? preferred : "full");
@@ -175,6 +178,7 @@
     return t(y <= -6 ? "w.state.lib"    : y <= -2 ? "w.state.freedom"
            : y <   2 ? "w.state.centre" : y <   6 ? "w.state.strong" : "w.state.statist");
   }
+  /* Название квадранта по координатам. */
   function quadrant(x, y){
     if(x < 0 && y >= 0) return t("q.leftstat");
     if(x >= 0 && y >= 0) return t("q.rightstat");
@@ -377,9 +381,20 @@
     });
     var nextBtn = document.getElementById("quizNext");
     if(nextBtn) nextBtn.disabled = false;
-    if(PC.settings && PC.settings.get("autoNext") === "on") autoTimer=setTimeout(function(){autoTimer=null;if(view==="run"&&idx===answeredIndex&&activeQuestions()[idx].id===answeredId&&answers[answeredId]===v&&(!PC.nav||PC.nav.current()==="quiz"))next();},240);
+    if(PC.settings && PC.settings.get("autoNext") === "on") autoTimer=setTimeout(
+      function(){
+        autoTimer=null;
+        if(
+          view==="run"&&idx===answeredIndex&&activeQuestions()[idx].id===answeredId&&answers[answeredId]===v&&(
+            !PC.nav||PC.nav.current()==="quiz"
+          )
+        )next();
+      },
+      240
+    );
   }
   function prev(){ cancelAuto();if(idx > 0){ idx--; focusQ = true; render(); } }
+  /* Переход к следующему вопросу или к результату. */
   function next(){
     cancelAuto();
     var list = activeQuestions();
@@ -418,7 +433,25 @@
     PC.store.remove(KEY_RES);
     render();
     if(PC.compass) PC.compass.redraw();
-    if(PC.ui) PC.ui.toast(t("set.resetDone"), false, { label:t("party.undo"), duration:5000, action:function(){ answers = previous.answers; result = previous.result; shared = previous.shared; mode = previous.mode; view = result ? "result" : "intro"; save(); render(); if(PC.compass) PC.compass.redraw(); } });
+    if(PC.ui) PC.ui.toast(
+      t("set.resetDone"),
+      false,
+      {
+        label:t("party.undo"),
+        duration:5000,
+        action:function(){
+          answers = previous.answers;
+          result = previous.result;
+          shared = previous.shared;
+          mode = previous.mode;
+          view = result ? "result" : "intro";
+          save();
+          render();
+          if(PC.compass) PC.compass.redraw();
+
+        }
+      }
+    );
   }
 
   /* ---------- разбор: как ответы сложились в координаты ---------- */
@@ -730,7 +763,10 @@
     if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt, shareURL(src, runMode));
     if(PC.partyModel && PC.partyModel.list().length){
       var my = PC.partyModel.list().sort(function(a, b){ return PC.calc.distance(a, pt) - PC.calc.distance(b, pt); })[0];
-      var line = document.createElement("p"); line.className = "party-meta"; line.textContent = t("res.myParty", { name:my.name }); host.querySelector(".qr-main").appendChild(line);
+      var line = document.createElement("p");
+      line.className = "party-meta";
+      line.textContent = t("res.myParty", { name:my.name });
+      host.querySelector(".qr-main").appendChild(line);
     }
     mountSubBlock(src, pt, list);
 
@@ -822,6 +858,7 @@
       if(PC.ui) PC.ui.toast(t("res.legacyLink", { v:PC.versionLabel ? PC.versionLabel() : PC.VERSION }), true);
     }, 400);
   }
+  /* Сообщение о повреждённых данных и отказ от загрузки. */
   function refuseDamaged(){
     replaceHash("#/quiz");
     setTimeout(function(){ if(PC.ui) PC.ui.toast(t("res.damaged"), true); }, 100);
@@ -836,6 +873,7 @@
     if(badge) badge.textContent = String(shared ? questionsFor(shared.mode).length : activeQuestions().length);
   }
 
+  /* Перерисовывает текущий экран квиза. */
   function render(){
     if(!host) return;
     paintTabBadge();

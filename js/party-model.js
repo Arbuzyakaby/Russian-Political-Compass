@@ -1,26 +1,35 @@
-/* Tisza: pure party calculations and a versioned, local-only collection. */
+/* Tisza: чистые расчёты по партиям и версионируемая коллекция, хранимая только локально. */
 (function(PC){
   "use strict";
   var KEY = "pc-my-parties", DRAFT = "pc-party-draft", LIMIT = 6;
-  var FAMILIES = ["social-democracy", "communism", "liberalism", "libertarianism", "conservatism", "nationalism", "monarchism", "green", "populism", "technocracy", "anarchism", "centrism", "other"];
+  var FAMILIES = [
+    "social-democracy", "communism", "liberalism", "libertarianism", "conservatism", "nationalism", "monarchism", "green", "populism",
+    "technocracy", "anarchism", "centrism", "other"
+  ];
   var KINDS = ["parliamentary", "opposition", "regional", "movement"];
-  var EMBLEMS = ["mono", "sun", "leaf", "star", "wave", "mountain", "compass", "bridge", "tree", "spark", "shield", "book", "heart", "globe", "flag", "flower", "bolt", "diamond", "circle", "arrow", "anchor", "scales", "bird", "grain", "orbit"];
+  var EMBLEMS = [
+    "mono", "sun", "leaf", "star", "wave", "mountain", "compass", "bridge", "tree", "spark", "shield", "book", "heart", "globe", "flag",
+    "flower", "bolt", "diamond", "circle", "arrow", "anchor", "scales", "bird", "grain", "orbit"
+  ];
   var list = [], error = null;
   function obj(v){ return !!v && typeof v === "object" && !Array.isArray(v); }
   function text(v, n){ return typeof v === "string" ? v.trim().slice(0, n) : ""; }
   function num(v, lo, hi, fallback){ return typeof v === "number" && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback; }
   function half(v){ return Math.round(num(v, -10, 10, 0) * 2) / 2; }
   function iso(v, fallback){ return typeof v === "string" && /^\d{4}-\d\d-\d\dT/.test(v) && isFinite(Date.parse(v)) ? new Date(v).toISOString() : fallback; }
+  /* Переводит шесть подосей в координаты X и Y (среднее по осям). */
   function fromSub(sub){
     var out = { x:0, y:0 };
     PC.SUBAXES.forEach(function(a){ out[a.axis] += half(sub && sub[a.id]) / 3; });
     return out;
   }
+  /* Обратный перевод координат X и Y в подоси. */
   function toSub(x, y){
     var out = {};
     PC.SUBAXES.forEach(function(a){ out[a.id] = half(a.axis === "x" ? x : y); });
     return out;
   }
+  /* Приводит сохранённую партию к безопасному виду: обрезает поля, отбрасывает лишнее. */
   function normalize(raw){
     raw = obj(raw) ? raw : {};
     var now = new Date().toISOString(), sub = {}, votes = {};
@@ -48,6 +57,7 @@
     return p;
   }
   function nearest(p, n){ return PC.calc.rankParties(p).slice(0, n == null ? 3 : Math.max(0, n)); }
+  /* Доля совпавших голосов с другой партией без неизвестных и воздержавшихся. */
   function voteMatch(p){
     return PC.PARTIES.map(function(real){
       var same = 0, common = 0;
@@ -65,10 +75,14 @@
      нельзя было поделиться. 4000 знаков спокойно проходят в адресной
      строке и в мессенджерах; формат P1 при этом не меняется. */
   var P1_MAX = 4000;
-  var FIELDS = ["id", "name", "short", "tag", "color", "emblem", "founded", "leader", "slogan", "summary", "family", "ideology", "kind", "sub", "declared", "theses", "votes", "seats", "inCoalition", "created", "updated"];
+  var FIELDS = [
+    "id", "name", "short", "tag", "color", "emblem", "founded", "leader", "slogan", "summary", "family", "ideology", "kind", "sub",
+    "declared", "theses", "votes", "seats", "inCoalition", "created", "updated"
+  ];
   function pack(p){ return FIELDS.map(function(k){ return p[k] === undefined ? null : p[k]; }); }
   function unpack(a){ var p = {}; FIELDS.forEach(function(k, i){ if(a[i] !== null) p[k] = a[i]; }); return p; }
   function fail(code){ error = code; return null; }
+  /* Кодирует партии в строку для ссылки (base64). */
   function encode(raw){
     error = null;
     try{
@@ -76,6 +90,7 @@
       return code.length <= P1_MAX ? code : fail("too-long");
     }catch(e){ return fail("invalid"); }
   }
+  /* Разбирает строку ссылки; при повреждении возвращает ошибку. */
   function decode(code){
     error = null;
     if(typeof code !== "string" || code.length > P1_MAX) return fail("too-long");
@@ -95,6 +110,7 @@
   }
   function persist(){ return PC.store.setJSON(KEY, { v:1, list:list }); }
   function notify(){ if(typeof document !== "undefined" && typeof CustomEvent !== "undefined") document.dispatchEvent(new CustomEvent("pc:parties")); }
+  /* Читает коллекцию из storage; старый формат массива переводит в новый. */
   function load(){
     var raw = PC.store.get(KEY, null);
     list = [];
@@ -114,6 +130,7 @@
       return { reset:false, migrated:migrated };
     }catch(e){ list = []; persist(); return { reset:true, migrated:false }; }
   }
+  /* Сохраняет партию, соблюдая лимит слотов. */
   function save(raw, asNew){
     var p = normalize(raw), ix = asNew ? -1 : list.findIndex(function(x){ return x.id === p.id; });
     if(ix === -1){
@@ -133,10 +150,13 @@
     if(!persist()){ list = old; return null; } notify(); return p;
   }
   function exportJSON(){ return JSON.stringify({ format:"politcompass-parties", v:1, list:list }, null, 2); }
+  /* Импорт JSON, пропуская некорректные записи. */
   function importJSON(json){
     var data;
     try{ data = typeof json === "string" ? JSON.parse(json) : json; }catch(e){ return { added:0, skipped:0, error:"json" }; }
-    if(!obj(data) || data.v !== 1 || data.format !== "politcompass-parties" || !Array.isArray(data.list) || data.list.length > 100) return { added:0, skipped:0, error:"schema" };
+    if(
+      !obj(data) || data.v !== 1 || data.format !== "politcompass-parties" || !Array.isArray(data.list) || data.list.length > 100
+    ) return { added:0, skipped:0, error:"schema" };
     var added = 0, skipped = 0;
     data.list.forEach(function(raw){ if(valid(raw) && save(raw, true)) added++; else skipped++; });
     return { added:added, skipped:skipped };
@@ -153,7 +173,7 @@
     rows.forEach(function(r){ out[r.i] = r.n; });
     return out;
   }
-  /* Largest remainders preserve exactly 450 seats, including independents. */
+  /* Метод наибольших остатков даёт ровно 450 мест, включая самовыдвиженцев. */
   function hypothetical(conv, own){
     own = (own || list).filter(function(p){ return p.inCoalition && p.seats > 0; });
     var requested = own.reduce(function(s, p){ return s + p.seats; }, 0);

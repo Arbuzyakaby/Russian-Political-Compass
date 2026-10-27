@@ -94,6 +94,7 @@
     }
     saved = { c:cols, p:out, layout:layout, scale:zoomScale };
   }
+  /* Сохраняет расположение карточек и масштаб в localStorage. */
   function save(){
     /* До первой раскладки сохранять нечего: запись из полупустого pos
        вернулась бы в следующий заход как «раскладка на ноль колонок». */
@@ -165,7 +166,11 @@
     hatch.setAttribute("data-ix", "3");
     wires.appendChild(hatch);
     buildControls(); updateMetrics(); applyCycle();
-    if(window.ResizeObserver){ var resizeObserver=new ResizeObserver(function(){if(stage&&!stage.hidden)place(true);});cards.forEach(function(c){resizeObserver.observe(c);}); }
+    if(window.ResizeObserver){
+      var resizeObserver=new ResizeObserver(function(){if(stage&&!stage.hidden)place(true);});
+      cards.forEach(function(c){resizeObserver.observe(c);});
+
+    }
   }
 
   /* ---------- размеры холста ----------
@@ -180,6 +185,7 @@
     return h || 180;
   }
 
+  /* Число колонок сетки по ширине доски. */
   function colsFor(){
     if(layout === "line") return 6;
     if(layout === "column") return 1;
@@ -227,6 +233,7 @@
     });
   }
 
+  /* Раскладывает карточки по сетке или по выбранной раскладке. */
   function place(force){
     if(!board || !canvas || !cards.length) return;
     var n = colsFor(), q = need(n);
@@ -287,6 +294,7 @@
     };
   }
 
+  /* Путь провода между двумя карточками (изогнутая линия). */
   function wirePath(a, b){
     var p = anchors(a, b);
     var sign1 = p.h ? (p.x2 >= p.x1 ? 1 : -1) : 0;
@@ -297,6 +305,7 @@
            " " + p.x2 + "," + p.y2;
   }
 
+  /* Перерисовывает все провода по текущим позициям карточек. */
   function drawWires(){
     for(var i = 0; i < paths.length; i++){
       var d = wirePath(cards[i], cards[i + 1]);
@@ -398,6 +407,7 @@
     pos[i] = [card.offsetLeft / fx, card.offsetTop / fy];
   }
 
+  /* Сбрасывает доску к исходным позициям. */
   function reset(){
     saved = null;
     layout = "snake"; zoomScale = 1;
@@ -465,6 +475,7 @@
     if(reduced()) done(); else closeTimer = setTimeout(done, 220);
   }
 
+  /* Учитывает настройку «меньше анимаций». */
   function reduced(){
     return document.documentElement.dataset.motion === "off" ||
       !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -515,13 +526,17 @@
     window.addEventListener("hashchange", function(){ if(location.hash === "#/srpc") open(); });
   }
 
+  /* Применяет масштаб к доске через transform. */
   function applyZoom(){
     if(!canvas || !world) return;
     canvas.style.transformOrigin = "0 0"; canvas.style.transform = "scale(" + zoomScale + ")";
     world.style.width = canvas.clientWidth * zoomScale + "px"; world.style.height = canvas.clientHeight * zoomScale + "px";
   }
+  /* Задаёт масштаб от 0.2 до 2 и сохраняет его. */
   function zoom(value){ zoomScale = Math.max(.2, Math.min(2, value)); applyZoom(); save(); }
+  /* Подгоняет доску под ширину окна. */
   function fit(){ if(canvas) zoom(Math.min(1, (board.clientWidth-12)/canvas.clientWidth, (board.clientHeight-12)/canvas.clientHeight)); }
+  /* Меняет раскладку и заново расставляет карточки. */
   function setLayout(value){layout=value;saved=null;pos=[];place(true);save();requestAnimationFrame(function(){saved=null;place(true);save();});}
   function applyCycle(){
     if(!stage) return;
@@ -541,28 +556,63 @@
     var entries = performance.getEntriesByType("resource").filter(function(r){ return /\.(js|css)(?:\?|$)/.test(r.name); });
     var groups = [[], [], [], [], [], []];
     entries.forEach(function(r){
-      var name = r.name.split("/").pop(), indexes = /site\.[a-z0-9]+\.js/.test(name) ? [2,3,4,5] : /\.css/.test(name) ? [1] : /^(data|quiz-data)/.test(name) ? [2] : /calc|party-model/.test(name) ? [3] : /export|share/.test(name) ? [5] : [4];
+      var name = r.name.split("/").pop();
+      var indexes = /site\.[a-z0-9]+\.js/.test(name) ? [2,3,4,5] : /\.css/.test(name) ? [1] :
+        /^(data|quiz-data)/.test(name) ? [2] : /calc|party-model/.test(name) ? [3] :
+        /export|share/.test(name) ? [5] : [4];
       indexes.forEach(function(i){ groups[i].push(r); });
     });
     var nav = performance.getEntriesByType("navigation")[0]; if(nav) groups[0].push(nav); return groups;
   }
+  /* Числовые показатели карточки по её индексу. */
   function measurements(index){
     var resources = resourceGroups()[index-1] || [], bytes = resources.reduce(function(s,r){ return s+(r.transferSize || r.decodedBodySize || 0); },0);
     var measure = performance.getEntriesByName("pc:stage" + index).slice(-1)[0];
-    var duration = measure ? measure.duration : resources.length ? Math.max.apply(null,resources.map(function(r){ return r.responseEnd; })) - Math.min.apply(null,resources.map(function(r){ return r.startTime; })) : null;
+    var duration = measure ? measure.duration : resources.length ? Math.max.apply(
+      null,resources.map(function(r){ return r.responseEnd; })
+    ) - Math.min.apply(null,resources.map(function(r){ return r.startTime; })) : null;
     return { resources:resources, bytes:bytes, duration:duration };
   }
+  /* Пересчитывает итоговые показатели по выбранным карточкам. */
   function updateMetrics(){
-    cards.forEach(function(c,i){ var m=measurements(i+1), label=c.querySelector(".srpcf-metric"); if(label) label.textContent=(m.duration == null ? t("srpc.unmeasured") : m.duration.toFixed(1)+" ms")+" · "+(m.bytes/1024).toFixed(1)+" KB"; c.setAttribute("aria-label",t("ab.chain.s"+(i+1))); });
+    cards.forEach(function(c,i){
+      var m=measurements(i+1), label=c.querySelector(".srpcf-metric");
+      if(label) label.textContent=(
+        m.duration == null ? t("srpc.unmeasured") : m.duration.toFixed(1)+" ms"
+      )+" · "+(m.bytes/1024).toFixed(1)+" KB";
+      c.setAttribute("aria-label",t("ab.chain.s"+(i+1)));
+
+    });
   }
+  /* Показывает подробности выбранной карточки. */
   function showDetail(index){
     if(!detail){ detail=document.createElement("aside"); detail.className="srpcf-detail"; board.appendChild(detail); }
-    detail.replaceChildren(); detail.hidden=false; var closeBtn=document.createElement("button"); closeBtn.type="button"; closeBtn.className="btn small"; closeBtn.textContent=t("party.close"); closeBtn.addEventListener("click",function(){ detail.hidden=true; cards[index-1].focus(); }); detail.appendChild(closeBtn);
+    detail.replaceChildren();
+    detail.hidden=false;
+    var closeBtn=document.createElement("button");
+    closeBtn.type="button";
+    closeBtn.className="btn small";
+    closeBtn.textContent=t("party.close");
+    closeBtn.addEventListener("click",function(){ detail.hidden=true; cards[index-1].focus(); });
+    detail.appendChild(closeBtn);
     var h=document.createElement("h3"); h.textContent=t("ab.chain.s"+index); detail.appendChild(h);
-    var m=measurements(index), p=document.createElement("p"); p.textContent=(m.duration == null ? t("srpc.unmeasured") : m.duration.toFixed(1)+" ms")+" · "+(m.bytes/1024).toFixed(1)+" KB"; detail.appendChild(p);
+    var m=measurements(index), p=document.createElement("p");
+    p.textContent=(m.duration == null ? t("srpc.unmeasured") : m.duration.toFixed(1)+" ms")+" · "+(m.bytes/1024).toFixed(1)+" KB";
+    detail.appendChild(p);
     var cap=document.createElement("h4"); cap.textContent=t("srpc.files"); detail.appendChild(cap); var ul=document.createElement("ul");
-    m.resources.forEach(function(r){ var li=document.createElement("li"); li.textContent=r.name.split("/").pop()+" · "+((r.transferSize||r.decodedBodySize||0)/1024).toFixed(1)+" KB · "+r.duration.toFixed(1)+" ms"; ul.appendChild(li); }); detail.appendChild(ul);
-    var depends=document.createElement("p"); depends.textContent=t("srpc.dependencies")+": "+(index>1?t("ab.chain.s"+(index-1)):"—")+" → "+(index<6?t("ab.chain.s"+(index+1)):"—"); detail.appendChild(depends); closeBtn.focus();
+    m.resources.forEach(function(r){
+      var li=document.createElement("li");
+      li.textContent=r.name.split("/").pop()+" · "+(
+        (r.transferSize||r.decodedBodySize||0)/1024
+      ).toFixed(1)+" KB · "+r.duration.toFixed(1)+" ms";
+      ul.appendChild(li);
+
+    });
+    detail.appendChild(ul);
+    var depends=document.createElement("p");
+    depends.textContent=t("srpc.dependencies")+": "+(index>1?t("ab.chain.s"+(index-1)):"—")+" → "+(index<6?t("ab.chain.s"+(index+1)):"—");
+    detail.appendChild(depends);
+    closeBtn.focus();
   }
   function buildControls(){
     /* 4.1: панель разложена на группы — воспроизведение, вид, сбой,
@@ -572,28 +622,106 @@
     toolbar=document.createElement("div"); toolbar.className="srpcf-toolbar";
     toolbar.setAttribute("role","toolbar"); toolbar.setAttribute("aria-label",t("srpc.title"));
     function group(name){ var g=document.createElement("div"); g.className="srpcf-group srpcf-group--"+name; toolbar.appendChild(g); return g; }
-    function button(host,label,fn,cls,aria){ var b=document.createElement("button"); b.className="srpcf-btn"+(cls?" "+cls:""); b.type="button"; b.textContent=label; if(aria) b.setAttribute("aria-label",aria); b.addEventListener("click",fn); host.appendChild(b); return b; }
-    function select(host,label,values,fn,current){ var w=document.createElement("label"); w.className="srpcf-select"; var cap=document.createElement("span"); cap.textContent=label; var s=document.createElement("select"); values.forEach(function(v){ var o=document.createElement("option"); o.value=v[0]; o.textContent=v[1]; s.appendChild(o); }); s.value=current; s.addEventListener("change",function(){fn(s.value);}); w.append(cap,s); host.appendChild(w); return s; }
+    function button(host,label,fn,cls,aria){
+      var b=document.createElement("button");
+      b.className="srpcf-btn"+(cls?" "+cls:"");
+      b.type="button";
+      b.textContent=label;
+      if(aria) b.setAttribute("aria-label",aria);
+      b.addEventListener("click",fn);
+      host.appendChild(b);
+      return b;
+
+    }
+    function select(host,label,values,fn,current){
+      var w=document.createElement("label");
+      w.className="srpcf-select";
+      var cap=document.createElement("span");
+      cap.textContent=label;
+      var s=document.createElement("select");
+      values.forEach(function(v){ var o=document.createElement("option"); o.value=v[0]; o.textContent=v[1]; s.appendChild(o); });
+      s.value=current;
+      s.addEventListener("change",function(){fn(s.value);});
+      w.append(cap,s);
+      host.appendChild(w);
+      return s;
+
+    }
     var play=group("play"), view=group("view"), fail=group("fail"), out=group("export");
-    var pauseBtn=button(play,t("srpc.pause"),function(){ paused=!paused; pauseBtn.textContent=t(paused?"srpc.play":"srpc.pause"); pauseBtn.classList.toggle("is-paused",paused); applyCycle(); },"srpcf-btn--primary");
-    button(play,t("srpc.step"),function(){ paused=true; cycleStep=(cycleStep+1)%6; pauseBtn.textContent=t("srpc.play"); pauseBtn.classList.add("is-paused"); applyCycle(); });
+    var pauseBtn=button(
+      play,
+      t("srpc.pause"),
+      function(){
+        paused=!paused;
+        pauseBtn.textContent=t(paused?"srpc.play":"srpc.pause");
+        pauseBtn.classList.toggle("is-paused",paused);
+        applyCycle();
+
+      },
+      "srpcf-btn--primary"
+    );
+    button(play,t("srpc.step"),function(){
+      paused=true;
+      cycleStep=(cycleStep+1)%6;
+      pauseBtn.textContent=t("srpc.play");
+      pauseBtn.classList.add("is-paused");
+      applyCycle();
+
+    });
     select(play,t("srpc.speed"),[["0.5","×0.5"],["1","×1"],["2","×2"]],function(v){cycleSpeed=Number(v);applyCycle();},"1");
     select(view,t("srpc.layout"),["snake","line","column","circle"].map(function(v){return[v,t("srpc."+v)];}),setLayout,layout);
     button(view,"−",function(){zoom(zoomScale-.1);},"srpcf-btn--icon",t("srpc.zoomOut"));
     button(view,"+",function(){zoom(zoomScale+.1);},"srpcf-btn--icon",t("srpc.zoomIn"));
     button(view,t("srpc.fit"),fit);
-    select(fail,t("srpc.failure"),["1","2","3","4","5","6"].map(function(v){return[v,v+" · "+t("ab.chain.s"+v)];}),function(v){PC.settings.set("srpcStage",v);PC.settings.set("srpcfail","on");},PC.settings.get("srpcStage"));
+    select(
+      fail,
+      t("srpc.failure"),
+      ["1","2","3","4","5","6"].map(function(v){return[v,v+" · "+t("ab.chain.s"+v)];}),
+      function(v){PC.settings.set("srpcStage",v);PC.settings.set("srpcfail","on");},
+      PC.settings.get("srpcStage")
+    );
     button(out,"PNG",function(){PC.exporter.srpcBoard(canvas,"png");});
     button(out,"SVG",function(){PC.exporter.srpcBoard(canvas,"svg");});
     stage.insertBefore(toolbar,board);
     board.addEventListener("wheel",function(e){if(e.ctrlKey){e.preventDefault();zoom(zoomScale+(e.deltaY<0?.1:-.1));}},{passive:false});
     var touches=new Map(), pinch;
-    board.addEventListener("pointerdown",function(e){if(e.pointerType!=="touch")return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2){var p=Array.from(touches.values());pinch={d:Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),z:zoomScale};}});
-    board.addEventListener("pointermove",function(e){if(!touches.has(e.pointerId))return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2&&pinch){var p=Array.from(touches.values());zoom(pinch.z*Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y)/Math.max(1,pinch.d));}});
+    board.addEventListener("pointerdown",function(e){
+      if(e.pointerType!=="touch")return;
+      touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(touches.size===2){var p=Array.from(touches.values());pinch={d:Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),z:zoomScale};}
+    });
+    board.addEventListener("pointermove",function(e){
+      if(!touches.has(e.pointerId))return;
+      touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(touches.size===2&&pinch){
+        var p=Array.from(touches.values());
+        zoom(pinch.z*Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y)/Math.max(1,pinch.d));
+      }
+    });
     function end(e){touches.delete(e.pointerId);pinch=null;}board.addEventListener("pointerup",end);board.addEventListener("pointercancel",end);
     var nativePinch;
-    board.addEventListener("touchstart",function(e){if(e.touches.length===2){e.preventDefault();var a=e.touches[0],b=e.touches[1];nativePinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:zoomScale};}},{passive:false});
-    board.addEventListener("touchmove",function(e){if(nativePinch&&e.touches.length===2){e.preventDefault();var a=e.touches[0],b=e.touches[1];zoom(nativePinch.z*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/Math.max(1,nativePinch.d));}},{passive:false});
+    board.addEventListener(
+      "touchstart",
+      function(e){
+        if(e.touches.length===2){
+          e.preventDefault();
+          var a=e.touches[0],b=e.touches[1];
+          nativePinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:zoomScale};
+        }
+      },
+      {passive:false}
+    );
+    board.addEventListener(
+      "touchmove",
+      function(e){
+        if(nativePinch&&e.touches.length===2){
+          e.preventDefault();
+          var a=e.touches[0],b=e.touches[1];
+          zoom(nativePinch.z*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/Math.max(1,nativePinch.d));
+        }
+      },
+      {passive:false}
+    );
     board.addEventListener("touchend",function(){nativePinch=null;});board.addEventListener("touchcancel",function(){nativePinch=null;});
   }
 

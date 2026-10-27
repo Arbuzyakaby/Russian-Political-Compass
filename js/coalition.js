@@ -47,6 +47,7 @@
   /* Простое большинство — больше половины палаты, две трети — порог
      для конституционных законов и преодоления вето Совета Федерации. */
   function majority(){ return Math.floor(PC.TOTAL_SEATS / 2) + 1; }
+  /* Квалифицированное большинство: две трети мест. */
   function supermajority(){ return Math.ceil(PC.TOTAL_SEATS * 2 / 3); }
 
   function factions(c){
@@ -72,6 +73,7 @@
      Если таких пар не осталось вовсе, метрика честно молчит. */
   var MIN_COMMON = 3;
 
+  /* Совпадение двух партий по голосам в коалиции. */
   function pairAgreement(a, b, c){
     var same = 0, common = 0;
     PC.VOTES.forEach(function(v){
@@ -84,6 +86,7 @@
     return { same:same, common:common };
   }
 
+  /* Сплочённость коалиции: средняя совместимость участников. */
   function cohesionOf(members, c){
     if(members.length < 2) return null;
     var sum = 0, pairs = 0;
@@ -229,7 +232,13 @@
      было бы так же неприятно, как терять текст в поле ввода. */
   function build(keep){
     var oldBanner = host.card.querySelector(".scenario-banner"); if(oldBanner) oldBanner.remove();
-    if(PC.partyModel && PC.partyModel.list().some(function(p){ return p.inCoalition && p.seats > 0; })){ var banner = document.createElement("p"); banner.className = "scenario-banner"; banner.textContent = t("party.scenario"); host.card.insertBefore(banner, host.card.firstChild); }
+    if(PC.partyModel && PC.partyModel.list().some(function(p){ return p.inCoalition && p.seats > 0; })){
+      var banner = document.createElement("p");
+      banner.className = "scenario-banner";
+      banner.textContent = t("party.scenario");
+      host.card.insertBefore(banner, host.card.firstChild);
+
+    }
     var list = factions(conv);
     var color = PC.charts.chartColor;
     on = {};
@@ -273,7 +282,12 @@
       '<span class="co-mark super" style="left:' + pct(supermajority()) + '"><em>' +
         esc(t("co.markSuper", { n:supermajority() })) + '</em></span>';
 
-    list.filter(function(p){return /^u/.test(p.id);}).forEach(function(p){var name=host.togs.querySelector('[data-id="'+p.id+'"] .n');if(name)name.textContent=L(p,"short");var bar=host.bar.querySelector('[data-id="'+p.id+'"]');if(bar)bar.setAttribute("title",L(p,"short")+" · "+PC.seatsAt(p,conv));});
+    list.filter(function(p){return /^u/.test(p.id);}).forEach(function(p){
+      var name=host.togs.querySelector('[data-id="'+p.id+'"] .n');
+      if(name)name.textContent=L(p,"short");
+      var bar=host.bar.querySelector('[data-id="'+p.id+'"]');
+      if(bar)bar.setAttribute("title",L(p,"short")+" · "+PC.seatsAt(p,conv));
+    });
 
     function metric(k, body, note, cls){
       return '<div class="co-metric' + (cls ? " " + cls : "") + '">' +
@@ -307,6 +321,7 @@
     update();
   }
 
+  /* Применяет готовый набор коалиции. */
   function applyPreset(name){
     var ids = name === "none" ? [] : presetIds(name, conv);
     factions(conv).forEach(function(p){ on[p.id] = ids.indexOf(p.id) > -1; });

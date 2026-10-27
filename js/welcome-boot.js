@@ -1,4 +1,5 @@
-/* The welcome screen needs only storage and translations, not the charts. */
+/* Приветствию нужны только хранилище и переводы, а не графики: поэтому оно
+   запускается отдельным файлом и не ждёт остальные модули. */
 (function(PC){
   "use strict";
   PC.i18n.applyDom(document.getElementById("welcome"));
