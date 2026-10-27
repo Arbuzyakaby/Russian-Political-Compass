@@ -372,7 +372,8 @@
       cmpSelect.addEventListener("change", function(){
         renderCompare(p, cmpSelect.value ? PC.partyById(cmpSelect.value) : null);
       });
-      document.getElementById("cmpDuel").addEventListener("click", function(){ PC.duel.open(p.id, cmpSelect.value); });
+      var duelBtn = document.getElementById("cmpDuel");
+      duelBtn.addEventListener("click", function(){ PC.lazy.run("duel", function(){ PC.duel.open(p.id, cmpSelect.value); }, duelBtn); });
     }
 
     /* ширина полос задаётся в следующем кадре, чтобы сработал transition */

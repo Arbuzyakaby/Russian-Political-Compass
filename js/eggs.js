@@ -1,6 +1,6 @@
 /* ============ Пасхалки ============
 
-   Тринадцать штук, все выключаются одним переключателем в настройках
+   Пятнадцать штук, все выключаются одним переключателем в настройках
    (data-eggs на <html>), потому что шутка, от которой нельзя
    отказаться, — уже не шутка.
 
@@ -45,6 +45,9 @@
    11. Клавиша `: терминал help, parties, whoami, rivers, exit.
    12. #/teapot: самовар и HTTP-шутка 418.
    13. Ночная смена с 03:00 до 04:00 местного времени.
+   14. «4.4» в поиске партий (4.4): точки на компасе бьются дважды по
+       0,72 с — версия «четыре-четыре», 1,44 с на всё.
+   15. Команда `444` в терминале (4.4): HTTP 444 No Response из nginx.
 
    Все пасхалки живут отдельно от остальной страницы: ни один другой
    модуль про них не знает, и удаление этого файла ничего не
@@ -55,7 +58,7 @@
   var grave = null;
 
   function on(){ return document.documentElement.dataset.eggs === "on"; }
-  var IDS = ["portal", "grave", "22", "50", "konami", "river", "rivers", "centre", "agree", "pipeline", "terminal", "teapot", "night"];
+  var IDS = ["portal", "grave", "22", "50", "konami", "river", "rivers", "centre", "agree", "pipeline", "terminal", "teapot", "night", "44", "444"];
   /* Отмечает пасхалку найденной и сохраняет это в localStorage. */
   function found(id){
     if(!on() || IDS.indexOf(id) < 0) return;
@@ -240,11 +243,37 @@
     });
   }
 
+  /* ---------- 14. Четыре-четыре (4.4) ----------
+     «4.4», «4,4» или «44» в поиске: точки партий дважды подпрыгивают.
+     Тот же приём, что у юбилея: один раз на переход «стало 4.4». */
+  var twinFired = false, twinTimer = null;
+  function initTwin(){
+    var q = document.getElementById("q");
+    if(!q) return;
+    q.addEventListener("input", function(){
+      var hit = on() && /^4[.,]?4$/.test(q.value.trim());
+      if(hit && !twinFired){
+        found("44");
+        if(PC.ui) PC.ui.toast(PC.t("eggs.v44"));
+        var svg = document.getElementById("svg");
+        if(svg && !reduced()){
+          svg.classList.remove("egg-twin");
+          void svg.offsetWidth;
+          svg.classList.add("egg-twin");
+          clearTimeout(twinTimer);
+          twinTimer = setTimeout(function(){ svg.classList.remove("egg-twin"); }, 1500);
+        }
+      }
+      twinFired = hit;
+    });
+  }
+
   function init(){
     initPortal(document.querySelector(".to-top"));
     initGrave();
     initCatch22();
     initJubilee50();
+    initTwin();
     initKonami();
     initTisza();
   }
@@ -306,7 +335,8 @@
           return PC.L(p,"short")+"  "+PC.utils.fmt(p.x)+" / "+PC.utils.fmt(p.y);
         }).join("\n");
         else if(command==="whoami"){var r=PC.quiz.result();response=r?"X "+PC.utils.fmt(r.x)+" / Y "+PC.utils.fmt(r.y):"—";}
-        else if(command==="rivers")response=PC.t("eggs.rivers");else response="? help";
+        else if(command==="rivers")response=PC.t("eggs.rivers");
+        else if(command==="444"){found("444");response=PC.t("eggs.v444");}else response="? help";
         output.textContent=(output.textContent+"\n> "+command+"\n"+response).slice(-12000);output.scrollTop=output.scrollHeight;
       });
     } consoleDialog.showModal();consoleDialog.querySelector("input").focus();

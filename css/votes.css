@@ -147,3 +147,24 @@
   .vote-mini .vy{grid-column:2;}
   .vote-mini .vv{grid-column:1 / -1;}
 }
+
+/* Кнопка и каркас блока «Проголосуйте сами» нужны до загрузки css/tools.css (4.4):
+   остальное (окно дуэли и ход голосования) подгружается вместе со скриптами. */
+.duel-open{margin:0 0 10px;}
+.cmp-sect .duel-open{margin:12px 0 0;}
+.ag-table td.ag{cursor:pointer;}
+.sv-head{display:flex;gap:14px;align-items:flex-start;}
+.sv-badge{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;flex:none;color:var(--tone,var(--accent));
+  background:color-mix(in srgb,var(--tone,var(--accent)) 14%,transparent);}
+.sv-badge svg.ico{width:20px;height:20px;}
+.sv-progress{height:6px;border-radius:99px;margin:4px 0 6px;background:color-mix(in srgb,var(--text) 8%,transparent);overflow:hidden;}
+.sv-progress i{display:block;height:100%;width:0;border-radius:inherit;background:var(--tone,var(--accent));
+  transition:width var(--dur-spring,.5s) var(--ease-bounce,var(--ease-out));}
+.sv-count{margin:0 0 14px;font-size:calc(12.5px * var(--text-k));color:var(--muted);font-variant-numeric:tabular-nums;}
+.sv-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:start;}
+.sv-loading{margin:0;font-size:calc(13.5px * var(--text-k));color:var(--muted);}
+@media (max-width:720px){ .sv-grid{grid-template-columns:1fr;} }
+:root[data-motion="off"] .sv-progress i{transition:none;}
+@media (prefers-reduced-motion:reduce){ .sv-progress i{transition:none;} }
+.lazy-busy{cursor:progress;opacity:.65;}
+.sv-topics{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;min-height:44px;}

@@ -127,6 +127,41 @@
     PC.charts.render(state.active);
   }
 
+  /* «Голосую сам» (4.4) подгружается, когда блок приближается к экрану
+     (js/lazy.js); PC.loadSelfVote нужен ещё командной палитре. Вкладка
+     скрыта атрибутом hidden — пока её не открыли, блок не пересекается
+     с экраном и ничего не грузится. */
+  var selfVoteReady = null;
+  function loadSelfVote(){
+    if(!selfVoteReady){
+      selfVoteReady = PC.lazy.run("selfvote", function(){ PC.selfVote.init(); }).then(function(){
+        if(!PC.lazy.loaded("selfvote")) selfVoteReady = null;     /* не загрузилось — следующая попытка начнётся заново */
+      });
+    }
+    return selfVoteReady;
+  }
+  function watchSelfVote(){
+    PC.loadSelfVote = loadSelfVote;
+    var host = document.getElementById("selfVote");
+    if(!host) return;
+    if(!("IntersectionObserver" in window)){ loadSelfVote(); return; }
+    var io = new IntersectionObserver(function(entries){
+      if(!entries.some(function(e){ return e.isIntersecting; })) return;
+      io.disconnect();
+      /* не загрузилось — блок снова ждёт приближения к экрану, повтор при следующей прокрутке */
+      loadSelfVote().then(function(){ if(!PC.lazy.loaded("selfvote")) setTimeout(function(){ io.observe(host); }, 4000); });
+    }, { rootMargin:"400px 0px" });
+    io.observe(host);
+  }
+
+  /* Адрес #/duel/<a>-<b> (4.4) открывает окно дуэли. Разбор здесь, а не в
+     js/duel.js: модуль подгружается по требованию, и адрес должен его
+     вызвать. Идентификаторы партий — латиница и цифры без дефиса. */
+  function routeDuel(){
+    var m = /^#\/duel\/([a-z0-9]+)-([a-z0-9]+)$/.exec(location.hash);
+    if(m) PC.lazy.run("duel", function(){ PC.duel.open(m[1], m[2]); });
+  }
+
   /* ---------- поиск и фильтры ---------- */
   function initControls(){
     var input = document.getElementById("q");
@@ -260,9 +295,9 @@
     /* после теста: карточка партии показывает блок голосований, а
        модуль голосований ничего не знает про состояние компаса */
     PC.votes.init();
-    if(PC.selfVote) PC.selfVote.init();
+    watchSelfVote();
     var duelBtn = document.getElementById("duelFromVotes");
-    if(duelBtn) duelBtn.addEventListener("click", function(){ PC.duel.open("er", "kprf"); });
+    if(duelBtn) duelBtn.addEventListener("click", function(){ PC.lazy.run("duel", function(){ PC.duel.open("er", "kprf"); }, duelBtn); });
     PC.people.init();
     /* Число на ярлыке вкладки берётся из данных: написанное в разметке
        руками отстало бы от набора при первом же новом голосовании. */
@@ -319,6 +354,8 @@
     if(PC.appShell) PC.appShell.init();
     if(PC.tisza) PC.tisza.init();
     if(PC.offline) PC.offline.init();
+    window.addEventListener("hashchange", routeDuel);
+    routeDuel();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
        цвета марок — графики пересобираем. */

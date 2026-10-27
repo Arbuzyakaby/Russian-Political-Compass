@@ -23,6 +23,16 @@ if(boundary < 2 || scripts.at(-1) !== "js/app.js") throw new Error("Неожид
 for(const file of [...scripts, ...styles]){
   if(!fs.existsSync(path.join(root, file))) throw new Error("Файл из index.html не найден: " + file);
 }
+/* Модули по требованию (4.4): перечень лежит в index.html (#pcLazy), здесь он
+   только пересобирается в файлы с хешем в имени. js/lazy.js читает его оттуда. */
+const lazyMatch = html.match(/<script type="application\/json" id="pcLazy">([\s\S]*?)<\/script>/);
+if(!lazyMatch) throw new Error("В index.html нет перечня модулей по требованию (#pcLazy)");
+const lazy = JSON.parse(lazyMatch[1]);
+for(const entry of Object.values(lazy)){
+  for(const file of [entry.js, entry.css]){
+    if(file && !fs.existsSync(path.join(root, file))) throw new Error("Файл модуля по требованию не найден: " + file);
+  }
+}
 function writeAsset(source, prefix, loader){
   const code = transformSync(source, { loader, minify:true, target:"es2020", legalComments:"none" }).code;
   const hash = createHash("sha256").update(code).digest("hex").slice(0,12);
@@ -40,6 +50,19 @@ const appAsset = bundle(scripts.slice(boundary), "js/site");
 // Основной пакет догружается после двух кадров: приветствие и шапка успевают отрисоваться.
 const loader = ';requestAnimationFrame(function(){requestAnimationFrame(function(){var s=document.createElement("script");s.src=' + JSON.stringify(appAsset) + ';s.fetchPriority="low";document.body.appendChild(s);});});';
 const shellAsset = bundle(scripts.slice(1, boundary), "js/shell", loader);
+const lazyAssets = {};
+const lazyBuilt = {};
+function lazyFile(file, loader){
+  if(!file) return undefined;
+  if(!lazyAssets[file]){
+    lazyAssets[file] = writeAsset(fs.readFileSync(path.join(root, file), "utf8"), file.replace(/\.[a-z]+$/, ""), loader);
+  }
+  return lazyAssets[file];
+}
+for(const [name, entry] of Object.entries(lazy)){
+  lazyBuilt[name] = { js:lazyFile(entry.js, "js"), css:lazyFile(entry.css, "css") };
+}
+html = html.replace(lazyMatch[0], '<script type="application/json" id="pcLazy">' + JSON.stringify(lazyBuilt) + '</script>');
 fs.copyFileSync(path.join(root, "js/theme-boot.js"), path.join(out, "js/theme-boot.js"));
 html = html.replace(/<noscript>\s*<link[^>]+href="css\/[^\"]+"[^>]*>\s*<\/noscript>/g, "");
 let styleInserted = false;

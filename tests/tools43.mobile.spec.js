@@ -10,7 +10,8 @@ async function ready(page, route){
     localStorage.setItem("pc-settings", JSON.stringify({ motion:"off" }));
   }, VERSION);
   await page.goto("/#/" + route);
-  await page.waitForFunction(() => window.PC && PC.selfVote && PC.duel);
+  await page.waitForFunction(() => window.PC && PC.loadSelfVote);
+  await page.evaluate(() => Promise.all([PC.loadSelfVote(), PC.lazy("duel")]));
 }
 /* Проверяется сам блок, а не ширина документа: при тексте 200% в мобильном
    WebKit страница голосований была шире экрана и в 4.2 (см. docs/RELEASE_4_3.md). */

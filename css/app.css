@@ -78,6 +78,8 @@
   .stage-head .chip{flex:none;padding:8px 15px;border-radius:999px;scroll-snap-align:start;}
   :root .stage-head .chip{min-height:40px;white-space:nowrap;}
   .stage-head .claim-chip,.stage-head .export-wrap{flex:1 1 calc(50% - 5px);width:auto;}
+  /* 4.4: при тексте 200% две кнопки в одну строку не помещались и обрезали подписи — теперь переносятся на вторую строку */
+  :root .stage-head .claim-chip,:root .stage-head .export-wrap{min-width:min-content;}
   .stage-head .export-wrap .chip{width:100%;}
   .stage-head .claim-chip{border-radius:14px;}
   :root .stage-head .claim-chip{min-height:44px;}

@@ -12,7 +12,8 @@ async function ready(page, route = "compass", { lang = "ru", settings = { motion
     if(!localStorage.getItem("pc-settings")) localStorage.setItem("pc-settings", JSON.stringify(s));
   }, [version, lang, settings, theme]);
   await page.goto("/#/" + route);
-  await page.waitForFunction(() => window.PC && PC.settings && PC.selfVote && document.readyState === "complete");
+  await page.waitForFunction(() => window.PC && PC.settings && PC.loadSelfVote && document.readyState === "complete");
+  await page.evaluate(() => Promise.all([PC.loadSelfVote(), PC.lazy("duel")]));
 }
 function errors(page){ const list = []; page.on("pageerror", e => list.push(e.message)); return list; }
 
@@ -36,7 +37,8 @@ test("4.3: «Голосую сам» считает рейтинг, пережи
   expect(Object.keys(stored.votes)).toHaveLength(5);
 
   await page.reload();
-  await page.waitForFunction(() => window.PC && PC.selfVote);
+  await page.waitForFunction(() => window.PC && PC.loadSelfVote);
+  await page.evaluate(() => PC.loadSelfVote());
   await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 28");
   await card.getByRole("button", { name:"Назад" }).click();
   await expect(card.getByRole("button", { name:"Против", exact:true })).toHaveAttribute("aria-pressed", "true");
@@ -199,7 +201,8 @@ test("4.3: смена языка не теряет голоса, партии и
   await page.locator('.sv-choice[data-choice="for"]').click();
   await page.evaluate(() => { localStorage.setItem("pc-quiz-answers", JSON.stringify({ e1:2, e2:-1 })); });
   await page.goto("/?lang=en#/votes");
-  await page.waitForFunction(() => window.PC && PC.selfVote);
+  await page.waitForFunction(() => window.PC && PC.loadSelfVote);
+  await page.evaluate(() => PC.loadSelfVote());
   await expect(page.locator(".sv-count")).toHaveText("Answered: 2 of 28");
   await expect(page.locator("#svHead")).toHaveText("Cast your own votes");
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("pc-quiz-answers")).e1)).toBe(2);
@@ -245,7 +248,8 @@ test("4.3: шесть тем — новые разделы читаются и �
   for(const theme of ["dark", "light", "paper", "alaska", "neon", "fireplace"]){
     await page.evaluate(th => localStorage.setItem("pc-theme", th), theme);
     await page.reload();
-    await page.waitForFunction(() => window.PC && PC.duel && document.readyState === "complete");
+    await page.waitForFunction(() => window.PC && PC.lazy && document.readyState === "complete");
+    await page.evaluate(() => PC.lazy("duel"));
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     /* Цвета приводятся к RGB через canvas: темы задают их и в oklab()/color(). */
     const contrast = await page.locator("#svHead").evaluate(el => {

@@ -1,0 +1,32 @@
+{
+  "version": "4.4",
+  "width": 320,
+  "textScale": 2,
+  "font": "Verdana",
+  "widths": {
+    "chromium": {
+      "ru/compass": 321,
+      "ru/quiz": 321,
+      "ru/votes": 321,
+      "ru/party": 321,
+      "ru/about": 321,
+      "en/compass": 322,
+      "en/quiz": 322,
+      "en/votes": 322,
+      "en/party": 322,
+      "en/about": 322
+    },
+    "webkit": {
+      "ru/compass": 320,
+      "ru/quiz": 321,
+      "ru/votes": 321,
+      "ru/party": 321,
+      "ru/about": 321,
+      "en/compass": 320,
+      "en/quiz": 322,
+      "en/votes": 322,
+      "en/party": 322,
+      "en/about": 322
+    }
+  }
+}

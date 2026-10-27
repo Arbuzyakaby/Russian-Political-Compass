@@ -7,7 +7,8 @@
 
    compare(a, b) — чистая функция без DOM: ею же пользуются тесты.
    Открывается из карточки партии («Подробная дуэль»), из ячейки матрицы
-   совпадений на вкладке голосований и из командной палитры. ============ */
+   совпадений на вкладке голосований и из командной палитры. С 4.4 модуль
+   подгружается по требованию (js/lazy.js). ============ */
 (function(PC){
   "use strict";
   var t = PC.t, L = PC.L;
@@ -47,6 +48,25 @@
   function fmt(v){ return (v > 0 ? "+" : "") + v.toFixed(1); }
   function el(tag, cls, text){ var n = document.createElement(tag); if(cls) n.className = cls; if(text != null) n.textContent = text; return n; }
 
+  /* Настоящие партии и свои (u1–u6, 4.4): свои — отдельной группой, голоса
+     своей партии берутся из p.votes (PC.voteStance). Список собирается при
+     каждом открытии: партий у посетителя могло стать больше или меньше. */
+  function everyone(){ return PC.allParties ? PC.allParties() : PC.PARTIES; }
+  function isOwn(p){ return /^u[1-6]$/.test(p.id); }
+  function fill(select){
+    var keep = select.value;
+    select.textContent = "";
+    var mine = el("optgroup");
+    mine.label = t("duel.mine");
+    everyone().forEach(function(p){
+      var o = el("option", "", L(p, "short"));
+      o.value = p.id;
+      (isOwn(p) ? mine : select).appendChild(o);
+    });
+    if(mine.children.length) select.appendChild(mine);
+    if(keep) select.value = keep;
+  }
+
   function picker(id, label){
     var wrap = el("label", "duel-pick");
     wrap.htmlFor = id;
@@ -54,13 +74,31 @@
     var select = el("select");
     select.id = id;
     select.setAttribute("data-native", "");
-    PC.PARTIES.forEach(function(p){
-      var o = el("option", "", L(p, "short"));
-      o.value = p.id;
-      select.appendChild(o);
-    });
+    fill(select);
     wrap.append(cap, select);
     return { wrap:wrap, select:select };
+  }
+
+  /* ---------- адрес #/duel/<a>-<b> (4.4) ----------
+     Окно ведёт на свой адрес, пока открыто: его можно скопировать, а по
+     открытию адреса дуэль встаёт на место (разбор — в js/app.js, он нужен
+     до загрузки этого модуля). Адрес только заменяется, а не дописывается
+     в историю, и по закрытии окна возвращается прежний. */
+  var prevHash = "";
+  function base(){ return location.pathname + location.search; }
+  function isDuelHash(){ return /^#\/duel\//.test(location.hash); }
+  function pairHash(){ return "#/duel/" + state.a + "-" + state.b; }
+  function syncHash(){
+    if(history.replaceState && state.a && state.b) history.replaceState(null, "", base() + pairHash());
+  }
+  function share(){
+    var url = location.origin + base() + pairHash();
+    var mine = [PC.partyById(state.a), PC.partyById(state.b)].some(function(p){ return p && isOwn(p); });
+    var note = t(mine ? "duel.shareOwn" : "duel.copied");
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ PC.ui.toast(note); },
+        function(){ PC.ui.toast(t("duel.copyFail"), true); });
+    }else PC.ui.toast(t("duel.copyFail"), true);
   }
 
   /* Мини-карта: оси, обе реальные точки, полые заявленные и линия между
@@ -159,7 +197,13 @@
     close.addEventListener("click", function(){ dialog.close(); });
     var badge = el("span", "duel-badge");
     badge.innerHTML = PC.icon("duel");
-    head.append(badge, title, close);
+    var link = el("button", "duel-close duel-share");
+    link.type = "button";
+    link.setAttribute("aria-label", t("duel.share"));
+    link.title = t("duel.share");
+    link.innerHTML = PC.icon("link");
+    link.addEventListener("click", share);
+    head.append(badge, title, link, close);
     var a = picker("duelA", t("duel.first")), b = picker("duelB", t("duel.second"));
     pickA = a.select; pickB = b.select;
     var swap = el("button", "btn small duel-swap");
@@ -167,17 +211,18 @@
     swap.setAttribute("aria-label", t("duel.swap"));
     swap.title = t("duel.swap");
     swap.innerHTML = PC.icon("shuffle");
-    swap.addEventListener("click", function(){ var x = state.a; state.a = state.b; state.b = x; sync(); render(); });
+    swap.addEventListener("click", function(){ var x = state.a; state.a = state.b; state.b = x; sync(); render(); syncHash(); });
     var picks = el("div", "duel-picks");
     picks.append(a.wrap, swap, b.wrap);
     body = el("div", "duel-body");
     dialog.append(head, picks, body);
     document.body.appendChild(dialog);
-    pickA.addEventListener("change", function(){ state.a = pickA.value; render(); });
-    pickB.addEventListener("change", function(){ state.b = pickB.value; render(); });
+    pickA.addEventListener("change", function(){ state.a = pickA.value; render(); syncHash(); });
+    pickB.addEventListener("change", function(){ state.b = pickB.value; render(); syncHash(); });
     body.addEventListener("click", function(e){
       var bill = e.target.closest(".duel-bill");
       if(!bill) return;
+      prevHash = "#/votes";             /* закрытие вернёт адрес вкладки, на которую ведёт переход */
       dialog.close();
       if(PC.nav) PC.nav.go("votes");
       if(PC.votes && PC.votes.focusVote) setTimeout(function(){ PC.votes.focusVote(bill.dataset.vote); }, 60);
@@ -187,7 +232,12 @@
       var rc = dialog.getBoundingClientRect();
       if(e.clientX < rc.left || e.clientX > rc.right || e.clientY < rc.top || e.clientY > rc.bottom) dialog.close();
     });
-    dialog.addEventListener("close", function(){ if(lastFocus && lastFocus.focus) lastFocus.focus(); });
+    dialog.addEventListener("close", function(){
+      if(isDuelHash() && history.replaceState) history.replaceState(null, "", base() + prevHash);
+      if(lastFocus && lastFocus.focus) lastFocus.focus();
+    });
+    /* «Назад» из браузера на другой адрес закрывает окно */
+    window.addEventListener("hashchange", function(){ if(dialog.open && !isDuelHash()) dialog.close(); });
   }
 
   function sync(){ pickA.value = state.a; pickB.value = state.b; }
@@ -198,11 +248,16 @@
     if(!PC.PARTIES || !PC.PARTIES.length) return;
     if(!dialog) build();
     if(PC.utils.modalOpen() && !dialog.open) return;
+    fill(pickA); fill(pickB);
     state.a = PC.partyById(a) ? a : PC.PARTIES[0].id;
     state.b = PC.partyById(b) && b !== state.a ? b : PC.calc.rankParties(PC.partyById(state.a), state.a)[0].p.id;
     sync();
     render();
-    lastFocus = document.activeElement;
+    if(!dialog.open){
+      prevHash = isDuelHash() ? "#/votes" : location.hash;
+      lastFocus = document.activeElement;
+    }
+    syncHash();
     if(!dialog.open) dialog.showModal();
     pickB.focus();
   }

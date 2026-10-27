@@ -17,9 +17,12 @@ function refs(re){
 }
 const styles = refs(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g);
 const scripts = refs(/<script[^>]+src="([^"]+)"/g);
+/* Модули по требованию (4.4) подключены не тегами, а перечнем #pcLazy */
+const lazy = JSON.parse(html.match(/<script type="application\/json" id="pcLazy">([\s\S]*?)<\/script>/)[1]);
+const lazyFiles = Object.values(lazy).flatMap(e => [e.js, e.css]).filter(Boolean);
 
 test("все подключённые файлы существуют", () => {
-  for(const rel of [...styles, ...scripts]){
+  for(const rel of [...styles, ...scripts, ...lazyFiles]){
     assert.ok(fs.existsSync(path.join(ROOT, rel)), `в index.html подключён несуществующий ${rel}`);
   }
 });
@@ -28,7 +31,7 @@ test("ни один файл css и js не забыт в разметке", () 
   for(const dir of ["css", "js"]){
     for(const name of fs.readdirSync(path.join(ROOT, dir))){
       const rel = dir + "/" + name;
-      assert.ok([...styles, ...scripts].includes(rel), `файл ${rel} никуда не подключён`);
+      assert.ok([...styles, ...scripts, ...lazyFiles].includes(rel), `файл ${rel} никуда не подключён`);
     }
   }
 });

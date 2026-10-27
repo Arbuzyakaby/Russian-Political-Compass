@@ -65,7 +65,7 @@ button,a,input,select,summary{touch-action:manipulation;}
   .mobile-coordinates{display:block;margin-top:6px;color:var(--muted);font-weight:400;}
   .compass .seat,.compass .quad-cap,.compass .tick,.compass .axis-cap{display:none;}
   .compass .tag-bg{display:none;}
-  .legend{display:grid;grid-template-columns:1fr;gap:8px;}
+  .legend{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;}
   .legend div,.legend b{font-size:calc(14px * var(--text-k));line-height:1.5;}
   .mobile-map-note{display:block;font-size:calc(14px * var(--text-k));color:var(--muted);margin:12px 0;}
   .side{position:static;max-height:none;overflow:visible;perspective:none;}
@@ -115,6 +115,11 @@ button,a,input,select,summary{touch-action:manipulation;}
   .welcome p,.welcome li,.wel-note{font-size:calc(14px * var(--text-k));line-height:1.6;}
   .about-card p,.about-card li,.ab-body p,.ab-body li{font-size:calc(16px * var(--text-k));line-height:1.7;overflow-wrap:anywhere;}
   .about-card a,.seo-intro a,.foot a{overflow-wrap:anywhere;}
+  /* 4.4: при тексте 200% одно длинное слово («Голосования», «самопровозглашёнными»)
+     шире экрана растягивало документ; перенос — только если слово иначе не помещается */
+  .panel p,.panel h2,.panel h3,.panel h4,.panel li,.panel summary,.panel .eyebrow,
+  .shell .topbar .app-title,.seo-intro p,.seo-intro h2,.site-footer li,.site-footer p,.site-footer a{overflow-wrap:anywhere;}
+  .vote-meta,.vote-meta > span{white-space:normal;overflow-wrap:anywhere;}
   .export-menu{max-width:calc(100vw - 32px);}
   .to-top{width:44px;height:44px;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));}
   .bg-blob,.grain,.hero-aura{display:none;}

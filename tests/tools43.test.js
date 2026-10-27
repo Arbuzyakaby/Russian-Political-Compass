@@ -160,18 +160,20 @@ test("словарь инструментов 4.3 держит только св
   const own = read("js/i18n-tools.js");
   const keys = Array.from(own.matchAll(/^\s{4}"([\w.+-]+)":\s*\[/gm), m => m[1]);
   assert.ok(keys.length >= 30);
-  assert.deepEqual(keys.filter(k => !/^(?:duel|sv|offline)\./.test(k)), []);
+  assert.deepEqual(keys.filter(k => !/^(?:duel|sv|offline|lazy)\./.test(k)), []);
   const en = loadApp(undefined, { "pc-lang":"en" }).PC;
   for(const k of keys){
     assert.notEqual(en.t(k), k);
     assert.doesNotMatch(en.t(k, { a:"A", b:"B", d:"1", k:1, n:2, p:3, max:"28.3", axis:"x", party:"P" }), /[А-Яа-яЁё]/, k);
   }
-  assert.ok(html.indexOf('src="js/i18n-tools.js"') < html.indexOf('src="js/duel.js"'), "словарь подключается раньше модулей");
+  assert.ok(html.includes('src="js/i18n-tools.js"') && !html.includes('src="js/duel.js"'), "словарь в основном пакете, дуэль — по требованию");
 });
 
 test("новые модули подключены и инициализируются", () => {
-  for(const f of ["js/spring.js", "js/duel.js", "js/selfvote.js", "js/offline.js"]) assert.ok(html.includes(`src="${f}"`), f);
-  for(const f of ["css/icons.css", "css/spring.css", "css/tools.css"]) assert.ok(html.includes(`href="${f}"`), f);
+  for(const f of ["js/spring.js", "js/lazy.js", "js/offline.js"]) assert.ok(html.includes(`src="${f}"`), f);
+  for(const f of ["css/icons.css", "css/spring.css"]) assert.ok(html.includes(`href="${f}"`), f);
+  /* дуэль, «Голосую сам» и их стили с 4.4 подгружаются по требованию */
+  for(const f of ["js/duel.js", "js/selfvote.js", "css/tools.css"]) assert.ok(html.includes(`"${f}"`) && !html.includes(`src="${f}"`) && !html.includes(`href="${f}"`), f);
   const app = read("js/app.js");
   for(const call of ["PC.spring.init()", "PC.selfVote.init()", "PC.offline.init()"]) assert.ok(app.includes(call), call);
   assert.match(read("js/palette.js"), /PC\.duel\.open\(\)/, "дуэль есть в командной палитре");

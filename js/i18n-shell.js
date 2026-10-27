@@ -177,8 +177,8 @@
 
     /* ===== обучение по живой странице (2.4.2.1) ===== */
     "set.tour":           ["Обучение", "Guided tour"],
-    "set.tour.d":         ["Десять шагов по самой странице: экран затемняется, а подсвеченным остаётся тот элемент, о котором идёт речь",
-                           "Ten steps across the page itself: the screen dims and the element being explained stays lit"],
+    "set.tour.d":         ["Тринадцать шагов по самой странице: экран затемняется, а подсвеченным остаётся тот элемент, о котором идёт речь",
+                           "Thirteen steps across the page itself: the screen dims and the element being explained stays lit"],
     "set.tour.start":     ["Пройти обучение", "Take the tour"],
     "tour.count":         ["Шаг {n} из {total}", "Step {n} of {total}"],
     "tour.next":          ["Дальше", "Next"],
@@ -310,6 +310,10 @@
     "doc.title.party": ["Моя партия — Русский политический компас","My party — Russian Political Compass"],
     "tour.party.h": ["Ваша партия","Your own party"],
     "tour.party.p": ["Соберите партию из своих взглядов: эмблема, программа, голосования и точка на общем компасе.","Build a party from your views: an emblem, a manifesto, votes and a point on the shared compass."],
+    "tour.duel.h": ["Дуэль партий","Party face-off"],
+    "tour.duel.p": ["Две партии в одном окне: расстояние на компасе, восемь шкал и законопроекты, по которым фракции голосовали по-разному. Открывается и из карточки партии, и по адресу вида #/duel/er-kprf.","Two parties in one window: the distance on the compass, eight scales and the bills the factions voted differently on. It also opens from a party card and from an address like #/duel/er-kprf."],
+    "tour.sv.h": ["Голосую сам","Vote yourself"],
+    "tour.sv.p": ["Те же законопроекты, что у фракций: отвечайте «за», «против» или «воздержусь» — и смотрите, чья фракция голосовала как вы. Ответы остаются в вашем браузере.","The same bills the factions voted on: answer for, against or abstain and see whose faction voted like you. Your answers stay in your browser."],
     "set.on": ["Вкл.","On"],
     "set.off": ["Выкл.","Off"],
     "set.eraseAll": ["Сбросить все локальные данные","Erase all local data"],

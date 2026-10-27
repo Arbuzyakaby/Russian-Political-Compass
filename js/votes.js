@@ -204,7 +204,7 @@
        та же дуэль открывается кнопкой над матрицей. */
     table.addEventListener("click", function(e){
       var cell = e.target.closest("td.ag[data-col]"), tr = cell && cell.closest("tr[data-row]");
-      if(cell && tr && PC.duel) PC.duel.open(tr.dataset.row, cell.dataset.col);
+      if(cell && tr) PC.lazy.run("duel", function(){ PC.duel.open(tr.dataset.row, cell.dataset.col); }, cell);
     });
   }
 
@@ -286,5 +286,17 @@
     var card=host.querySelector('.vote-card[data-id="'+id+'"]');
     if(card){card.tabIndex=-1;card.scrollIntoView({block:"center"});card.focus({preventScroll:true});}
   }
-  PC.votes = { init:init, render:render, partyBlock:partyBlock, STANCE:STANCE, focusVote:focusVote };
+  /* Форма ответов «Голосую сам» (ключ pc-selfvote) проверяется здесь, а не в
+     js/selfvote.js: тот модуль подгружается по требованию (js/lazy.js), а
+     резервная копия должна уметь проверить ответы и без него. Id законопроекта
+     с данными не сверяется: лишний ответ просто не участвует в счёте. */
+  function validSelf(raw){
+    if(!raw || typeof raw !== "object" || raw.v !== 1 || !raw.votes || typeof raw.votes !== "object" || Array.isArray(raw.votes)) return false;
+    var ids = Object.keys(raw.votes);
+    return ids.length <= 500 && ids.every(function(id){
+      return /^[a-z0-9-]{1,64}$/.test(id) && ["for", "against", "abstain"].indexOf(raw.votes[id]) >= 0;
+    });
+  }
+
+  PC.votes = { init:init, render:render, partyBlock:partyBlock, STANCE:STANCE, focusVote:focusVote, validSelf:validSelf, TOPICS:TOPICS };
 })(window.PC = window.PC || {});

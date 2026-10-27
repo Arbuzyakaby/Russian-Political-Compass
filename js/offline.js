@@ -7,7 +7,13 @@
 
    При первой установке появляется одно уведомление «сайт сохранён»;
    когда выложена новая версия, а открыта старая, — предложение
-   обновить страницу. Наружу ничего не отправляется. ============ */
+   обновить страницу. Наружу ничего не отправляется.
+
+   Плашка «Без сети» (4.4) работает и в исходниках, и в пакете: пока
+   navigator.onLine === false, внизу страницы стоит тихая полоса, при
+   возвращении сети она исчезает. Это не проверка соединения, а то, что
+   сообщает браузер; в пакете с работником сайт при этом открывается
+   из сохранённой копии. ============ */
 (function(PC){
   "use strict";
 
@@ -23,7 +29,28 @@
     });
   }
 
+  /* Плашка создаётся один раз и только когда нужна: у большинства
+     посетителей сеть не пропадает, и узла в документе нет вовсе. */
+  var bar = null;
+  function sync(){
+    var off = navigator.onLine === false;
+    if(off && !bar){
+      bar = document.createElement("div");
+      bar.className = "offline-bar";
+      bar.setAttribute("role", "status");
+      bar.textContent = PC.t("offline.banner");
+      document.body.appendChild(bar);
+    }
+    if(bar){
+      bar.textContent = PC.t("offline.banner");
+      bar.hidden = !off;
+    }
+  }
+
   function init(){
+    sync();
+    window.addEventListener("offline", sync);
+    window.addEventListener("online", sync);
     if(!supported()) return;
     var hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register("sw.js").then(function(reg){
@@ -47,5 +74,5 @@
     });
   }
 
-  PC.offline = { init:init, supported:supported };
+  PC.offline = { init:init, supported:supported, sync:sync };
 })(window.PC = window.PC || {});

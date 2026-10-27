@@ -74,8 +74,8 @@
      решение не зависит ни от чего, кроме этих четырёх значений. */
   function decide(o){
     o = o || {};
-    /* Чужой результат важнее любого приветствия. */
-    if(/^#\/?(?:result\/|party\/view\/)/.test(o.hash || "")) return null;
+    /* Чужой результат и ссылка на дуэль (4.4) важнее любого приветствия. */
+    if(/^#\/?(?:result\/|party\/view\/|duel\/)/.test(o.hash || "")) return null;
     if(o.resume === "hello") return o.resume;
     if(!o.seen) return "lang";
     if(o.seen !== o.version) return "update";

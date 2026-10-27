@@ -24,7 +24,7 @@ const SPRITE = {
   trash:"trash-2", map:"map", target:"crosshair", shield:"shield-check",
   "eye-off":"eye-off", phone:"smartphone", "check-circle":"circle-check", external:"external-link",
   minus:"minus", plus:"plus", reset:"rotate-ccw", list:"list", duel:"swords", ballot:"square-check-big",
-  shuffle:"shuffle", alert:"circle-alert"
+  shuffle:"shuffle", alert:"circle-alert", link:"link"
 };
 const MASKS = {
   check:"check", search:"search",

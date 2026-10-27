@@ -268,6 +268,12 @@ svg.compass.egg-disco .node .dot{ animation:egg-disco 1.3s ease-in-out; }
   0%,100%{ filter:hue-rotate(0deg) saturate(1); }
   50%    { filter:hue-rotate(180deg) saturate(1.7); }
 }
+/* 4.4: «4.4» в поиске — два удара по 0,72 с. */
+svg.compass.egg-twin .node .dot{ animation:egg-twin .72s ease-in-out 2; transform-box:fill-box; transform-origin:center; }
+@keyframes egg-twin{
+  0%,100%{ transform:scale(1); }
+  50%    { transform:scale(1.44); }
+}
 /* 4.0: река, верстак, терминал, самовар и ночная сессия. */
 :root[data-eggs=on].egg-river #plot::after{
   content:"";position:absolute;inset:0;pointer-events:none;border:3px solid var(--accent);border-radius:50%;

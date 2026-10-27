@@ -69,8 +69,8 @@
 
 /* Карточки дуэли и голосования под курсором приподнимаются пружиной. */
 @media (hover:hover){
-  .duel-pick,.sv-bill{transition:translate var(--dur-spring) var(--ease-bounce),box-shadow var(--dur-2) var(--ease-out);}
-  .duel-pick:hover,.sv-bill:hover{translate:0 -3px;}
+  .sv-bill{transition:translate var(--dur-spring) var(--ease-bounce),box-shadow var(--dur-2) var(--ease-out);}
+  .sv-bill:hover{translate:0 -3px;}
 }
 
 /* Без движения: никакой пружины, отклик — только цветом и прозрачностью. */
@@ -83,5 +83,5 @@
 @media (prefers-reduced-motion:reduce){
   .is-sprung,.pc-done,.tab[aria-selected="true"] .tab-ico,.panel-enter > *,
   .party-step-body{animation:none;}
-  .duel-pick,.sv-bill{translate:none;}
+  .sv-bill{translate:none;}
 }

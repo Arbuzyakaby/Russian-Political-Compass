@@ -64,7 +64,9 @@
     { key:"export",   tab:"compass", sel:"#exportBtn",       pad:8,  place:"bottom" },
     { key:"quiz",     tab:"compass", sel:"#tab-quiz",        pad:8,  place:"bottom" },
     { key:"party", tab:"compass", sel:"#tab-party", pad:8, place:"bottom" },
-    { key:"settings", tab:"compass", sel:"#settingsBtn",     pad:8,  place:"bottom" }
+    { key:"duel",     tab:"votes",   sel:"#duelFromVotes",   pad:8,  place:"bottom" },
+    { key:"sv",       tab:"votes",   sel:"#selfVote",        pad:10, place:"top" },
+    { key:"settings", tab:"any",     sel:"#settingsBtn",     pad:8,  place:"bottom" }
   ];
 
   var root = document.documentElement;
@@ -80,6 +82,25 @@
   function reduced(){
     return root.dataset.motion === "off" ||
       !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  /* Шаги на других вкладках (4.4): до перехода их цель скрыта вместе с
+     панелью, поэтому при сборке маршрута достаточно, чтобы узел был в
+     разметке и его вкладка существовала; настоящая проверка — в paint(),
+     уже после перехода. */
+  function foreign(step){ return step.tab !== "compass" && step.tab !== "any"; }
+  function listed(step){ return foreign(step) ? !!document.querySelector(step.sel) : !!target(step); }
+
+  /* Тур не оставляет человека на чужой вкладке: переходы без записи в
+     историю и в адрес, чтобы обновление страницы посреди тура не
+     открыло вместо компаса «Голосования». */
+  function showTab(step){
+    if(!PC.nav || !foreign(step) || PC.nav.current() === step.tab) return false;
+    PC.nav.go(step.tab, { silent:true, keepScroll:true });
+    return true;
+  }
+  function homeTab(){
+    if(PC.nav && PC.nav.current() !== "compass") PC.nav.go("compass", { silent:true, keepScroll:true });
   }
 
   /* Цель считается доступной, если узел есть и он действительно занимает
@@ -265,7 +286,14 @@
   function go(i){
     at = Math.min(Math.max(0, i), route.length - 1);
     var step = route[at];
+    /* Вернулись на шаг компаса с чужой вкладки — сначала на компас */
+    if(!foreign(step) && step.tab === "compass") homeTab();
+    var switched = showTab(step);
     var node = target(step);
+    /* панель только что открылась и «въезжает» анимацией: замер после неё */
+    if(switched && node){ setTimeout(paint, reduced() ? 0 : 360); }
+    /* блок «Голосую сам» достраивается после загрузки модуля и меняет высоту */
+    if(step.key === "sv" && PC.loadSelfVote) PC.loadSelfVote().then(function(){ if(running && route[at] === step) paint(); });
     if(node && !fullyVisible(node)){
       /* Цель, которая выше экрана, «по центру» не встаёт никак: у неё
          и верх, и низ за краем. Показываем её начало — это то место,
@@ -300,7 +328,7 @@
     /* Маршрут собирается заново на каждый запуск: набор доступных узлов
        зависит от настроек и от данных, и запомненный с прошлого раза
        он бы соврал. */
-    route = STEPS.filter(function(s){ return !!target(s); });
+    route = STEPS.filter(listed);
     if(!route.length) return;
 
     dots.innerHTML = route.map(function(){ return '<span class="tour-dot"></span>'; }).join("");
@@ -325,6 +353,7 @@
   function stop(){
     if(!running) return;
     running = false;
+    homeTab();
     layer.classList.remove("is-on");
     document.body.classList.remove("sheet-lock", "tour-on");
     var done = function(){

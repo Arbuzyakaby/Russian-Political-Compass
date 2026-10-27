@@ -65,8 +65,6 @@
 <noscript><link rel="stylesheet" href="css/coalition.css"></noscript>
 <link rel="stylesheet" href="css/votes.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/votes.css"></noscript>
-<link rel="stylesheet" href="css/tools.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="css/tools.css"></noscript>
 <link rel="stylesheet" href="css/quiz.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/quiz.css"></noscript>
 <link rel="stylesheet" href="css/export.css" media="print" onload="this.media='all'">
@@ -140,7 +138,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "4.3",
+      "softwareVersion": "4.4",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -216,6 +214,7 @@
   <symbol id="i-ballot" viewBox="0 0 24 24"><path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5"/><path d="m9 11 3 3L22 4"/></symbol>
   <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
 </svg>
 <!-- icons:end -->
 <a class="skip-link" href="#content" data-i18n="skip">Перейти к содержимому</a>
@@ -508,10 +507,11 @@
             <p data-i18n="sv.p">Те же законопроекты, что у фракций. Отвечайте «за», «против» или «воздержусь» — и смотрите, чья фракция голосовала как вы.</p>
           </div>
         </div>
+        <div class="sv-topics" role="group" aria-label="Тема законопроектов" data-i18n-attr="aria-label:sv.topics"></div>
         <div class="sv-progress" aria-hidden="true"><i></i></div>
         <p class="sv-count" aria-live="polite"></p>
         <div class="sv-grid">
-          <div class="sv-main"></div>
+          <div class="sv-main"><p class="sv-loading" data-i18n="lazy.loading">Загружаю…</p></div>
           <div class="sv-results"></div>
         </div>
       </section>
@@ -961,11 +961,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Дуэль партий: две партии рядом — расстояние на компасе, восемь шкал и законопроекты, по которым их фракции разошлись.</li>
-        <li data-i18n="wel.up.l2">«Голосую сам» на вкладке голосований: ответьте по 28 законопроектам и узнайте, чья фракция голосовала как вы.</li>
-        <li data-i18n="wel.up.l3">Сайт открывается и без интернета: после первого визита его копия хранится в браузере.</li>
-        <li data-i18n="wel.up.l4">Единый набор иконок, быстрый пружинящий отклик кнопок и вкладок; пружину можно выключить в настройках.</li>
-        <li data-i18n="wel.up.l5">Английская версия вычитана заново, дополнительные настройки переводятся вместе со всей страницей.</li>
+        <li data-i18n="wel.up.l1">Дуэль партий открывается по ссылке (#/duel/er-kprf), её адрес можно скопировать, а сравнивать можно и свои партии из «Моей партии».</li>
+        <li data-i18n="wel.up.l2">«Голосую сам» учитывает тему: экономика, государство и права или внешняя политика; из карточки можно перейти к законопроекту в списке.</li>
+        <li data-i18n="wel.up.l3">Без сети появляется тихая плашка, а обучение стало длиннее: тринадцать шагов, включая дуэль и «Голосую сам».</li>
+        <li data-i18n="wel.up.l4">Страница стартует легче: дуэль и «Голосую сам» подгружаются, только когда они понадобились.</li>
+        <li data-i18n="wel.up.l5">Длинные слова больше не выпирают за экран телефона при крупном тексте — в том числе на вкладке «Голосования».</li>
       </ul>
 
       <div class="wel-actions">
@@ -1753,7 +1753,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 4.3 «Тиса»: дуэль партий, «Голосую сам», работа без сети, новые иконки и пружинящий отклик">4.3 «Тиса»</span>
+              title="Версия 4.4 «Тиса»: дуэль по ссылке и со своими партиями, «Голосую сам» по темам, плашка «Без сети», дуэль и «Голосую сам» грузятся по требованию">4.4 «Тиса»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1762,6 +1762,8 @@
   </div>
 </footer>
 
+<!-- Модули по требованию (js/lazy.js): сборка подставляет сюда имена файлов с хешем -->
+<script type="application/json" id="pcLazy">{"duel":{"js":"js/duel.js","css":"css/tools.css"},"selfvote":{"js":"js/selfvote.js","css":"css/tools.css"}}</script>
 <script src="js/data.js" defer fetchpriority="high"></script>
 <script src="js/utils.js" defer fetchpriority="high"></script>
 <script src="js/i18n-misc.js" defer fetchpriority="high"></script>
@@ -1781,6 +1783,7 @@
 <script src="js/history-tree.js" defer></script>
 <script src="js/data-quiz-about.js" defer></script>
 <script src="js/calc.js" defer></script>
+<script src="js/lazy.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/select.js" defer></script>
 <script src="js/motion.js" defer></script>
@@ -1795,8 +1798,6 @@
 <script src="js/charts.js" defer></script>
 <script src="js/coalition.js" defer></script>
 <script src="js/votes.js" defer></script>
-<script src="js/selfvote.js" defer></script>
-<script src="js/duel.js" defer></script>
 <script src="js/sidebar.js" defer></script>
 <script src="js/people.js" defer></script>
 <script src="js/quiz-data.js" defer></script>

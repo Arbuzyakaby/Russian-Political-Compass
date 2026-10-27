@@ -9,7 +9,8 @@
    фракции («разделились», «нет фракции» и «нет данных» не считаются).
 
    Ответы хранятся в localStorage под ключом pc-selfvote и попадают
-   в резервную копию. score() — чистая функция, её проверяют тесты. ============ */
+   в резервную копию. score() — чистая функция, её проверяют тесты.
+   С 4.4 модуль подгружается по требованию (js/lazy.js). ============ */
 (function(PC){
   "use strict";
   var t = PC.t, L = PC.L;
@@ -17,16 +18,9 @@
   var CHOICES = ["for", "against", "abstain"];
   var COUNTED = { "for":1, "against":1, "abstain":1 };
 
-  /* Проверяется форма и значения. Id законопроекта не сверяется с данными:
-     если голосование уберут из набора или копия пришла из более новой
-     версии, лишний ответ просто не участвует в счёте (load его отбросит). */
-  function valid(raw){
-    if(!raw || typeof raw !== "object" || raw.v !== 1 || !raw.votes || typeof raw.votes !== "object" || Array.isArray(raw.votes)) return false;
-    var ids = Object.keys(raw.votes);
-    return ids.length <= 500 && ids.every(function(id){
-      return /^[a-z0-9-]{1,64}$/.test(id) && CHOICES.indexOf(raw.votes[id]) >= 0;
-    });
-  }
+  /* Проверка формы лежит в js/votes.js (PC.votes.validSelf): резервная копия
+     проверяет ответы и тогда, когда этот модуль ещё не загружен (4.4). */
+  var valid = PC.votes.validSelf;
 
   function load(){
     var raw = PC.store.getJSON(KEY, null), out = {};
@@ -38,10 +32,11 @@
   /* Рейтинг фракций по совпадению с ответами. Партии без единого общего
      голосования в список не попадают: процент от нуля голосов не значит
      ничего. Порядок — по доле, при равенстве — по числу общих. */
-  function score(votes){
+  function score(votes, bills){
+    bills = bills || PC.VOTES;
     return PC.PARTIES.map(function(p){
       var same = 0, common = 0;
-      PC.VOTES.forEach(function(v){
+      bills.forEach(function(v){
         var mine = votes[v.id], theirs = PC.voteStance(v, p);
         if(!mine || !COUNTED[theirs]) return;
         common++;
@@ -53,11 +48,31 @@
   }
 
   /* ---------- раздел ---------- */
-  var host, votes = {}, current = 0, order = [];
+  var host, votes = {}, current = 0, order = [], topic = "all";
 
   function esc(s){ return PC.utils.esc(s); }
 
   function save(){ PC.store.setJSON(KEY, { v:1, votes:votes }); }
+
+  /* Тема (4.4): ограничивает и вопросы, и рейтинг одной темой законопроектов —
+     «экономика», «государство и права», «внешняя политика». Ответы по
+     остальным темам не пропадают: они только не участвуют, пока тема выбрана. */
+  function applyTopic(){
+    order = PC.VOTES.filter(function(v){ return topic === "all" || v.topic === topic; });
+  }
+
+  function topicName(){
+    var tp = PC.votes.TOPICS.filter(function(x){ return x.id === topic; })[0];
+    return tp ? t(tp.key) : "";
+  }
+
+  function drawTopics(){
+    var box = host.querySelector(".sv-topics");
+    if(!box) return;
+    box.innerHTML = PC.votes.TOPICS.map(function(tp){
+      return '<button type="button" class="chip" data-topic="' + tp.id + '" aria-pressed="' + (tp.id === topic) + '">' + esc(t(tp.key)) + "</button>";
+    }).join("");
+  }
 
   function answered(){ return order.filter(function(v){ return votes[v.id]; }).length; }
 
@@ -87,16 +102,19 @@
         '<button type="button" class="btn small ghost" data-sv="prev"' + (current === 0 ? " disabled" : "") + ">" +
           PC.icon("back") + "<span>" + esc(t("sv.prev")) + "</span></button>" +
         '<button type="button" class="btn small ghost" data-sv="skip">' + "<span>" + esc(t("sv.skip")) + "</span>" + PC.icon("next") + "</button>" +
-      "</div></article>";
+      "</div>" +
+      '<button type="button" class="btn small ghost sv-goto" data-sv="goto">' + PC.icon("list") + "<span>" + esc(t("sv.toList")) + "</span></button>" +
+      "</article>";
   }
 
   function results(){
     var n = answered();
     if(!n) return '<div class="sv-empty">' + PC.icon("ballot") + "<p>" + esc(t("sv.empty")) + "</p></div>";
-    var rows = score(votes);
+    var rows = score(votes, order);
     if(!rows.length) return '<div class="sv-empty"><p>' + esc(t("sv.noCommon")) + "</p></div>";
     var best = rows[0];
-    return '<p class="sv-lead" role="status">' + esc(t("sv.closest", { party:L(best.p, "short"), p:Math.round(best.ratio * 100) })) + "</p>" +
+    return '<p class="sv-lead" role="status">' +
+      esc(t(topic === "all" ? "sv.closest" : "sv.closestTopic", { party:L(best.p, "short"), p:Math.round(best.ratio * 100), topic:topicName() })) + "</p>" +
       '<ol class="sv-rank">' + rows.map(function(r){
         var pct = Math.round(r.ratio * 100);
         return '<li class="' + (r.common <= 3 ? "is-thin" : "") + '" style="--c:' + esc(r.p.color) + '">' +
@@ -112,9 +130,14 @@
     if(!host) return;
     var n = answered();
     host.querySelector(".sv-progress i").style.width = (n / order.length * 100).toFixed(1) + "%";
-    host.querySelector(".sv-count").textContent = t("sv.count", { k:n, n:order.length });
+    /* Живые области (счётчик и «ближе всего») перезаписываются, только если
+       текст изменился: «Назад» и «Пропустить» ничего не меняют в ответах, и
+       скринридер не должен зачитывать ту же сводку заново (4.4). */
+    var count = host.querySelector(".sv-count"), countText = t("sv.count", { k:n, n:order.length });
+    if(count.textContent !== countText) count.textContent = countText;
     host.querySelector(".sv-main").innerHTML = billCard();
-    host.querySelector(".sv-results").innerHTML = results();
+    var res = host.querySelector(".sv-results"), html = results();
+    if(res.dataset.html !== html){ res.innerHTML = html; res.dataset.html = html; }
     if(focus){
       var title = host.querySelector("#svTitle") || host.querySelector(".sv-done .btn");
       if(title) title.focus({ preventScroll:true });
@@ -141,6 +164,18 @@
   function onClick(e){
     var c = e.target.closest("[data-choice]");
     if(c){ choose(c.dataset.choice, c); return; }
+    var tp = e.target.closest("[data-topic]");
+    if(tp){
+      if(tp.dataset.topic === topic) return;
+      topic = tp.dataset.topic;
+      applyTopic();
+      current = firstOpen(0);
+      drawTopics();
+      render(false);
+      var again = host.querySelector('.sv-topics [data-topic="' + topic + '"]');
+      if(again) again.focus({ preventScroll:true });
+      return;
+    }
     var a = e.target.closest("[data-sv]");
     if(!a) return;
     var act = a.dataset.sv;
@@ -148,6 +183,7 @@
     else if(act === "prev" && current < 0){ current = order.length - 1; render(true); }
     else if(act === "skip"){ current = current + 1 < order.length ? current + 1 : 0; render(true); }
     else if(act === "review"){ current = 0; render(true); }
+    else if(act === "goto" && order[current] && PC.votes.focusVote) PC.votes.focusVote(order[current].id);
     else if(act === "reset"){
       var before = votes;
       votes = {}; save(); current = 0; render(true);
@@ -159,10 +195,11 @@
   function init(){
     host = document.getElementById("selfVote");
     if(!host || !PC.VOTES) return;
-    order = PC.VOTES.slice();
+    applyTopic();
     votes = load();
     current = firstOpen(0);
     host.addEventListener("click", onClick);
+    drawTopics();
     render(false);
   }
 

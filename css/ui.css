@@ -160,3 +160,11 @@
   .scroll{overflow:visible!important;}
   .about-card a::after{content:" (" attr(href) ")";font-size:calc(10px * var(--text-k));color:#555;}
 }
+
+/* 4.4: плашка «Без сети» (js/offline.js) — тихая полоса над нижней кромкой, под уведомлениями */
+.offline-bar{position:fixed;left:50%;bottom:clamp(14px,3vw,28px);transform:translateX(-50%);z-index:65;
+  max-width:min(92vw,520px);padding:8px 16px;border-radius:99px;font-size:calc(13px * var(--text-k));text-align:center;
+  color:var(--text);background:color-mix(in srgb,var(--bg) 86%,var(--text));border:1px solid var(--stroke-2);
+  box-shadow:var(--shadow-lift);pointer-events:none;}
+.offline-bar[hidden]{display:none;}
+@media(max-width:720px){ .offline-bar{bottom:calc(76px + env(safe-area-inset-bottom));} }

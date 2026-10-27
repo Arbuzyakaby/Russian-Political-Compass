@@ -84,11 +84,11 @@
     "wel.up.enter":       ["Понятно, дальше", "Got it, carry on"],
     "wel.t.steps":        ["Шаги обучения", "Tutorial steps"],
     "wel.t.step":         ["Шаг {n} из {total}", "Step {n} of {total}"],
-    "wel.up.l1": ["Дуэль партий: две партии рядом — расстояние на компасе, восемь шкал и законопроекты, по которым их фракции разошлись.", "Party face-off: two parties side by side, with their distance on the compass, eight scales and the bills their factions voted differently on."],
-    "wel.up.l2": ["«Голосую сам» на вкладке голосований: ответьте по 28 законопроектам и узнайте, чья фракция голосовала как вы.", "Cast your own votes in the Votes tab: answer 28 bills and see which faction voted the way you would."],
-    "wel.up.l3": ["Сайт открывается и без интернета: после первого визита его копия хранится в браузере.", "The site now opens without a connection: after your first visit a copy is kept in the browser."],
-    "wel.up.l4": ["Единый набор иконок, быстрый пружинящий отклик кнопок и вкладок; пружину можно выключить в настройках.", "One consistent icon set and quick, springy feedback on buttons and tabs; the spring can be switched off in settings."],
-    "wel.up.l5": ["Английская версия вычитана заново, дополнительные настройки переводятся вместе со всей страницей.", "The English version has been edited throughout, and the extra settings now switch language with the rest of the page."],
+    "wel.up.l1": ["Дуэль партий открывается по ссылке (#/duel/er-kprf), её адрес можно скопировать, а сравнивать можно и свои партии из «Моей партии».", "A party face-off opens from a link (#/duel/er-kprf), its address can be copied, and your own parties from “My party” can be compared too."],
+    "wel.up.l2": ["«Голосую сам» учитывает тему: экономика, государство и права или внешняя политика; из карточки можно перейти к законопроекту в списке.", "Cast-your-own-votes has a topic filter — economy, state and rights, or foreign policy — and a card links to its bill in the list."],
+    "wel.up.l3": ["Без сети появляется тихая плашка, а обучение стало длиннее: тринадцать шагов, включая дуэль и «Голосую сам».", "A quiet bar appears when you are offline, and the tour is longer: thirteen steps, including the face-off and your own votes."],
+    "wel.up.l4": ["Страница стартует легче: дуэль и «Голосую сам» подгружаются, только когда они понадобились.", "The page starts lighter: the face-off and your own votes load only when you need them."],
+    "wel.up.l5": ["Длинные слова больше не выпирают за экран телефона при крупном тексте — в том числе на вкладке «Голосования».", "Long words no longer push past the edge of a phone screen at large text sizes — including on the Votes tab."],
     "ab.author.h":        ["Слово автора", "A note from the author"],
     "ab.author.p":        ["Этот проект начался с раздражения. В любом споре о политике первые полторы минуты уходят на то, чтобы выяснить, кого собеседник считает «левым», а кого «либералом», — и выясняется, что одним и тем же словом вы называете разные вещи. Координатная сетка не мирит спорящих, но она заставляет их спорить о чём-то проверяемом: не о ярлыке, а о числе и о том, откуда оно взялось.",
                            "This project started out of irritation. In any political argument the first ninety seconds go on working out whom the other person calls “left” and whom they call “liberal” — and it turns out you are using the same words for different things. A coordinate grid does not reconcile anyone, but it makes the argument about something checkable: not about a label, but about a number and where that number came from."],
@@ -172,7 +172,7 @@
     "ui.topAria":         ["Вернуться к началу страницы", "Return to the top of the page"],
     "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков и аналитики · Шрифты Google загружаются при выборе","No trackers or analytics · Google Fonts load only for the typeface you pick"],
-    "foot.version.tip": ["Версия 4.3 «Тиса»: дуэль партий, «Голосую сам», работа без сети, новые иконки и пружинящий отклик", "Version 4.3 “Tisza”: party face-off, cast your own votes, offline mode, new icons and springy feedback"],
+    "foot.version.tip": ["Версия 4.4 «Тиса»: дуэль по ссылке и со своими партиями, «Голосую сам» по темам, плашка «Без сети», дуэль и «Голосую сам» грузятся по требованию", "Version 4.4 “Tisza”: face-off by link and with your own parties, cast-your-own-votes by topic, an offline bar, face-off and votes load on demand"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"],
 
@@ -200,6 +200,8 @@
     "eggs.rivers": ["Висла → Тиса","Vistula → Tisza"],
     "eggs.night": ["Ночные заседания продолжаются","Night sessions continue"],
     "eggs.teapot": ["418 I'm a teapot · Сегодня заседает самовар","418 I'm a teapot · The samovar is in session"],
+    "eggs.v44": ["4.4: два раза по четыре. Сорок четыре сотых — тоже неплохо, но точки решили подпрыгнуть дважды.","4.4: two fours, back to back. The dots decided to jump twice."],
+    "eggs.v444": ["444 No Response — так nginx закрывает соединение, ничего не сказав. Версия 4.4 так не умеет: она отвечает.","444 No Response: that is how nginx hangs up without a word. Version 4.4 can't do that: it answers."],
     "eggs.terminal": ["Терминал · help — список команд","Terminal · help lists commands"]
   });
 })(window.PC = window.PC || {});

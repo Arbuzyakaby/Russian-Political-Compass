@@ -6,8 +6,17 @@
   "use strict";
   PC.i18nDict = PC.i18nDict || {};
   Object.assign(PC.i18nDict, {
+    /* ===== загрузка по требованию (4.4) ===== */
+    "lazy.loading":   ["Загружаю…", "Loading…"],
+    "lazy.fail":      ["Не удалось загрузить раздел. Проверьте соединение и нажмите ещё раз", "Could not load this section. Check your connection and try again"],
+
     /* ===== дуэль партий ===== */
     "duel.title":     ["Дуэль партий", "Party face-off"],
+    "duel.mine":      ["Мои партии", "My parties"],
+    "duel.share":     ["Скопировать адрес дуэли", "Copy the face-off link"],
+    "duel.copied":    ["Адрес дуэли скопирован", "Face-off link copied"],
+    "duel.shareOwn":  ["Адрес скопирован, но своя партия есть только в этом браузере: у других откроется другая партия", "Link copied, but your own party exists only in this browser: others will see a different party"],
+    "duel.copyFail":  ["Не удалось скопировать адрес — возьмите его из адресной строки", "Could not copy the link — take it from the address bar"],
     "duel.type":      ["Инструмент", "Tool"],
     "duel.open":      ["Дуэль двух партий", "Compare two parties"],
     "duel.more":      ["Подробная дуэль", "Full face-off"],
@@ -59,12 +68,16 @@
     "sv.closest":     ["Ближе всех к вам — {party}: {p}% совпадений", "Closest to you: {party}, with {p}% agreement"],
     "sv.thin":        ["Бледные строки — меньше четырёх общих голосований: процент пока неустойчив.",
                        "Faded rows share fewer than four votes with you, so the percentage is still shaky."],
+    "sv.topics":      ["Тема законопроектов", "Bill topic"],
+    "sv.toList":      ["К этому законопроекту в списке", "Show this bill in the list"],
+    "sv.closestTopic":["В теме «{topic}» ближе всего {party} — {p}% совпадений", "On “{topic}” the closest is {party}: {p}% agreement"],
     "sv.reset":       ["Начать заново", "Start over"],
     "sv.cleared":     ["Ваши голоса стёрты", "Your votes have been cleared"],
 
     /* ===== работа без сети ===== */
     "offline.ready":  ["Сайт сохранён и откроется даже без интернета", "The site is saved and will open even without a connection"],
     "offline.update": ["Доступна новая версия сайта", "A new version of the site is available"],
-    "offline.reload": ["Обновить", "Reload"]
+    "offline.reload": ["Обновить", "Reload"],
+    "offline.banner": ["Без сети — сайт работает из сохранённой копии", "Offline — the site is running from its saved copy"]
   });
 })(window.PC = window.PC || {});

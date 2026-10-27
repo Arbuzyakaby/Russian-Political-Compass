@@ -88,16 +88,18 @@
     });
     list = list.concat(settingCommands());
     list.push({ label:t("srpc.title"), type:"SRPC", run:function(){ PC.srpc.open(); } });
-    list.push({ label:t("duel.title"), type:t("duel.type"), run:function(){ PC.duel.open(); } });
+    list.push({ label:t("duel.title"), type:t("duel.type"), run:function(){ PC.lazy.run("duel", function(){ PC.duel.open(); }); } });
     list.push({ label:t("sv.h"), type:t("duel.type"), run:function(){
       PC.nav.go("votes");
-      setTimeout(function(){
-        var s = document.getElementById("selfVote");
-        if(!s) return;
-        s.scrollIntoView({ block:"start" });
-        var title = document.getElementById("svTitle") || document.getElementById("svHead");
-        if(title){ title.tabIndex = -1; title.focus({ preventScroll:true }); }
-      }, 60);
+      PC.loadSelfVote().then(function(){
+        setTimeout(function(){
+          var s = document.getElementById("selfVote");
+          if(!s) return;
+          s.scrollIntoView({ block:"start" });
+          var title = document.getElementById("svTitle") || document.getElementById("svHead");
+          if(title){ title.tabIndex = -1; title.focus({ preventScroll:true }); }
+        }, 60);
+      });
     } });
     return list;
   }

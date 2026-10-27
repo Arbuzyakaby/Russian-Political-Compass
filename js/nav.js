@@ -28,6 +28,7 @@
     var h = (location.hash || "").replace(/^#\/?/, "");
     if(/^result\//.test(h)) return "quiz";
     if(/^party(?:\/|$)/.test(h)) return "party";
+    if(/^duel\//.test(h)) return "votes";            /* #/duel/<a>-<b> — окно дуэли поверх голосований (4.4) */
     if(h === "srpc") return "about";
     return TABS.indexOf(h) === -1 ? "compass" : h;
   }
