@@ -85,7 +85,7 @@
     topBtn.className = "to-top";
     topBtn.title = PC.t("ui.top");
     topBtn.setAttribute("aria-label", PC.t("ui.topAria"));
-    topBtn.innerHTML = '<span aria-hidden="true">↑</span>';
+    topBtn.innerHTML = '<span aria-hidden="true">' + PC.icon("up") + '</span>';
     topBtn.addEventListener("click", function(){
       window.scrollTo({ top:0, behavior:reduced() ? "auto" : "smooth" });
       var first = document.querySelector(".tab[aria-selected='true']");
@@ -116,7 +116,8 @@
     toastCount++;
     var t = document.createElement("div");
     t.className = "toast" + (bad ? " bad" : "");
-    t.textContent = text;
+    t.innerHTML = PC.icon(bad ? "alert" : "check-circle");
+    t.appendChild(document.createTextNode(text));
     toasts.appendChild(t);
     var killed = false, timer;
     var kill = function(){

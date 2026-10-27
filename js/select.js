@@ -48,8 +48,7 @@
     if(label) btn.setAttribute("aria-label", label);
     btn.innerHTML = '<span class="xs-dot" hidden></span><span class="xs-val"></span>' +
                     '<span class="xs-note"></span>' +
-                    '<svg class="xs-caret" viewBox="0 0 12 12" aria-hidden="true">' +
-                    '<path d="M2.5 4.6 6 8 9.5 4.6"/></svg>';
+                    '<svg class="xs-caret ico" aria-hidden="true" focusable="false"><use href="#i-down"/></svg>';
 
     var pop = document.createElement("div");
     pop.className = "xs-pop";
@@ -197,7 +196,7 @@
 
   function init(root){
     instances = instances.filter(function(i){ if(i.native.isConnected) return true; if(openOne === i){ i.close(false); openOne = null; } return false; });
-    (root || document).querySelectorAll("select:not([data-xs-ready])").forEach(build);
+    (root || document).querySelectorAll("select:not([data-xs-ready]):not([data-native])").forEach(build);
   }
 
   document.addEventListener("pointerdown", function(e){

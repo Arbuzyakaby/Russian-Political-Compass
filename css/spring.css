@@ -1,0 +1,87 @@
+/* ============ Пружины и отклик (4.3) ============
+   Слой поверх css/motion.css: короткий пружинящий отклик на нажатие,
+   переключение и успешное действие. Ни одно движение не задерживает
+   действие — нажатие срабатывает сразу, анимация идёт после.
+
+   Движение живёт в отдельных свойствах scale и translate, а не
+   в transform: transform у кнопок и карточек уже занят состояниями
+   наведения и нажатия из других файлов, и пружина поверх них не
+   сбивает ни их, ни их переходы.
+
+   Отключается тремя путями: системным prefers-reduced-motion,
+   настройкой «Анимации» (data-motion="off") и отдельной настройкой
+   «Пружинящие анимации» (data-bounce="off"). В последнем случае
+   отклик остаётся, но без перелёта: короткое затухание вместо прыжка. */
+:root{
+  /* Пружина с одним заметным перелётом (k≈180, ζ≈.55), расчёт — через
+     linear(): браузеры без его поддержки берут --ease-spring. */
+  --ease-bounce:var(--ease-spring);
+  --ease-bouncy:var(--ease-spring);
+  --dur-spring:.5s;
+}
+@supports (transition-timing-function:linear(0, 1)){
+  :root{
+    --ease-bounce:linear(0, .006, .025 2.8%, .101 6.1%, .539 18.9%, .721 25.3%, .849 31.5%,
+      .937 38.1%, .968 41.8%, .991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001 85.9%, 1);
+    --ease-bouncy:linear(0, .009, .035 2.1%, .141, .281 6.7%, .723 12.9%, .938 16.7%, 1.017, 1.077,
+      1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%,
+      .991, .977 51%, .974 53.8%, .975 57.1%, .997 69.8%, 1.003 76.9%, 1.004 83.8%, 1);
+  }
+}
+:root[data-bounce="off"]{--ease-bounce:var(--ease-out);--ease-bouncy:var(--ease-out);--dur-spring:.28s;}
+
+/* Отпускание: js/spring.js ставит .is-sprung после pointerup. */
+.is-sprung{animation:pc-release var(--dur-spring) var(--ease-bouncy);}
+@keyframes pc-release{from{scale:.94;}to{scale:1;}}
+:root[data-bounce="off"] .is-sprung{animation-name:pc-release-soft;}
+@keyframes pc-release-soft{from{scale:.97;}to{scale:1;}}
+
+/* Выбранная вкладка: значок подпрыгивает, когда вкладка становится текущей. */
+.tab[aria-selected="true"] .tab-ico{animation:pc-pop var(--dur-spring) var(--ease-bouncy);}
+@keyframes pc-pop{0%{scale:.7;}100%{scale:1;}}
+
+/* Переключатель: бегунок доезжает с перелётом. */
+.sw i{transition-timing-function:var(--ease-bounce);}
+
+/* Новая панель раздела и шаг мастера партии проявляются с лёгким подскоком.
+   Заполнение backwards, а не both: после анимации translate возвращается
+   к none, иначе потомки с position:fixed считали бы себя от этого блока. */
+.panel-enter > *{animation:pc-rise calc(var(--dur-spring) * 1.1) var(--ease-bounce) backwards;}
+.party-step-body{animation:pc-rise var(--dur-spring) var(--ease-bounce) backwards;}
+@keyframes pc-rise{from{translate:0 12px;}to{translate:0 0;}}
+
+/* Уведомления: въезд пружиной и значок вместо точки. */
+.toast{animation:pc-toast-in var(--dur-spring) var(--ease-bouncy) both;display:flex;align-items:center;gap:9px;justify-content:center;}
+.toast::before{display:none;}
+.toast > svg.ico{width:17px;height:17px;color:var(--accent);flex:none;}
+.toast.bad > svg.ico{color:var(--bad);}
+.toast .btn{margin-left:4px;}
+@keyframes pc-toast-in{from{opacity:0;translate:0 18px;scale:.92;}to{opacity:1;translate:0 0;scale:1;}}
+
+/* Успешное действие: короткий «поп» и расходящееся кольцо обводки
+   (PC.spring.done). Обводка не занимает места и не трогает раскладку. */
+.pc-done{animation:pc-done-pop var(--dur-spring) var(--ease-bouncy),pc-done-ring .6s var(--ease-out);}
+@keyframes pc-done-pop{0%{scale:1;}30%{scale:1.06;}100%{scale:1;}}
+@keyframes pc-done-ring{
+  from{outline:2px solid color-mix(in srgb,var(--accent) 90%,transparent);outline-offset:1px;}
+  to{outline:2px solid transparent;outline-offset:9px;}
+}
+
+/* Карточки дуэли и голосования под курсором приподнимаются пружиной. */
+@media (hover:hover){
+  .duel-pick,.sv-bill{transition:translate var(--dur-spring) var(--ease-bounce),box-shadow var(--dur-2) var(--ease-out);}
+  .duel-pick:hover,.sv-bill:hover{translate:0 -3px;}
+}
+
+/* Без движения: никакой пружины, отклик — только цветом и прозрачностью. */
+:root[data-motion="off"] .is-sprung,:root[data-motion="off"] .pc-done,
+:root[data-motion="off"] .tab[aria-selected="true"] .tab-ico,
+:root[data-motion="off"] .panel-enter > *,
+:root[data-motion="off"] .party-step-body{animation:none;}
+:root[data-motion="off"] .toast{animation:pc-fade .2s linear both;}
+@keyframes pc-fade{from{opacity:0;}to{opacity:1;}}
+@media (prefers-reduced-motion:reduce){
+  .is-sprung,.pc-done,.tab[aria-selected="true"] .tab-ico,.panel-enter > *,
+  .party-step-body{animation:none;}
+  .duel-pick,.sv-bill{translate:none;}
+}

@@ -1,0 +1,18 @@
+/* ============ Иконки интерфейса (4.3) ============
+   Один набор — Lucide (ISC, см. assets/icons/LICENSE и docs/DEVELOPMENT.md):
+   сетка 24×24, линия 2, скруглённые концы. Спрайт лежит в начале <body>
+   и собирается scripts/icons.cjs; в разметке значок — это
+   <svg class="ico"><use href="#i-имя"/></svg>, в скриптах — PC.icon("имя").
+   Толщина линии здесь общая для всех значков: компонентные правила
+   задают только размер и цвет, иначе набор снова расползётся по весу. */
+.icon-sprite{position:absolute;width:0;height:0;overflow:hidden;}
+svg.ico{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;vertical-align:-.15em;overflow:visible;}
+/* Значок рядом с текстом в кнопке: зазор и выравнивание по строке. */
+.btn > svg.ico:first-child:not(:only-child){margin-right:.45em;}
+#mapMinus svg.ico,#mapPlus svg.ico{width:16px;height:16px;}
+.wel-ico svg.ico{width:15px;height:15px;}
+.party-icon-btn svg.ico{width:18px;height:18px;}
+.ht-p-x svg.ico{width:16px;height:16px;}
+.to-top svg.ico{width:18px;height:18px;}
+#clearBtn svg.ico{width:13px;height:13px;}

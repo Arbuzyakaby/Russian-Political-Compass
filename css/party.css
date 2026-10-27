@@ -709,7 +709,7 @@ html.party-sheet-open{overflow:hidden;}
   .party-live .party-pos{width:38px;height:38px;}
   .party-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:0;}
   #panel-party .btn.party-step,#panel-party .btn.party-step:not(.current){justify-content:center;min-height:48px;padding:0;border-radius:16px;}
-  .party-step .party-step-label{display:none!important;}
+  .party-step .party-step-label{display:none;}
   .party-fields{grid-template-columns:minmax(0,1fr);}
   .party-bar{margin-top:24px;}
   .party-bases{margin:14px -18px 0;padding:4px 18px 14px;}
@@ -765,39 +765,41 @@ html.party-sheet-open{overflow:hidden;}
   .party-editor{padding-bottom:12px;}
 }
 /* Мобильные правила проекта задают тегам размер «не меньше родителя», из-за чего
-   подписи сравниваются с заголовками. Здесь возвращена иерархия, где она нужна. */
+   подписи сравниваются с заголовками. Здесь возвращена иерархия, где она нужна.
+   Флаги important в этом блоке (девять строк, 4.3) перебивают пол кегля
+   css/mobile.css, объявленный так же; остальные сняты — см. docs/RELEASE_4_3.md. */
 @media(max-width:720px),(pointer:coarse) and (max-width:1050px){
-  #panel-party .party-identity h3{font-size:22px!important;line-height:1.15;}
+  #panel-party .party-identity h3{font-size:22px;line-height:1.15;}
   #panel-party .party-subhead{font-size:18px!important;}
   #panel-party .party-empty h3{font-size:20px!important;}
-  #panel-party .party-promo h3{font-size:20px!important;}
-  #panel-party .party-camp-me-text h3{font-size:20px!important;}
-  #panel-party .party-vote h4{font-size:16px!important;}
+  #panel-party .party-promo h3{font-size:20px;}
+  :root #panel-party .party-camp-me-text h3{font-size:20px;}
+  #panel-party .party-vote h4{font-size:16px;}
   #panel-party .party-tile-text b,#panel-party .party-resume-text b{font-size:16px!important;}
   #panel-party .party-tpl b{font-size:17px!important;}
-  #panel-party .party-basecard b{font-size:14px!important;}
+  #panel-party .party-basecard b{font-size:14px;}
   #panel-party .party-basecard small,#panel-party .party-tpl small,#panel-party .party-tile-text small,
   #panel-party .party-resume-text small,#panel-party .party-vote-head small,#panel-party .party-cmp-conv small,
   #panel-party .party-cmp-val small,#panel-party .party-camp-me-seats small,#panel-party .party-hemi-center small,
   #panel-party .party-match small{
     font-size:14px!important;
   }
-  #panel-party .party-poles span,#panel-party .party-slider-head+input+.party-poles span{font-size:13px!important;}
+  :root #panel-party .party-poles span,:root #panel-party .party-slider-head+input+.party-poles span{font-size:13px;}
   #panel-party p.party-meta,#panel-party p.party-neighbor,#panel-party p.party-warning,#panel-party p.party-camp-note,
   #panel-party p.party-camp-model{
     font-size:14px!important;line-height:1.55;
   }
   #panel-party p.party-step-hint,#panel-party p.party-lead{font-size:17px!important;}
-  #panel-party p.party-identity-text,#panel-party .party-identity p{font-size:15px!important;}
+  :root #panel-party p.party-identity-text,:root #panel-party .party-identity p{font-size:15px;}
   #panel-party .party-chip{font-size:13px!important;}
   #panel-party .party-count{font-size:13px!important;}
-  #panel-party .party-camp-seatsn{font-size:22px!important;}
-  #panel-party .party-bars-thr{font-size:13px!important;}
-  #panel-party .party-cmp-conv b{font-size:17px!important;}
-  #panel-party .party-thesis-n{font-size:13px!important;}
-  #panel-party .party-bar-val,#panel-party .party-took-val,#panel-party .party-cmp-val b,#panel-party .party-match b{font-size:14px!important;}
-  #panel-party .party-leg{font-size:14px!important;}
-  #panel-party .party-step-number,#panel-party .party-slider output{font-size:15px!important;}
-  #panel-party .party-coords span:not(.party-pos){font-size:15px!important;}
+  #panel-party .party-camp-seatsn{font-size:22px;}
+  #panel-party .party-bars-thr{font-size:13px;}
+  #panel-party .party-cmp-conv b{font-size:17px;}
+  #panel-party .party-thesis-n{font-size:13px;}
+  #panel-party .party-bar-val,#panel-party .party-took-val,#panel-party .party-cmp-val b,#panel-party .party-match b{font-size:14px;}
+  #panel-party .party-leg{font-size:14px;}
+  #panel-party .party-step-number,#panel-party .party-slider output{font-size:15px;}
+  #panel-party .party-coords span:not(.party-pos){font-size:15px;}
 }
 .party-bar-val{text-shadow:0 0 5px var(--bg),0 0 5px var(--bg);}

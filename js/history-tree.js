@@ -444,7 +444,7 @@
       var x = el("button", "ht-p-x");
       x.type = "button";
       x.setAttribute("aria-label", PC.t("ab.ht.close"));
-      x.textContent = "×";
+      x.innerHTML = PC.icon("close");
       x.addEventListener("click", function(){ close(true); });
       top.appendChild(x);
       panel.appendChild(top);

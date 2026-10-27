@@ -61,6 +61,7 @@
     glasslevel:"normal",  /* subtle | normal | strong — густота размытия */
     /* движение и фон */
     motion:   "on",
+    bounce:   "on",      /* пружинящий отклик кнопок и вкладок (4.3) */
     grain:    "on",
     spotlight:"on",
     speed:    "normal",   /* slow | normal | fast (2.2) */
@@ -565,38 +566,16 @@
     paint();
   }
 
-  /* ---------- настройки, которых нет в разметке (4.0, перенесено в 4.2) ----------
-     Часть настроек появилась в 4.0 без своих строк в index.html. Строки
-     для них строит extend(): подпись и список вариантов из таблицы
-     EXTRA, значение читается и пишется теми же get/set. Там же — то,
-     что относится ко всему листу сразу: метка «изменено» у строки,
-     «сбросить раздел», поиск по настройкам, резервная копия и «стереть
-     всё». Вызывается один раз из PC.tisza.init, после того как
-     PC.dropdown подменил готовые списки: эти строки в подмену попадать
-     не должны.
-
-     Запись таблицы: ключ → [раздел, подписи вариантов, значения]. Подпись
-     — ключ словаря или готовый текст; без вариантов настройка —
-     переключатель «выкл/вкл». */
-  var EXTRA = {};
-  function extraTable(){
-    return {
-      dotSize:["interface", ["S", "M", "L"], ["small", "normal", "large"]],
-      labelMode:["interface", ["set.all", "set.duma", "set.selected"], ["all", "duma", "selected"]],
-      bubbles:["interface"],
-      myParties:["interface"],
-      startTab:["nav", ["tab.compass", "set.last", "tab.quiz", "tab.votes", "tab.party", "tab.about"], ["compass", "last", "quiz", "votes", "party", "about"]],
-      convDefault:["nav", PC.CONVOCATIONS.map(function(c){ return PC.L(c, "label"); }), PC.CONVOCATIONS.map(function(c){ return String(c.id); })],
-      quizMode:["general", ["20", "40", "90"], ["short", "full", "long"]],
-      autoNext:["general"],
-      confirmReset:["general"],
-      colorblind:["readability"],
-      lineheight:["readability", ["set.normal", "set.increased"], ["normal", "increased"]],
-      exportFormat:["general", ["PNG", "SVG"], ["png", "svg"]],
-      exportScale:["general", ["1×", "2×", "3×"], ["1", "2", "3"]],
-      transparent:["general"],
-      srpcStage:["srpc", ["1", "2", "3", "4", "5", "6"], ["1", "2", "3", "4", "5", "6"]]
-    };
+  /* ---------- дополнительные настройки 4.0 ----------
+     С 4.3 их строки лежат в index.html (div.tisza-setting[data-setting]
+     со списком select#setting-<ключ>, помеченным data-native, чтобы
+     PC.dropdown его не подменял): подписи переводятся вместе с остальной
+     разметкой. extend() только связывает списки с get/set и добавляет то,
+     что относится ко всему листу: метку «изменено» у строки, «сбросить
+     раздел», поиск, резервную копию и «стереть всё». Вызывается один раз
+     из PC.tisza.init. */
+  function extraControls(){
+    return Array.from(document.querySelectorAll("#setPanels select[data-native][id^='setting-']"));
   }
 
   function node(tag, cls, text){
@@ -613,31 +592,16 @@
     return b;
   }
 
-  function addExtraRows(){
-    Object.keys(EXTRA).forEach(function(key){
-      var def = EXTRA[key];
-      var group = document.querySelector('#setPanels [data-panel="' + def[0] + '"]');
-      var row = node("div", "set-row tisza-setting");
-      row.dataset.setting = key;
-      var label = node("label", "set-name", PC.t(key === "srpcStage" ? "srpc.failure" : "set." + key));
-      label.htmlFor = "setting-" + key;
-      var control = node("select");
-      control.id = "setting-" + key;
-      var values = def[2] || ["off", "on"], labels = def[1] || ["set.off", "set.on"];
-      values.forEach(function(value, i){
-        var option = node("option", "", PC.i18nDict[labels[i]] ? PC.t(labels[i]) : labels[i]);
-        option.value = value;
-        control.appendChild(option);
-      });
+  function bindExtraControls(){
+    extraControls().forEach(function(control){
+      var key = control.id.slice("setting-".length);
       control.value = get(key);
       control.addEventListener("change", function(){ set(key, control.value); });
-      row.append(label, control);
-      group.appendChild(row);
     });
   }
 
   /* Метка «изменено» у строк, чьё значение отличается от исходного, и
-     синхронизация строк из EXTRA после «сбросить» и восстановления. */
+     синхронизация дополнительных списков после «сбросить» и восстановления. */
   function markChanged(sheet){
     sheet.querySelectorAll(".set-row").forEach(function(row){
       var controls = Array.from(row.querySelectorAll("[data-set-switch],[data-set-seg]"));
@@ -647,10 +611,7 @@
       row.classList.toggle("is-modified", different);
       row.title = different ? PC.t("set.modified") : "";
     });
-    Object.keys(EXTRA).forEach(function(k){
-      var control = document.getElementById("setting-" + k);
-      if(control) control.value = get(k);
-    });
+    extraControls().forEach(function(control){ control.value = get(control.id.slice("setting-".length)); });
   }
 
   /* «Сбросить раздел» с отменой: прежние значения запоминаются и
@@ -740,7 +701,7 @@
      в уведомлении кнопку «отменить», пока оно не исчезло. */
   function addEraseAll(){
     var privacy = document.getElementById("setPanel-privacy");
-    privacy.appendChild(node("p", "party-meta", "pc-my-parties · pc-party-draft · pc-settings · pc-eggs-found"));
+    privacy.appendChild(node("p", "party-meta", "pc-my-parties · pc-party-draft · pc-settings · pc-selfvote · pc-eggs-found"));
     privacy.appendChild(smallButton(PC.t("set.eraseAll"), function(){
       var before = PC.backup.make();
       if(!before) return;
@@ -748,6 +709,7 @@
       PC.partyModel.load();
       PC.partyBuilder.clearLocal();
       PC.quiz.clearLocal();
+      if(PC.selfVote) PC.selfVote.clearLocal();
       reset();
       PC.compass.redraw();
       PC.refresh();
@@ -761,10 +723,8 @@
 
   function extend(){
     var sheet = document.getElementById("setSheet");
-    /* таблица читает PC.CONVOCATIONS и словарь, поэтому строится здесь, а не при загрузке файла */
-    EXTRA = extraTable();
     addSearch(sheet);
-    addExtraRows();
+    bindExtraControls();
     document.addEventListener("pc:settings", function(){ markChanged(sheet); });
     addSectionResets();
     addBackupButtons();

@@ -101,7 +101,7 @@
     "party.noQuiz": ["Сначала пройдите тест, чтобы перенести свои взгляды.","Complete the quiz first to use your views."],
     "party.required": ["Пожалуйста, введите название партии", "Please enter a party name"],
     "party.noName": ["Новая партия","New party"],
-    "party.newTag": ["МП","MP"],
+    "party.newTag": ["МП","NEW"],
     "party.random.0": ["Партия нового горизонта","New Horizon Party"],
     "party.random.1": ["Союз свободных городов","Union of Free Cities"],
     "party.random.2": ["Зелёная перспектива","Green Perspective"],

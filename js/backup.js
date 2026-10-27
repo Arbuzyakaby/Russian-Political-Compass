@@ -100,7 +100,8 @@
     "pc-quiz-mode":    function(value){ return QUIZ_MODES.indexOf(value) >= 0; },
     "pc-theme":        function(value){ return THEMES.indexOf(value) >= 0; },
     "pc-eggs-found":   eggsFound,
-    "pc-srpc-layout":  function(value){ return isLayout(JSON.parse(value)); }
+    "pc-srpc-layout":  function(value){ return isLayout(JSON.parse(value)); },
+    "pc-selfvote":     function(value){ return PC.selfVote.valid(JSON.parse(value)); }
   };
 
   function validKey(key, value){

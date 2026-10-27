@@ -52,6 +52,7 @@
 
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/icons.css">
 <link rel="stylesheet" href="css/header.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/compass.css">
@@ -64,6 +65,8 @@
 <noscript><link rel="stylesheet" href="css/coalition.css"></noscript>
 <link rel="stylesheet" href="css/votes.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/votes.css"></noscript>
+<link rel="stylesheet" href="css/tools.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/tools.css"></noscript>
 <link rel="stylesheet" href="css/quiz.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/quiz.css"></noscript>
 <link rel="stylesheet" href="css/export.css" media="print" onload="this.media='all'">
@@ -98,6 +101,7 @@
 <!-- слой движения подключается последним: часть его правил намеренно
      уточняет уже описанное выше, и каскад решает это без !important -->
 <link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/spring.css">
 <link rel="stylesheet" href="css/mobile.css">
 <link rel="stylesheet" href="css/app.css">
 
@@ -136,7 +140,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "4.2",
+      "softwareVersion": "4.3",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -181,6 +185,39 @@
 <script src="js/theme-boot.js"></script>
 </head>
 <body>
+<!-- icons:start — собрано scripts/icons.cjs из Lucide (ISC), вручную не править -->
+<svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <symbol id="i-compass" viewBox="0 0 24 24"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/><circle cx="12" cy="12" r="10"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+  <symbol id="i-votes" viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"/><path d="M22 19H2"/></symbol>
+  <symbol id="i-party" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></symbol>
+  <symbol id="i-about" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></symbol>
+  <symbol id="i-duel" viewBox="0 0 24 24"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></symbol>
+  <symbol id="i-ballot" viewBox="0 0 24 24"><path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5"/><path d="m9 11 3 3L22 4"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+</svg>
+<!-- icons:end -->
 <a class="skip-link" href="#content" data-i18n="skip">Перейти к содержимому</a>
 <div class="grain" aria-hidden="true"></div>
 <noscript>
@@ -201,35 +238,32 @@
     </div>
     <div class="tools">
       <div class="search" id="searchWrap">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
         <label class="sr-only" for="q" data-i18n="search.label">Поиск партии</label>
         <input id="q" type="text" placeholder="Найти партию…" autocomplete="off" spellcheck="false"
                data-i18n-attr="placeholder:search.placeholder">
         <button type="button" class="clear" id="clearBtn" title="Очистить" aria-label="Очистить поиск"
-                data-i18n-attr="title:search.clear;aria-label:search.clear">✕</button>
+                data-i18n-attr="title:search.clear;aria-label:search.clear"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button>
         <kbd class="search-kbd" aria-hidden="true">/</kbd>
       </div>
       <button type="button" class="gear-btn" id="settingsBtn" disabled aria-haspopup="dialog" aria-expanded="false"
               title="Настройки" aria-label="Настройки"
               data-i18n-attr="title:set.title;aria-label:set.title">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="3.1"/>
-          <path d="M19.4 14.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V21a2 2 0 1 1-4 0v-.12a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H3a2 2 0 1 1 0-4h.12a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.55V3a2 2 0 1 1 4 0v.12a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1.03H21a2 2 0 1 1 0 4h-.12a1.7 1.7 0 0 0-1.48 1.03z"/>
-        </svg>
+        <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-settings"/></svg>
       </button>
     </div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Разделы" data-i18n-attr="aria-label:tabs.label">
     <button type="button" class="tab" data-tab="compass" role="tab" id="tab-compass"
-            aria-controls="panel-compass" aria-selected="true"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span data-i18n="tab.compass">Компас</span><span class="tab-short" data-i18n="tab.compass.short" aria-hidden="true"></span><span class="tab-more" data-i18n="tab.compass.more"> и аналитика</span></button>
+            aria-controls="panel-compass" aria-selected="true"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-compass"/></svg><span data-i18n="tab.compass">Компас</span><span class="tab-short" data-i18n="tab.compass.short" aria-hidden="true"></span><span class="tab-more" data-i18n="tab.compass.more"> и аналитика</span></button>
     <button type="button" class="tab" data-tab="quiz" role="tab" id="tab-quiz"
-            aria-controls="panel-quiz" aria-selected="false" tabindex="-1"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6M9 18h3"/></svg><span data-i18n="tab.quiz">Тест</span><span class="tab-short" data-i18n="tab.quiz.short" aria-hidden="true"></span><span class="tab-badge">40</span></button>
+            aria-controls="panel-quiz" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-quiz"/></svg><span data-i18n="tab.quiz">Тест</span><span class="tab-short" data-i18n="tab.quiz.short" aria-hidden="true"></span><span class="tab-badge">40</span></button>
     <button type="button" class="tab" data-tab="votes" role="tab" id="tab-votes"
-            aria-controls="panel-votes" aria-selected="false" tabindex="-1"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="tab.votes">Голосования</span><span class="tab-short" data-i18n="tab.votes.short" aria-hidden="true"></span><span class="tab-badge">28</span></button>
-    <button type="button" class="tab" data-tab="party" role="tab" id="tab-party" aria-controls="panel-party" aria-selected="false" tabindex="-1"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></svg><span data-i18n="tab.party">Моя партия</span><span class="tab-short" data-i18n="tab.party.short" aria-hidden="true"></span><span class="tab-badge">4.1</span></button>
+            aria-controls="panel-votes" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-votes"/></svg><span data-i18n="tab.votes">Голосования</span><span class="tab-short" data-i18n="tab.votes.short" aria-hidden="true"></span><span class="tab-badge">28</span></button>
+    <button type="button" class="tab" data-tab="party" role="tab" id="tab-party" aria-controls="panel-party" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-party"/></svg><span data-i18n="tab.party">Моя партия</span><span class="tab-short" data-i18n="tab.party.short" aria-hidden="true"></span><span class="tab-badge">4.1</span></button>
     <button type="button" class="tab" data-tab="about" role="tab" id="tab-about"
-            aria-controls="panel-about" aria-selected="false" tabindex="-1"><svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span data-i18n="tab.about">О проекте</span><span class="tab-short" data-i18n="tab.about.short" aria-hidden="true"></span></button>
+            aria-controls="panel-about" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-about"/></svg><span data-i18n="tab.about">О проекте</span><span class="tab-short" data-i18n="tab.about.short" aria-hidden="true"></span></button>
   </nav>
 
   <main id="content" tabindex="-1">
@@ -267,10 +301,10 @@
         </div>
 
         <div class="map-controls" id="mapControls">
-          <button type="button" class="btn small" id="mapMinus" aria-label="Уменьшить масштаб" data-i18n-attr="aria-label:map.minus">−</button>
-          <button type="button" class="btn small" id="mapPlus" aria-label="Увеличить масштаб" data-i18n-attr="aria-label:map.plus">+</button>
-          <button type="button" class="btn small" id="mapReset" data-i18n="compass.resetView">Сбросить вид</button>
-          <button type="button" class="btn small" id="mapList" data-i18n="compass.list">Список с координатами</button>
+          <button type="button" class="btn small" id="mapMinus" aria-label="Уменьшить масштаб" data-i18n-attr="aria-label:map.minus"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-minus"/></svg></button>
+          <button type="button" class="btn small" id="mapPlus" aria-label="Увеличить масштаб" data-i18n-attr="aria-label:map.plus"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg></button>
+          <button type="button" class="btn small" id="mapReset"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-reset"/></svg><span data-i18n="compass.resetView">Сбросить вид</span></button>
+          <button type="button" class="btn small" id="mapList"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-list"/></svg><span data-i18n="compass.list">Список с координатами</span></button>
         </div>
         <div class="plot" id="plot">
           <svg class="compass" id="svg" viewBox="0 0 660 660" preserveAspectRatio="xMidYMid meet"
@@ -333,7 +367,7 @@
     <div class="stats" id="stats"></div>
 
     <div class="charts">
-      <section class="card chart-card" data-reveal aria-label="Состав Госдумы по фракциям">
+      <section class="card chart-card" data-reveal aria-label="Состав Госдумы по фракциям" data-i18n-attr="aria-label:ch.hemi.h">
         <div class="chart-head">
           <h3 data-i18n="ch.hemi.h">Состав палаты</h3>
           <p data-i18n="ch.hemi.p">450 мест, каждая точка — один мандат. Места расставлены слева направо по экономической оси: слева плановая экономика, справа рыночная. Наведите курсор на любую часть дуги — подсветится ближайшая фракция.</p>
@@ -346,7 +380,7 @@
         </details>
       </section>
 
-      <section class="card chart-card" data-reveal aria-label="Динамика мандатов по созывам">
+      <section class="card chart-card" data-reveal aria-label="Динамика мандатов по созывам" data-i18n-attr="aria-label:ch.trend.h">
         <div class="chart-head">
           <h3 data-i18n="ch.trend.h">Динамика мандатов, IV–IX созывы</h3>
           <p data-i18n="ch.trend.p">Мандаты по итогам выборов 2003–2026. Разрыв линии означает, что партия в том созыве не участвовала. Клик по графику переключает созыв на всей странице.</p>
@@ -395,7 +429,7 @@
         </details>
       </section>
 
-      <section class="card chart-card wide" data-reveal aria-label="Идеологический спектр партий">
+      <section class="card chart-card wide" data-reveal aria-label="Идеологический спектр партий" data-i18n-attr="aria-label:ch.spec.h">
         <div class="chart-head">
           <h3 data-i18n="ch.spec.h">Идеологический спектр</h3>
           <p data-i18n="ch.spec.p">Те же координаты, что и на компасе, но развёрнутые в две шкалы: видно порядок партий и расстояния между ними. Полоса растёт от нуля в сторону полюса.</p>
@@ -409,7 +443,7 @@
 
       <!-- радар идёт во всю ширину: в двухколоночной сетке он оставался
            последним в ряду, и справа зияла пустая половина строки -->
-      <section class="card chart-card wide radar-card" data-reveal aria-label="Профиль партии по под-осям">
+      <section class="card chart-card wide radar-card" data-reveal aria-label="Профиль партии по под-осям" data-i18n-attr="aria-label:ch.radar.h">
         <div class="chart-head">
           <h3 data-i18n="ch.radar.h">Профиль по под-осям</h3>
           <p data-i18n="ch.radar.p">Одна точка на компасе прячет внутреннюю структуру позиции. Здесь те же партии разложены на шесть узких шкал: три уточняют экономическую ось, три — отношение к власти государства. Выберите партию, чтобы наложить её профиль на ваш результат теста.</p>
@@ -465,11 +499,29 @@
         </details>
       </div>
 
+      <!-- Голосую сам (4.3): разметку внутри .sv-main и .sv-results строит js/selfvote.js -->
+      <section class="card chart-card wide sv-card" id="selfVote" data-reveal aria-labelledby="svHead">
+        <div class="chart-head sv-head">
+          <span class="sv-badge" aria-hidden="true"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-ballot"/></svg></span>
+          <div>
+            <h3 id="svHead" data-i18n="sv.h">Проголосуйте сами</h3>
+            <p data-i18n="sv.p">Те же законопроекты, что у фракций. Отвечайте «за», «против» или «воздержусь» — и смотрите, чья фракция голосовала как вы.</p>
+          </div>
+        </div>
+        <div class="sv-progress" aria-hidden="true"><i></i></div>
+        <p class="sv-count" aria-live="polite"></p>
+        <div class="sv-grid">
+          <div class="sv-main"></div>
+          <div class="sv-results"></div>
+        </div>
+      </section>
+
       <div id="votesHost"></div>
 
-      <section class="card chart-card wide" data-reveal aria-label="Матрица совпадения позиций фракций">
+      <section class="card chart-card wide" data-reveal aria-label="Матрица совпадения позиций фракций" data-i18n-attr="aria-label:votes.agreementAria">
         <div class="chart-head">
           <h3 data-i18n="votes.agreement">Совпадение позиций</h3>
+          <button type="button" class="btn small duel-open" id="duelFromVotes"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-duel"/></svg><span data-i18n="duel.open">Дуэль двух партий</span></button>
           <p data-i18n="votes.agreementP">Доля голосований, в которых две фракции заняли одинаковую позицию. Считается только по тем голосованиям, где обе партии были в Думе, — иначе отсутствие в созыве читалось бы как согласие.</p>
         </div>
         <div class="ag-wrap" id="votesMatrix"></div>
@@ -613,6 +665,7 @@
           от «Единой России», — и при этом совпали во всех общих голосованиях, тогда как с ближайшей
           «Единой Россией» ЛДПР разошлась по пенсионному возрасту. Расстояние на поле измеряет программы,
           матрица — поведение, и совпадают они не всегда.</p>
+        <p data-i18n="ab.votes.p3">С 4.3 по тем же законопроектам можно проголосовать самому — блок «Проголосуйте сами» покажет, чья фракция голосовала как вы. А «Дуэль партий» сводит две партии в одном окне: расстояние на компасе, восемь шкал и законопроекты, по которым их фракции разошлись.</p>
         <p class="about-note" data-i18n="ab.votes.note">Позиция фракции приведена как преобладающая: отдельные депутаты голосовали
           иначе. Там, где у фракции не было официальной позиции, стоит «нет данных», а не догадка — единственная
           ценность этого раздела в том, что ему можно верить.</p>
@@ -856,7 +909,7 @@
        aria-labelledby="welLangTitle" tabindex="-1" data-step="lang">
     <button type="button" class="wel-x" id="welClose" aria-label="Закрыть приветствие"
             data-i18n-attr="aria-label:wel.close">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
     </button>
 
     <!-- ---------- шаг 1: язык ----------
@@ -891,28 +944,28 @@
 
       <ul class="wel-points" id="welPoints">
         <li>
-          <span class="wel-ico" aria-hidden="true">◎</span>
+          <span class="wel-ico" aria-hidden="true"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-map"/></svg></span>
           <b data-i18n="wel.p1.h">Посмотрите на поле</b>
           <span data-i18n="wel.p1.p">Одиннадцать партий, шесть созывов Думы и графики, которые следуют за выбранным созывом.</span>
         </li>
         <li>
-          <span class="wel-ico" aria-hidden="true">✦</span>
+          <span class="wel-ico" aria-hidden="true"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-target"/></svg></span>
           <b data-i18n="wel.p2.h">Найдите себя</b>
           <span data-i18n="wel.p2.p">Тест ставит на ту же сетку вас — от двух минут до четверти часа, на ваш выбор.</span>
         </li>
         <li>
-          <span class="wel-ico" aria-hidden="true">⌂</span>
+          <span class="wel-ico" aria-hidden="true"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-shield"/></svg></span>
           <b data-i18n="wel.p3.h">Ничего не уходит наружу</b>
           <span data-i18n="wel.p3.p">Ни счётчиков, ни аналитики. Ответы и настройки лежат только в вашем браузере.</span>
         </li>
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Плавный компас на телефоне: приближение и перетаскивание без рывков, щипок вокруг пальцев, инерция после броска.</li>
-        <li data-i18n="wel.up.l2">Панель карты на телефоне стала аккуратнее: «Сбросить вид» и «Список» — отдельные кнопки вместо общей плашки.</li>
-        <li data-i18n="wel.up.l3">В тесте по разделу «О проекте» теперь двенадцать вопросов: добавлены вопросы про полую точку партии и про расхождение расстояний и голосований.</li>
-        <li data-i18n="wel.up.l4">Предупреждение о цвете партии показывается только у цветов, которые действительно сливаются с фоном; тексты сообщений об ошибках стали вежливее.</li>
-        <li data-i18n="wel.up.l5">Внутри: код разобран по модулям и аккуратно развёрнут, словари разложены по своим файлам; вид и поведение сайта прежние.</li>
+        <li data-i18n="wel.up.l1">Дуэль партий: две партии рядом — расстояние на компасе, восемь шкал и законопроекты, по которым их фракции разошлись.</li>
+        <li data-i18n="wel.up.l2">«Голосую сам» на вкладке голосований: ответьте по 28 законопроектам и узнайте, чья фракция голосовала как вы.</li>
+        <li data-i18n="wel.up.l3">Сайт открывается и без интернета: после первого визита его копия хранится в браузере.</li>
+        <li data-i18n="wel.up.l4">Единый набор иконок, быстрый пружинящий отклик кнопок и вкладок; пружину можно выключить в настройках.</li>
+        <li data-i18n="wel.up.l5">Английская версия вычитана заново, дополнительные настройки переводятся вместе со всей страницей.</li>
       </ul>
 
       <div class="wel-actions">
@@ -937,14 +990,14 @@
   <header class="sheet-head">
     <button type="button" class="sheet-back" id="setBack" hidden aria-label="Все разделы настроек"
             data-i18n-attr="aria-label:set.back">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>
+      <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-back"/></svg>
     </button>
     <div>
       <h2 id="setTitle" data-i18n="set.title">Настройки</h2>
     </div>
     <button type="button" class="sheet-close" id="setClose" aria-label="Закрыть настройки"
             data-i18n-attr="aria-label:set.close">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
     </button>
   </header>
 
@@ -1113,6 +1166,39 @@
         <button type="button" class="sw" data-set-switch="crosshair" role="switch" aria-checked="true"
                 aria-label="Перекрестие" data-i18n-attr="aria-label:set.cross"><i></i></button>
       </div>
+
+      <!-- Дополнительные настройки 4.0: значения читает и пишет js/settings.js (PC.settings.extend). -->
+      <div class="set-row tisza-setting" data-setting="dotSize">
+        <label class="set-name" for="setting-dotSize" data-i18n="set.dotSize">Размер точек</label>
+        <select id="setting-dotSize" data-native>
+          <option value="small">S</option>
+          <option value="normal">M</option>
+          <option value="large">L</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="labelMode">
+        <label class="set-name" for="setting-labelMode" data-i18n="set.labelMode">Показывать подписи</label>
+        <select id="setting-labelMode" data-native>
+          <option value="all" data-i18n="set.all">Все</option>
+          <option value="duma" data-i18n="set.duma">Только Дума</option>
+          <option value="selected" data-i18n="set.selected">Только выбранная</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="bubbles">
+        <label class="set-name" for="setting-bubbles" data-i18n="set.bubbles">Размер по мандатам</label>
+        <select id="setting-bubbles" data-native>
+          <option value="off" data-i18n="set.off">Выкл.</option>
+          <option value="on" data-i18n="set.on">Вкл.</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="myParties">
+        <label class="set-name" for="setting-myParties" data-i18n="set.myParties">Мои партии</label>
+        <select id="setting-myParties" data-native>
+          <option value="off" data-i18n="set.off">Выкл.</option>
+          <option value="on" data-i18n="set.on">Вкл.</option>
+        </select>
+      </div>
+
     </section>
 
     <section class="set-group" data-panel="motion" id="setPanel-motion" role="tabpanel" aria-labelledby="setTab-motion" hidden>
@@ -1123,6 +1209,13 @@
           <small data-i18n="set.anim.d">Появление блоков, переходы вкладок, рост полос на графиках</small></span>
         <button type="button" class="sw" data-set-switch="motion" role="switch" aria-checked="true"
                 aria-label="Анимации" data-i18n-attr="aria-label:set.anim"><i></i></button>
+      </div>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.bounce">Пружинящие анимации</b>
+          <small data-i18n="set.bounce.d">Кнопки и вкладки слегка подпрыгивают после нажатия. Без пружины отклик остаётся, но спокойнее</small></span>
+        <button type="button" class="sw" data-set-switch="bounce" role="switch" aria-checked="true"
+                aria-label="Пружинящие анимации" data-i18n-attr="aria-label:set.bounce"><i></i></button>
       </div>
 
       <div class="set-row">
@@ -1226,6 +1319,23 @@
         <button type="button" class="sw" data-set-switch="underline" role="switch" aria-checked="false"
                 aria-label="Подчёркивать ссылки" data-i18n-attr="aria-label:set.underline"><i></i></button>
       </div>
+
+      <!-- Дополнительные настройки 4.0: значения читает и пишет js/settings.js (PC.settings.extend). -->
+      <div class="set-row tisza-setting" data-setting="colorblind">
+        <label class="set-name" for="setting-colorblind" data-i18n="set.colorblind">Различать маркеры по форме</label>
+        <select id="setting-colorblind" data-native>
+          <option value="off" data-i18n="set.off">Выкл.</option>
+          <option value="on" data-i18n="set.on">Вкл.</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="lineheight">
+        <label class="set-name" for="setting-lineheight" data-i18n="set.lineheight">Межстрочный интервал</label>
+        <select id="setting-lineheight" data-native>
+          <option value="normal" data-i18n="set.normal">Обычный</option>
+          <option value="increased" data-i18n="set.increased">Увеличенный</option>
+        </select>
+      </div>
+
     </section>
 
     <section class="set-group" data-panel="nav" id="setPanel-nav" role="tabpanel" aria-labelledby="setTab-nav" hidden>
@@ -1251,6 +1361,31 @@
         <button type="button" class="sw" data-set-switch="topbtn" role="switch" aria-checked="true"
                 aria-label="Кнопка «наверх»" data-i18n-attr="aria-label:set.topbtn"><i></i></button>
       </div>
+
+      <!-- Дополнительные настройки 4.0: значения читает и пишет js/settings.js (PC.settings.extend). -->
+      <div class="set-row tisza-setting" data-setting="startTab">
+        <label class="set-name" for="setting-startTab" data-i18n="set.startTab">Вкладка при открытии</label>
+        <select id="setting-startTab" data-native>
+          <option value="compass" data-i18n="tab.compass">Компас</option>
+          <option value="last" data-i18n="set.last">Последняя</option>
+          <option value="quiz" data-i18n="tab.quiz">Тест</option>
+          <option value="votes" data-i18n="tab.votes">Голосования</option>
+          <option value="party" data-i18n="tab.party">Моя партия</option>
+          <option value="about" data-i18n="tab.about">О проекте</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="convDefault">
+        <label class="set-name" for="setting-convDefault" data-i18n="set.convDefault">Созыв по умолчанию</label>
+        <select id="setting-convDefault" data-native>
+          <option value="9">IX · 2026–2031</option>
+          <option value="8">VIII · 2021–2026</option>
+          <option value="7">VII · 2016–2021</option>
+          <option value="6">VI · 2011–2016</option>
+          <option value="5">V · 2007–2011</option>
+          <option value="4">IV · 2003–2007</option>
+        </select>
+      </div>
+
     </section>
 
     <section class="set-group pvfp" data-panel="privacy" id="setPanel-privacy" role="tabpanel" aria-labelledby="setTab-privacy" hidden>
@@ -1287,7 +1422,7 @@
         <div class="pvfp-points">
           <div class="pvfp-point">
             <span class="pvfp-point-ico" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-eye-off"/></svg>
             </span>
             <div>
               <b data-i18n="set.privacy.p1.t">Нулевая телеметрия</b>
@@ -1296,7 +1431,7 @@
           </div>
           <div class="pvfp-point">
             <span class="pvfp-point-ico" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.4"/><path d="M11 18.3h2"/></svg>
+              <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-phone"/></svg>
             </span>
             <div>
               <b data-i18n="set.privacy.p2.t">Состояние только у вас</b>
@@ -1305,7 +1440,7 @@
           </div>
           <div class="pvfp-point">
             <span class="pvfp-point-ico" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg>
             </span>
             <div>
               <b data-i18n="set.privacy.p3.t">Проверяемо, а не обещано</b>
@@ -1314,7 +1449,7 @@
           </div>
           <div class="pvfp-point">
             <span class="pvfp-point-ico" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24"><path d="M13.5 10.5 21 3M15 3h6v6"/><path d="M20 13v6.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19.5V5.5A1.5 1.5 0 0 1 4.5 4H11"/></svg>
+              <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-external"/></svg>
             </span>
             <div>
               <b data-i18n="set.privacy.p4.t">Экспорт и ссылки — тоже локально</b>
@@ -1359,6 +1494,20 @@
         <button type="button" class="sw" data-set-switch="srpcfail" role="switch" aria-checked="false"
                 aria-label="Демонстрация сбоя" data-i18n-attr="aria-label:set.srpcfail"><i></i></button>
       </div>
+
+      <!-- Дополнительные настройки 4.0: значения читает и пишет js/settings.js (PC.settings.extend). -->
+      <div class="set-row tisza-setting" data-setting="srpcStage">
+        <label class="set-name" for="setting-srpcStage" data-i18n="srpc.failure">Сбой в звене</label>
+        <select id="setting-srpcStage" data-native>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
     </section>
 
     <section class="set-group" data-panel="general" id="setPanel-general" role="tabpanel" aria-labelledby="setTab-general" hidden>
@@ -1406,6 +1555,53 @@
           <small data-i18n="set.welcome.d">То самое окно, которое встречает при первом заходе</small></span>
         <button type="button" class="btn small" id="setWelcome" data-i18n="set.welcome.show">Показать снова</button>
       </div>
+
+      <!-- Дополнительные настройки 4.0: значения читает и пишет js/settings.js (PC.settings.extend). -->
+      <div class="set-row tisza-setting" data-setting="quizMode">
+        <label class="set-name" for="setting-quizMode" data-i18n="set.quizMode">Длина теста по умолчанию</label>
+        <select id="setting-quizMode" data-native>
+          <option value="short">20</option>
+          <option value="full">40</option>
+          <option value="long">90</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="autoNext">
+        <label class="set-name" for="setting-autoNext" data-i18n="set.autoNext">Автопереход после ответа</label>
+        <select id="setting-autoNext" data-native>
+          <option value="off" data-i18n="set.off">Выкл.</option>
+          <option value="on" data-i18n="set.on">Вкл.</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="confirmReset">
+        <label class="set-name" for="setting-confirmReset" data-i18n="set.confirmReset">Подтверждать сброс ответов</label>
+        <select id="setting-confirmReset" data-native>
+          <option value="off" data-i18n="set.off">Выкл.</option>
+          <option value="on" data-i18n="set.on">Вкл.</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="exportFormat">
+        <label class="set-name" for="setting-exportFormat" data-i18n="set.exportFormat">Формат экспорта</label>
+        <select id="setting-exportFormat" data-native>
+          <option value="png">PNG</option>
+          <option value="svg">SVG</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="exportScale">
+        <label class="set-name" for="setting-exportScale" data-i18n="set.exportScale">Масштаб экспорта</label>
+        <select id="setting-exportScale" data-native>
+          <option value="1">1×</option>
+          <option value="2">2×</option>
+          <option value="3">3×</option>
+        </select>
+      </div>
+      <div class="set-row tisza-setting" data-setting="transparent">
+        <label class="set-name" for="setting-transparent" data-i18n="set.transparent">Прозрачный фон</label>
+        <select id="setting-transparent" data-native>
+          <option value="off" data-i18n="set.off">Выкл.</option>
+          <option value="on" data-i18n="set.on">Вкл.</option>
+        </select>
+      </div>
+
     </section>
     </div>
   </div>
@@ -1468,7 +1664,7 @@
     </div>
     <button type="button" class="sheet-close" id="personClose" aria-label="Закрыть карточку"
             data-i18n-attr="aria-label:person.close">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
     </button>
   </header>
   <div class="sheet-body">
@@ -1557,7 +1753,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 4.2 «Тиса»: плавный компас на телефоне, аккуратная панель карты, внутренняя уборка кода">4.2 «Тиса»</span>
+              title="Версия 4.3 «Тиса»: дуэль партий, «Голосую сам», работа без сети, новые иконки и пружинящий отклик">4.3 «Тиса»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1577,6 +1773,7 @@
 <script src="js/i18n-quiz.js" defer></script>
 <script src="js/i18n-about.js" defer></script>
 <script src="js/i18n-party.js" defer></script>
+<script src="js/i18n-tools.js" defer></script>
 <script src="js/data-parties.js" defer></script>
 <script src="js/data-votes.js" defer></script>
 <script src="js/data-people.js" defer></script>
@@ -1587,6 +1784,7 @@
 <script src="js/ui.js" defer></script>
 <script src="js/select.js" defer></script>
 <script src="js/motion.js" defer></script>
+<script src="js/spring.js" defer></script>
 <script src="js/theme.js" defer></script>
 <script src="js/nav.js" defer></script>
 <script src="js/app-shell.js" defer></script>
@@ -1597,6 +1795,8 @@
 <script src="js/charts.js" defer></script>
 <script src="js/coalition.js" defer></script>
 <script src="js/votes.js" defer></script>
+<script src="js/selfvote.js" defer></script>
+<script src="js/duel.js" defer></script>
 <script src="js/sidebar.js" defer></script>
 <script src="js/people.js" defer></script>
 <script src="js/quiz-data.js" defer></script>
@@ -1616,6 +1816,7 @@
 <script src="js/party-campaign.js" defer></script>
 <script src="js/palette.js" defer></script>
 <script src="js/backup.js" defer></script>
+<script src="js/offline.js" defer></script>
 <script src="js/map-controls.js" defer></script>
 <script src="js/tisza.js" defer></script>
 <script src="js/app.js" defer></script>

@@ -148,7 +148,7 @@ body.welcome-lock.welcome-out .site-footer{
   color:var(--muted-2);
   transition:color var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out);
 }
-.wel-x svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+.wel-x svg{ width:15px; height:15px; }
 .wel-x:hover{ color:var(--text); background:var(--surface-2); }
 .wel-x:focus-visible{ outline:2px solid var(--tone); outline-offset:2px; }
 

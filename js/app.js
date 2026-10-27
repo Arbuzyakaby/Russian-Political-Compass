@@ -242,6 +242,7 @@
     /* до первой отрисовки блоков: иначе плитки KPI и экраны теста успели бы
        зарегистрироваться, когда наблюдателя ещё нет, и появились бы разом */
     PC.motion.init();
+    PC.spring.init();
     PC.tip.init();
     PC.sidebar.init();
     PC.charts.init();
@@ -259,6 +260,9 @@
     /* после теста: карточка партии показывает блок голосований, а
        модуль голосований ничего не знает про состояние компаса */
     PC.votes.init();
+    if(PC.selfVote) PC.selfVote.init();
+    var duelBtn = document.getElementById("duelFromVotes");
+    if(duelBtn) duelBtn.addEventListener("click", function(){ PC.duel.open("er", "kprf"); });
     PC.people.init();
     /* Число на ярлыке вкладки берётся из данных: написанное в разметке
        руками отстало бы от набора при первом же новом голосовании. */
@@ -314,6 +318,7 @@
     if(PC.mobile) PC.mobile.init();
     if(PC.appShell) PC.appShell.init();
     if(PC.tisza) PC.tisza.init();
+    if(PC.offline) PC.offline.init();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
        цвета марок — графики пересобираем. */

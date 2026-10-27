@@ -58,10 +58,25 @@ html = html.replace(/<script src="js\/([^\"]+)"[^>]*><\/script>/g, (tag, name) =
 html = html.replace('</head>', '<link rel="preload" as="script" href="' + shellAsset + '" fetchpriority="high">\n</head>');
 // HTML-комментарии — заметки для разработчика, в выкладку они не нужны; условные комментарии (<!--[if) остаются.
 html = html.replace(/<!--(?!\[if)[\s\S]*?-->/g, "").replace(/\n[\t ]*\n+/g, "\n");
+// Метка сборки: js/offline.js регистрирует service worker только в пакете, не в исходниках.
+html = html.replace(/<html([^>]*)>/, '<html$1 data-build="dist">');
 fs.writeFileSync(path.join(out, "index.html"), html);
 fs.cpSync(path.join(root, "assets"), path.join(out, "assets"), { recursive:true });
 for(const name of ["robots.txt", "sitemap.xml", "manifest.json", "CNAME", "LICENSE"]){
   fs.copyFileSync(path.join(root, name), path.join(out, name));
 }
 fs.writeFileSync(path.join(out, ".nojekyll"), "");
+/* Работа без сети (4.3): service worker кэширует всё, что лежит в пакете.
+   Имя кэша зависит от содержимого, поэтому новая выкладка заменяет старый кэш. */
+function listFiles(dir){
+  return fs.readdirSync(dir, { withFileTypes:true }).flatMap(e => {
+    const full = path.join(dir, e.name);
+    return e.isDirectory() ? listFiles(full) : [path.relative(out, full).split(path.sep).join("/")];
+  });
+}
+const offline = listFiles(out).filter(f => /\.(?:html|css|js|png|webp|svg|json)$/.test(f) && f !== "index.html" && f !== "assets/og-image.png");
+const cacheHash = createHash("sha256").update(offline.map(f => f + createHash("sha256").update(fs.readFileSync(path.join(out, f))).digest("hex")).join("|") + html).digest("hex").slice(0, 10);
+fs.writeFileSync(path.join(out, "sw.js"), fs.readFileSync(path.join(root, "scripts", "sw-template.js"), "utf8")
+  .replace("__CACHE__", "pc-" + require(path.join(root, "package.json")).version + "-" + cacheHash)
+  .replace("__FILES__", JSON.stringify(["./"].concat(offline))));
 console.log(`Packaged ${styles.length} stylesheets and ${scripts.length} scripts into ${out}`);

@@ -99,7 +99,14 @@
   };
 
   PC.geom  = { SIZE:SIZE, PAD:PAD, C:C, K:K, NS:NS, px:px, radius:radius };
+  /* Значок из спрайта в index.html (scripts/icons.cjs, набор Lucide).
+     Значок всегда декоративный: доступное имя даёт подпись или aria-label кнопки. */
+  function icon(name, cls){
+    return '<svg class="ico' + (cls ? " " + cls : "") + '" aria-hidden="true" focusable="false"><use href="#i-' + name + '"/></svg>';
+  }
+
   PC.utils = { fmt:fmt, plural:plural, word:word, seatsLabel:seatsLabel,
-               el:el, esc:esc, clamp:clamp, modalOpen:modalOpen };
+               el:el, esc:esc, clamp:clamp, modalOpen:modalOpen, icon:icon };
+  PC.icon = icon;
   PC.store = store;
 })(window.PC = window.PC || {});

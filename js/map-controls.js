@@ -286,7 +286,8 @@
     mode.addEventListener("click", function(){
       plot.classList.toggle("map-as-list");
       list.hidden = !plot.classList.contains("map-as-list");
-      mode.textContent = t(list.hidden ? "compass.list" : "compass.map");
+      mode.querySelector("span").textContent = t(list.hidden ? "compass.list" : "compass.map");
+      mode.querySelector("use").setAttribute("href", list.hidden ? "#i-list" : "#i-map");
       if(!list.hidden) renderList();
     });
     plot.appendChild(list);

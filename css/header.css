@@ -50,8 +50,8 @@
 
 .tools{display:flex;align-items:center;gap:10px;}
 .search{position:relative;}
-.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:15px;height:15px;
-  stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;pointer-events:none;}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;
+  color:var(--muted);pointer-events:none;}
 .search input{
   width:280px;height:40px;padding:0 42px 0 37px;
   background:color-mix(in srgb,var(--text) 6.5%,transparent);

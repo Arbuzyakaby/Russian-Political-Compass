@@ -269,7 +269,8 @@
           return '<option value="' + esc(o.id) + '">' + esc(L(o, "short")) + '</option>';
         }).join("") +
       '</select>' +
-      '<div id="cmpResult"></div></div>';
+      '<div id="cmpResult"></div>' +
+      '<button type="button" class="btn small duel-open" id="cmpDuel">' + PC.icon("duel") + '<span>' + esc(t("duel.more")) + '</span></button></div>';
   }
 
   /* Заявленная и реальная позиция словами: те же две точки, что рисует
@@ -371,6 +372,7 @@
       cmpSelect.addEventListener("change", function(){
         renderCompare(p, cmpSelect.value ? PC.partyById(cmpSelect.value) : null);
       });
+      document.getElementById("cmpDuel").addEventListener("click", function(){ PC.duel.open(p.id, cmpSelect.value); });
     }
 
     /* ширина полос задаётся в следующем кадре, чтобы сработал transition */

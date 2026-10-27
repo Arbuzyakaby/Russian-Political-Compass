@@ -200,6 +200,12 @@
       if(hiRow) hiRow.classList.add("hi");
     });
     table.addEventListener("mouseleave", clearHi);
+    /* Щелчок по ячейке открывает дуэль этой пары (4.3); с клавиатуры
+       та же дуэль открывается кнопкой над матрицей. */
+    table.addEventListener("click", function(e){
+      var cell = e.target.closest("td.ag[data-col]"), tr = cell && cell.closest("tr[data-row]");
+      if(cell && tr && PC.duel) PC.duel.open(tr.dataset.row, cell.dataset.col);
+    });
   }
 
   /* ---------- сборка панели ---------- */

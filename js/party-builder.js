@@ -536,12 +536,13 @@
       row.appendChild(append(node("span", "party-thesis-n", String(i + 1)), null));
       row.appendChild(input);
       function swap(j){ var tmp = draft.theses[j]; draft.theses[j] = draft.theses[i]; draft.theses[i] = tmp; renderWizard(); }
-      var up = button("↑", function(){ swap(i - 1); }, "small party-icon-btn"); up.disabled = i === 0; up.setAttribute("aria-label", t("party.up"));
-      var down = button("↓", function(){ swap(i + 1); }, "small party-icon-btn");
+      var up = button("", function(){ swap(i - 1); }, "small party-icon-btn"); up.disabled = i === 0; up.setAttribute("aria-label", t("party.up"));
+      var down = button("", function(){ swap(i + 1); }, "small party-icon-btn");
       down.disabled = i === draft.theses.length - 1;
       down.setAttribute("aria-label", t("party.down"));
-      var del = button("×", function(){ draft.theses.splice(i, 1); renderWizard(); }, "small party-icon-btn");
+      var del = button("", function(){ draft.theses.splice(i, 1); renderWizard(); }, "small party-icon-btn");
       del.setAttribute("aria-label", t("party.delete"));
+      up.innerHTML = PC.icon("up"); down.innerHTML = PC.icon("arrow-down"); del.innerHTML = PC.icon("trash");
       append(row, up, down, del);
       body.appendChild(row);
     });

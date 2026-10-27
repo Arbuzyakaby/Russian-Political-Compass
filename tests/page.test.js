@@ -129,7 +129,10 @@ test("все картинки, на которые ссылается CSS и р�
 
   /* И обратная проверка: лежащий в репозитории, но никем не используемый
      файл — это либо забытый черновик, либо потерянная ссылка. */
-  for(const name of fs.readdirSync(path.join(ROOT, "assets"))){
+  const files = fs.readdirSync(path.join(ROOT, "assets")).flatMap(name =>
+    name === "icons" ? fs.readdirSync(path.join(ROOT, "assets", "icons")).filter(f => f !== "LICENSE").map(f => "icons/" + f) : [name]);
+  assert.ok(fs.existsSync(path.join(ROOT, "assets", "icons", "LICENSE")), "у набора иконок нет файла лицензии");
+  for(const name of files){
     const rel = "assets/" + name;
     assert.ok(seen.has(rel) || html.includes(rel),
       `${rel} лежит в репозитории, но нигде не используется`);
@@ -156,7 +159,8 @@ test("у карточки «О проекте» свой фон в каждой 
 test("мобильные уточнения и оболочка приложения следуют за слоем движения", () => {
   assert.equal(styles[styles.length - 1], "css/app.css");
   assert.equal(styles[styles.length - 2], "css/mobile.css");
-  assert.equal(styles[styles.length - 3], "css/motion.css");
+  assert.equal(styles[styles.length - 3], "css/spring.css");
+  assert.equal(styles[styles.length - 4], "css/motion.css");
 });
 
 /* Стеклянный слой уточняет поверхности, объявленные компонентами,
@@ -217,9 +221,27 @@ test("у каждой настройки есть правило, которое
   /* И обратно: переключатель для каждой настройки обязан быть
      в разметке, иначе до неё нельзя добраться из интерфейса. */
   for(const key of keys){
-    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`) || fs.readFileSync(path.join(ROOT,"js/settings.js"),"utf8").includes(`${key}:[`),
+    assert.ok(html.includes(`data-set-switch="${key}"`) || html.includes(`data-set-seg="${key}"`) || html.includes(`data-setting="${key}"`),
       `настройка «${key}» есть в коде, но её нет в панели настроек`);
   }
+});
+
+test("дополнительные настройки лежат в разметке и предлагают ровно допустимые значения", () => {
+  const settings = require("./harness.js").loadApp(["js/data.js", "js/utils.js", "js/settings.js"]).PC.settings;
+  const rows = [...html.matchAll(/<div class="set-row tisza-setting" data-setting="(\w+)">([\s\S]*?)<\/div>/g)];
+  assert.ok(rows.length >= 15, `дополнительных строк в разметке: ${rows.length}`);
+  for(const [, key, body] of rows){
+    assert.ok(key in settings.DEFAULTS, `строка «${key}» не соответствует ни одной настройке`);
+    assert.match(body, new RegExp(`<label class="set-name" for="setting-${key}" data-i18n="[\\w.]+">`), `у «${key}» нет переводимой подписи`);
+    assert.match(body, new RegExp(`<select id="setting-${key}" data-native>`), `список «${key}» не помечен data-native`);
+    const values = [...body.matchAll(/<option value="([^"]+)"/g)].map(m => m[1]);
+    assert.ok(values.includes(settings.DEFAULTS[key]), `у «${key}» нет значения по умолчанию среди вариантов`);
+    for(const v of values) assert.ok(settings.valid(key, v), `«${key}» предлагает недопустимое значение ${v}`);
+    for(const [, text] of body.matchAll(/<option[^>]*>([^<]*)</g))
+      assert.ok(!/^[a-z]+\.[\w.]+$/.test(text), `у «${key}» вместо подписи варианта ключ словаря: ${text}`);
+  }
+  assert.ok(!/createElement\("select"\)|node\("select"\)/.test(fs.readFileSync(path.join(ROOT, "js", "settings.js"), "utf8")),
+    "js/settings.js снова строит списки скриптом");
 });
 
 test("структурированные данные разбираются и описывают то же, что страница", () => {
@@ -566,6 +588,17 @@ test("нижний лист настроек выезжает без перел�
    нельзя было ни читать, ни ревьюить построчно. Исключения — файлы, где
    длинная строка это текст, а не код: словари, данные, вопросы теста,
    шаблоны партий, и токены темы. */
+/* С 4.3 в двух последних слоях не больше десяти строк с !important на файл:
+   остальное решено порядком и специфичностью. Оставшиеся исключения
+   перебивают глобальный пол кегля (тоже !important) и объяснены
+   комментарием рядом. */
+test("в app.css и party.css не больше десяти строк с !important", () => {
+  for(const name of ["app.css", "party.css"]){
+    const lines = fs.readFileSync(path.join(ROOT, "css", name), "utf8").split("\n").filter(l => l.includes("!important"));
+    assert.ok(lines.length <= 10, `css/${name}: строк с !important ${lines.length}`);
+  }
+});
+
 test("в коде нет строк длиннее 160 знаков", () => {
   const LIMIT = 160;
   const EXEMPT = /^(?:data-.*|i18n-.*|quiz-data|party-templates|tokens)\.(?:js|css)$/;

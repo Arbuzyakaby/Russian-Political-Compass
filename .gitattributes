@@ -1,0 +1,10 @@
+# Окончания строк в репозитории и в рабочей копии — LF на всех системах,
+# независимо от core.autocrlf: иначе правка файла на Windows показывает
+# в диффе весь файл целиком.
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.jpg binary
+*.ico binary
+*.zip binary
+*.woff2 binary

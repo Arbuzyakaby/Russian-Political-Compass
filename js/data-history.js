@@ -296,8 +296,11 @@
     { v:"4.1", date:"2026-10-27", arc:"v4",
       s:"Мобильный интерфейс в стиле приложения, дерево версий, шаблоны и выборы в «Моей партии», новые настройки и исправления.",
       sEn:"App-style mobile interface, version tree, templates and elections in “My party”, redesigned settings and fixes." },
-    { v:"4.2", date:"2026-10-27", arc:"v4", cur:true,
+    { v:"4.2", date:"2026-10-27", arc:"v4",
       s:"Плавный компас и аккуратная панель карты на телефоне, два новых вопроса в тесте «О проекте», вежливые сообщения; код разобран по модулям.",
-      sEn:"A smooth compass and a tidier map toolbar on phones, two new questions in the About quiz, politer messages; the code split into modules." }
+      sEn:"A smooth compass and a tidier map toolbar on phones, two new questions in the About quiz, politer messages; the code split into modules." },
+    { v:"4.3", date:"2026-10-27", arc:"v4", cur:true,
+      s:"Дуэль партий, «Голосую сам», работа без сети, единый набор иконок, пружинящий отклик и вычитанная английская версия.",
+      sEn:"Party face-off, cast-your-own-votes, offline mode, one consistent icon set, springy feedback and an edited English version." }
   ];
 })(window.PC = window.PC || {});

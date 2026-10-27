@@ -39,7 +39,7 @@
   .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
     gap:12px;margin:0 0 18px;padding-top:2px;}
   .brand{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;
-    column-gap:10px;row-gap:2px;padding-right:0!important;}
+    column-gap:10px;row-gap:2px;padding-right:0;}
   .brand > div{display:contents;}
   .topbar .brand-mark,.topbar .brand-mark img{width:30px;height:30px;min-width:0;min-height:0;}
   .topbar .brand-mark{border-radius:9px;grid-row:1;overflow:hidden;}
@@ -49,43 +49,50 @@
      горизонтальной прокруткой — как сегменты в приложениях: одна
      строка, край ленты уходит за кромку и сам подсказывает, что дальше
      есть ещё. */
-  .stage-head{display:flex!important;flex-wrap:wrap;gap:10px;}
+  .stage-head{display:flex;flex-wrap:wrap;gap:10px;}
   .stage-head .stage-title{flex:1 1 100%;}
-  .chips{display:flex!important;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;
+  .chips{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;
     -webkit-overflow-scrolling:touch;padding:2px 0 4px;}
   .chips::-webkit-scrollbar{display:none;}
-  .chips .chip{flex:none;min-height:40px!important;padding:8px 15px;border-radius:999px;white-space:nowrap!important;}
+  .chips .chip{flex:none;min-height:40px;padding:8px 15px;border-radius:999px;white-space:nowrap;}
 
   /* Версии теста — сгруппированный список с отметкой выбора справа,
      как выбор варианта в системных настройках, а не три плитки. */
-  .quiz-modes{gap:0!important;border-radius:18px;overflow:hidden;border:1px solid var(--stroke);}
-  .qmode{position:relative;border:0!important;border-radius:0!important;padding:14px 48px 14px 16px!important;
-    background:color-mix(in srgb,var(--text) 4%,transparent)!important;transform:none!important;}
+  :root .quiz-modes{gap:0;border-radius:18px;overflow:hidden;border:1px solid var(--stroke);}
+  /* Вес :root ×4 вместо прежних флагов important: .qmode в css/quiz.css
+     оформлен через состояния с высокой специфичностью. */
+  :root:root:root:root .qmode{position:relative;border:0;border-radius:0;padding:14px 48px 14px 16px;
+    background:color-mix(in srgb,var(--text) 4%,transparent);transform:none;}
   .qmode + .qmode{box-shadow:inset 0 1px 0 var(--stroke);}
-  .qmode[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent)!important;}
+  :root:root:root:root .qmode[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent);}
   .qmode[aria-pressed="true"]::after{content:"";position:absolute;right:18px;top:50%;width:18px;height:18px;margin-top:-9px;
     background:var(--accent);
-    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;
-            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask:url("../assets/icons/check.svg") center/contain no-repeat;
+            mask:url("../assets/icons/check.svg") center/contain no-repeat;
             }
 
-  .stage-head .chips{display:flex!important;flex:1 1 100%;flex-wrap:nowrap;gap:6px;overflow-x:auto;
+  .stage-head .chips{display:flex;flex:1 1 100%;flex-wrap:nowrap;gap:6px;overflow-x:auto;
     margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 22px),transparent);}
   .stage-head .chips::-webkit-scrollbar{display:none;}
-  .stage-head .chip{flex:none;min-height:40px!important;padding:8px 15px;border-radius:999px;
-    white-space:nowrap!important;scroll-snap-align:start;}
-  .stage-head .claim-chip,.stage-head .export-wrap{flex:1 1 calc(50% - 5px);width:auto!important;}
+  .stage-head .chip{flex:none;padding:8px 15px;border-radius:999px;scroll-snap-align:start;}
+  :root .stage-head .chip{min-height:40px;white-space:nowrap;}
+  .stage-head .claim-chip,.stage-head .export-wrap{flex:1 1 calc(50% - 5px);width:auto;}
   .stage-head .export-wrap .chip{width:100%;}
-  .stage-head .claim-chip{min-height:44px!important;border-radius:14px;}
-  .stage-head .export-btn{min-height:44px!important;border-radius:14px;}
+  .stage-head .claim-chip{border-radius:14px;}
+  :root .stage-head .claim-chip{min-height:44px;}
+  .stage-head .export-btn{border-radius:14px;}
+  :root .stage-head .export-btn{min-height:44px;}
   .stage-head .conv-select{flex:1 1 100%;}
+  /* Пять флагов important ниже (подзаголовок, крупный заголовок, подписи вкладок)
+     — единственные оставшиеся в файле исключения: они перебивают глобальный
+     пол кегля css/mobile.css, который сам объявлен с флагом important. */
   .shell .brand .eyebrow{display:block;grid-row:1;grid-column:2;margin:0;
     font-size:calc(12.5px * var(--text-k))!important;font-weight:650;letter-spacing:.01em;
     text-transform:none;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .shell .topbar .app-title{display:block;grid-row:2;grid-column:1 / -1;margin:6px 0 0;
     font-family:var(--font-display);font-size:calc(34px * var(--text-k))!important;font-weight:800;
-    letter-spacing:-.04em;line-height:1.05!important;color:var(--text);text-wrap:balance;}
+    letter-spacing:-.04em;line-height:1.05;color:var(--text);text-wrap:balance;}
   .brand h1{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
   .brand #lead{display:none;}
   .tools{grid-column:1 / -1;}
@@ -96,8 +103,8 @@
   .search input{height:46px;border-radius:14px;background:color-mix(in srgb,var(--text) 7%,transparent);}
 
   /* ---------- плавающая панель вкладок ---------- */
-  .tabs,.tabs.is-stuck,:root[data-sticky="off"] .tabs{
-    position:fixed!important;top:auto!important;
+  :root .tabs,:root .tabs.is-stuck,:root[data-sticky="off"] .tabs{
+    position:fixed;top:auto;
     left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));
     bottom:calc(10px + env(safe-area-inset-bottom));
     z-index:var(--z-bar,60);margin:0;width:auto;
@@ -111,15 +118,15 @@
   }
   :root[data-glass="off"] .tabs{background:var(--bg);}
   .tabs-sentinel{display:none;}
-  .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-    min-height:54px!important;padding:5px 2px!important;border-radius:20px;
-    background:transparent!important;color:var(--muted);box-shadow:none!important;
-    -webkit-tap-highlight-color:transparent;}
+  :root .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    min-height:54px;padding:5px 2px;border-radius:20px;
+    background:transparent;color:var(--muted);
+    -webkit-tap-highlight-color:transparent;box-shadow:none;}
   .tab[aria-selected="true"]{color:var(--text);}
   .tab:active{transform:scale(.94);}
   /* плашка иконки сжимается вместе с вкладкой: при ширине 52 px пять
      вкладок с отступами не помещались в 320 px на широких шрифтах */
-  .tab{min-width:0!important;overflow:hidden;}
+  :root .tab{min-width:0;overflow:hidden;}
   .tab-ico{width:min(52px,100%);height:30px;padding:4px clamp(4px,22%,14px);margin:0;box-sizing:border-box;border-radius:999px;
     opacity:1;transition:background var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out),
     transform var(--dur-3) var(--ease-spring);}
@@ -128,44 +135,48 @@
   /* полное название остаётся для скринридера, глазами видна короткая подпись */
   .tab > span:not(.tab-short):not(.tab-badge){position:absolute;width:1px;height:1px;overflow:hidden;
     clip:rect(0 0 0 0);white-space:nowrap;}
-  .tab-badge,.tab-more,.tab-indicator{display:none!important;}
+  .tab-badge,.tab-more,.tab-indicator{display:none;}
   /* подписи панели растут с размером текста, но не дальше 15 px —
      как у панели вкладок iOS при крупном шрифте: иначе пять подписей
      на 320 px обрезались бы до двух букв */
   .shell .tabs .tab .tab-short{display:block;font-size:min(calc(11.5px * var(--text-k)),15px)!important;
-    font-weight:650;letter-spacing:-.005em;line-height:1.2!important;white-space:nowrap;
+    font-weight:650;letter-spacing:-.005em;line-height:1.2;white-space:nowrap;
     max-width:100%;overflow:hidden;text-overflow:ellipsis;}
   .tab[aria-selected="true"] .tab-short{color:var(--text);}
   .tab:focus-visible{outline:2px solid var(--tone);outline-offset:-2px;}
 
   /* Прокрутка к карточкам раньше учитывала липкую полосу вкладок сверху.
      Её там больше нет, и отступ нужен только до края экрана. */
-  .side,.chart-card,.quiz-card,.map-controls .btn{scroll-margin-top:16px!important;}
+  .side,.chart-card,.quiz-card,.map-controls .btn{scroll-margin-top:16px;}
 
-  .to-top{bottom:calc(96px + env(safe-area-inset-bottom))!important;}
-  .toasts{bottom:calc(92px + env(safe-area-inset-bottom))!important;}
+  :root .to-top{bottom:calc(96px + env(safe-area-inset-bottom));}
+  :root .toasts{bottom:calc(92px + env(safe-area-inset-bottom));}
 
   /* ---------- нижние листы ----------
      Настройки и карточка человека выезжают снизу на всю ширину, с ручкой
      сверху. Лист можно стянуть вниз за шапку (js/app-shell.js). */
-  .sheet{left:0!important;right:0;top:auto!important;bottom:0;width:100%!important;max-width:100%!important;
-    height:min(92dvh,calc(var(--mobile-viewport-height,100dvh) - max(28px,env(safe-area-inset-top))))!important;
-    max-height:none!important;border-radius:28px 28px 0 0;border-bottom:0;
-    transform:translateY(calc(100% + 24px))!important;padding-bottom:env(safe-area-inset-bottom);
-    transition:transform .38s cubic-bezier(.32,.72,0,1),opacity .2s var(--ease-out)!important;}
-  .sheet.is-open{transform:translateY(var(--sheet-drag,0px))!important;}
+  .sheet{right:0;bottom:0;
+    max-height:none;border-radius:28px 28px 0 0;border-bottom:0;
+    transform:translateY(calc(100% + 24px));padding-bottom:env(safe-area-inset-bottom);
+    transition:transform .38s cubic-bezier(.32,.72,0,1),opacity .2s var(--ease-out);}
+  /* :root — вместо прежних флагов important: лист настроек в css/settings.css
+     позиционирован по центру правилами того же веса, но раньше в каскаде
+     и внутри своих медиа-запросов */
+  :root .sheet{top:auto;left:0;width:100%;max-width:100%;
+    height:min(92dvh,calc(var(--mobile-viewport-height,100dvh) - max(28px,env(safe-area-inset-top))));}
+  :root .sheet.is-open{transform:translateY(var(--sheet-drag,0px));}
   /* размытие на телефоне снято (css/mobile.css), и полупрозрачный лист
      показывал бы страницу сквозь текст настроек — подложка плотная */
-  .sheet,.sheet-head{background:color-mix(in srgb,var(--bg) 95%,var(--text))!important;}
+  .sheet,.sheet-head{background:color-mix(in srgb,var(--bg) 95%,var(--text));}
   .set-foot{padding:10px 18px calc(10px + env(safe-area-inset-bottom));}
   .set-foot p{display:none;}
   .set-foot .btn{min-height:40px;}
-  .sheet.is-dragging{transition:none!important;}
+  .sheet.is-dragging{transition:none;}
   .sheet::after{content:"";position:absolute;top:7px;left:50%;width:40px;height:5px;margin-left:-20px;
     border-radius:3px;background:color-mix(in srgb,var(--text) 26%,transparent);z-index:3;pointer-events:none;}
   .sheet-head{padding:24px 18px 14px;touch-action:none;}
-  .sheet-head h2{font-size:calc(26px * var(--text-k))!important;letter-spacing:-.035em;}
-  .sheet-close{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;}
+  :root .sheet-head h2{font-size:calc(26px * var(--text-k));letter-spacing:-.035em;}
+  .sheet-close{width:36px;height:36px;min-width:36px;min-height:36px;}
   .sheet-scrim{background:color-mix(in srgb,var(--bg-deep) 55%,transparent);}
 
   /* Карточки — без резкого жёсткого контура: поверхность читается тоном. */
@@ -178,7 +189,7 @@
   .shell .topbar .app-title{font-size:calc(30px * var(--text-k))!important;}
 }
 @media(prefers-reduced-motion:reduce){
-  .sheet{transition:none!important;}
+  :root .sheet{transition:none;}
   .tab-ico{transition:none;}
 }
 :root[data-motion="off"] .tab-ico{transition:none;}
@@ -190,13 +201,13 @@
    темы: в светлых темах подложка серая, а карточки белые — как в
    светлом оформлении iOS. Всё ограничено #setSheet, чтобы не задеть
    карточку политика, которая пользуется тем же классом .sheet. */
-#setSheet{
+:root #setSheet{
   --ios-bg:color-mix(in srgb,var(--bg-deep) 72%,#000);
   --ios-card:color-mix(in srgb,var(--text) 9%,var(--bg-deep));
   --ios-card-hi:color-mix(in srgb,var(--text) 13%,var(--bg-deep));
   --ios-sep:color-mix(in srgb,var(--text) 13%,transparent);
-  --ios-chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14' fill='none' stroke='%23878ea3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.5 1.5L6.5 7l-5 5.5'/%3E%3C/svg%3E");
-  background:var(--ios-bg)!important;border-color:var(--ios-sep);
+  --ios-chev:url("../assets/icons/next-muted.svg");
+  background:var(--ios-bg);border-color:var(--ios-sep);
   -webkit-backdrop-filter:none;backdrop-filter:none;
 }
 :root[data-scheme="light"] #setSheet{
@@ -209,12 +220,17 @@
 
 /* ---------- шапка: круглые кнопки и заголовок по центру ---------- */
 #setSheet .sheet-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;
-  padding:14px 14px 10px;border-bottom:0;background:var(--ios-bg)!important;}
+  padding:14px 14px 10px;border-bottom:0;}
+:root #setSheet .sheet-head{background:var(--ios-bg);}
 #setSheet .sheet-head > div{grid-column:2;grid-row:1;text-align:center;min-width:0;}
-#setSheet .sheet-head h2{margin:0;font-family:inherit;font-size:calc(17px * var(--text-k))!important;font-weight:650;
+:root #setSheet .sheet-head h2{margin:0;font-family:inherit;font-size:calc(17px * var(--text-k));font-weight:650;
   letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#setSheet .sheet-back,#setSheet .sheet-close{grid-row:1;width:44px!important;height:44px!important;min-width:44px!important;
-  min-height:44px!important;display:grid;place-items:center;padding:0;border:0;border-radius:50%;cursor:pointer;
+/* Ширина с флагом important — последнее исключение вне пола кегля: её
+   перебивает мобильный минимум кнопок, и вынести объявление в отдельное
+   правило с весом :root без сдвига соседних свойств не вышло (проверено
+   сверкой вычисленных стилей, docs/RELEASE_4_3.md). */
+:root #setSheet .sheet-back,:root #setSheet .sheet-close{grid-row:1;width:44px!important;height:44px;min-width:44px;min-height:44px;
+  display:grid;place-items:center;padding:0;border:0;border-radius:50%;cursor:pointer;
   background:var(--ios-card);color:var(--text);
   transition:background var(--dur-1) var(--ease-out),transform var(--dur-1) var(--ease-out);}
 #setSheet .sheet-back[hidden]{display:none;}
@@ -233,11 +249,11 @@
 /* ---------- разделы: цветные плитки, как у системных настроек ---------- */
 #setSheet .setm-rail{width:236px;gap:2px;padding:4px 10px 12px 16px;border-right:0;}
 #setSheet .setm-tab{min-height:44px;padding:7px 12px;border:0;border-radius:11px;color:var(--text);
-  font-size:calc(14.5px * var(--text-k));font-weight:500;transform:none!important;}
+  font-size:calc(14.5px * var(--text-k));font-weight:500;transform:none;}
 #setSheet .setm-tab:hover{background:var(--ios-card);}
 #setSheet .setm-tab[aria-selected="true"]{background:var(--ios-card-hi);color:var(--text);}
-#setSheet .setm-tab::before{width:30px;height:30px;border-radius:8px;background:var(--tile)!important;box-shadow:none;}
-#setSheet .setm-tab::after{left:19px;background:#fff!important;}
+#setSheet .setm-tab::before{width:30px;height:30px;border-radius:8px;background:var(--tile);box-shadow:none;}
+#setSheet .setm-tab::after{left:19px;background:#fff;}
 #setSheet .setm-tab[data-panel="look"]{--tile:#5e5ce6;}
 #setSheet .setm-tab[data-panel="interface"]{--tile:#0a84ff;}
 #setSheet .setm-tab[data-panel="motion"]{--tile:#ff9f0a;}
@@ -275,16 +291,17 @@
 /* Переключатель — ровно как в iOS: 51×31, белый кружок 27 px.
    Общее правило телефонного слоя растягивает любую кнопку минимум до
    44×44, и тумблер превращался в овал с кружком, вылезающим за край. */
-button.sw[aria-checked]{width:51px!important;height:31px!important;min-width:51px!important;min-height:31px!important;
-  max-height:31px;padding:0!important;flex:none;align-self:center;border-radius:999px;
+button.sw[aria-checked]{width:51px;height:31px;min-height:31px;
+  max-height:31px;padding:0;flex:none;align-self:center;border-radius:999px;
   background:color-mix(in srgb,var(--text) 18%,transparent);}
+:root button.sw[aria-checked]{min-width:51px;}
 :root[data-scheme="light"] button.sw[aria-checked]{background:#e9e9eb;}
-button.sw[aria-checked] i{top:2px!important;left:2px!important;width:27px!important;height:27px!important;
-  box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06)!important;}
-button.sw[aria-checked="true"]{background:#34c759!important;}
-button.sw[aria-checked="true"] i{transform:translateX(20px)!important;}
-button.sw[aria-checked]:active i{width:31px!important;}
-button.sw[aria-checked="true"]:active i{transform:translateX(16px)!important;}
+:root button.sw[aria-checked] i{top:2px;left:2px;width:27px;height:27px;
+  box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06);}
+:root:root button.sw[aria-checked="true"]{background:#34c759;}
+:root button.sw[aria-checked="true"] i{transform:translateX(20px);}
+:root button.sw[aria-checked]:active i{width:31px;}
+button.sw[aria-checked="true"]:active i{transform:translateX(16px);}
 /* в результатах поиска строки разных разделов идут вразбивку,
    поэтому каждая найденная строка — отдельная скруглённая плашка */
 #setSheet.is-search .set-row:not([hidden]){border-radius:18px;margin-bottom:8px;}
@@ -312,17 +329,17 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px)!important;}
   #setSheet.is-root .setm-rail{display:flex;flex-direction:column;width:auto;margin:4px 16px 24px;padding:0;gap:0;
     overflow:hidden;border:0;border-radius:22px;background:var(--ios-card);}
   #setSheet.is-root .setm-tab,#setSheet.is-root .setm-tab[aria-selected="true"]{min-height:54px;padding:10px 40px 10px 14px;
-    border-radius:0;font-size:calc(16.5px * var(--text-k))!important;white-space:normal;
-    background:var(--ios-chev) no-repeat right 18px center / 8px 14px;}
-  #setSheet.is-root .setm-tab + .setm-tab{background:var(--ios-chev) no-repeat right 18px center / 8px 14px,
+    border-radius:0;font-size:calc(16.5px * var(--text-k));white-space:normal;
+    background:var(--ios-chev) no-repeat right 14px center / 16px 16px;}
+  #setSheet.is-root .setm-tab + .setm-tab{background:var(--ios-chev) no-repeat right 14px center / 16px 16px,
     linear-gradient(var(--ios-sep),var(--ios-sep)) no-repeat 58px 0 / calc(100% - 58px) 1px;}
   #setSheet.is-root .setm-tab:active{background-color:var(--ios-card-hi);}
   #setSheet.is-root .setm-tab::after{left:21px;}
-  #setSheet.is-root .setm-tab span{font-size:inherit!important;}
+  :root #setSheet.is-root .setm-tab span{font-size:inherit;}
 
   #setSheet .set-foot{padding:8px 16px calc(12px + env(safe-area-inset-bottom));}
   #setSheet .set-foot .btn{width:100%;min-height:50px;justify-content:center;border:0;border-radius:16px;
-    background:var(--ios-card);color:var(--bad);font-size:calc(16px * var(--text-k))!important;font-weight:600;}
+    background:var(--ios-card);color:var(--bad);font-size:calc(16px * var(--text-k));font-weight:600;}
 
   /* Панель карты на телефоне (4.2). Раньше это была одна стеклянная плашка
      с тремя прозрачными кнопками и подписью-«списком» в отдельной строке:
@@ -339,6 +356,8 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px)!important;}
   }
   .map-controls .btn:active{background:color-mix(in srgb,var(--text) 14%,transparent);}
   .map-controls #mapList{grid-column:1 / -1;}
+  /* со значком (4.3) подпись при крупном тексте переносится, а не раздвигает строку */
+  .map-controls #mapReset,.map-controls #mapList{min-width:0;white-space:normal;overflow-wrap:anywhere;justify-content:center;text-align:center;}
   /* подписи квадрантов на телефоне скрыты (css/mobile.css), а их
      подложки оставались пустыми овалами у края карты */
   .compass .quad-plate{display:none;}
