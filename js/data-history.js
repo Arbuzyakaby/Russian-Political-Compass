@@ -308,8 +308,11 @@
     { v:"4.4.0.1", date:"2026-10-28", arc:"v4",
       s:"Иконки на нижней панели телефона; у «Моей партии» нет плашки версии.",
       sEn:"Icons on the phone bottom bar; no version badge on “My party”."},
-    { v:"4.4.0.2", date:"2026-10-28", arc:"v4", cur:true,
+    { v:"4.4.0.2", date:"2026-10-28", arc:"v4",
       s:"Исправлен пустой список в «Профиле по под-осям» на вкладке «Компас и аналитика».",
-      sEn:"Fixed the empty dropdown in the sub-axis profile on the Compass tab." }
+      sEn:"Fixed the empty dropdown in the sub-axis profile on the Compass tab."},
+    { v:"4.4.0.3", date:"2026-10-28", arc:"v4", cur:true,
+      s:"Английская версия для поисковиков: hreflang, адрес ?lang=en в карте сайта и свой canonical.",
+      sEn:"The English version for search engines: hreflang, ?lang=en in the sitemap and its own canonical." }
   ];
 })(window.PC = window.PC || {});

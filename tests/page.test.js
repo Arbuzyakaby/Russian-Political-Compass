@@ -261,9 +261,15 @@ test("структурированные данные разбираются и 
   }
 });
 
-test("единый canonical не выдаёт JS-перевод за отдельную HTML-страницу", () => {
+test("английская версия объявлена поисковику: hreflang, canonical главной и ?lang=en в карте сайта", () => {
   assert.match(html, /rel="canonical" href="https:\/\/rupolitcompass.website\/"/);
-  assert.ok(!html.includes('hreflang="en"'));
+  for(const [lang, href] of [["ru", ""], ["en", "?lang=en"], ["x-default", ""]]){
+    assert.ok(html.includes(`<link rel="alternate" hreflang="${lang}" href="https://rupolitcompass.website/${href}">`), `нет hreflang=${lang}`);
+  }
+  const sitemap = fs.readFileSync(path.join(ROOT, "sitemap.xml"), "utf8");
+  assert.ok(sitemap.includes("<loc>https://rupolitcompass.website/?lang=en</loc>"));
+  const i18n = fs.readFileSync(path.join(ROOT, "js", "i18n.js"), "utf8");
+  assert.match(i18n, /lang=en\(\?:&\|\$\)/, "canonical английской версии ставится только при явном ?lang=en");
   assert.match(html, /id="project-summary"/);
   assert.match(html, /data-i18n="seo.p1"/);
 });

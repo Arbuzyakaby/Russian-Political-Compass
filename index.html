@@ -14,7 +14,12 @@
      ставить их было не на что, GitHub Pages давал бы адрес не проекта,
      а форка/юзернейма -->
 <link rel="canonical" href="https://rupolitcompass.website/">
-<!-- ?lang=en switches the UI; the original Russian HTML is canonical. -->
+<!-- Две языковые версии живут по одному адресу и переключаются параметром ?lang=.
+     hreflang сообщает поисковику, что это варианты одной страницы, а не дубликаты;
+     canonical английского адреса переставляет js/i18n.js. -->
+<link rel="alternate" hreflang="ru" href="https://rupolitcompass.website/">
+<link rel="alternate" hreflang="en" href="https://rupolitcompass.website/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://rupolitcompass.website/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:locale:alternate" content="en_US">
@@ -138,7 +143,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "4.4.0.2",
+      "softwareVersion": "4.4.0.3",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -961,11 +966,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Исправлен выпадающий список в карточке «Профиль по под-осям»: он оставался пустым, пока выбрана первая партия.</li>
-        <li data-i18n="wel.up.l2">На телефоне в нижней панели снова видны иконки разделов.</li>
-        <li data-i18n="wel.up.l3">С вкладки «Моя партия» убрана плашка с номером версии: раздел будет переработан в 5.0.</li>
-        <li data-i18n="wel.up.l4">Версия 4.4.0.2 указана в подвале, истории версий и документации.</li>
-        <li data-i18n="wel.up.l5">Данные партий и формулы теста не менялись.</li>
+        <li data-i18n="wel.up.l1">Английская версия указана поисковикам: вернулись метки hreflang, адрес ?lang=en есть в карте сайта и имеет свой canonical.</li>
+        <li data-i18n="wel.up.l2">Исправлен выпадающий список в карточке «Профиль по под-осям»: он оставался пустым, пока выбрана первая партия.</li>
+        <li data-i18n="wel.up.l3">На телефоне в нижней панели снова видны иконки разделов.</li>
+        <li data-i18n="wel.up.l4">С вкладки «Моя партия» убрана плашка с номером версии: раздел будет переработан в 5.0.</li>
+        <li data-i18n="wel.up.l5">Версия 4.4.0.3 указана в подвале, истории версий и документации.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1753,7 +1758,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 4.4.0.2 «Тиса»: исправлен пустой список в «Профиле по под-осям», иконки на нижней панели телефона">4.4.0.2 «Тиса»</span>
+              title="Версия 4.4.0.3 «Тиса»: английская версия для поисковиков (hreflang, карта сайта, canonical), исправления 4.4.0.1–4.4.0.2">4.4.0.3 «Тиса»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>

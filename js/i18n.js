@@ -228,6 +228,20 @@
     if(desc && lang !== "ru") desc.setAttribute("content", t("doc.desc"));
     var og = document.querySelector('meta[property="og:locale"]');
     if(og) og.setAttribute("content", lang === "ru" ? "ru_RU" : "en_US");
+    /* Английскому адресу — свой canonical: иначе ?lang=en выглядит копией
+       русской страницы. Только при явном параметре: у робота с английским
+       браузером на главной lang тоже en, и её canonical менять нельзя. */
+    if(lang === "en" && /[?&]lang=en(?:&|$)/i.test(location.search)){
+      var canon = document.querySelector('link[rel="canonical"]');
+      var ogUrl = document.querySelector('meta[property="og:url"]');
+      if(canon){
+        /* основа — адрес из самой разметки, а не location: на копии сайта
+           canonical должен вести на основной домен */
+        var url = canon.getAttribute("href").replace(/[?#].*$/, "") + "?lang=en";
+        canon.setAttribute("href", url);
+        if(ogUrl) ogUrl.setAttribute("content", url);
+      }
+    }
   }
 
   function init(){
