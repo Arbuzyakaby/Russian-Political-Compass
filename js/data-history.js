@@ -305,8 +305,11 @@
     { v:"4.4", date:"2026-10-27", arc:"v4",
       s:"Дуэль по ссылке и со своими партиями, «Голосую сам» по темам, плашка «Без сети», обучение на 13 шагов, загрузка по требованию и ровная ширина на телефоне.",
       sEn:"Face-off by link and with your own parties, cast-your-own-votes by topic, an offline bar, a 13-step tour, on-demand loading and a steady width on phones."},
-    { v:"4.4.0.1", date:"2026-10-28", arc:"v4", cur:true,
+    { v:"4.4.0.1", date:"2026-10-28", arc:"v4",
       s:"Иконки на нижней панели телефона; у «Моей партии» нет плашки версии.",
-      sEn:"Icons on the phone bottom bar; no version badge on “My party”." }
+      sEn:"Icons on the phone bottom bar; no version badge on “My party”."},
+    { v:"4.4.0.2", date:"2026-10-28", arc:"v4", cur:true,
+      s:"Исправлен пустой список в «Профиле по под-осям» на вкладке «Компас и аналитика».",
+      sEn:"Fixed the empty dropdown in the sub-axis profile on the Compass tab." }
   ];
 })(window.PC = window.PC || {});
