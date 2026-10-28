@@ -302,8 +302,11 @@
     { v:"4.3", date:"2026-10-27", arc:"v4",
       s:"Дуэль партий, «Голосую сам», работа без сети, единый набор иконок, пружинящий отклик и вычитанная английская версия.",
       sEn:"Party face-off, cast-your-own-votes, offline mode, one consistent icon set, springy feedback and an edited English version." },
-    { v:"4.4", date:"2026-10-27", arc:"v4", cur:true,
+    { v:"4.4", date:"2026-10-27", arc:"v4",
       s:"Дуэль по ссылке и со своими партиями, «Голосую сам» по темам, плашка «Без сети», обучение на 13 шагов, загрузка по требованию и ровная ширина на телефоне.",
-      sEn:"Face-off by link and with your own parties, cast-your-own-votes by topic, an offline bar, a 13-step tour, on-demand loading and a steady width on phones." }
+      sEn:"Face-off by link and with your own parties, cast-your-own-votes by topic, an offline bar, a 13-step tour, on-demand loading and a steady width on phones."},
+    { v:"4.4.0.1", date:"2026-10-28", arc:"v4", cur:true,
+      s:"Иконки на нижней панели телефона; у «Моей партии» нет плашки версии.",
+      sEn:"Icons on the phone bottom bar; no version badge on “My party”." }
   ];
 })(window.PC = window.PC || {});

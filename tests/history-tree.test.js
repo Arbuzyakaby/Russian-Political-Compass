@@ -82,7 +82,7 @@ test("ровно один выпуск помечен текущим и это �
   const cur = ru.RELEASES.filter(r => r.cur);
   assert.equal(cur.length, 1);
   assert.equal(cur[0].v, CURRENT);
-  assert.equal(cur[0].date, "2026-10-27");
+  assert.equal(cur[0].date, "2026-10-28");
   assert.equal(cur[0].arc, "v4");
   assert.equal(ru.RELEASES[ru.RELEASES.length - 1], cur[0], "текущий выпуск должен быть самым новым");
   assert.equal(ru.ARCS.find(a => a.id === "v4").nameEn, "Tisza");
