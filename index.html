@@ -100,6 +100,7 @@
 <!-- стекло уточняет поверхности, описанные выше, поэтому идёт после них -->
 <link rel="stylesheet" href="css/party.css">
 <link rel="stylesheet" href="css/tisza.css">
+<link rel="stylesheet" href="css/intro.css">
 <link rel="stylesheet" href="css/glass.css">
 <!-- слой движения подключается последним: часть его правил намеренно
      уточняет уже описанное выше, и каскад решает это без !important -->
@@ -143,7 +144,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "4.4.0.3",
+      "softwareVersion": "4.4.0.4",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -863,11 +864,25 @@
     </div>
   </section>
 
-    <section class="card seo-intro" aria-labelledby="project-summary">
-    <h2 id="project-summary" data-i18n="seo.h">Русский политический компас: партии России и ваши взгляды</h2>
-    <p data-i18n="seo.p1">Сравните 11 российских партий по двум осям: экономике и отношению к государственной власти. Компас показывает реальные и заявленные позиции, а аналитика — распределение 450 мандатов Госдумы IV–IX созывов и позиции фракций по ключевым голосованиям.</p>
-    <p data-i18n="seo.p2">Тест политических взглядов содержит 20, 40 или 90 утверждений. Ответы и результаты сохраняются только в вашем браузере. Координаты партий — экспертные оценки с пояснениями, а совпадение в тесте не является рекомендацией, за кого голосовать.</p>
-    <a href="#/about" data-i18n="seo.method">Методология, источники и ограничения оценок</a>
+    <section class="card seo-intro" id="seoIntro" aria-labelledby="project-summary">
+    <header class="si-head">
+      <p class="si-eyebrow" data-i18n="seo.eyebrow">О проекте в цифрах</p>
+      <h2 id="project-summary" data-i18n="seo.h">Русский политический компас: партии России и ваши взгляды</h2>
+    </header>
+    <ul class="si-facts">
+      <li><b data-si="parties">11</b><span data-i18n="seo.f.parties">Партии</span></li>
+      <li><b data-si="seats">450</b><span data-i18n="seo.f.seats">Мандаты Госдумы</span></li>
+      <li><b data-si="votes">28</b><span data-i18n="seo.f.votes">Голосования</span></li>
+      <li><b data-si="quiz">20 · 40 · 90</b><span data-i18n="seo.f.quiz">Утверждения в тесте</span></li>
+    </ul>
+    <details class="si-more" id="siMore" open>
+      <summary data-i18n="seo.more">Подробнее о проекте</summary>
+      <div class="si-text">
+        <p data-i18n="seo.p1">Сравните 11 российских партий по двум осям: экономике и отношению к государственной власти. Компас показывает реальные и заявленные позиции, а аналитика — распределение 450 мандатов Госдумы IV–IX созывов и позиции фракций по ключевым голосованиям.</p>
+        <p data-i18n="seo.p2">Тест политических взглядов содержит 20, 40 или 90 утверждений. Ответы и результаты сохраняются только в вашем браузере. Координаты партий — экспертные оценки с пояснениями, а совпадение в тесте не является рекомендацией, за кого голосовать.</p>
+      </div>
+    </details>
+    <nav class="si-actions" id="siActions" aria-label="Что дальше" data-i18n-attr="aria-label:seo.next"></nav>
   </section>
 </main>
 
@@ -966,11 +981,11 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Английская версия указана поисковикам: вернулись метки hreflang, адрес ?lang=en есть в карте сайта и имеет свой canonical.</li>
-        <li data-i18n="wel.up.l2">Исправлен выпадающий список в карточке «Профиль по под-осям»: он оставался пустым, пока выбрана первая партия.</li>
-        <li data-i18n="wel.up.l3">На телефоне в нижней панели снова видны иконки разделов.</li>
-        <li data-i18n="wel.up.l4">С вкладки «Моя партия» убрана плашка с номером версии: раздел будет переработан в 5.0.</li>
-        <li data-i18n="wel.up.l5">Версия 4.4.0.3 указана в подвале, истории версий и документации.</li>
+        <li data-i18n="wel.up.l1">Блок под вкладками переделан: цифры из данных, сворачиваемое описание (на телефоне оно свёрнуто) и кнопки «что дальше» под открытую вкладку.</li>
+        <li data-i18n="wel.up.l2">Английская версия указана поисковикам: hreflang, адрес ?lang=en в карте сайта и свой canonical.</li>
+        <li data-i18n="wel.up.l3">Исправлен пустой выпадающий список в карточке «Профиль по под-осям».</li>
+        <li data-i18n="wel.up.l4">На телефоне в нижней панели снова видны иконки, а у «Моей партии» нет плашки версии.</li>
+        <li data-i18n="wel.up.l5">Версия 4.4.0.4 указана в подвале, истории версий и документации.</li>
       </ul>
 
       <div class="wel-actions">
@@ -1758,7 +1773,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 4.4.0.3 «Тиса»: английская версия для поисковиков (hreflang, карта сайта, canonical), исправления 4.4.0.1–4.4.0.2">4.4.0.3 «Тиса»</span>
+              title="Версия 4.4.0.4 «Тиса»: переработанный блок «О проекте в цифрах», английская версия для поисковиков, исправления 4.4.0.1–4.4.0.3">4.4.0.4 «Тиса»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1823,6 +1838,7 @@
 <script src="js/palette.js" defer></script>
 <script src="js/backup.js" defer></script>
 <script src="js/offline.js" defer></script>
+<script src="js/intro.js" defer></script>
 <script src="js/map-controls.js" defer></script>
 <script src="js/tisza.js" defer></script>
 <script src="js/app.js" defer></script>

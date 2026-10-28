@@ -1,9 +1,6 @@
 /* 3.2: readable controls and document flow on phones. Keep this layer last. */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 button,a,input,select,summary{touch-action:manipulation;}
-.seo-intro{margin:18px 0;padding:18px;line-height:1.65;color:var(--body);}
-.seo-intro h2{font-size:20px;margin-bottom:8px;}
-.seo-intro p+p{margin-top:10px;}
 .rad-values{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;}
 .rad-values th,.rad-values td{padding:8px 6px;border-bottom:1px solid var(--stroke);text-align:left;overflow-wrap:anywhere;}
 .rad-values th{font-weight:600;}

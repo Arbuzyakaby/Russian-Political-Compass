@@ -1,0 +1,49 @@
+/* ============ БЛОК «О ПРОЕКТЕ В ЦИФРАХ» (4.4.0.4) ============
+   Под всеми вкладками: заголовок, четыре цифры, сворачиваемое описание и
+   кнопки «что дальше». Разметка — index.html (#seoIntro), поведение —
+   js/intro.js. ============ */
+
+.seo-intro{display:grid;gap:16px;margin:18px 0;padding:clamp(16px,3vw,24px);
+  color:var(--body);line-height:1.65;}
+.si-eyebrow{margin:0 0 6px;font-size:calc(11px * var(--text-k));font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.seo-intro h2{margin:0;font-size:calc(22px * var(--text-k));line-height:1.2;
+  letter-spacing:-.02em;color:var(--text);text-wrap:balance;}
+
+/* цифры */
+.si-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;
+  margin:0;padding:0;list-style:none;}
+.si-facts li{display:flex;flex-direction:column;gap:3px;min-width:0;padding:12px 14px;
+  border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--stroke);}
+.si-facts b{font-size:calc(24px * var(--text-k));font-weight:800;line-height:1.1;
+  letter-spacing:-.03em;color:var(--text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+.si-facts span{font-size:calc(12px * var(--text-k));line-height:1.35;color:var(--muted);overflow-wrap:anywhere;}
+
+/* описание */
+.si-more summary{display:inline-flex;align-items:center;gap:8px;min-height:44px;
+  font-weight:650;color:var(--text);cursor:pointer;list-style:none;}
+.si-more summary::-webkit-details-marker{display:none;}
+.si-more summary::after{content:"";width:8px;height:8px;margin-top:-3px;flex:none;
+  border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg);
+  transition:transform var(--dur-2,.2s) var(--ease-out,ease);}
+.si-more[open] summary::after{margin-top:3px;transform:rotate(-135deg);}
+.si-more summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;}
+.si-text p{max-width:72ch;margin:0;overflow-wrap:anywhere;}
+.si-text p+p{margin-top:10px;}
+/* на широком экране два абзаца встают в две колонки, а не в половину ширины */
+@media(min-width:900px){
+  .si-text{column-count:2;column-gap:36px;}
+  .si-text p{max-width:none;break-inside:avoid;}
+  .si-text p+p{margin-top:0;}
+}
+
+/* кнопки «что дальше» */
+.si-actions{display:flex;flex-wrap:wrap;gap:10px;}
+.si-actions .btn{min-height:44px;}
+
+@media(max-width:720px){
+  .si-facts{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(prefers-reduced-motion:reduce){
+  .si-more summary::after{transition:none;}
+}

@@ -354,6 +354,7 @@
     if(PC.appShell) PC.appShell.init();
     if(PC.tisza) PC.tisza.init();
     if(PC.offline) PC.offline.init();
+    if(PC.intro) PC.intro.init();
     window.addEventListener("hashchange", routeDuel);
     routeDuel();
 

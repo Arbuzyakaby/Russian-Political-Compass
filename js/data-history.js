@@ -311,8 +311,11 @@
     { v:"4.4.0.2", date:"2026-10-28", arc:"v4",
       s:"Исправлен пустой список в «Профиле по под-осям» на вкладке «Компас и аналитика».",
       sEn:"Fixed the empty dropdown in the sub-axis profile on the Compass tab."},
-    { v:"4.4.0.3", date:"2026-10-28", arc:"v4", cur:true,
+    { v:"4.4.0.3", date:"2026-10-28", arc:"v4",
       s:"Английская версия для поисковиков: hreflang, адрес ?lang=en в карте сайта и свой canonical.",
-      sEn:"The English version for search engines: hreflang, ?lang=en in the sitemap and its own canonical." }
+      sEn:"The English version for search engines: hreflang, ?lang=en in the sitemap and its own canonical."},
+    { v:"4.4.0.4", date:"2026-10-28", arc:"v4", cur:true,
+      s:"Переработан блок «О проекте в цифрах» под вкладками: цифры из данных, сворачиваемое описание и кнопки «что дальше».",
+      sEn:"The “project in numbers” block under the tabs is redesigned: figures from the data, a collapsible description and “what next” buttons." }
   ];
 })(window.PC = window.PC || {});
