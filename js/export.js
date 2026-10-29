@@ -107,6 +107,8 @@
     clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
     clone.setAttribute("width", SIZE);
     clone.setAttribute("height", SIZE);
+    /* телефонный вид обрезает поля (js/map-controls.js) — в файл идёт весь квадрат */
+    if(PC.mapControls && PC.mapControls.whole && PC.mapControls.whole()) clone.setAttribute("viewBox", "0 0 " + SIZE + " " + SIZE);
     inlineStyles(live, clone);
     /* слой заявленных позиций в файле показываем только если он включён на экране */
     if(!PC.compass.claimsOn()){

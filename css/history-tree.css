@@ -313,7 +313,7 @@
   .ht-p-v{font-size:calc(28px * var(--text-k));}
 }
 
-/* В мобильной оболочке (css/app.css) снизу ещё и панель вкладок высотой
+/* В мобильной оболочке (css/mobile.css) снизу ещё и панель вкладок высотой
    около 80px, а над ней — кнопка «наверх»: лист встаёт выше обеих. */
 @media(max-width:720px),(pointer:coarse) and (max-width:1050px){
   .ht-panel.is-open{

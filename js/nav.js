@@ -70,7 +70,7 @@
     }
     document.title = PC.t(TITLES[current] || TITLES.compass);
     /* 4.1: на телефоне шапка показывает крупное название открытого
-       раздела, как заголовок экрана в приложении (см. css/app.css) */
+       раздела, как заголовок экрана в приложении (см. css/mobile.css) */
     var appTitle = document.getElementById("appTitle");
     if(appTitle) appTitle.textContent = PC.t("tab." + current);
     /* Тон раздела: с 1.6 у каждой вкладки свой оттенок акцента, и

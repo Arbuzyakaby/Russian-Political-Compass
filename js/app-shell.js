@@ -4,7 +4,7 @@
    листа — у настроек и карточки человека свои обработчики закрытия
    (возврат фокуса, снятие блокировки прокрутки), и повторять их здесь
    значило бы завести второй путь, который однажды разойдётся с первым.
-   Раскладку самой панели вкладок и листов описывает css/app.css. ============ */
+   Раскладку самой панели вкладок и листов описывает css/mobile.css. ============ */
 (function(PC){
   "use strict";
   var CLOSE_AT = 110;      /* px: дальше этого лист закрывается */
@@ -12,13 +12,17 @@
 
   function phone(){ return window.matchMedia("(max-width:720px),(pointer:coarse) and (max-width:1050px)").matches; }
 
-  function bind(sheet){
-    var head = sheet.querySelector(".sheet-head");
-    var close = sheet.querySelector(".sheet-close");
+  /* head — за что тянуть, close — кнопка, которой лист закрывается. С 5.0
+     так же стягивается карточка партии на телефоне (js/mobile.js), у
+     которой шапка и кнопка свои. */
+  function bind(sheet, head, close){
+    head = head || sheet.querySelector(".sheet-head");
+    close = close || sheet.querySelector(".sheet-close");
     if(!head || !close) return;
     var drag = null;
     head.addEventListener("pointerdown", function(e){
       if(!phone() || e.button > 0 || e.target.closest("button,a,input,select,textarea")) return;
+      if(!sheet.classList.contains("sheet") && !sheet.classList.contains("is-sheet")) return;
       drag = { id:e.pointerId, y:e.clientY, t:performance.now(), dy:0 };
       head.setPointerCapture(e.pointerId);
       sheet.classList.add("is-dragging");
@@ -45,8 +49,8 @@
   }
 
   function init(){
-    Array.prototype.forEach.call(document.querySelectorAll(".sheet"), bind);
+    Array.prototype.forEach.call(document.querySelectorAll(".sheet"), function(sheet){ bind(sheet); });
   }
 
-  PC.appShell = { init:init };
+  PC.appShell = { init:init, bind:bind };
 })(window.PC = window.PC || {});

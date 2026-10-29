@@ -27,7 +27,7 @@ test("иконки: каждый значок из разметки и скри�
 });
 
 test("иконки: старые встроенные значки заменены, остались только иллюстрации", () => {
-  const inline = Array.from(html.matchAll(/<svg(?![^>]*class="(?:ico|tab-ico ico|icon-sprite)")[^>]*>/g), m => m[0]);
+  const inline = Array.from(html.matchAll(/<svg(?![^>]*class="(?:ico|tab-ico ico|icon-sprite)(?: [\w-]+)*")[^>]*>/g), m => m[0]);
   for(const tag of inline)
     assert.match(tag, /class="(?:compass|wel-grid|pvfp-lock|srpcf-wires)"/, "встроенный значок вне набора: " + tag.slice(0, 80));
   assert.ok(!/>\s*[✕×]\s*<\/button>/.test(html), "крестик-символ вместо значка закрытия");

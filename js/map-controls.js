@@ -66,9 +66,16 @@
      меняется вместе с масштабом: на масштабе 1 карта не должна красть
      у страницы вертикальную прокрутку, на увеличенной — палец двигает
      карту, а не страницу. */
+  /* На телефоне подписи осей и деления скрыты (css/mobile.css), и поля
+     под них съедали бы треть карточки впустую. Там вид обрезан на INSET
+     единиц с каждой стороны (5.0): вся логика жестов по-прежнему живёт
+     в квадрате 0…660, а в разметку он попадает уже ужатым. */
+  var INSET = 34;
+  var PHONE = "(max-width:720px),(pointer:coarse) and (max-width:1050px)";
+  function inset(){ return window.matchMedia(PHONE).matches ? INSET : 0; }
   function render(){
-    var span = SIZE / view.s;
-    svg.setAttribute("viewBox", view.x + " " + view.y + " " + span + " " + span);
+    var pad = inset(), k = (SIZE - 2 * pad) / SIZE, span = SIZE / view.s * k;
+    svg.setAttribute("viewBox", (pad + view.x * k) + " " + (pad + view.y * k) + " " + span + " " + span);
     svg.style.touchAction = view.s > 1 ? "none" : "pan-y pinch-zoom";
     svg.style.overflow = view.s > 1 ? "hidden" : "";
   }
@@ -308,7 +315,11 @@
     bindPan();
     bindPinch();
     bindWheel();
+    render();
+    var query = window.matchMedia(PHONE);
+    if(query.addEventListener) query.addEventListener("change", render);
   }
 
-  PC.mapControls = { init:init };
+  /* весь ли квадрат на экране — экспорт тогда берёт поле целиком, с полями */
+  PC.mapControls = { init:init, whole:function(){ return view.s === 1; } };
 })(window.PC = window.PC || {});

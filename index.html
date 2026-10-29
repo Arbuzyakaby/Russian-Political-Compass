@@ -104,7 +104,6 @@
      уточняет уже описанное выше, и каскад решает это без !important -->
 <link rel="stylesheet" href="css/motion.css">
 <link rel="stylesheet" href="css/mobile.css">
-<link rel="stylesheet" href="css/app.css">
 
 <!-- Структурированные данные. Три сущности вместо одной: сайт (для
      сниппета с поиском), само приложение (компас — это инструмент,
@@ -282,12 +281,12 @@
           <button type="button" class="chip claim-chip" id="claimBtn" aria-pressed="true"
                   title="Показать, где партии стоят по собственным словам — полая точка и стрелка к реальной позиции"
                   data-i18n-attr="title:claims.title">
-            <span class="ico" aria-hidden="true">◌</span><span data-i18n="claims.btn">Заявленное</span>
+            <span class="ico claim-glyph" aria-hidden="true">◌</span><svg class="ico claim-ico" aria-hidden="true" focusable="false"><use href="#i-target"/></svg><span data-i18n="claims.btn">Заявленное</span>
           </button>
           <div class="export-wrap" id="exportWrap">
             <button type="button" class="chip export-btn" id="exportBtn"
                     aria-haspopup="true" aria-expanded="false" aria-controls="exportMenu">
-              <span data-i18n="export.btn">Экспорт</span><span class="caret" aria-hidden="true">▼</span>
+              <svg class="ico export-ico" aria-hidden="true" focusable="false"><use href="#i-arrow-down"/></svg><span data-i18n="export.btn">Экспорт</span><span class="caret" aria-hidden="true">▼</span>
             </button>
             <div class="export-menu" id="exportMenu" role="menu" aria-label="Форматы экспорта"
                  data-i18n-attr="aria-label:export.menu" hidden></div>
@@ -311,7 +310,7 @@
           <div class="tip" id="tip" role="tooltip" aria-label="Информация о точке" data-i18n-attr="aria-label:mobile.tip"></div>
         </div>
 
-        <p class="mobile-map-note" data-i18n="mobile.mapNote">Коснитесь точки или выберите партию в списке под картой. В списке видны названия и координаты, в легенде — направления осей.</p>
+        <p class="mobile-map-note" data-i18n="mobile.mapNote">Коснитесь точки или строки в списке ниже — карточка партии выедет снизу. Смахните её вниз, чтобы вернуться.</p>
         <div class="legend">
           <div><b>←</b> <span data-i18n="legend.left">Плановая экономика, национализация</span></div>
           <div><b>→</b> <span data-i18n="legend.right">Свободный рынок, частная инициатива</span></div>

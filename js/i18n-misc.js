@@ -54,7 +54,7 @@
     /* ===== приветственный экран ===== */
     "mobile.coords": ["Экономика {x} · Государство {y}", "Economy {x} · State {y}"],
     "mobile.tip": ["Информация о точке", "Point details"],
-    "mobile.mapNote": ["Коснитесь точки или выберите партию в списке под картой. В списке видны названия и координаты, в легенде — направления осей.", "Tap a point or choose a party below the map. The list shows names and coordinates; the legend explains the axes."],
+    "mobile.mapNote": ["Коснитесь точки или строки в списке ниже — карточка партии выедет снизу. Смахните её вниз, чтобы вернуться.", "Tap a dot or a row in the list below — the party card slides up. Swipe it down to come back."],
     "seo.h": ["Русский политический компас: партии России и ваши взгляды", "Russian Political Compass: parties and your views"],
     "seo.p1": ["Сравните 11 российских партий по двум осям: экономике и отношению к государственной власти. Компас показывает реальные и заявленные позиции, а аналитика — распределение 450 мандатов Госдумы IV–IX созывов и позиции фракций по ключевым голосованиям.", "Compare 11 Russian parties on two axes: the economy and state power. Explore actual and declared positions, the distribution of 450 State Duma seats across convocations IV–IX, and factions’ positions on key votes."],
     "seo.p2": ["Тест политических взглядов содержит 20, 40 или 90 утверждений. Ответы и результаты сохраняются только в вашем браузере. Координаты партий — экспертные оценки с пояснениями, а совпадение в тесте не является рекомендацией, за кого голосовать.", "The political views quiz offers 20, 40 or 90 statements. Answers and results stay in your browser. Party coordinates are expert estimates with the reasoning shown; quiz matches are not voting recommendations."],

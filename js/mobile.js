@@ -39,21 +39,103 @@
     if(svg) svg.querySelectorAll(".is-focus,.has-focus").forEach(function(n){ n.classList.remove("is-focus", "has-focus"); });
   }
 
+  var PHONE = "(max-width:720px), (pointer:coarse) and (max-width:1050px)";
+  function phone(){ return window.matchMedia(PHONE).matches; }
+
+  /* ---------- отклик вибрацией (5.0) ----------
+     Короткий толчок под пальцем на переключение вкладки, выбор партии,
+     ответ в тесте и смену настройки — как в нативных приложениях.
+     Работает там, где браузер умеет navigator.vibrate (Android); iOS
+     этого не даёт, и там ничего не происходит. Выключается в настройках
+     («Доступность» → «Вибрация») и сам молчит при уменьшенном движении. */
+  function haptic(ms){
+    if(!coarse() || !navigator.vibrate) return;
+    if(PC.settings && PC.settings.get("haptics") === "off") return;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    try{ navigator.vibrate(ms || 8); }catch(e){ /* браузер запретил — не страшно */ }
+  }
+
+  /* ---------- карточка партии нижним листом (5.0) ----------
+     До 5.0 карточка открывалась на месте списка, и страница прыгала к ней
+     прокруткой; закрыть её можно было только кнопкой «Все партии» где-то
+     вверху. Теперь это лист снизу, как в приложениях: его стягивают вниз
+     за шапку, закрывают касанием по затемнению или Escape, а список под
+     ним остаётся на своём месте.
+
+     Лист — тот же узел .side: пока он открыт, на его месте в потоке стоит
+     пустышка той же высоты, иначе страница под листом дёрнулась бы вверх. */
+  var side, holder, scrim, sheetTimer = null;
+  function quiet(){
+    return document.documentElement.dataset.motion === "off" ||
+           window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  function sheet(open){
+    if(!side) return;
+    clearTimeout(sheetTimer);
+    if(open){
+      if(!side.classList.contains("is-sheet")){
+        holder.style.height = side.offsetHeight + "px";
+        holder.hidden = false;
+        side.classList.add("is-sheet");
+        scrim.hidden = false;
+        document.body.classList.add("sheet-lock");
+        side.scrollTop = 0;
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+          side.classList.add("is-open");
+          scrim.classList.add("is-open");
+        }); });
+      }
+      return;
+    }
+    if(!side.classList.contains("is-sheet")) return;
+    side.classList.remove("is-open");
+    scrim.classList.remove("is-open");
+    document.body.classList.remove("sheet-lock");
+    var done = function(){
+      side.classList.remove("is-sheet");
+      holder.hidden = true;
+      scrim.hidden = true;
+    };
+    if(quiet()) done(); else sheetTimer = setTimeout(done, 340);
+  }
+
   function selected(id){
     dismiss();
-    if(!window.matchMedia("(max-width:720px), (pointer:coarse) and (max-width:1050px)").matches) return;
-    var side = document.querySelector(".side");
-    if(!side) return;
+    if(!phone()) return;
     if(id){
+      haptic();
+      sheet(true);
       /* Ждём кадр: сначала браузер выполняет совместимые click и focus
-         для этого касания, и панель нужно обновлять уже после них. */
+         для этого касания, и фокус нужно ставить уже после них. */
       requestAnimationFrame(function(){
         var back = document.getElementById("sideBack");
-        if(!back || back.hidden) return;
-        side.scrollIntoView({ block:"start", behavior:"instant" });
-        back.focus({ preventScroll:true });
+        if(back && !back.hidden) back.focus({ preventScroll:true });
       });
+    }else{
+      sheet(false);
     }
+  }
+
+  function initSheet(){
+    side = document.querySelector(".side");
+    if(!side) return;
+    holder = document.createElement("div");
+    holder.className = "side-holder";
+    holder.hidden = true;
+    holder.setAttribute("aria-hidden", "true");
+    side.parentNode.insertBefore(holder, side);
+    scrim = document.createElement("div");
+    scrim.className = "side-scrim";
+    scrim.hidden = true;
+    document.body.appendChild(scrim);
+    scrim.addEventListener("click", function(){ PC.select(null); });
+    /* стянуть вниз за шапку — тот же жест, что у остальных листов */
+    if(PC.appShell && PC.appShell.bind) PC.appShell.bind(side, side.querySelector(".side-head"), document.getElementById("sideBack"));
+    /* поворот в широкий экран и уход на другую вкладку закрывают лист */
+    var query = window.matchMedia(PHONE);
+    var onLayout = function(){ if(!phone()) sheet(false); };
+    if(query.addEventListener) query.addEventListener("change", onLayout);
+    PC.nav.onChange(function(){ if(PC.activeId && PC.activeId()) PC.select(null); });
   }
 
   function init(){
@@ -102,7 +184,12 @@
     }
     window.addEventListener("scroll", function(){ if(coarse()) dismiss(); }, { passive:true });
     PC.nav.onChange(dismiss);
+    initSheet();
+    /* толчок на смену вкладки и на переключатель в настройках */
+    PC.nav.onChange(function(){ haptic(6); });
+    document.addEventListener("pc:settings", function(e){ if(e.detail && e.detail.key !== "*") haptic(6); });
     resizeTargets();
   }
-  PC.mobile = { init:init, selected:selected, dismiss:dismiss };
+  PC.haptic = haptic;
+  PC.mobile = { init:init, selected:selected, dismiss:dismiss, sheet:sheet };
 })(window.PC = window.PC || {});

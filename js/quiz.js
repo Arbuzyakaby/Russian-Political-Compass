@@ -315,6 +315,7 @@
     cancelAuto(); var answeredIndex=idx,answeredId=activeQuestions()[idx].id;
     answers[activeQuestions()[idx].id] = v;
     save();
+    if(PC.haptic) PC.haptic();
     host.querySelectorAll(".qopt").forEach(function(b){
       var on = Number(b.dataset.v) === v;
       b.classList.toggle("on", on);
