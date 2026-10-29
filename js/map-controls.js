@@ -70,13 +70,15 @@
      под них съедали бы треть карточки впустую. Там вид обрезан на INSET
      единиц с каждой стороны (5.0): вся логика жестов по-прежнему живёт
      в квадрате 0…660, а в разметку он попадает уже ужатым. */
-  var INSET = 34;
+  var INSET = 56;
   var PHONE = "(max-width:720px),(pointer:coarse) and (max-width:1050px)";
   function inset(){ return window.matchMedia(PHONE).matches ? INSET : 0; }
   function render(){
     var pad = inset(), k = (SIZE - 2 * pad) / SIZE, span = SIZE / view.s * k;
     svg.setAttribute("viewBox", (pad + view.x * k) + " " + (pad + view.y * k) + " " + span + " " + span);
     svg.style.touchAction = view.s > 1 ? "none" : "pan-y pinch-zoom";
+    /* «Сбросить вид» на телефоне виден только у приближенной карты (css/mobile.css) */
+    plot.classList.toggle("is-zoomed", view.s > 1);
     svg.style.overflow = view.s > 1 ? "hidden" : "";
   }
 
@@ -321,5 +323,5 @@
   }
 
   /* весь ли квадрат на экране — экспорт тогда берёт поле целиком, с полями */
-  PC.mapControls = { init:init, whole:function(){ return view.s === 1; } };
+  PC.mapControls = { init:init, inset:inset, whole:function(){ return view.s === 1; } };
 })(window.PC = window.PC || {});

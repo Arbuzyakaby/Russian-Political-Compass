@@ -25,8 +25,8 @@
     "stage.title":        ["Позиции партий · шкала −10…+10", "Party positions · scale −10…+10"],
     "filter.label":       ["Фильтр партий", "Party filter"],
     "filter.all":         ["Все", "All"],
-    "filter.duma":        ["В Госдуме", "In the Duma"],
-    "filter.nonduma":     ["Без мандатов", "No seats"],
+    "filter.duma":        ["В Думе", "In the Duma"],
+    "filter.nonduma":     ["Вне Думы", "Outside"],
     "claims.btn":         ["Заявленное", "Stated"],
     "claims.title":       ["Показать, где партии стоят по собственным словам — полая точка и стрелка к реальной позиции",
                            "Show where parties stand by their own words — a hollow dot with an arrow to the actual position"],
@@ -40,6 +40,9 @@
     "legend.right":       ["Свободный рынок, частная инициатива", "Free market, private enterprise"],
     "legend.up":          ["Сильное государство, контроль", "Strong state, control"],
     "legend.down":        ["Личные свободы, децентрализация", "Personal liberty, decentralisation"],
+    /* 5.0: короткая подсказка осей под картой на телефоне — одна строка на ось */
+    "axis.x":             ["План ← экономика → Рынок", "Planned ← economy → Market"],
+    "axis.y":             ["Государство ↑ власть ↓ Свобода", "State ↑ power ↓ Liberty"],
 
     "cap.top":            ["АВТОРИТАРИЗМ · ЭТАТИЗМ", "AUTHORITARIANISM · STATISM"],
     "cap.bottom":         ["ЛИБЕРТАРИАНСТВО · СВОБОДА", "LIBERTARIANISM · LIBERTY"],

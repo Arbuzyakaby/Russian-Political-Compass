@@ -275,8 +275,8 @@
           <span class="stage-title" data-i18n="stage.title">Позиции партий · шкала −10…+10</span>
           <div class="chips" role="group" aria-label="Фильтр партий" data-i18n-attr="aria-label:filter.label">
             <button type="button" class="chip" data-filter="all" aria-pressed="true" data-i18n="filter.all">Все</button>
-            <button type="button" class="chip" data-filter="duma" aria-pressed="false" data-i18n="filter.duma">В Госдуме</button>
-            <button type="button" class="chip" data-filter="nonduma" aria-pressed="false" data-i18n="filter.nonduma">Без мандатов</button>
+            <button type="button" class="chip" data-filter="duma" aria-pressed="false" data-i18n="filter.duma">В Думе</button>
+            <button type="button" class="chip" data-filter="nonduma" aria-pressed="false" data-i18n="filter.nonduma">Вне Думы</button>
           </div>
           <button type="button" class="chip claim-chip" id="claimBtn" aria-pressed="true"
                   title="Показать, где партии стоят по собственным словам — полая точка и стрелка к реальной позиции"
@@ -311,6 +311,11 @@
         </div>
 
         <p class="mobile-map-note" data-i18n="mobile.mapNote">Коснитесь точки или строки в списке ниже — карточка партии выедет снизу. Смахните её вниз, чтобы вернуться.</p>
+        <!-- Телефон (5.0): вместо четырёх строк легенды — две короткие подсказки осей -->
+        <div class="axis-hint" aria-hidden="true">
+          <span data-i18n="axis.x">План ← экономика → Рынок</span>
+          <span data-i18n="axis.y">Государство ↑ власть ↓ Свобода</span>
+        </div>
         <div class="legend">
           <div><b>←</b> <span data-i18n="legend.left">Плановая экономика, национализация</span></div>
           <div><b>→</b> <span data-i18n="legend.right">Свободный рынок, частная инициатива</span></div>

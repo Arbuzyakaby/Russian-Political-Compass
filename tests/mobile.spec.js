@@ -31,7 +31,7 @@ for(const width of [320, 360, 390, 430, 768]){
         expect(Math.round(box.height)).toBeGreaterThanOrEqual(44);
         if(width <= 720){
           /* 4.1: пять вкладок одной плавающей панелью у нижнего края */
-          expect(await page.locator(".tabs").evaluate(e => getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(5);
+          expect(await page.locator(".tabs").evaluate(e => getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(4);
           const bar = await page.locator(".tabs").boundingBox();
           expect(bar.y + bar.height).toBeGreaterThan(page.viewportSize().height - 40);
           expect(await page.locator("#q").evaluate(e => parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(16);

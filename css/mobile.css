@@ -43,7 +43,7 @@ button,a,input,select,summary{touch-action:manipulation;}
   .gear-btn{width:48px;height:48px;flex:none;}
   .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;overflow:visible;width:100%;padding:4px;top:env(safe-area-inset-top,0px);}
   .tabs,.tabs.is-stuck{background:var(--bg);opacity:1;z-index:30;isolation:isolate;}
-  .tab{padding:10px 8px;min-height:48px;font-size:calc(15px * var(--text-k));white-space:normal;line-height:1.35;overflow-wrap:anywhere;}
+  .tab{padding:10px 8px;min-height:48px;font-size:calc(15px * var(--text-k));white-space:normal;line-height:1.35;overflow-wrap:break-word;hyphens:auto;}
   .tab-more{display:inline;}
   .tab-badge{display:none;}
   .tab-indicator{display:none;}
@@ -58,7 +58,7 @@ button,a,input,select,summary{touch-action:manipulation;}
   .stage-head .conv-select{order:1;}
   .stage-title,.section-head .hint{font-size:calc(14px * var(--text-k));}
   .chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
-  .chip{font-size:calc(14px * var(--text-k));white-space:normal;overflow-wrap:anywhere;}
+  .chip{font-size:calc(14px * var(--text-k));white-space:normal;overflow-wrap:break-word;hyphens:auto;}
   :where(button:not([hidden]),.btn,.chip,.xs-btn,summary){min-height:44px;min-width:44px;}
   .btn,.btn.small,.side-back,.trend-mode,.xs-btn{font-size:calc(14px * var(--text-k));white-space:normal;line-height:1.45;}
   .xs-option{min-height:44px;font-size:calc(14px * var(--text-k));}
@@ -74,8 +74,8 @@ button,a,input,select,summary{touch-action:manipulation;}
   .side .scroll{max-height:none;overflow:visible;}
   .side,.chart-card,.quiz-card{scroll-margin-top:var(--mobile-nav-offset,125px);}
   .pitem{min-height:64px;}
-  .pitem .nm{font-size:calc(16px * var(--text-k));overflow-wrap:anywhere;}
-  .pitem .nm small{overflow-wrap:anywhere;}
+  .pitem .nm{font-size:calc(16px * var(--text-k));overflow-wrap:break-word;hyphens:auto;}
+  .pitem .nm small{overflow-wrap:break-word;hyphens:auto;}
   .pitem .nm small,.pitem .mandates,.pitem .mandates b{font-size:calc(14px * var(--text-k));}
   .pitem .meta,.pitem .ideo,.detail p,.detail li,.chart-why p,.chart-why summary{font-size:calc(14px * var(--text-k));line-height:1.65;}
   .chart-toolbar,.quiz-top{flex-wrap:wrap;gap:10px;}
@@ -95,7 +95,7 @@ button,a,input,select,summary{touch-action:manipulation;}
   .quiz-modes{grid-template-columns:1fr;}
   .quiz-actions>.btn{flex:1 1 130px;}
   .qr-row{flex-wrap:wrap;}
-  .qr-row .n{white-space:normal;overflow-wrap:anywhere;}
+  .qr-row .n{white-space:normal;overflow-wrap:break-word;hyphens:auto;}
   .sheet{width:calc(100% - 16px);max-width:calc(100% - 16px);
     left:50%;bottom:auto;transform:translate(-50%,-48%);
     top:calc(var(--mobile-viewport-top,0px) + var(--mobile-viewport-height,100dvh) / 2);
@@ -505,113 +505,134 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px);}
   .compass .quad-plate{display:none;}
 }
 
-/* ============ ЭКРАН КОМПАСА НА ТЕЛЕФОНЕ (5.0 «Нарев») ============
-   До 5.0 над картой стояли пять строк управления — фильтры, два чипа,
-   список созывов, «−», «+», «Сбросить вид», «Список с координатами», —
-   а сама карта была без подписей: на ширине телефона они не читались, и
-   их просто прятали. Получалось облако безымянных точек под горой кнопок.
+/* ============ ТЕЛЕФОН КАК ПРИЛОЖЕНИЕ (5.0 «Нарев») ============
+   Правило этого раздела одно: элементы управления не переносят строки.
+   Подпись кнопки, сегмента, строки списка или выбора созыва либо
+   помещается в одну строку, либо обрезается многоточием — как в
+   нативных приложениях. Переносы остаются только у текста для чтения.
 
-   Теперь сверху вниз: сегменты фильтра одной строкой, созыв и два
-   значка рядом, четыре круглых значка карты справа, и карта во всю
-   ширину карточки — с подписями партий. Подписи крупнее, чем на широком
-   экране: поле 660×660 в телефоне ужимается вдвое, и 20 единиц SVG
-   становятся примерно десятью пикселями. Раскладчик ярлыков меряет
-   текст уже с этим кеглем (js/compass-labels.js), поэтому наложений нет.
-
-   Список партий — сгруппированный, как в iOS: точка, название, одна
-   строка идеологии, мандаты и шеврон. Карточка партии выезжает снизу
-   листом (js/mobile.js), а не подменяет список на месте. ============ */
-.export-ico,.claim-ico{display:none;}
+   Экран компаса сверху вниз: крупный заголовок с круглой шестерёнкой,
+   поиск, сегменты фильтра, строка «созыв + два значка», карта во всю
+   ширину карточки с подписями партий, круглые кнопки масштаба под ней
+   у большого пальца, две короткие подсказки осей. Под картой — сгруппированный список партий; карточка партии
+   выезжает снизу листом и стягивается вниз (js/mobile.js). Подписи
+   на карте крупнее, чем на широком экране: поле 660×660 в телефоне
+   ужимается вдвое, и 20 единиц SVG становятся примерно десятью
+   пикселями; раскладчик ярлыков меряет текст уже с этим кеглем. ============ */
+.export-ico,.claim-ico,.axis-hint{display:none;}
 @media(max-width:720px),(pointer:coarse) and (max-width:1050px){
-  /* ---------- шапка: настройки всегда в правом верхнем углу ---------- */
+  /* ---------- общая строка: подпись в одну строку с многоточием ---------- */
+  .stage-head .chip,.xs-btn,.pitem .nm,.pitem .nm small,.pitem .mandates,.tabs .tab-short,
+  .sv-topics .chip,.votes-filter .chip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---------- шапка: значок слева, шестерёнка справа, крупный заголовок ---------- */
+  /* как экран в iOS: крупный заголовок раздела и кнопка справа на той же
+     строке; значок и длинная строка проекта на телефоне не нужны */
   .shell .brand{padding-right:52px;}
+  :root .shell .brand .eyebrow,:root .shell .topbar .brand-mark{display:none;}
+  :root .shell .topbar .app-title{margin-top:0;}
   .tools,.tools.tools-solo{position:static;grid-column:1 / -1;width:100%;}
-  :root .shell .gear-btn{position:absolute;top:-5px;right:0;width:40px;height:40px;min-width:40px;min-height:40px;
+  :root .shell .gear-btn{position:absolute;top:0;right:0;width:40px;height:40px;min-width:40px;min-height:40px;
     border:0;border-radius:50%;background:color-mix(in srgb,var(--text) 9%,transparent);}
   :root .shell .gear-btn:active{transform:scale(.92);}
+  .shell .topbar .app-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-  /* ---------- компас: сегменты фильтра ---------- */
-  .stage{padding:14px 12px 16px;}
-  :root .stage-head{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:10px 8px;align-items:center;margin-bottom:10px;}
-  .stage-head .stage-title{grid-column:1 / -1;font-size:calc(13px * var(--text-k));color:var(--muted);}
-  /* при крупном тексте сегменты встают друг под другом, а не ломают слова */
-  :root .stage-head .chips{grid-column:1 / -1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,6em),1fr));gap:2px;
+  /* ---------- компас: карточка без лишних подписей ---------- */
+  :root .stage{padding:12px 12px 14px;border-radius:24px;}
+  :root .stage-head{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:10px 8px;align-items:center;margin-bottom:12px;}
+  :root .stage-head .stage-title{display:none;}
+
+  /* сегменты фильтра — как UISegmentedControl: жёлоб и светлая «шайба» */
+  :root .stage-head .chips{grid-column:1 / -1;grid-row:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;
     margin:0;padding:2px;overflow:visible;mask-image:none;-webkit-mask-image:none;
     border-radius:11px;background:color-mix(in srgb,var(--text) 9%,transparent);}
-  :root .stage-head .chips .chip{min-height:36px;min-width:0;padding:6px 4px;border:0;border-radius:9px;
-    background:transparent;box-shadow:none;color:var(--muted);font-weight:600;line-height:1.2;
-    white-space:normal;overflow-wrap:break-word;hyphens:auto;text-align:center;justify-content:center;}
+  :root .stage-head .chips .chip{display:block;min-height:34px;min-width:0;padding:7px 6px;border:0;border-radius:9px;
+    background:transparent;box-shadow:none;color:var(--muted);font-weight:600;line-height:1.4;text-align:center;
+    font-size:calc(13.5px * var(--text-k));transition:background var(--dur-2) var(--ease-out),color var(--dur-2) var(--ease-out);}
   :root .stage-head .chips .chip[aria-pressed="true"]{color:var(--text);
     background:color-mix(in srgb,var(--text) 18%,var(--bg));box-shadow:0 3px 8px -3px rgba(0,0,0,.35);}
   :root[data-scheme="light"] .stage-head .chips .chip[aria-pressed="true"]{background:#fff;}
 
-  /* ---------- созыв и два значка в одну строку ---------- */
-  :root .stage-head .conv-select{grid-column:1;grid-row:3;width:100%;order:0;}
-  :root .stage-head .conv-select .xs-btn{height:auto;min-height:44px;padding-top:8px;padding-bottom:8px;
-    white-space:normal;text-align:left;line-height:1.25;border-radius:14px;}
-  :root .stage-head .claim-chip,:root .stage-head .export-wrap{grid-row:3;width:44px;min-width:44px;flex:none;}
+  /* созыв и два круглых значка в одну строку */
+  :root .stage-head .conv-select{grid-column:1;grid-row:2;width:100%;order:0;}
+  :root .stage-head .conv-select .xs-btn{height:44px;min-height:44px;padding:0 14px;border:0;border-radius:14px;
+    background:color-mix(in srgb,var(--text) 9%,transparent);}
+  .stage-head .conv-select .xs-val{flex:none;}
+  .stage-head .conv-select .xs-note{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  :root .stage-head .claim-chip,:root .stage-head .export-wrap{grid-row:2;width:44px;min-width:44px;flex:none;}
   :root .stage-head .claim-chip{grid-column:2;}
   :root .stage-head .export-wrap{grid-column:3;}
   :root .stage-head .claim-chip,:root .stage-head .export-btn{width:44px;height:44px;min-height:44px;padding:0;
-    justify-content:center;border-radius:50%;}
-  .stage-head .claim-chip .claim-glyph{display:none;}
-  .stage-head .claim-chip .claim-ico{display:block;width:20px;height:20px;}
-  :root .stage-head .claim-chip,:root .stage-head .export-btn{border:0;color:var(--text);
-    background:color-mix(in srgb,var(--text) 9%,transparent);box-shadow:none;}
+    justify-content:center;border:0;border-radius:50%;color:var(--text);box-shadow:none;
+    background:color-mix(in srgb,var(--text) 9%,transparent);}
   :root .stage-head .claim-chip[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);}
-  .stage-head .export-btn .export-ico{display:block;width:19px;height:19px;}
+  .stage-head .claim-chip .claim-glyph{display:none;}
+  .stage-head .claim-chip .claim-ico,.stage-head .export-btn .export-ico{display:block;width:20px;height:20px;}
   .stage-head .export-btn .caret,
   .stage-head .export-btn > span[data-i18n],.stage-head .claim-chip > span[data-i18n]{position:absolute;width:1px;height:1px;
     margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
-  .stage-head .export-menu{right:0;left:auto;}
+  /* меню экспорта — листом действий, как в iOS: во всю ширину прямо над
+     панелью вкладок, а не выпадашкой, которая уезжала под список партий */
+  :root .stage-head .export-menu{position:fixed;top:auto;left:max(8px,env(safe-area-inset-left));
+    right:max(8px,env(safe-area-inset-right));bottom:calc(96px + env(safe-area-inset-bottom));z-index:80;width:auto;
+    max-height:min(64dvh,calc(var(--mobile-viewport-height,100dvh) - 170px));overflow-y:auto;overscroll-behavior:contain;
+    padding:8px;border-radius:22px;background:color-mix(in srgb,var(--bg) 92%,var(--text));
+    box-shadow:0 -10px 40px -12px rgba(0,0,0,.6);}
+  :root .stage-head .export-menu .export-item{min-height:52px;border-radius:14px;}
 
-  /* ---------- значки карты: четыре круга справа ---------- */
-  :root .map-controls{display:flex;justify-content:flex-end;gap:8px;margin:0 0 6px;}
-  :root .map-controls .btn{width:40px;height:40px;min-width:40px;min-height:40px;padding:0;border-radius:50%;
-    justify-content:center;}
-  :root .map-controls #mapList{grid-column:auto;}
-  .map-controls .btn > span{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
-  .map-controls .btn svg.ico{width:17px;height:17px;margin:0;}
-
-  /* ---------- карта во всю ширину и с подписями ---------- */
-  .plot{margin:0 -6px;}
+  /* ---------- карта во всю ширину, подписи, плавающие кнопки ---------- */
+  :root .plot{position:relative;margin:0 -4px;}
+  :root .stage-head + .map-controls{display:none;}
+  .compass{overflow:hidden;}
   .compass .seat,.compass .quad-tag,.compass .tick,.compass .axis-cap,.compass .cross-val{display:none;}
   .compass .node .tag{font-size:calc(20px * min(var(--text-k),1.25));}
   .compass .node.you .tag{font-size:calc(21px * min(var(--text-k),1.25));}
-  .mobile-map-note{margin:8px 2px 10px;}
-  .legend{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;}
-  .legend div{display:flex;gap:6px;align-items:baseline;}
+  :root .plot + .map-controls{display:flex;justify-content:center;gap:10px;width:auto;margin:12px 0 0;padding:0;border:0;
+    background:none;}
+  :root .plot + .map-controls .btn{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;
+    justify-content:center;background:color-mix(in srgb,var(--text) 9%,transparent);color:var(--text);box-shadow:none;}
+  .plot + .map-controls .btn:active{transform:scale(.92);background:color-mix(in srgb,var(--text) 15%,transparent);}
+  .plot + .map-controls .btn > span{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .plot + .map-controls .btn svg.ico{width:18px;height:18px;margin:0;}
+  .plot:not(.is-zoomed) + .map-controls #mapReset{display:none;}
+  .plot.map-as-list + .map-controls #mapMinus,.plot.map-as-list + .map-controls #mapPlus,
+  .plot.map-as-list + .map-controls #mapReset{display:none;}
+
+  /* подсказка осей вместо четырёх строк легенды и инструкции */
+  .mobile-map-note,.stage .legend{display:none;}
+  .axis-hint{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0 2px;}
+  .axis-hint span{max-width:100%;padding:5px 11px;border-radius:999px;font-size:calc(12.5px * var(--text-k));font-weight:600;
+    color:var(--muted);background:color-mix(in srgb,var(--text) 7%,transparent);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .stage .compass-why{margin-top:12px;}
 
   /* ---------- список партий: сгруппированный, как в iOS ---------- */
-  :root .side{padding:0;border-radius:22px;overflow:hidden;}
-  /* шапка списка больше не липнет: панель вкладок с 4.1 внизу, и липкая
-     шапка на высоте прежней верхней полосы наезжала на первую строку */
-  .side .side-head{position:static;padding:14px 16px 10px;border-bottom:0;background:transparent;}
+  :root .side{padding:0;border-radius:24px;overflow:hidden;}
+  /* шапка списка не липнет: панель вкладок с 4.1 внизу, и липкая шапка
+     на высоте прежней верхней полосы наезжала на первую строку */
+  .side .side-head{position:static;padding:16px 16px 8px;border-bottom:0;background:transparent;}
+  .side .side-head h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .side .plist{padding:0 0 6px;}
-  :root .pitem{display:grid;grid-template-columns:12px minmax(0,1fr) auto 14px;align-items:center;gap:12px;
-    min-height:58px;padding:9px 14px 9px 16px;border:0;border-radius:0;background:transparent;transform:none;
-    animation:none;}
+  :root .pitem{display:grid;grid-template-columns:12px minmax(0,1fr) auto 12px;align-items:center;gap:12px;
+    min-height:60px;padding:9px 14px 9px 16px;border:0;border-radius:0;background:transparent;transform:none;animation:none;}
   :root .pitem:hover{transform:none;}
   .pitem + .pitem{background:linear-gradient(var(--stroke),var(--stroke)) no-repeat 40px 0 / calc(100% - 40px) 1px;}
   :root .pitem.active{background-color:var(--accent-soft);}
-  .pitem::after{content:"";width:14px;height:14px;opacity:.7;
-    background:url("../assets/icons/next-muted.svg") center / 14px 14px no-repeat;}
-  .pitem .nm{display:block;}
-  .pitem .nm small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .pitem .share,.pitem .mobile-coordinates{display:none;}
-  .pitem .mandates{line-height:1.25;}
   .pitem:active{background-color:color-mix(in srgb,var(--text) 8%,transparent);}
+  .pitem::after{content:"";width:12px;height:12px;opacity:.65;
+    background:url("../assets/icons/next-muted.svg") center / 12px 12px no-repeat;}
+  :root .pitem .nm{display:block;font-weight:600;}
+  :root .pitem .nm small{margin-top:3px;font-size:calc(13.5px * var(--text-k));color:var(--muted);font-weight:450;}
+  .pitem .share,.pitem .mobile-coordinates{display:none;}
+  :root .pitem .mandates{text-align:right;font-size:calc(12px * var(--text-k));line-height:1.25;}
+  :root .pitem .mandates b{font-size:calc(16px * var(--text-k));}
 
-  /* ---------- ленты фильтров: голосования и «Голосую сам» ----------
-     Темы законопроектов стояли сеткой по четыре, и «Государство и права»
-     ломалось посреди слова в пилюлю-овал. Теперь это лента в одну строку,
-     как сегменты в приложениях: край уходит за кромку и подсказывает,
-     что дальше есть ещё. */
+  /* ---------- ленты фильтров: голосования и «Голосую сам» ---------- */
   :root .sv-topics,:root .votes-filter{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;
-    margin-left:-16px;margin-right:-16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+    margin:0 0 12px;padding:2px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
   .sv-topics::-webkit-scrollbar,.votes-filter::-webkit-scrollbar{display:none;}
-  :root .sv-topics .chip,:root .votes-filter .chip{flex:none;width:auto;min-height:40px;padding:8px 15px;
-    border-radius:999px;white-space:nowrap;overflow-wrap:normal;}
+  :root .sv-topics .chip,:root .votes-filter .chip{flex:none;width:auto;max-width:80%;min-height:38px;padding:8px 15px;
+    border-radius:999px;}
 
   /* ---------- карточка партии нижним листом ---------- */
   .side-holder[hidden]{display:none;}
@@ -636,3 +657,49 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px);}
   :root .side.is-sheet,.side-scrim{transition:none;}
 }
 :root[data-motion="off"] .side.is-sheet,:root[data-motion="off"] .side-scrim{transition:none;}
+
+/* ---------- остальные экраны телефона (5.0) ----------
+   Голосования: три цифры раздела — плитками в ряд, а не тремя пилюлями в
+   две строки; метки карточки законопроекта — спокойными плашками без
+   разрядки прописных; ответы «за / против / воздержусь» — строками во всю
+   ширину, как действия в нижнем листе iOS. Выбранная тема в лентах —
+   тоном раздела, а не белой заливкой, которая на тёмной теме слепила. */
+@media(max-width:720px),(pointer:coarse) and (max-width:1050px){
+  :root .votes-figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  :root .votes-figures .vf{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;
+    padding:10px 12px;border:0;border-radius:16px;background:color-mix(in srgb,var(--text) 7%,transparent);}
+  .votes-figures .vf b{font-size:calc(19px * var(--text-k));line-height:1.15;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .votes-figures .vf span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+
+  :root .vote-meta > span{text-transform:none;letter-spacing:0;font-weight:600;}
+
+  :root .sv-choices{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;}
+  :root .sv-choice{width:100%;min-height:50px;border-radius:14px;justify-content:center;}
+
+  :root .sv-topics .chip[aria-pressed="true"],:root .votes-filter .chip[aria-pressed="true"]{
+    background:color-mix(in srgb,var(--tone) 24%,transparent);color:var(--text);border-color:transparent;box-shadow:none;}
+  :root .sv-topics .chip,:root .votes-filter .chip{border:0;background:color-mix(in srgb,var(--text) 8%,transparent);}
+
+  /* карточка партии в листе: шапка как у листа iOS — название и круглый
+     крестик справа вместо текстовой кнопки «← Все партии» */
+  :root .side.is-sheet .side-back{order:9;margin-left:auto;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;
+    border:0;border-radius:50%;font-size:0;color:transparent;background:color-mix(in srgb,var(--text) 12%,transparent);
+    position:relative;}
+  .side.is-sheet .side-back::after{content:"";position:absolute;inset:0;margin:auto;width:13px;height:13px;
+    background:var(--muted);-webkit-mask:url("../assets/icons/close.svg") center/contain no-repeat;
+    mask:url("../assets/icons/close.svg") center/contain no-repeat;}
+  .side.is-sheet .side-head h2{font-size:calc(18px * var(--text-k));color:var(--text);font-weight:700;}
+
+  /* Подписи разделов карточки. Прописные с разрядкой задумывались под
+     девять пикселей на широком экране; на телефоне пол кегля делает их
+     четырнадцатью, и разрядка начинает кричать. Здесь — как подписи
+     групп в iOS: строчные, серые, без разрядки. */
+  :root :is(.leader .k,.coord .k,.mandate-top .k,.nb-far .k,.sect h4){text-transform:none;letter-spacing:0;font-weight:600;}
+  :root .sect h4{color:var(--muted);}
+  :root .votes-figures{grid-template-columns:repeat(3,auto);}
+
+  /* «Наверх» — круглая плавающая кнопка над панелью вкладок */
+  :root .to-top{width:44px;height:44px;border-radius:50%;
+    background:color-mix(in srgb,var(--glass-bg-2) 88%,var(--bg));border:1px solid var(--glass-stroke);}
+}

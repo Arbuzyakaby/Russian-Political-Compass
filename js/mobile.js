@@ -50,6 +50,8 @@
      («Доступность» → «Вибрация») и сам молчит при уменьшенном движении. */
   function haptic(ms){
     if(!coarse() || !navigator.vibrate) return;
+    /* до первого касания браузер вибрацию запрещает и ругается в консоль */
+    if(navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
     if(PC.settings && PC.settings.get("haptics") === "off") return;
     if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     try{ navigator.vibrate(ms || 8); }catch(e){ /* браузер запретил — не страшно */ }
@@ -116,6 +118,17 @@
     }
   }
 
+  /* Кнопки карты на телефоне (5.0) стоят строкой под картой, у большого
+     пальца, а не отдельной полосой над полем. Это те же кнопки: узел
+     переезжает за .plot и обратно при смене раскладки, обработчики
+     остаются на месте. */
+  function placeMapControls(){
+    var controls = document.getElementById("mapControls"), plot = document.getElementById("plot");
+    if(!controls || !plot) return;
+    if(phone()){ if(plot.nextElementSibling !== controls) plot.parentNode.insertBefore(controls, plot.nextSibling); }
+    else if(plot.previousElementSibling !== controls) plot.parentNode.insertBefore(controls, plot);
+  }
+
   function initSheet(){
     side = document.querySelector(".side");
     if(!side) return;
@@ -134,7 +147,8 @@
     /* поворот в широкий экран и уход на другую вкладку закрывают лист */
     var query = window.matchMedia(PHONE);
     var onLayout = function(){ if(!phone()) sheet(false); };
-    if(query.addEventListener) query.addEventListener("change", onLayout);
+    if(query.addEventListener) query.addEventListener("change", function(){ onLayout(); placeMapControls(); });
+    placeMapControls();
     PC.nav.onChange(function(){ if(PC.activeId && PC.activeId()) PC.select(null); });
   }
 

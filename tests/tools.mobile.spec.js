@@ -19,8 +19,11 @@ const noOverflow = page => page.locator("#selfVote").evaluate(card => {
   const r = card.getBoundingClientRect();
   const inner = r.right - parseFloat(getComputedStyle(card).paddingRight) + 1;
   return r.left >= -1 && r.right <= document.documentElement.clientWidth + 1 &&
-    Array.from(card.querySelectorAll("*")).every(e => e.getBoundingClientRect().right <= inner) &&
-    Array.from(card.querySelectorAll("button")).every(b => b.scrollWidth <= b.clientWidth + 1);
+    /* лента тем (5.0) прокручивается вбок сама: её пилюли за краем — не переполнение */
+    Array.from(card.querySelectorAll("*")).filter(e => !e.closest(".sv-topics")).every(e => e.getBoundingClientRect().right <= inner) &&
+    card.querySelector(".sv-topics").scrollWidth >= card.querySelector(".sv-topics").clientWidth &&
+    card.querySelector(".sv-topics").getBoundingClientRect().right <= inner &&
+    Array.from(card.querySelectorAll("button")).filter(b => !b.closest(".sv-topics")).every(b => b.scrollWidth <= b.clientWidth + 1);
 });
 
 for(const width of [320, 390]){

@@ -44,7 +44,12 @@
     }
     return n;
   }
-  function inside(a){ return a.x1 >= 6 && a.x2 <= SIZE - 6 && a.y1 >= 6 && a.y2 <= SIZE - 6; }
+  /* На телефоне края поля обрезаны (js/map-controls.js, inset): подпись у
+     самой кромки там не видна, поэтому и запас от края там больше. */
+  function inside(a){
+    var e = 6 + (PC.mapControls && PC.mapControls.inset ? PC.mapControls.inset() : 0);
+    return a.x1 >= e && a.x2 <= SIZE - e && a.y1 >= e && a.y2 <= SIZE - e;
+  }
 
   /* ---------- размещение подписи точки ---------- */
   /* x/y — смещение ярлыка от центра точки, seatY — смещение строки с мандатами.
