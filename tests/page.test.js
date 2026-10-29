@@ -162,8 +162,7 @@ test("у карточки «О проекте» свой фон в каждой 
 test("мобильные уточнения и оболочка приложения следуют за слоем движения", () => {
   assert.equal(styles[styles.length - 1], "css/app.css");
   assert.equal(styles[styles.length - 2], "css/mobile.css");
-  assert.equal(styles[styles.length - 3], "css/spring.css");
-  assert.equal(styles[styles.length - 4], "css/motion.css");
+  assert.equal(styles[styles.length - 3], "css/motion.css");
 });
 
 /* Стеклянный слой уточняет поверхности, объявленные компонентами,

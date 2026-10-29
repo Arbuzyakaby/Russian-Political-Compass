@@ -92,8 +92,6 @@
     "wel.up.lede":        ["Вы уже были здесь раньше, поэтому коротко — что нового с прошлого раза.",
                            "You have been here before, so here is the short version of what is new."],
     "wel.up.enter":       ["Понятно, дальше", "Got it, carry on"],
-    "wel.t.steps":        ["Шаги обучения", "Tutorial steps"],
-    "wel.t.step":         ["Шаг {n} из {total}", "Step {n} of {total}"],
     "wel.up.l1": ["Блок под вкладками переделан: цифры из данных, сворачиваемое описание (на телефоне оно свёрнуто) и кнопки «что дальше» под открытую вкладку.", "The block under the tabs is redesigned: figures from the data, a collapsible description (collapsed on phones) and “what next” buttons for the open tab."],
     "wel.up.l2": ["Английская версия указана поисковикам: hreflang, адрес ?lang=en в карте сайта и свой canonical.", "The English version is declared to search engines: hreflang, ?lang=en in the sitemap and its own canonical."],
     "wel.up.l3": ["Исправлен пустой выпадающий список в карточке «Профиль по под-осям».", "The empty dropdown in the “Sub-axis profile” card is fixed."],
@@ -135,7 +133,6 @@
 
     /* ===== пояснения к графикам ===== */
     "how.open":           ["Как это читать", "How to read this"],
-    "how.close":          ["Свернуть пояснение", "Hide the explanation"],
     "how.compass.h":      ["Как читать компас", "How to read the compass"],
     "how.compass.p1":     ["Каждый кружок — партия, а его размер — мандаты в выбранном созыве. Чем дальше две партии друг от друга, тем сильнее расходятся их программы.",
                            "Each circle is a party, and its size is the number of seats it holds in the selected convocation. The further apart two parties sit, the further apart their platforms are."],
@@ -171,8 +168,6 @@
     "ab.st.langs":        ["{w} интерфейса", "interface {w}"],
 
     /* ===== пасхалки ===== */
-    "egg.portal.tip":     ["Наверх. Сюда войдёшь — там выйдешь", "Back to the top. In one side, out the other"],
-    "egg.portal.aria":    ["Вернуться к началу страницы", "Return to the top of the page"],
     "egg.grave.tip":      ["Здесь покоится Horse Update. Плита накрыта вышиванкой — так теплее",
                            "Here lies the Horse Update. The slab is covered with an embroidered cloth — it is warmer that way"],
     "egg.grave.epitaph":  ["Horse Update · 1.6 — 2.0", "Horse Update · 1.6 — 2.0"],
@@ -180,7 +175,6 @@
     /* ===== прочее ===== */
     "ui.top":             ["Наверх", "Back to top"],
     "ui.topAria":         ["Вернуться к началу страницы", "Return to the top of the page"],
-    "ui.copy":            ["Скопировать", "Copy"],
     "foot.privacy":       ["Без счётчиков и аналитики · Шрифты Google загружаются при выборе","No trackers or analytics · Google Fonts load only for the typeface you pick"],
     "foot.version.tip": ["Версия 4.4.0.4 «Тиса»: переработанный блок «О проекте в цифрах», английская версия для поисковиков, исправления 4.4.0.1–4.4.0.3", "Version 4.4.0.4 “Tisza”: the redesigned “project in numbers” block, the English version for search engines, fixes from 4.4.0.1–4.4.0.3"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",

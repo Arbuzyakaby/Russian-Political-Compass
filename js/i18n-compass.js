@@ -57,7 +57,6 @@
     /* ===== боковая панель ===== */
     "side.title":         ["Партии", "Parties"],
     "side.listTitle":     ["Партии · мандаты в ГД · {conv}", "Parties · Duma seats · {conv}"],
-    "side.cardTitle":     ["Карточка партии", "Party profile"],
     /* Пустое состояние объясняет, что делать дальше, а не только
        сообщает о неудаче: «ничего не найдено» — это тупик, а подсказка
        про фильтр и другое написание — выход из него. */
@@ -152,7 +151,6 @@
     "co.enp":             ["Эффективное число партнёров", "Effective number of partners"],
     "co.enpD":            ["1.0 — коалиция держится на одной фракции", "1.0 means the coalition rests on a single faction"],
     "co.polar":           ["Разброс внутри коалиции", "Spread within the coalition"],
-    "co.polarD":          ["среднее расстояние фракции до центра коалиции", "mean distance of a faction to the coalition centre"],
     "co.vsHouse":         ["вся палата: {v}", "whole chamber: {v}"],
 
     "co.presets":         ["Готовые расклады", "Ready-made line-ups"],
@@ -213,8 +211,6 @@
     "co.why":             ["Как читать: полоса разложена по экономической оси, как и дуга палаты. Коалиция с большим разбросом собрана из далёких друг от друга фракций — формально большинство есть, но договариваться ей придётся по каждому закону. Связующее звено — не самая влиятельная фракция, а самая центральная: та, чья позиция ближе всего сразу ко всем остальным участникам, а значит именно ей проще всего быть посредником в споре двух далёких друг от друга краёв коалиции. Сплочённость — единственный показатель здесь, который считается не по координатам, а по тому, как фракции голосовали на самом деле, и потому он вправе спорить с остальными. Это модель, а не прогноз: реальные коалиции держатся ещё и на том, чего на осях нет.",
                            "How to read it: the bar runs along the economic axis, just like the chamber arc. A coalition with a wide spread is built from factions far apart — it has a majority on paper but will have to negotiate every bill. The bridging member is not the most influential faction but the most central one: the one whose position sits closest to every other member at once, which makes it the natural broker between two distant ends of the coalition. Cohesion is the only figure here computed not from coordinates but from how the factions actually voted, and it is therefore entitled to disagree with the rest. This is a model, not a forecast: real coalitions also rest on things the axes do not capture."],
 
-    "an.dominance":       ["Доля крупнейшей фракции", "Largest faction's share"],
-    "an.dominanceD":      ["больше 50% — однопартийное большинство", "above 50% means a single-party majority"],
 
     "ch.hemi.h":          ["Состав палаты", "Composition of the chamber"],
     "ch.hemi.p":          ["450 мест, каждая точка — один мандат. Места расставлены слева направо по экономической оси: слева плановая экономика, справа рыночная. Наведите курсор на любую часть дуги — подсветится ближайшая фракция.",
@@ -293,7 +289,6 @@
     "map.plus": ["Увеличить масштаб","Zoom in"],
     "people.title": ["Люди","People"],
     "ex.preferred": ["Сохранить изображение","Save image"],
-    "ex.preferred.h": ["По настройкам формата, масштаба и фона","Use your format, scale and background preferences"],
     "side.empty.hint": ["Попробуйте другое название или снимите фильтр.","Try another name or remove the filter."],
     "side.notParticipated": ["Не участвовала в этом созыве","Did not participate in this convocation"],
     "node.guest": ["Чужой результат","Shared result"],

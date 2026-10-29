@@ -227,7 +227,7 @@ test("4.3: английский интерфейс без русского те�
     });
     return bad;
   });
-  for(const tab of ["compass", "quiz", "votes", "party", "about"]){
+  for(const tab of ["compass", "quiz", "votes", "about"]){
     await page.locator("#tab-" + tab).click();
     await page.waitForTimeout(150);
     expect(await cyrillic(), tab).toEqual([]);

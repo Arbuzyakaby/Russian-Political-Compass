@@ -6,7 +6,7 @@
 const { test, expect } = require("@playwright/test");
 const VERSION = require("../package.json").version;
 
-const TABS = ["compass", "quiz", "votes", "party", "about"];
+const TABS = ["compass", "quiz", "votes", "about"];
 
 for(const lang of ["ru", "en"]){
   test(`4.4: ширина документа не больше экрана, 320 px, текст 200%, ${lang}`, async({ page }) => {

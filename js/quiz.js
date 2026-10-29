@@ -358,6 +358,7 @@
     /* точка пользователя появляется и на большом компасе */
     if(PC.compass) PC.compass.redraw();
     if(PC.eggs && PC.eggs.quiz) PC.eggs.quiz(answers);
+    if(PC.eggs && PC.eggs.point) PC.eggs.point(result);
   }
 
   function resetAll(){

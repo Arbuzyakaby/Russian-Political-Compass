@@ -62,7 +62,6 @@
     "csv.score":          ["Оценка", "Score"],
     "csv.bill":           ["Законопроект", "Bill"],
     "csv.date":           ["Дата", "Date"],
-    "csv.position":       ["Позиция фракции", "Faction stance"],
 
     /* ===== вкладка «О проекте» ===== */
     "ab.hero.h":          ["Карта вместо ярлыков", "A map instead of labels"],
@@ -242,7 +241,7 @@
     "ab.chain.lg.ok":     ["звено работает", "link is running"],
     "ab.chain.lg.idle":   ["ждёт входных данных", "waiting for input"],
     "ab.chain.lg.warn":   ["ошибка в звене", "error in the link"],
-    "ab.chain.lg.crit":   ["критическая ошибка", "critical failure"],
+    "ab.chain.lg.crit":   ["критическая ошибка", "critical failure"]
 
   });
 })(window.PC = window.PC || {});

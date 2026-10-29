@@ -287,8 +287,11 @@
     if(PC.ui) PC.ui.toast(PC.t("eggs.rivers"));
     clearTimeout(riverTimer); riverTimer = setTimeout(function(){ root.classList.remove("egg-river"); }, 5000);
   }
-  function party(p){
-    if(!on()) return;
+  /* Точка ровно в центре поля или в углу (5.0). Раньше пасхалку находили,
+     поставив туда свою партию; партий больше нет — теперь туда надо
+     попасть самому, результатом теста. */
+  function point(p){
+    if(!on() || !p) return;
     if(Math.abs(p.x) < .00001 && Math.abs(p.y) < .00001){ found("centre"); PC.ui.toast(PC.t("eggs.centre")); }
     else if(Math.abs(p.x) === 10 && Math.abs(p.y) === 10){ found("centre"); PC.ui.toast(PC.t("eggs.corner." + ((p.y > 0 ? 0 : 2) + (p.x > 0 ? 1 : 0)))); }
   }
@@ -433,5 +436,5 @@
     setTimeout(function(){ plot.classList.remove("flyover"); }, 3000);
   };
 
-  PC.eggs = { init:init, party:party, quiz:quiz, pipeline:pipeline, found:found, IDS:IDS };
+  PC.eggs = { init:init, point:point, quiz:quiz, pipeline:pipeline, found:found, IDS:IDS };
 })(window.PC = window.PC || {});

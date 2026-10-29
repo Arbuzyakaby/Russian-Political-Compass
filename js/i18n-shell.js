@@ -19,8 +19,6 @@
                            "Interactive political compass of Russian parties: positions on the economic and state-authority axes, State Duma seats across convocations IV–IX, and a 90-statement quiz in three lengths."],
 
     "skip":               ["Перейти к содержимому", "Skip to content"],
-    "noscript":           ["Компас, графики и тест рисуются в браузере на JavaScript — без него страница остаётся пустой. Включите JavaScript, чтобы увидеть данные.",
-                           "The compass, charts and quiz are drawn in the browser with JavaScript — without it the page stays empty. Enable JavaScript to see the data."],
 
     /* ===== шапка ===== */
     "brand.eyebrow":      ["Русский политический компас · Политология", "Russian Political Compass · Political science"],
@@ -30,7 +28,6 @@
                            "{n} {parties} on two axes: the economy and the power of the state"],
     "word.party":         [["партия", "партии", "партий"], ["party", "parties"]],
     "word.statement":     [["утверждение", "утверждения", "утверждений"], ["statement", "statements"]],
-    "word.question":      [["вопрос", "вопроса", "вопросов"], ["question", "questions"]],
     "word.seat":          [["мандат", "мандата", "мандатов"], ["seat", "seats"]],
     "word.faction":       [["фракция", "фракции", "фракций"], ["faction", "factions"]],
     "word.vote":          [["голосование", "голосования", "голосований"], ["vote", "votes"]],
@@ -42,16 +39,10 @@
     "search.label":       ["Поиск партии", "Search parties"],
     "search.placeholder": ["Найти партию…", "Find a party…"],
     "search.clear":       ["Очистить поиск", "Clear search"],
-    "theme.toggle":       ["Переключить тему", "Switch theme"],
-    "theme.system":       ["Тема: системная", "Theme: system"],
-    "theme.light":        ["Тема: светлая", "Theme: light"],
-    "theme.dark":         ["Тема: тёмная", "Theme: dark"],
-    "theme.hint":         ["нажмите, чтобы переключить", "click to switch"],
     "lang.toggle":        ["Switch to English", "Переключить на русский"],
     "lang.label":         ["Язык интерфейса", "Interface language"],
 
     /* ===== меню настроек ===== */
-    "set.eyebrow":        ["Интерфейс", "Interface"],
     "set.railLabel":      ["Разделы настроек", "Settings sections"],
     "set.title":          ["Настройки", "Settings"],
     "set.close":          ["Закрыть настройки", "Close settings"],

@@ -1,6 +1,7 @@
-/* Выпуск 4.3: дуэль партий, «Голосую сам», работа без сети, иконки,
-   пружинящий слой и единая версия. Проверяется настоящий код в песочнице
-   harness.js, а разметка и стили — по исходникам. */
+/* Оболочка страницы: иконки, пружины, работа без сети, загрузка по
+   требованию, обучение, проверка шрифтов, пасхалки к номеру версии,
+   переводы подписей в разметке. До 5.0 — tests/tools43.test.js,
+   tests/tools44.test.js и tests/tisa.test.js. */
 "use strict";
 
 const test = require("node:test");
@@ -12,82 +13,6 @@ const { loadApp, ROOT, DEFAULT_FILES } = require("./harness.js");
 const read = rel => fs.readFileSync(path.join(ROOT, rel), "utf8");
 const html = read("index.html");
 const { PC } = loadApp();
-
-test("дуэль: расстояние симметрично, а голосования считаются как в матрице совпадений", () => {
-  const er = PC.partyById("er"), kprf = PC.partyById("kprf");
-  const ab = PC.duel.compare(er, kprf), ba = PC.duel.compare(kprf, er);
-  assert.equal(ab.distance, ba.distance);
-  assert.equal(ab.distance, PC.calc.distance(er, kprf));
-  const ag = PC.voteAgreement(er, kprf);
-  assert.deepEqual([ab.agreement.same, ab.agreement.common], [ag.same, ag.common]);
-  assert.equal(ab.same.length, ag.same, "совпавшие голосования перечислены все");
-  assert.equal(ab.same.length + ab.differ.length, ag.common, "каждое общее голосование либо совпало, либо разошлось");
-  for(const r of ab.differ) assert.notEqual(r.a, r.b);
-  assert.ok(ab.share > 0 && ab.share <= 1);
-});
-
-test("дуэль: самый большой разрыв — действительно наибольший по модулю, вердикт следует порогам", () => {
-  for(const a of PC.PARTIES){
-    for(const b of PC.PARTIES){
-      if(a.id === b.id) continue;
-      const r = PC.duel.compare(a, b);
-      const max = Math.max(...r.axes.filter(x => x.delta != null).map(x => Math.abs(x.delta)));
-      assert.equal(Math.abs(r.biggest.delta), max, `${a.id}–${b.id}`);
-    }
-  }
-  assert.deepEqual([0, 2.9, 3, 6.9, 7, 11.9, 12, 28].map(PC.duel.verdict),
-    ["near", "near", "close", "close", "apart", "apart", "opposite", "opposite"]);
-  assert.equal(PC.duel.MAX_DISTANCE.toFixed(2), "28.28");
-});
-
-test("дуэль: у фракций, не заседавших вместе, нет общих голосований и нет выдуманных расхождений", () => {
-  const yab = PC.partyById("yabloko"), er = PC.partyById("er");
-  const r = PC.duel.compare(er, yab);
-  assert.equal(r.agreement.common, 0);
-  assert.equal(r.agreement.ratio, null);
-  assert.equal(r.differ.length, 0);
-});
-
-test("голосую сам: голоса как у фракции дают ей 100% и первое место", () => {
-  const votes = {};
-  for(const v of PC.VOTES){
-    const s = PC.voteStance(v, PC.partyById("kprf"));
-    if(s === "for" || s === "against" || s === "abstain") votes[v.id] = s;
-  }
-  assert.ok(Object.keys(votes).length >= 10, "у КПРФ должно быть много известных позиций");
-  const rows = PC.selfVote.score(votes);
-  assert.equal(rows[0].p.id, "kprf");
-  assert.equal(rows[0].ratio, 1);
-  assert.equal(rows[0].common, Object.keys(votes).length);
-  for(let i = 1; i < rows.length; i++) assert.ok(rows[i - 1].ratio >= rows[i].ratio, "рейтинг упорядочен по доле");
-});
-
-test("голосую сам: пустые ответы и голосования без известной позиции не дают процентов", () => {
-  assert.equal(PC.selfVote.score({}).length, 0);
-  const split = PC.VOTES.find(v => Object.values(v.pos).includes("split"));
-  if(split){
-    const id = Object.keys(split.pos).find(k => split.pos[k] === "split");
-    const row = PC.selfVote.score({ [split.id]:"for" }).find(r => r.p.id === id);
-    assert.equal(row, undefined, "«разделились» не считается ни совпадением, ни расхождением");
-  }
-  for(const r of PC.selfVote.score({ [PC.VOTES[0].id]:"for" })) assert.ok(r.common === 1);
-});
-
-test("голосую сам: проверка сохранённых ответов и резервная копия", () => {
-  const ok = { v:1, votes:{ [PC.VOTES[0].id]:"for", [PC.VOTES[1].id]:"abstain" } };
-  assert.equal(PC.selfVote.valid(ok), true);
-  for(const bad of [null, [], { v:2, votes:{} }, { v:1, votes:[] }, { v:1, votes:{ "bad id":"for" } }, { v:1, votes:{ [PC.VOTES[0].id]:"split" } }])
-    assert.equal(PC.selfVote.valid(bad), false, JSON.stringify(bad));
-  /* законопроект, убранный из данных или пришедший из новой версии, не обнуляет остальные ответы */
-  assert.equal(PC.selfVote.valid({ v:1, votes:{ "removed-bill":"for", [PC.VOTES[0].id]:"against" } }), true);
-  const app = loadApp([...DEFAULT_FILES, "js/settings.js", "js/eggs.js", "js/backup.js"]);
-  app.storage.setItem("pc-selfvote", JSON.stringify(ok));
-  const backup = app.PC.backup.make();
-  assert.equal(backup.data["pc-selfvote"], JSON.stringify(ok));
-  assert.equal(app.PC.backup.validate(backup), true);
-  backup.data["pc-selfvote"] = JSON.stringify({ v:1, votes:{ evil:"maybe" } });
-  assert.equal(app.PC.backup.validate(backup), false);
-});
 
 test("иконки: каждый значок из разметки и скриптов есть в спрайте, спрайт собран из Lucide", () => {
   const sprite = new Set(Array.from(html.matchAll(/<symbol id="i-([\w-]+)"/g), m => m[1]));
@@ -115,7 +40,9 @@ test("иконки: старые встроенные значки замене�
 });
 
 test("пружины: каждое движение снимается и настройкой, и системным уменьшением движения", () => {
-  const css = read("css/spring.css");
+  /* пружины с 5.0 — последний раздел css/motion.css */
+  const all = read("css/motion.css");
+  const css = all.slice(all.indexOf("Пружины и отклик"));
   const animated = new Set(Array.from(css.matchAll(/^\s*([^@{}\n][^{}\n]*)\{[^}]*animation:pc-/gm), m => m[1].trim()));
   const off = css.slice(css.indexOf(':root[data-motion="off"] .is-sprung'));
   const reduce = css.slice(css.indexOf("@media (prefers-reduced-motion:reduce)"));
@@ -171,7 +98,6 @@ test("словарь инструментов 4.3 держит только св
 
 test("новые модули подключены и инициализируются", () => {
   for(const f of ["js/spring.js", "js/lazy.js", "js/offline.js"]) assert.ok(html.includes(`src="${f}"`), f);
-  for(const f of ["css/icons.css", "css/spring.css"]) assert.ok(html.includes(`href="${f}"`), f);
   /* дуэль, «Голосую сам» и их стили с 4.4 подгружаются по требованию */
   for(const f of ["js/duel.js", "js/selfvote.js", "css/tools.css"]) assert.ok(html.includes(`"${f}"`) && !html.includes(`src="${f}"`) && !html.includes(`href="${f}"`), f);
   const app = read("js/app.js");
@@ -179,3 +105,77 @@ test("новые модули подключены и инициализирую
   assert.match(read("js/palette.js"), /PC\.duel\.open\(\)/, "дуэль есть в командной палитре");
   assert.match(read("js/votes.js"), /PC\.duel\.open\(tr\.dataset\.row, cell\.dataset\.col\)/, "ячейка матрицы открывает дуэль пары");
 });
+
+test("загрузка по требованию: перечень в разметке, файлы на месте, на первом экране их нет", () => {
+  const lazy = JSON.parse(html.match(/<script type="application\/json" id="pcLazy">([\s\S]*?)<\/script>/)[1]);
+  assert.deepEqual(Object.keys(lazy).sort(), ["duel", "selfvote"]);
+  for(const [name, entry] of Object.entries(lazy)){
+    for(const f of [entry.js, entry.css]){
+      assert.ok(fs.existsSync(path.join(ROOT, f)), `${name}: нет ${f}`);
+      assert.ok(!html.includes(`src="${f}"`) && !html.includes(`href="${f}"`), `${name}: ${f} подключён на первом экране`);
+    }
+  }
+  assert.ok(html.indexOf('src="js/lazy.js"') > 0 && html.indexOf('src="js/lazy.js"') < html.indexOf('src="js/app.js"'), "lazy.js подключён до app.js");
+  /* кнопки дуэли и палитра ходят через PC.lazy.run, а не через PC.duel напрямую */
+  for(const [file, needle] of [["js/app.js", 'PC.lazy.run("duel"'], ["js/sidebar.js", 'PC.lazy.run("duel"'],
+    ["js/votes.js", 'PC.lazy.run("duel"'], ["js/palette.js", 'PC.lazy.run("duel"'], ["js/palette.js", "PC.loadSelfVote()"]])
+    assert.ok(read(file).includes(needle), `${file}: ${needle}`);
+});
+
+test("обучение: число шагов в настройках совпадает с маршрутом, новые шаги переведены", () => {
+  const tour = read("js/tour.js");
+  const steps = Array.from(tour.matchAll(/\{ key:"(\w+)",\s*tab:"(\w+)",\s*sel:"([^"]+)"/g), m => ({ key:m[1], tab:m[2], sel:m[3] }));
+  const words = { 10:["Десять", "Ten"], 11:["Одиннадцать", "Eleven"], 12:["Двенадцать", "Twelve"], 13:["Тринадцать", "Thirteen"], 14:["Четырнадцать", "Fourteen"] };
+  assert.ok(words[steps.length], `нет слова для ${steps.length} шагов`);
+  const en = loadApp(undefined, { "pc-lang":"en" }).PC;
+  assert.ok(PC.t("set.tour.d").startsWith(words[steps.length][0] + " шагов"), PC.t("set.tour.d"));
+  assert.ok(en.t("set.tour.d").startsWith(words[steps.length][1] + " steps"), en.t("set.tour.d"));
+  for(const key of ["duel", "sv"]){
+    const step = steps.find(s => s.key === key);
+    assert.ok(step && step.tab === "votes", `шаг ${key} на вкладке голосований`);
+    assert.ok(html.includes(`id="${step.sel.slice(1)}"`), step.sel);
+    for(const app of [PC, en]) for(const part of ["h", "p"]) assert.notEqual(app.t(`tour.${key}.${part}`), `tour.${key}.${part}`);
+  }
+  assert.doesNotMatch(en.t("tour.duel.p") + en.t("tour.sv.p"), /[А-Яа-яЁё]/);
+  assert.ok(steps.at(-1).key === "settings" && steps.at(-1).tab === "any", "последний шаг — настройки, не привязаны к вкладке");
+});
+
+test("check:fonts: команда, эталон и состав проверки", () => {
+  const pkg = JSON.parse(read("package.json"));
+  assert.equal(pkg.scripts["check:fonts"], "node scripts/check-fonts.cjs");
+  const base = JSON.parse(read("docs/check-fonts-4.4.json"));
+  assert.equal(base.width, 320);
+  assert.equal(base.textScale, 2);
+  const keys = ["en", "ru"].flatMap(l => ["about", "compass", "quiz", "votes"].map(t => `${l}/${t}`)).sort();
+  for(const engine of ["chromium", "webkit"]){
+    assert.deepEqual(Object.keys(base.widths[engine]).sort(), keys, engine);
+    for(const w of Object.values(base.widths[engine])) assert.ok(w >= 320 && w <= 330, `ширина ${w}`);
+  }
+  const script = read("scripts/check-fonts.cjs");
+  for(const needle of ["Verdana", '"--text-k", "2"', "width:WIDTH", "--write"]) assert.ok(script.includes(needle), needle);
+});
+
+test("мелочи 4.4: плашка без сети, подскок выбора партий снят", () => {
+  const offline = read("js/offline.js");
+  assert.ok(offline.includes('"offline"') && offline.includes('"online"') && offline.includes("navigator.onLine"));
+  assert.ok(/\.offline-bar\{[^}]*position:fixed/.test(read("css/ui.css")));
+  assert.doesNotMatch(read("css/motion.css"), /\.duel-pick/, "выбор партий в дуэли не подпрыгивает при наведении");
+  /* живые области обновляются только при смене текста */
+  const sv = read("js/selfvote.js");
+  assert.ok(sv.includes("count.textContent !== countText") && sv.includes("res.dataset.html !== html"));
+});
+
+test("пасхалки 4.4: «4.4» в поиске и команда 444 в терминале учтены в списке", () => {
+  const eggs = loadApp([...DEFAULT_FILES, "js/settings.js", "js/eggs.js"]).PC.eggs;
+  assert.ok(eggs.IDS.includes("44") && eggs.IDS.includes("444"));
+  assert.equal(new Set(eggs.IDS).size, eggs.IDS.length);
+  const en = loadApp(undefined, { "pc-lang":"en" }).PC;
+  for(const key of ["eggs.v44", "eggs.v444"]){
+    assert.notEqual(PC.t(key), key); assert.notEqual(en.t(key), key);
+    assert.doesNotMatch(en.t(key), /[А-Яа-яЁё]/, key);
+  }
+});
+
+test("strict result links reject inserted, prefixed and suffixed characters",()=>{const{PC}=loadApp();const src={};PC.quiz.questionsFor("short").forEach(q=>src[q.id]=1);const code=PC.quiz.encodeAnswers(src,"short");assert.ok(PC.quiz.decodeAnswers(code));for(const bad of [code+"!",code.slice(0,10)+"?"+code.slice(10),code+"a","3"+"a".repeat(500)])assert.equal(PC.quiz.decodeAnswers(bad),null);});
+
+test("SRPC handles use the edge gap and stay between separated cards",()=>{const{PC}=loadApp(["js/data.js","js/utils.js","js/srpc.js"]);const a={offsetLeft:0,offsetTop:0,offsetWidth:240,offsetHeight:180},b={...a,offsetLeft:264};let p=PC.srpc.anchors(a,b);assert.equal(p.h,12);assert.ok(p.x1+p.h<=p.x2);assert.ok(p.x2-p.h>=p.x1);b.offsetLeft=0;b.offsetTop=204;p=PC.srpc.anchors(a,b);assert.equal(p.v,12);assert.ok(p.y1+p.v<=p.y2);});

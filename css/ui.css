@@ -156,8 +156,7 @@
   .card::after,.card::before{display:none!important;}
   .grid,.charts,.about{display:block!important;}
   .card,.stat{margin-bottom:12px;}
-  .side{position:static!important;max-height:none!important;}
-  .scroll{overflow:visible!important;}
+  .side{position:static!important;max-height:none!important;} .scroll{overflow:visible!important;}
   .about-card a::after{content:" (" attr(href) ")";font-size:calc(10px * var(--text-k));color:#555;}
 }
 

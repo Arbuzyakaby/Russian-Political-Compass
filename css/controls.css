@@ -1,4 +1,7 @@
-/* ============ ИНТЕРФЕЙС 4.0 «ТИСА», ПЕРЕРИСОВАННЫЙ В 4.1 ============
+/* ============ ЭЛЕМЕНТЫ УПРАВЛЕНИЯ: палитра, клавиши, поиск настроек, карта, SRPC ============
+   До 5.0 файл назывался css/tisza.css — по имени выпуска 4.0, в котором
+   всё это появилось. Имя версии ничего не говорит о содержимом, поэтому
+   файл назван по тому, что в нём лежит.
    Командная палитра, справка по клавишам, поиск и отметки в настройках,
    панель управления картой, сценарный баннер и панель инструментов SRPC.
    В 4.0 всё это вышло одной строкой минифицированных правил с кеглем
@@ -130,11 +133,6 @@
 .map-coordinate-list b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;}
 .map-as-list>svg{display:none;}
 .toast .btn{margin-left:14px;color:inherit;}
-
-.scenario-banner{display:flex;align-items:center;gap:10px;margin:0 0 18px;padding:12px 16px;border-radius:14px;
-  border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--text);font-size:calc(13px * var(--text-k));line-height:1.5;}
-.scenario-banner::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent);}
 
 /* ---------- SRPC: панель инструментов и разбор звена ---------- */
 .srpcf-toolbar{flex:none;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;

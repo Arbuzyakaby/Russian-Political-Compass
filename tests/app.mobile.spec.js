@@ -1,0 +1,13 @@
+/* До 5.0 — tests/tisa.mobile.spec.js. */
+"use strict";
+/* Версия, при которой приветствие уже показано, — текущая из package.json: так оно не всплывает поверх теста. */
+const VERSION=require("../package.json").version;
+const {test,expect}=require("@playwright/test");
+
+test("SRPC cards allow native scrolling except on the grip",async({page})=>{await page.addInitScript(version=>{localStorage.setItem("pc-welcome",version);localStorage.setItem("pc-settings",JSON.stringify({motion:"off"}));},VERSION);await page.goto("/#/srpc");await expect(page.locator("#srpcStage")).toBeVisible();const style=await page.locator(".srpcf-card").first().evaluate(e=>({card:getComputedStyle(e).touchAction,grip:getComputedStyle(e.querySelector(".srpcf-grip")).touchAction,height:e.querySelector(".srpcf-grip").getBoundingClientRect().height}));expect(style.card).toBe("pan-x pan-y");expect(style.grip).toBe("none");expect(style.height).toBeGreaterThanOrEqual(44);await page.locator("#srpcBoard").evaluate(e=>e.scrollTop=250);expect(await page.locator("#srpcBoard").evaluate(e=>e.scrollTop)).toBeGreaterThan(0);});
+test("coordinate list replaces map and two-finger gesture changes map view",async({page,browserName})=>{
+  await page.addInitScript(version=>{localStorage.setItem("pc-welcome",version);localStorage.setItem("pc-settings",JSON.stringify({motion:"off"}));},VERSION);await page.goto("/#/compass");await page.locator("#mapList").click();await expect(page.locator("#svg")).toBeHidden();await expect(page.locator(".map-coordinate-list")).toBeVisible();await page.locator("#mapList").click();await page.locator("#svg").scrollIntoViewIfNeeded();
+  if(browserName==="chromium"){const session=await page.context().newCDPSession(page),box=await page.locator("#svg").boundingBox(),cx=box.x+box.width/2,cy=box.y+box.height/2;await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:cx-30,y:cy,id:0},{x:cx+30,y:cy,id:1}]});await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:cx-70,y:cy,id:0},{x:cx+70,y:cy,id:1}]});await session.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});}
+  else await page.locator("#svg").evaluate(e=>{function send(type,points){const event=new Event(type,{bubbles:true,cancelable:true});Object.defineProperty(event,"touches",{value:points});e.dispatchEvent(event);}send("touchstart",[{clientX:100,clientY:100},{clientX:160,clientY:100}]);send("touchmove",[{clientX:60,clientY:100},{clientX:200,clientY:100}]);send("touchend",[]);});
+  expect(await page.locator("#svg").evaluate(e=>e.viewBox.baseVal.width)).toBeLessThan(660);await page.locator("#mapReset").click();expect(await page.locator("#svg").evaluate(e=>e.viewBox.baseVal.width)).toBe(660);
+});

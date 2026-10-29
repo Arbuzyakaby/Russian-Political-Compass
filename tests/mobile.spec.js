@@ -22,7 +22,7 @@ for(const width of [320, 360, 390, 430, 768]){
     await page.setViewportSize({ width, height:844 });
     for(const lang of ["ru", "en"]){
       await ready(page, lang);
-      for(const route of ["compass", "quiz", "votes", "party", "about"]){
+      for(const route of ["compass", "quiz", "votes", "about"]){
         await page.evaluate(route => PC.nav.go(route), route);
         await expect(page.locator("#panel-" + route)).toBeVisible();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);

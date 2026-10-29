@@ -90,31 +90,6 @@ test("4.4: приветствие не заслоняет ссылку на ду
   await expect(page.locator("#welcome")).toBeHidden();
 });
 
-test("4.4: свои партии есть в дуэли, голоса берутся из p.votes", async({ page }) => {
-  const errs = errors(page);
-  await ready(page, "votes");
-  const id = await page.evaluate(() => PC.partyModel.save(PC.partyModel.normalize({
-    name:"Тестовая партия", short:"Тест", sub:PC.partyModel.toSub(2, -3),
-    votes:{ "vat-2025":"for", "vat-2018":"against", "pension-2018":"for" }
-  }), true).id);
-  expect(id).toBe("u1");
-  await page.evaluate(() => PC.lazy.run("duel", () => PC.duel.open("u1", "er")));
-  const dialog = page.locator(".duel-dialog");
-  await expect(dialog).toBeVisible();
-  await expect(dialog.locator("#duelA")).toHaveValue("u1");
-  await expect(dialog.locator("#duelA optgroup")).toHaveAttribute("label", "Мои партии");
-  await expect(dialog.locator("#duelA optgroup option")).toHaveText("Тест");
-  await expect(dialog.locator(".duel-agree")).toContainText("совпадений");
-  const same = await page.evaluate(() => {
-    const a = PC.partyById("u1"), b = PC.partyById("er"), r = PC.duel.compare(a, b);
-    return { common:r.agreement.common, same:r.agreement.same, direct:PC.voteAgreement(a, b).common };
-  });
-  expect(same.common).toBe(same.direct);
-  expect(same.common).toBeGreaterThanOrEqual(3);
-  await dialog.locator("#duelB").selectOption("u1");
-  await expect(dialog.locator(".duel-empty")).toBeVisible();
-  expect(errs).toEqual([]);
-});
 
 test("4.4: плашка «Без сети» появляется без сети и исчезает при её возвращении", async({ page, context }) => {
   await ready(page, "compass");
