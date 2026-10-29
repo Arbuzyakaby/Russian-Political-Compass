@@ -13,7 +13,7 @@
 (function(PC){
   "use strict";
   var U = PC.utils;
-  var t = PC.t, L = PC.L;
+  var t = PC.t;
   var D = PC.exportData;
   var convSlug = D.convSlug, fileName = D.fileName, download = D.download, downloadText = D.downloadText, note = D.note,
       partiesCSV = D.partiesCSV, seatsCSV = D.seatsCSV, claimsCSV = D.claimsCSV, subaxesCSV = D.subaxesCSV,
@@ -321,7 +321,7 @@
       var cursor=30;
       [c.querySelector("h3").textContent,c.querySelector(".srpcf-file").textContent,c.querySelector("p").textContent,
         c.querySelector(".srpcf-metric").textContent].forEach(function(text,i){
-        var current="",lines=[];
+        var current="", lines=[];
         String(text).split(/\s+/).forEach(function(word){
           if((current+" "+word).length>Math.floor((w-36)/(i===0?8:6))&&current){lines.push(current);current="";}
           current+=(current?" ":"")+word;

@@ -3,7 +3,7 @@
   "use strict";
   var G = PC.geom, U = PC.utils;
   var t = PC.t, L = PC.L;
-  var SIZE = G.SIZE, PAD = G.PAD, C = G.C, px = G.px, el = U.el;
+  var SIZE = G.SIZE, C = G.C, px = G.px, el = U.el;
   /* Радиус круга по числу мест. */
   function radius(seats){
     var s=PC.settings,size=s&&s.get("dotSize"),bubbles=s&&s.get("bubbles");

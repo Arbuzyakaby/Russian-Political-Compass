@@ -10,7 +10,6 @@
    Кому нужен «настоящий» CSV с запятой — есть JSON, он без компромиссов. ============ */
 (function(PC){
   "use strict";
-  var U = PC.utils;
   var t = PC.t, L = PC.L;
 
   var SEP = ";";

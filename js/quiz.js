@@ -40,12 +40,12 @@
 
   /* Расчёт (подсчёт координат, кодирование ссылки, разбор ответов) живёт
      в js/quiz-calc.js — здесь только состояние экрана и разметка. */
-  var questionsFor = QC.questionsFor, modeOfList = QC.modeOfList;
-  var scoreOf = QC.scoreOf, contributions = QC.contributions, axisBreakdown = QC.axisBreakdown;
+  var questionsFor = QC.questionsFor;
+  var scoreOf = QC.scoreOf, contributions = QC.contributions;
   var ranking = QC.ranking;
   var encodeAnswers = QC.encodeAnswers, decodeMode = QC.decodeMode, decodeAnswers = QC.decodeAnswers;
   var shareURL = QC.shareURL;
-  var REACH = QC.REACH, MAX_DIST = QC.MAX_DIST;
+  var MAX_DIST = QC.MAX_DIST;
   var B = PC.quizBlocks;
   var econWord = B.econWord, stateWord = B.stateWord, quadrant = B.quadrant, capitalize = B.capitalize,
       modeName = B.modeName, scaleLabel = B.scaleLabel, questionText = B.questionText,
