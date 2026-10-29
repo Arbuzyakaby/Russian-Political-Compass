@@ -72,6 +72,14 @@
      Чистая функция: всё, от чего зависит решение, приходит аргументом.
      Так её можно проверить в Node без браузера, и так видно, что
      решение не зависит ни от чего, кроме этих четырёх значений. */
+  /* Приветствие по времени суток (5.0): ночью компас открывают не реже,
+     чем днём, и «Доброй ночи» в три часа читается как человеческий голос,
+     а не как вывеска. Часы — местные, из браузера. */
+  function greeting(hour){
+    var h = hour == null ? new Date().getHours() : hour;
+    return h < 5 ? "wel.h.night" : h < 12 ? "wel.h.morning" : h < 18 ? "wel.h.day" : h < 23 ? "wel.h.evening" : "wel.h.night";
+  }
+
   function decide(o){
     o = o || {};
     /* Чужой результат и ссылка на дуэль (4.4) важнее любого приветствия. */
@@ -97,7 +105,7 @@
          по PC.VERSION: там номер обязан быть голым числом. */
       isUpdate ? PC.t("wel.up.eyebrow", { v:PC.versionLabel ? PC.versionLabel() : PC.VERSION }) : PC.t("wel.eyebrow");
     document.getElementById("welTitle").textContent =
-      PC.t(isUpdate ? "wel.up.h" : "wel.h");
+      PC.t(isUpdate ? "wel.up.h" : greeting());
     document.getElementById("welLede").textContent =
       PC.t(isUpdate ? "wel.up.lede" : "wel.lede");
     document.getElementById("welEnter").textContent =
@@ -289,5 +297,5 @@
     if(which) show(which);
   }
 
-  PC.welcome = { init:init, replay:replay, close:close, decide:decide };
+  PC.welcome = { init:init, replay:replay, close:close, decide:decide, greeting:greeting };
 })(window.PC = window.PC || {});

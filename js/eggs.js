@@ -48,6 +48,8 @@
    14. «4.4» в поиске партий (4.4): точки на компасе бьются дважды по
        0,72 с — версия «четыре-четыре», 1,44 с на всё.
    15. Команда `444` в терминале (4.4): HTTP 444 No Response из nginx.
+   16. «5.0» в поиске партий (5.0 «Нарев»): слоган выпуска. «Нарев» и
+       «Narew» в том же поиске пускают по карте реку, как Висла и Тиса.
 
    Все пасхалки живут отдельно от остальной страницы: ни один другой
    модуль про них не знает, и удаление этого файла ничего не
@@ -58,7 +60,8 @@
   var grave = null;
 
   function on(){ return document.documentElement.dataset.eggs === "on"; }
-  var IDS = ["portal", "grave", "22", "50", "konami", "river", "rivers", "centre", "agree", "pipeline", "terminal", "teapot", "night", "44", "444"];
+  var IDS = ["portal", "grave", "22", "50", "konami", "river", "rivers", "centre", "agree", "pipeline", "terminal", "teapot", "night", "44", "444",
+             "v5"];
   /* Отмечает пасхалку найденной и сохраняет это в localStorage. */
   function found(id){
     if(!on() || IDS.indexOf(id) < 0) return;
@@ -246,11 +249,17 @@
   /* ---------- 14. Четыре-четыре (4.4) ----------
      «4.4», «4,4» или «44» в поиске: точки партий дважды подпрыгивают.
      Тот же приём, что у юбилея: один раз на переход «стало 4.4». */
-  var twinFired = false, twinTimer = null;
+  var twinFired = false, twinTimer = null, sloganFired = false;
   function initTwin(){
     var q = document.getElementById("q");
     if(!q) return;
     q.addEventListener("input", function(){
+      /* 5.0: «5.0» в поиске — слоган выпуска, один раз за посещение */
+      if(on() && /^5[.,]0$/.test(q.value.trim()) && !sloganFired){
+        sloganFired = true;
+        found("v5");
+        if(PC.ui) PC.ui.toast(PC.t("eggs.v5"));
+      }
       var hit = on() && /^4[.,]?4$/.test(q.value.trim());
       if(hit && !twinFired){
         found("44");
@@ -386,7 +395,8 @@
     }
   }
   function initTisza(){
-    var q=document.getElementById("q");if(q)q.addEventListener("input",function(){if(/^(тиса|tisza|висла|vistula)$/i.test(q.value.trim()))river();});
+    var q=document.getElementById("q");
+    if(q)q.addEventListener("input",function(){if(/^(тиса|tisza|висла|vistula|нарев|narew)$/i.test(q.value.trim()))river();});
     var version=document.querySelector(".foot-version"),clicks=0,last=0;
     if(version){
       version.tabIndex=0;

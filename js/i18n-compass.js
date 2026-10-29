@@ -63,7 +63,7 @@
     /* Пустое состояние объясняет, что делать дальше, а не только
        сообщает о неудаче: «ничего не найдено» — это тупик, а подсказка
        про фильтр и другое написание — выход из него. */
-    "side.empty":         ["Ничего не найдено","No matches"],
+    "side.empty":         ["Такой партии на поле нет","No such party on the field"],
     "side.back":          ["← Все партии", "← All parties"],
     "side.leader":        ["Лидер партии", "Party leader"],
     "side.econ":          ["Экономика", "Economy"],
@@ -292,7 +292,7 @@
     "map.plus": ["Увеличить масштаб","Zoom in"],
     "people.title": ["Люди","People"],
     "ex.preferred": ["Сохранить изображение","Save image"],
-    "side.empty.hint": ["Попробуйте другое название или снимите фильтр.","Try another name or remove the filter."],
+    "side.empty.hint": ["Может, она в другом созыве или под другим фильтром. А может, её ещё только предстоит основать.","Perhaps it sits in another convocation or under another filter. Or perhaps it is still waiting to be founded."],
     "side.notParticipated": ["Не участвовала в этом созыве","Did not participate in this convocation"],
     "node.guest": ["Чужой результат","Shared result"],
     "co.independent": ["Независимые / не входящие в набор: {n}","Independents / outside this set: {n}"],

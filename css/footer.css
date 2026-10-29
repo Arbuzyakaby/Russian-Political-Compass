@@ -138,3 +138,8 @@
   .foot-grid{grid-template-columns:1fr;gap:22px;}
   .foot-bottom{margin-top:22px;}
 }
+
+/* Мысль дня (5.0): своя строка над годом и лицензией, курсивом —
+   это голос автора, а не служебная справка. */
+.foot-thought{flex-basis:100%;order:-1;font-style:italic;color:var(--muted);line-height:1.5;}
+.foot-thought[hidden]{display:none;}

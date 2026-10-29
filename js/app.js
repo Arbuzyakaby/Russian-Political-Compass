@@ -367,6 +367,16 @@
     document.querySelectorAll("[data-conv-count]").forEach(function(e){ e.textContent = String(PC.CONVOCATIONS.length); });
     var version = document.querySelector(".foot-version");
     if(version) version.textContent = PC.versionLabel();
+    /* Мысль дня (5.0): одна строка от автора на день, по кругу из семи.
+       День считается по местному времени, чтобы строка менялась в полночь
+       читателя, а не по Гринвичу. */
+    var thought = document.getElementById("footThought");
+    if(thought){
+      var day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+      thought.textContent = PC.t("foot.thought." + (day % 7 + 1));
+      thought.title = PC.t("foot.thought.h");
+      thought.hidden = false;
+    }
     PC.compass.onDraw(syncNodes);
     mark("pc:draw-start"); PC.compass.draw(); mark("pc:first-draw"); measure("pc:stage5","pc:draw-start","pc:first-draw");
     syncNodes();
