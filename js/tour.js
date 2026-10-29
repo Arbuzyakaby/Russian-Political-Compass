@@ -63,7 +63,6 @@
     { key:"claims",   tab:"compass", sel:"#claimBtn",        pad:8,  place:"bottom" },
     { key:"export",   tab:"compass", sel:"#exportBtn",       pad:8,  place:"bottom" },
     { key:"quiz",     tab:"compass", sel:"#tab-quiz",        pad:8,  place:"bottom" },
-    { key:"party", tab:"compass", sel:"#tab-party", pad:8, place:"bottom" },
     { key:"duel",     tab:"votes",   sel:"#duelFromVotes",   pad:8,  place:"bottom" },
     { key:"sv",       tab:"votes",   sel:"#selfVote",        pad:10, place:"top" },
     { key:"settings", tab:"any",     sel:"#settingsBtn",     pad:8,  place:"bottom" }

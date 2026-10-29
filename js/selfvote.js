@@ -187,7 +187,7 @@
     else if(act === "reset"){
       var before = votes;
       votes = {}; save(); current = 0; render(true);
-      PC.ui.toast(t("sv.cleared"), false, { label:t("party.undo"), duration:5000,
+      PC.ui.toast(t("sv.cleared"), false, { label:t("ui.undo"), duration:5000,
         action:function(){ votes = before; save(); current = firstOpen(0); render(); } });
     }
   }

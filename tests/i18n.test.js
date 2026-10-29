@@ -16,7 +16,7 @@ const en = loadApp(undefined, { "pc-lang": "en" }).PC;
 
 /* Сам словарь с 2.3.1 живёт не в js/i18n.js (это движок), а в
    соседних файлах — см. шапку js/i18n.js. */
-const DICT_FILES = ["i18n-shell.js", "i18n-compass.js", "i18n-quiz.js", "i18n-about.js", "i18n-misc.js", "i18n-party.js", "i18n-tools.js"];
+const DICT_FILES = ["i18n-shell.js", "i18n-compass.js", "i18n-quiz.js", "i18n-about.js", "i18n-misc.js", "i18n-tools.js"];
 const dictSource = DICT_FILES.map(f => fs.readFileSync(path.join(ROOT, "js", f), "utf8")).join("\n");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 
@@ -203,13 +203,14 @@ test("выгрузка следует за языком интерфейса", (
   function ruLine(csv){ return csv.replace(/^﻿/, "").split("\r\n")[0]; }
 });
 
-/* С 4.2 у каждого словаря своя область. i18n-party.js копил чужие ключи
-   (настройки, SRPC, пасхалки) просто потому, что писался последним, —
-   из-за этого ключ приходилось искать по всем шести файлам. */
-test("в i18n-party.js только ключи party.*", () => {
-  const own = fs.readFileSync(path.join(ROOT, "js", "i18n-party.js"), "utf8");
-  const foreign = Array.from(own.matchAll(/^\s{4}"([\w.+-]+)":\s*\[/gm), m => m[1]).filter(key => !key.startsWith("party."));
-  assert.deepEqual(foreign, [], "чужие ключи нужно перенести в словарь их области");
+/* С 5.0 ключей «Моей партии» нет ни в одном словаре: раздел удалён
+   целиком, и забытый ключ означал бы забытую подпись где-то на странице. */
+test("в словарях нет ключей удалённой «Моей партии»", () => {
+  for(const file of DICT_FILES){
+    const source = fs.readFileSync(path.join(ROOT, "js", file), "utf8");
+    const left = Array.from(source.matchAll(/^\s{2,}"([\w.+-]+)":\s*\[/gm), m => m[1]).filter(key => /^party\./.test(key));
+    assert.deepEqual(left, [], file);
+  }
 });
 
 test("ни один ключ не объявлен в двух словарях и в английском нет кириллицы", () => {

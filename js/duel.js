@@ -48,22 +48,15 @@
   function fmt(v){ return (v > 0 ? "+" : "") + v.toFixed(1); }
   function el(tag, cls, text){ var n = document.createElement(tag); if(cls) n.className = cls; if(text != null) n.textContent = text; return n; }
 
-  /* Настоящие партии и свои (u1–u6, 4.4): свои — отдельной группой, голоса
-     своей партии берутся из p.votes (PC.voteStance). Список собирается при
-     каждом открытии: партий у посетителя могло стать больше или меньше. */
-  function everyone(){ return PC.allParties ? PC.allParties() : PC.PARTIES; }
-  function isOwn(p){ return /^u[1-6]$/.test(p.id); }
+  /* Список собирается при каждом открытии: подписи следуют за языком. */
   function fill(select){
     var keep = select.value;
     select.textContent = "";
-    var mine = el("optgroup");
-    mine.label = t("duel.mine");
-    everyone().forEach(function(p){
+    PC.PARTIES.forEach(function(p){
       var o = el("option", "", L(p, "short"));
       o.value = p.id;
-      (isOwn(p) ? mine : select).appendChild(o);
+      select.appendChild(o);
     });
-    if(mine.children.length) select.appendChild(mine);
     if(keep) select.value = keep;
   }
 
@@ -93,8 +86,7 @@
   }
   function share(){
     var url = location.origin + base() + pairHash();
-    var mine = [PC.partyById(state.a), PC.partyById(state.b)].some(function(p){ return p && isOwn(p); });
-    var note = t(mine ? "duel.shareOwn" : "duel.copied");
+    var note = t("duel.copied");
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(url).then(function(){ PC.ui.toast(note); },
         function(){ PC.ui.toast(t("duel.copyFail"), true); });

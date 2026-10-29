@@ -110,7 +110,7 @@
     left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));
     bottom:calc(10px + env(safe-area-inset-bottom));
     z-index:var(--z-bar,60);margin:0;width:auto;
-    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding:6px;
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;padding:6px;
     border-radius:26px;border:1px solid var(--glass-stroke);
     background:color-mix(in srgb,var(--glass-bg-2) 86%,var(--bg));
     -webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter);

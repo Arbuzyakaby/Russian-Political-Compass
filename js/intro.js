@@ -19,7 +19,6 @@
     compass:["quiz", "about"],
     quiz:["compass", "about"],
     votes:["quiz", "about"],
-    party:["quiz", "about"],
     about:["quiz", "compass"]
   };
   var GO = {

@@ -490,12 +490,5 @@
     });
   }
 
-  /* Данные партии для шаринга: ссылка и JSON. */
-  function partyData(p){
-    var code=PC.partyModel.encode(p);
-    return code?{
-      title:p.name,text:p.slogan||PC.t("party.user"),url:location.origin+location.pathname+location.search+"#/party/view/"+code
-    }:null;
-  }
-  PC.share = { mount:mount, render:render, toBlob:toBlob, FORMATS:FORMATS, partyData:partyData };
+  PC.share = { mount:mount, render:render, toBlob:toBlob, FORMATS:FORMATS };
 })(window.PC = window.PC || {});

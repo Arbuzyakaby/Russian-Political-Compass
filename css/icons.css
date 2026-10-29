@@ -12,7 +12,6 @@ svg.ico{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-widt
 .btn > svg.ico:first-child:not(:only-child){margin-right:.45em;}
 #mapMinus svg.ico,#mapPlus svg.ico{width:16px;height:16px;}
 .wel-ico svg.ico{width:15px;height:15px;}
-.party-icon-btn svg.ico{width:18px;height:18px;}
 .ht-p-x svg.ico{width:16px;height:16px;}
 .to-top svg.ico{width:18px;height:18px;}
 #clearBtn svg.ico{width:13px;height:13px;}

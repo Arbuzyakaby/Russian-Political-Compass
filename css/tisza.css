@@ -99,8 +99,8 @@
 .set-group > .btn.small:last-child:hover{background:var(--bad-soft);}
 
 :root[data-lineheight=increased] p,:root[data-lineheight=increased] li{line-height:2;}
-:root[data-label-mode=duma] #svg .node:not(.duma):not(.you):not(.my-party) .tag,
-:root[data-label-mode=duma] #svg .node:not(.duma):not(.you):not(.my-party) .seat,
+:root[data-label-mode=duma] #svg .node:not(.duma):not(.you) .tag,
+:root[data-label-mode=duma] #svg .node:not(.duma):not(.you) .seat,
 :root[data-label-mode=selected] #svg .node:not(.active):not(.you) .tag,
 :root[data-label-mode=selected] #svg .node:not(.active):not(.you) .seat{
   display:none;

@@ -258,7 +258,6 @@
     "res.empty": ["Пожалуйста, ответьте хотя бы на один вопрос", "Please answer at least one question"],
     "res.damaged": ["К сожалению, ссылка повреждена","Sorry, this result link is damaged"],
     "res.completion": ["{n} из {all} ответов","{n} of {all} questions answered"],
-    "res.myParty": ["Ближе всего из ваших партий: {name}","Closest of your parties: {name}"],
     "quiz.confirm": ["Сбросить ответы теста?","Reset your quiz answers?"]
   });
 })(window.PC = window.PC || {});

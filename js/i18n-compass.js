@@ -18,7 +18,6 @@
     "tab.compass.short":  ["Компас", "Compass"],
     "tab.quiz.short":     ["Тест", "Quiz"],
     "tab.votes.short":    ["Голоса", "Votes"],
-    "tab.party.short":    ["Партия", "Party"],
     "tab.about.short":    ["Проект", "About"],
 
     /* ===== компас ===== */

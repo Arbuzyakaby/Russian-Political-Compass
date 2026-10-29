@@ -12,10 +12,8 @@
 
     /* ===== дуэль партий ===== */
     "duel.title":     ["Дуэль партий", "Party face-off"],
-    "duel.mine":      ["Мои партии", "My parties"],
     "duel.share":     ["Скопировать адрес дуэли", "Copy the face-off link"],
     "duel.copied":    ["Адрес дуэли скопирован", "Face-off link copied"],
-    "duel.shareOwn":  ["Адрес скопирован, но своя партия есть только в этом браузере: у других откроется другая партия", "Link copied, but your own party exists only in this browser: others will see a different party"],
     "duel.copyFail":  ["Не удалось скопировать адрес — возьмите его из адресной строки", "Could not copy the link — take it from the address bar"],
     "duel.type":      ["Инструмент", "Tool"],
     "duel.open":      ["Дуэль двух партий", "Compare two parties"],

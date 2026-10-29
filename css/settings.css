@@ -580,3 +580,10 @@ body.sheet-lock{overflow:hidden;}
 /* Пропорциональные цифры: у части читателей моноширинные смотрятся
    разреженно в сплошном тексте. Компромисс — отключаемо. */
 :root[data-numerals="proportional"] body{font-variant-numeric:proportional-nums;}
+
+/* ---------- служебные строки и кнопки под разделами (5.0) ----------
+   Раньше эти классы назывались party-meta и party-actions и жили в
+   css/party.css: удаляя «Мою партию», их оставили настройкам, где они
+   и использовались. */
+.set-meta{font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.6;}
+.set-actions{display:flex;flex-wrap:wrap;gap:10px;}

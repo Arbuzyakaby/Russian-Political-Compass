@@ -319,7 +319,7 @@ test("B13: готовность компаса не ждёт радиуса у �
 /* ---------- приветствие: первое касание закрывает окно ---------- */
 function welcomeRig(seen){
   const app = loadApp(["js/data.js", "js/utils.js", "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js",
-    "js/i18n-about.js", "js/i18n-misc.js", "js/i18n-party.js", "js/i18n.js", "js/welcome.js"]);
+    "js/i18n-about.js", "js/i18n-misc.js", "js/i18n.js", "js/welcome.js"]);
   const { window: w } = app;
   if(seen) w.localStorage.setItem("pc-welcome", seen);
   const ids = ["welcome", "welCard", "welPoints", "welNews", "welLang", "welHello", "welClose", "welEnter",

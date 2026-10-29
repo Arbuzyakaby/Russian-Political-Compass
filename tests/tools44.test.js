@@ -30,15 +30,15 @@ test("загрузка по требованию: перечень в разме
 });
 
 test("загрузка по требованию: резервная копия проверяет ответы «Голосую сам» и без загруженного модуля", () => {
-  const files = [...DEFAULT_FILES.filter(f => f !== "js/selfvote.js" && f !== "js/duel.js"), "js/settings.js", "js/eggs.js", "js/backup.js", "js/tisza.js"];
+  const files = [...DEFAULT_FILES.filter(f => f !== "js/selfvote.js" && f !== "js/duel.js"), "js/settings.js", "js/eggs.js", "js/backup.js"];
   const app = loadApp(files);
   assert.equal(app.PC.selfVote, undefined, "модуль не загружен");
   const ok = { v:1, votes:{ [app.PC.VOTES[0].id]:"for" } };
   app.storage.setItem("pc-selfvote", JSON.stringify(ok));
-  const backup = app.PC.tisza.backup();
-  assert.equal(app.PC.tisza.validateBackup(backup), true);
+  const backup = app.PC.backup.make();
+  assert.equal(app.PC.backup.validate(backup), true);
   backup.data["pc-selfvote"] = JSON.stringify({ v:1, votes:{ evil:"maybe" } });
-  assert.equal(app.PC.tisza.validateBackup(backup), false);
+  assert.equal(app.PC.backup.validate(backup), false);
   assert.equal(PC.selfVote.valid, PC.votes.validSelf, "модуль использует ту же проверку");
 });
 
@@ -56,20 +56,9 @@ test("«Голосую сам»: рейтинг по теме считает т�
   assert.ok(PC.votes.TOPICS.some(t => t.id === "foreign"));
 });
 
-test("дуэль: своя партия сравнивается по тем же правилам, голоса — из p.votes", () => {
-  const er = PC.partyById("er");
-  const own = { id:"u1", name:"Своя", short:"Св", color:"#fff", x:2, y:-3, sub:er.sub,
-    votes:{ [PC.VOTES[0].id]:"for", [PC.VOTES[1].id]:"against" } };
-  const r = PC.duel.compare(own, er);
-  assert.equal(r.distance, PC.calc.distance(own, er));
-  assert.equal(r.agreement.common, PC.voteAgreement(own, er).common);
-  assert.ok(r.agreement.common <= 2, "общих голосований не больше, чем ответов у своей партии");
-  assert.equal(r.same.length + r.differ.length, r.agreement.common);
-});
-
 test("приветствие не показывается по ссылке на дуэль", () => {
   const welcome = loadApp([...DEFAULT_FILES, "js/welcome.js"]).PC.welcome, V = PC.VERSION;
-  for(const hash of ["#/duel/er-kprf", "#duel/u1-er"]){
+  for(const hash of ["#/duel/er-kprf", "#duel/kprf-er"]){
     assert.equal(welcome.decide({ hash, seen:null, version:V }), null, hash);
     assert.equal(welcome.decide({ hash, seen:"1.0", version:V }), null, hash);
   }
@@ -100,7 +89,7 @@ test("check:fonts: команда, эталон и состав проверки
   const base = JSON.parse(read("docs/check-fonts-4.4.json"));
   assert.equal(base.width, 320);
   assert.equal(base.textScale, 2);
-  const keys = ["en", "ru"].flatMap(l => ["about", "compass", "party", "quiz", "votes"].map(t => `${l}/${t}`)).sort();
+  const keys = ["en", "ru"].flatMap(l => ["about", "compass", "quiz", "votes"].map(t => `${l}/${t}`)).sort();
   for(const engine of ["chromium", "webkit"]){
     assert.deepEqual(Object.keys(base.widths[engine]).sort(), keys, engine);
     for(const w of Object.values(base.widths[engine])) assert.ok(w >= 320 && w <= 330, `ширина ${w}`);
@@ -109,13 +98,11 @@ test("check:fonts: команда, эталон и состав проверки
   for(const needle of ["Verdana", '"--text-k", "2"', "width:WIDTH", "--write"]) assert.ok(script.includes(needle), needle);
 });
 
-test("мелочи 4.4: плашка без сети, подскок выбора партий снят, метка новой партии согласована", () => {
+test("мелочи 4.4: плашка без сети, подскок выбора партий снят", () => {
   const offline = read("js/offline.js");
   assert.ok(offline.includes('"offline"') && offline.includes('"online"') && offline.includes("navigator.onLine"));
   assert.ok(/\.offline-bar\{[^}]*position:fixed/.test(read("css/ui.css")));
   assert.doesNotMatch(read("css/spring.css"), /\.duel-pick/, "выбор партий в дуэли не подпрыгивает при наведении");
-  assert.equal(PC.t("party.newTag"), "НОВ");
-  assert.equal(loadApp(undefined, { "pc-lang":"en" }).PC.t("party.newTag"), "NEW");
   /* живые области обновляются только при смене текста */
   const sv = read("js/selfvote.js");
   assert.ok(sv.includes("count.textContent !== countText") && sv.includes("res.dataset.html !== html"));

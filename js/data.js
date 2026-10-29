@@ -83,7 +83,6 @@ function seatsAt(p, conv){
 function partyById(id){
   var list = PC.PARTIES;
   for(var i = 0; i < list.length; i++) if(list[i].id === id) return list[i];
-  if(PC.partyModel) return PC.partyModel.list().find(function(p){ return p.id === id; }) || null;
   return null;
 }
 
@@ -104,7 +103,6 @@ function convsAsc(){
    их обязательно: первое ничего не говорит о партии, второе говорит,
    что мы не знаем. */
 function voteStance(vote, party){
-  if(/^u[1-6]$/.test(party.id)) return party.votes && party.votes[vote.id] || "unknown";
   var seats = seatsAt(party, vote.conv);
   if(seats === null || seats === 0) return "absent";
   var v = vote.pos && vote.pos[party.id];

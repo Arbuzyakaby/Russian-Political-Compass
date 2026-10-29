@@ -232,7 +232,7 @@ test("у каждой настройки есть правило, которое
 test("дополнительные настройки лежат в разметке и предлагают ровно допустимые значения", () => {
   const settings = require("./harness.js").loadApp(["js/data.js", "js/utils.js", "js/settings.js"]).PC.settings;
   const rows = [...html.matchAll(/<div class="set-row tisza-setting" data-setting="(\w+)">([\s\S]*?)<\/div>/g)];
-  assert.ok(rows.length >= 15, `дополнительных строк в разметке: ${rows.length}`);
+  assert.ok(rows.length >= 14, `дополнительных строк в разметке: ${rows.length}`);
   for(const [, key, body] of rows){
     assert.ok(key in settings.DEFAULTS, `строка «${key}» не соответствует ни одной настройке`);
     assert.match(body, new RegExp(`<label class="set-name" for="setting-${key}" data-i18n="[\\w.]+">`), `у «${key}» нет переводимой подписи`);
@@ -601,8 +601,8 @@ test("нижний лист настроек выезжает без перел�
    остальное решено порядком и специфичностью. Оставшиеся исключения
    перебивают глобальный пол кегля (тоже !important) и объяснены
    комментарием рядом. */
-test("в app.css и party.css не больше десяти строк с !important", () => {
-  for(const name of ["app.css", "party.css"]){
+test("в app.css не больше десяти строк с !important", () => {
+  for(const name of ["app.css"]){
     const lines = fs.readFileSync(path.join(ROOT, "css", name), "utf8").split("\n").filter(l => l.includes("!important"));
     assert.ok(lines.length <= 10, `css/${name}: строк с !important ${lines.length}`);
   }
@@ -610,7 +610,7 @@ test("в app.css и party.css не больше десяти строк с !impo
 
 test("в коде нет строк длиннее 160 знаков", () => {
   const LIMIT = 160;
-  const EXEMPT = /^(?:data-.*|i18n-.*|quiz-data|party-templates|tokens)\.(?:js|css)$/;
+  const EXEMPT = /^(?:data-.*|i18n-.*|quiz-data|tokens)\.(?:js|css)$/;
   const long = [];
   for(const dir of ["js", "css"]){
     for(const name of fs.readdirSync(path.join(ROOT, dir))){

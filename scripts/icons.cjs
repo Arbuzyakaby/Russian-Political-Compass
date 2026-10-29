@@ -18,7 +18,7 @@ if(!fs.existsSync(lucide)) throw new Error("Нет node_modules/lucide-static: �
 
 /* имя в проекте → имя в Lucide */
 const SPRITE = {
-  compass:"compass", quiz:"clipboard-list", votes:"vote", party:"flag", about:"info",
+  compass:"compass", quiz:"clipboard-list", votes:"vote", about:"info",
   search:"search", settings:"settings", close:"x", back:"chevron-left", next:"chevron-right",
   down:"chevron-down", up:"arrow-up", "arrow-down":"arrow-down",
   trash:"trash-2", map:"map", target:"crosshair", shield:"shield-check",

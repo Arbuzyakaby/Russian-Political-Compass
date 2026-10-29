@@ -6,13 +6,12 @@
    компаса подписчики пересобирают отрисовку. ============ */
 (function(PC){
   "use strict";
-  var TABS = ["compass", "quiz", "votes", "party", "about"];
+  var TABS = ["compass", "quiz", "votes", "about"];
   var TITLES = {
     compass: "doc.title.compass",
     quiz:    "doc.title.quiz",
     votes:   "doc.title.votes",
-    about:   "doc.title.about",
-    party:   "doc.title.party"
+    about:   "doc.title.about"
   };
   var current = "compass";
   var listeners = [];
@@ -27,7 +26,9 @@
   function fromHash(){
     var h = (location.hash || "").replace(/^#\/?/, "");
     if(/^result\//.test(h)) return "quiz";
-    if(/^party(?:\/|$)/.test(h)) return "party";
+    /* #/party/… — адреса «Моей партии», удалённой в 5.0: открывается
+       компас, а что случилось, объясняет сообщение (js/app.js) */
+    if(/^party(?:\/|$)/.test(h)) return "compass";
     if(/^duel\//.test(h)) return "votes";            /* #/duel/<a>-<b> — окно дуэли поверх голосований (4.4) */
     if(h === "srpc") return "about";
     return TABS.indexOf(h) === -1 ? "compass" : h;

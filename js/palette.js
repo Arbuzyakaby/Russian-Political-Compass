@@ -7,7 +7,7 @@
 (function(PC){
   "use strict";
 
-  var SECTIONS = ["compass", "quiz", "votes", "party", "about"];
+  var SECTIONS = ["compass", "quiz", "votes", "about"];
   var MAX_RESULTS = 40;
   var dialog, results, query, commands = [], picked = 0, lastFocus;
 
@@ -62,12 +62,12 @@
     SECTIONS.forEach(function(tab){
       list.push({ label:t("tab." + tab), type:t("tabs.label"), run:function(){ PC.nav.go(tab); } });
     });
-    PC.allParties().forEach(function(p){
+    PC.PARTIES.forEach(function(p){
       list.push({
         label:PC.L(p, "name"),
         color:p.color,
         more:[p.name, p.short, p.tag, p.en && p.en.name, p.en && p.en.short].join(" "),
-        type:t(/^u/.test(p.id) ? "party.user" : "side.title"),
+        type:t("side.title"),
         run:function(){
           PC.nav.go("compass");
           if(PC.activeId() === p.id) PC.select(null);

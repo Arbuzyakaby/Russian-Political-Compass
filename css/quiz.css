@@ -277,3 +277,6 @@ button.hrun:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 @media(max-width:560px){
   .quiz-modes{grid-template-columns:1fr;}
 }
+
+/* служебная строка результата: «столько-то из стольких ответов» */
+.qr-meta{font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.6;}

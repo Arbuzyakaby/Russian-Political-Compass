@@ -84,7 +84,7 @@
     srpcfail: "off",     /* демонстрация сбоя в третьем звене схемы */
     /* пасхалки */
     eggs:     "off",     /* портал вместо кнопки «наверх» и могила в углу */
-    dotSize:"normal", labelMode:"all", bubbles:"off", myParties:"on",
+    dotSize:"normal", labelMode:"all", bubbles:"off",
     startTab:"compass", convDefault:"9", quizMode:"full", autoNext:"off", confirmReset:"off",
     colorblind:"off", lineheight:"normal", exportFormat:"png", exportScale:"2", transparent:"off", srpcStage:"3"
   };
@@ -151,7 +151,7 @@
     measure:["narrow","normal"],
     dotSize:["small","normal","large"],
     labelMode:["all","duma","selected"],
-    startTab:["compass","last","quiz","votes","party","about"],
+    startTab:["compass","last","quiz","votes","about"],
     convDefault:["4","5","6","7","8","9"],
     quizMode:["short","full","long"],
     lineheight:["normal","increased"],
@@ -369,7 +369,7 @@
       PC.t("set.resetDone"),
       false,
       {
-        label:PC.t("party.undo"),
+        label:PC.t("ui.undo"),
         duration:5000,
         action:function(){
           state=previous;
@@ -626,7 +626,7 @@
           set(k, DEFAULTS[k]);
         });
         PC.ui.toast(PC.t("set.resetDone"), false, {
-          label:PC.t("party.undo"),
+          label:PC.t("ui.undo"),
           duration:5000,
           action:function(){ Object.keys(previous).forEach(function(k){ set(k, previous[k]); }); }
         });
@@ -663,7 +663,7 @@
   /* Кнопки экспорта и импорта настроек. */
   function addBackupButtons(){
     var general = document.getElementById("setPanel-general");
-    var actions = node("div", "party-actions");
+    var actions = node("div", "set-actions");
     var input = node("input");
     input.type = "file";
     input.accept = ".json,application/json";
@@ -691,7 +691,10 @@
         PC.ui.toast(PC.t("set.badBackup"), true);
         return;
       }
-      PC.ui.toast(PC.t("set.restored"));
+      /* копия 4.x могла нести «Мою партию»: её ключи пропущены, и об этом
+         надо сказать, а не промолчать */
+      var skipped = PC.backup.skipped(data);
+      PC.ui.toast(skipped.length ? PC.t("set.restoredSkip", { keys:skipped.join(", ") }) : PC.t("set.restored"));
       setTimeout(function(){ location.reload(); }, 600);
     });
     general.append(actions, input);
@@ -701,20 +704,18 @@
      в уведомлении кнопку «отменить», пока оно не исчезло. */
   function addEraseAll(){
     var privacy = document.getElementById("setPanel-privacy");
-    privacy.appendChild(node("p", "party-meta", "pc-my-parties · pc-party-draft · pc-settings · pc-selfvote · pc-eggs-found"));
+    privacy.appendChild(node("p", "set-meta", "pc-settings · pc-quiz-* · pc-selfvote · pc-eggs-found"));
     privacy.appendChild(smallButton(PC.t("set.eraseAll"), function(){
       var before = PC.backup.make();
       if(!before) return;
-      Object.keys(before.data).forEach(function(k){ PC.store.remove(k); });
-      PC.partyModel.load();
-      PC.partyBuilder.clearLocal();
+      Object.keys(before.data).concat(PC.backup.RETIRED).forEach(function(k){ PC.store.remove(k); });
       PC.quiz.clearLocal();
       if(PC.selfVote) PC.selfVote.clearLocal();
       reset();
       PC.compass.redraw();
       PC.refresh();
       PC.ui.toast(PC.t("set.resetDone"), false, {
-        label:PC.t("party.undo"),
+        label:PC.t("ui.undo"),
         duration:5000,
         action:function(){ if(PC.backup.restore(before)) location.reload(); }
       });

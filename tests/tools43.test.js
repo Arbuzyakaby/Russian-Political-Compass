@@ -80,13 +80,13 @@ test("голосую сам: проверка сохранённых ответ�
     assert.equal(PC.selfVote.valid(bad), false, JSON.stringify(bad));
   /* законопроект, убранный из данных или пришедший из новой версии, не обнуляет остальные ответы */
   assert.equal(PC.selfVote.valid({ v:1, votes:{ "removed-bill":"for", [PC.VOTES[0].id]:"against" } }), true);
-  const app = loadApp([...DEFAULT_FILES, "js/settings.js", "js/eggs.js", "js/backup.js", "js/tisza.js"]);
+  const app = loadApp([...DEFAULT_FILES, "js/settings.js", "js/eggs.js", "js/backup.js"]);
   app.storage.setItem("pc-selfvote", JSON.stringify(ok));
-  const backup = app.PC.tisza.backup();
+  const backup = app.PC.backup.make();
   assert.equal(backup.data["pc-selfvote"], JSON.stringify(ok));
-  assert.equal(app.PC.tisza.validateBackup(backup), true);
+  assert.equal(app.PC.backup.validate(backup), true);
   backup.data["pc-selfvote"] = JSON.stringify({ v:1, votes:{ evil:"maybe" } });
-  assert.equal(app.PC.tisza.validateBackup(backup), false);
+  assert.equal(app.PC.backup.validate(backup), false);
 });
 
 test("иконки: каждый значок из разметки и скриптов есть в спрайте, спрайт собран из Lucide", () => {
@@ -119,7 +119,7 @@ test("пружины: каждое движение снимается и нас
   const animated = new Set(Array.from(css.matchAll(/^\s*([^@{}\n][^{}\n]*)\{[^}]*animation:pc-/gm), m => m[1].trim()));
   const off = css.slice(css.indexOf(':root[data-motion="off"] .is-sprung'));
   const reduce = css.slice(css.indexOf("@media (prefers-reduced-motion:reduce)"));
-  for(const sel of [".is-sprung", ".pc-done", '.tab[aria-selected="true"] .tab-ico', ".panel-enter > *", ".party-step-body"]){
+  for(const sel of [".is-sprung", ".pc-done", '.tab[aria-selected="true"] .tab-ico', ".panel-enter > *"]){
     assert.ok([...animated].some(a => a.includes(sel)), `${sel}: нет анимации`);
     assert.ok(off.includes(sel), `${sel}: не снимается при data-motion="off"`);
     assert.ok(reduce.includes(sel), `${sel}: не снимается при prefers-reduced-motion`);

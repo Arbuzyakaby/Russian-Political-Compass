@@ -15,11 +15,9 @@
   /* Партии, проходящие текущий фильтр, поисковый запрос и существовавшие
      в выбранном созыве. */
   function visible(){
-    return (PC.allParties ? PC.allParties() : PC.PARTIES).filter(function(p){
-      var own = /^u[1-6]$/.test(p.id);
+    return PC.PARTIES.filter(function(p){
       var seats = seatsOf(p);
-      if(seats === null && !own) return false;
-      if(state.filter === "mine" && !own) return false;
+      if(seats === null) return false;
       if(state.filter === "duma" && !seats) return false;
       if(state.filter === "nonduma" && seats) return false;
       if(state.query){
@@ -159,7 +157,22 @@
      вызвать. Идентификаторы партий — латиница и цифры без дефиса. */
   function routeDuel(){
     var m = /^#\/duel\/([a-z0-9]+)-([a-z0-9]+)$/.exec(location.hash);
-    if(m) PC.lazy.run("duel", function(){ PC.duel.open(m[1], m[2]); });
+    if(!m) return;
+    /* своя партия (u1–u6) жила только в браузере автора ссылки и удалена
+       в 5.0 вместе с разделом: подставлять вместо неё чужую нельзя */
+    if(/^u[1-6]$/.test(m[1]) || /^u[1-6]$/.test(m[2])){ retired(); return; }
+    PC.lazy.run("duel", function(){ PC.duel.open(m[1], m[2]); });
+  }
+
+  /* Ссылки на «Мою партию» (#/party/…, карточки и гостевой просмотр)
+     остались в старых сообщениях. Раздел удалён в 5.0; такая ссылка
+     открывает компас и честно говорит, что случилось. */
+  function retired(){
+    if(history.replaceState) history.replaceState(null, "", location.pathname + location.search + "#/compass");
+    PC.ui.toast(PC.t("retired.party"));
+  }
+  function routeRetired(){
+    if(/^#\/?party(?:\/|$)/.test(location.hash)) retired();
   }
 
   /* ---------- поиск и фильтры ---------- */
@@ -256,6 +269,34 @@
     });
   }
 
+  /* ---------- инструменты листа и карты ----------
+     До 5.0 это делала тонкая обёртка js/tisza.js — наследие 4.0, где в
+     одном файле жили палитра, копии, настройки и жесты. Всё давно
+     разъехалось по своим модулям, и порядок запуска вернулся сюда. */
+  var REDRAW_KEYS = ["*", "dotSize", "labelMode", "bubbles", "colorblind", "axisNums", "center", "quadLabels"];
+  function initTools(){
+    PC.settings.extend();
+    PC.mapControls.init();
+    PC.palette.init();
+    /* настройки, меняющие рисунок карты, требуют перерисовки поля */
+    document.addEventListener("pc:settings", function(e){
+      if(REDRAW_KEYS.indexOf(e.detail.key) !== -1) PC.compass.redraw();
+    });
+    /* стартовый созыв из настроек действует до первого перехода по ссылке */
+    var stored = PC.store.getJSON("pc-settings", {}), convocation = Number(stored.convDefault);
+    if(PC.CONVOCATIONS.some(function(c){ return c.id === convocation; })) setConvocation(convocation);
+    if(!location.hash) PC.nav.go(PC.nav.current());
+    if(location.hash === "#/srpc") PC.srpc.open();
+    var about = document.querySelector(".srpc-chain") || document.querySelector(".chain");
+    if(!about) return;
+    var open = document.createElement("button");
+    open.type = "button";
+    open.className = "btn small";
+    open.textContent = PC.t("srpc.open");
+    open.addEventListener("click", function(){ PC.srpc.open(); });
+    about.parentNode.appendChild(open);
+  }
+
   /* ---------- запуск ---------- */
   function init(){
     mark("pc:markup"); mark("pc:data");
@@ -286,7 +327,6 @@
        результат, и при обратном порядке точка «Вы» появлялась бы на поле
        только после первого переключения вкладок */
     PC.settings.init();
-    if(PC.partyBuilder) PC.partyBuilder.init();
     mark("pc:calc-start"); PC.quiz.init(); mark("pc:calc-ready"); measure("pc:stage4","pc:calc-start","pc:calc-ready");
     /* Тест по разделу «О проекте» (2.5). Ставится после PC.ui.init():
        ссылка «читать в разделе» ходит через PC.ui.aboutNavGo, а тот
@@ -352,10 +392,11 @@
     PC.dropdown.init();
     if(PC.mobile) PC.mobile.init();
     if(PC.appShell) PC.appShell.init();
-    if(PC.tisza) PC.tisza.init();
+    initTools();
     if(PC.offline) PC.offline.init();
     if(PC.intro) PC.intro.init();
-    window.addEventListener("hashchange", routeDuel);
+    window.addEventListener("hashchange", function(){ routeRetired(); routeDuel(); });
+    routeRetired();
     routeDuel();
 
     /* Смена темы (в том числе системной, из настроек ОС) меняет расчёт
@@ -393,15 +434,6 @@
   PC.activeId = function(){ return state.active; };
   PC.visible = visible;
   PC.refresh = refresh;
-  PC.filterMine = function(){
-    state.filter = state.filter === "mine" ? "all" : "mine";
-    document.querySelectorAll('.chip[data-filter]').forEach(function(c){
-      c.setAttribute("aria-pressed", String(c.dataset.filter === state.filter));
-
-    });
-    refresh();
-
-  };
   PC.seatsOf = seatsOf;
   PC.convocationInfo = convocationInfo;
   PC.setConvocation = setConvocation;

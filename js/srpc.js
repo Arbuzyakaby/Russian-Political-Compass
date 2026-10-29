@@ -592,7 +592,7 @@
     var closeBtn=document.createElement("button");
     closeBtn.type="button";
     closeBtn.className="btn small";
-    closeBtn.textContent=t("party.close");
+    closeBtn.textContent=t("ui.close");
     closeBtn.addEventListener("click",function(){ detail.hidden=true; cards[index-1].focus(); });
     detail.appendChild(closeBtn);
     var h=document.createElement("h3"); h.textContent=t("ab.chain.s"+index); detail.appendChild(h);

@@ -51,11 +51,6 @@
   function supermajority(){ return Math.ceil(PC.TOTAL_SEATS * 2 / 3); }
 
   function factions(c){
-    if(PC.partyModel && PC.partyModel.list().some(function(p){ return p.inCoalition && p.seats > 0; })){
-      return PC.partyModel.hypothetical(c).filter(function(r){ return r.p.id !== "independent" && r.seats > 0; }).map(function(r){
-        var p = Object.assign({}, r.p, { seats:r.seats, seatsBy:Object.assign({}, r.p.seatsBy) }); p.seatsBy[c] = r.seats; return p;
-      }).sort(function(a,b){ return PC.seatsAt(b,c) - PC.seatsAt(a,c); });
-    }
     return PC.PARTIES
       .filter(function(p){ return PC.seatsAt(p, c) > 0; })
       .sort(function(a, b){ return PC.seatsAt(b, c) - PC.seatsAt(a, c); });
@@ -231,14 +226,6 @@
      состав коалиции выбрал читатель, и терять его из-за перекраски
      было бы так же неприятно, как терять текст в поле ввода. */
   function build(keep){
-    var oldBanner = host.card.querySelector(".scenario-banner"); if(oldBanner) oldBanner.remove();
-    if(PC.partyModel && PC.partyModel.list().some(function(p){ return p.inCoalition && p.seats > 0; })){
-      var banner = document.createElement("p");
-      banner.className = "scenario-banner";
-      banner.textContent = t("party.scenario");
-      host.card.insertBefore(banner, host.card.firstChild);
-
-    }
     var list = factions(conv);
     var color = PC.charts.chartColor;
     on = {};
@@ -466,7 +453,7 @@
   function render(){
     if(!host.card) return;
     var c = PC.convocationInfo().id;
-    var k = c + "|" + document.documentElement.dataset.theme + "|" + PC.i18n.current() + "|" + (PC.partyModel ? JSON.stringify(PC.partyModel.list()) : "");
+    var k = c + "|" + document.documentElement.dataset.theme + "|" + PC.i18n.current();
     if(k === key) return;
     var keep = (key !== null && c === conv) ? on : null;
     key = k;

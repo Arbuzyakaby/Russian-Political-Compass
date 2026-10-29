@@ -524,59 +524,6 @@
     };
     img.onerror = function(){ URL.revokeObjectURL(url); note(t("ex.noImage"), true); }; img.src = url;
   }
-  /* SVG-карточка партии для экспорта. */
-  function partyCardSVG(raw){
-    var p = PC.partyModel.normalize(raw), el = U.el, width = 900, pad = 58, cursor = 64, max = width - pad*2;
-    var svg = el("svg", { xmlns:PC.geom.NS, width:width, viewBox:"0 0 900 900", "font-family":"Segoe UI,Arial,sans-serif" });
-    var canvas = document.createElement("canvas"), ctx = canvas.getContext("2d");
-    var content = el("g", {}); svg.appendChild(content);
-    /* Строка текста внутри карточки с переносом. */
-    function line(text, size, color, weight, indent){
-      var start = pad + (indent || 0), lines = [], words = String(text).split(/\s+/), current = "";
-      ctx.font = (weight || 400) + " " + size + "px Segoe UI,Arial";
-      words.forEach(function(word){
-        if(ctx.measureText(current + " " + word).width > max - (indent || 0) && current){ lines.push(current); current = ""; }
-        while(ctx.measureText(word).width > max - (indent || 0) && word.length > 1){
-          var n = Math.max(1, Math.floor(word.length * (max - (indent || 0)) / ctx.measureText(word).width));
-          if(current){ lines.push(current); current = ""; }
-          lines.push(word.slice(0,n));
-          word=word.slice(n);
-
-        }
-        current += (current ? " " : "") + word;
-      }); if(current) lines.push(current);
-      lines.forEach(function(s){
-        cursor += size * 1.55;
-        content.appendChild(el("text", { x:start, y:cursor, "font-size":size, fill:color, "font-weight":weight || 400 }, s));
-
-      });
-      return lines.length;
-    }
-    var text = v("text") || "#f2f4fa", muted = v("muted") || "#9198ab", bg = v("bg") || "#0b0d11";
-    var emblem = PC.partyBuilder.emblem(p, 56);
-    emblem.setAttribute("x", pad);
-    emblem.setAttribute("y", cursor-18);
-    emblem.setAttribute("color", p.color);
-    content.appendChild(emblem);
-    line(t("party.user").toUpperCase()+" / "+PC.versionLabel(),14,muted,600,80); cursor += 40;
-    line(p.name || t("party.noName"),38,text,700); if(p.slogan) line(p.slogan,20,muted); cursor += 24;
-    line("X "+U.fmt(p.x)+"     Y "+U.fmt(p.y),28,p.color,700); cursor+=18;
-    line(t("party.family."+p.family)+(p.ideology?" · "+p.ideology:""),18,muted); cursor+=12;
-    if(p.summary){ line(p.summary,20,text); cursor+=20; }
-    p.theses.forEach(function(s){ line("• "+s,18,text); cursor+=8; });
-    if(p.declared){
-      cursor+=18;
-      line(t("party.declared")+": X "+U.fmt(p.declared.x)+" / Y "+U.fmt(p.declared.y),16,muted);
-      if(p.declared.note) line(p.declared.note,16,muted);
-
-    }
-    cursor+=24; var nearest=PC.partyModel.nearest(p,1)[0]; if(nearest) line(t("party.nearest")+": "+L(nearest.p,"name")+" · "+nearest.d.toFixed(1),16,muted);
-    cursor+=24; line("rupolitcompass.website · "+t("party.local"),12,muted); cursor+=pad;
-    svg.setAttribute("height",cursor); svg.setAttribute("viewBox","0 0 "+width+" "+cursor);
-    if(!PC.settings || PC.settings.get("transparent")!=="on") svg.insertBefore(el("rect",{width:width,height:cursor,fill:bg,rx:24}),content);
-    svg.insertBefore(el("path",{d:"M58 2H842",stroke:p.color,"stroke-width":4}),content); return svg;
-  }
-  function partyCard(p, format){ svgDownload(partyCardSVG(p), format || "png", "my-party"); }
   /* Экспорт доски SRPC в PNG или SVG. */
   function srpcBoard(canvas, format){
     var svg = U.el(
@@ -625,6 +572,6 @@
     partiesCSV:partiesCSV, seatsCSV:seatsCSV, claimsCSV:claimsCSV,
     subaxesCSV:subaxesCSV, votesCSV:votesCSV,
     datasetJSON:datasetJSON, quizCSV:quizCSV,
-    partyCard:partyCard, partyCardSVG:partyCardSVG, srpcBoard:srpcBoard
+    srpcBoard:srpcBoard
   };
 })(window.PC = window.PC || {});

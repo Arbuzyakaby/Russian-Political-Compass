@@ -734,9 +734,8 @@
 
   /* ---------- 3. Идеологический спектр ---------- */
   function specColumn(key, title, left, right){
-    var list = (PC.allParties ? PC.allParties() : PC.PARTIES).filter(function(p){
-      return /^u[1-6]$/.test(p.id) || seatsAt(p, PC.convocationInfo().id) !== null;
-
+    var list = PC.PARTIES.filter(function(p){
+      return seatsAt(p, PC.convocationInfo().id) !== null;
     }).sort(function(a, b){ return a[key] - b[key]; });
     function n(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
     var col=n("div","spec-col"),poles=n("div","poles");poles.append(n("span","",left),n("span","",right));col.append(n("h4","",title),poles);
@@ -798,7 +797,7 @@
   /* Радарная диаграмма по подосям. */
   function renderRadar(){
     if(!host.radar || !PC.radar) return;
-    var list = PC.allParties ? PC.allParties() : PC.PARTIES;
+    var list = PC.PARTIES;
     if(!radarPick || !PC.partyById(radarPick)) radarPick = activeId || list[0].id;
     if(activeId && activeId !== radarActive) radarPick = activeId;
     radarActive = activeId;

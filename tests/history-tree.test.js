@@ -14,7 +14,7 @@ const { loadApp, ROOT } = require("./harness.js");
 
 const FILES = ["js/data.js", "js/utils.js",
   "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js", "js/i18n-about.js",
-  "js/i18n-misc.js", "js/i18n-party.js", "js/i18n.js",
+  "js/i18n-misc.js", "js/i18n.js",
   "js/data-history.js", "js/history-tree.js"];
 
 /* Текущая версия — из package.json, а не зашитая строка: с каждым выпуском

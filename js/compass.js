@@ -519,7 +519,6 @@
   function setClaims(on){
     claimsOn = !!on;
     if(svg) svg.classList.toggle("show-claims", claimsOn);
-    if(PC.partyBuilder)PC.partyBuilder.drawOnCompass();
     if(!claimsOn) PC.tip.hide();
   }
   function hasClaims(){
@@ -875,7 +874,6 @@
     drawNodes();
     drawClaims();
     if(prevStyle === null) svg.removeAttribute("style"); else svg.setAttribute("style", prevStyle);
-    if(PC.partyBuilder) PC.partyBuilder.drawOnCompass();
   }
 
   /* Приводит точки в соответствие с фильтром и выбранной партией.

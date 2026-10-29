@@ -437,7 +437,7 @@
       t("set.resetDone"),
       false,
       {
-        label:t("party.undo"),
+        label:t("ui.undo"),
         duration:5000,
         action:function(){
           answers = previous.answers;
@@ -713,7 +713,7 @@
           '<p class="qr-version">' + esc(t("res.version", {
             v:modeName(runMode), n:list.length,
             statements:PC.i18n.pl(list.length, "word.statement") })) + '</p>' +
-          '<p class="party-meta">' + esc(t("res.completion", { n:answered, all:list.length })) + '</p>' +
+          '<p class="qr-meta">' + esc(t("res.completion", { n:answered, all:list.length })) + '</p>' +
           (shared ? '<p class="qr-shared-note">' + esc(t("res.sharedNote")) +
             ' <button type="button" class="btn ghost small" id="qrMine">' + esc(t("res.mine")) + '</button></p>' : "") +
           '<div class="qr-coords">' +
@@ -761,13 +761,6 @@
       '</div>';
 
     if(PC.share) PC.share.mount(document.getElementById("qrShareBlock"), pt, shareURL(src, runMode));
-    if(PC.partyModel && PC.partyModel.list().length){
-      var my = PC.partyModel.list().sort(function(a, b){ return PC.calc.distance(a, pt) - PC.calc.distance(b, pt); })[0];
-      var line = document.createElement("p");
-      line.className = "party-meta";
-      line.textContent = t("res.myParty", { name:my.name });
-      host.querySelector(".qr-main").appendChild(line);
-    }
     mountSubBlock(src, pt, list);
 
     document.getElementById("qrAgain").addEventListener("click", resetAll);

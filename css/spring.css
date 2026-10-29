@@ -43,11 +43,10 @@
 /* Переключатель: бегунок доезжает с перелётом. */
 .sw i{transition-timing-function:var(--ease-bounce);}
 
-/* Новая панель раздела и шаг мастера партии проявляются с лёгким подскоком.
+/* Новая панель раздела проявляется с лёгким подскоком.
    Заполнение backwards, а не both: после анимации translate возвращается
    к none, иначе потомки с position:fixed считали бы себя от этого блока. */
 .panel-enter > *{animation:pc-rise calc(var(--dur-spring) * 1.1) var(--ease-bounce) backwards;}
-.party-step-body{animation:pc-rise var(--dur-spring) var(--ease-bounce) backwards;}
 @keyframes pc-rise{from{translate:0 12px;}to{translate:0 0;}}
 
 /* Уведомления: въезд пружиной и значок вместо точки. */
@@ -76,12 +75,10 @@
 /* Без движения: никакой пружины, отклик — только цветом и прозрачностью. */
 :root[data-motion="off"] .is-sprung,:root[data-motion="off"] .pc-done,
 :root[data-motion="off"] .tab[aria-selected="true"] .tab-ico,
-:root[data-motion="off"] .panel-enter > *,
-:root[data-motion="off"] .party-step-body{animation:none;}
+:root[data-motion="off"] .panel-enter > *{animation:none;}
 :root[data-motion="off"] .toast{animation:pc-fade .2s linear both;}
 @keyframes pc-fade{from{opacity:0;}to{opacity:1;}}
 @media (prefers-reduced-motion:reduce){
-  .is-sprung,.pc-done,.tab[aria-selected="true"] .tab-ico,.panel-enter > *,
-  .party-step-body{animation:none;}
+  .is-sprung,.pc-done,.tab[aria-selected="true"] .tab-ico,.panel-enter > *{animation:none;}
   .sv-bill{translate:none;}
 }

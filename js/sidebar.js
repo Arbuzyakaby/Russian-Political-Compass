@@ -116,13 +116,6 @@
        У партии без мандатов дорожка остаётся, но пустая. */
     body.replaceChildren();
     var rows = document.createElement("div"); rows.className = "plist";
-    if(sorted.some(function(p){return /^u/.test(p.id);})){
-      var heading = document.createElement("h3");
-      heading.className="party-subhead";
-      heading.textContent=t("party.collection");
-      rows.appendChild(heading);
-
-    }
     sorted.forEach(function(p, i){
       var seats = PC.seatsOf(p);
       var share = seats / PC.TOTAL_SEATS * 100;
@@ -133,7 +126,7 @@
       b.tabIndex=i===0?0:-1;
       b.style.animationDelay=Math.min(i,8)*32+"ms";
       var sw=n("span","sw");sw.style.background=p.color;var name=n("span","nm",L(p,"name"));
-      name.appendChild(n("small","",/^u/.test(p.id)?t("party.user"):L(p,"ideology")));
+      name.appendChild(n("small","",L(p,"ideology")));
       name.appendChild(n("span","mobile-coordinates",t("mobile.coords",{x:fmt(p.x),y:fmt(p.y)})));
       var track=n("span","share"),fill=n("i");
       track.setAttribute("aria-hidden","true");
@@ -307,7 +300,6 @@
 
   function renderDetail(p, animate){
     if(!p) return;
-    if(/^u[1-6]$/.test(p.id) && PC.partyBuilder){ head(p); PC.partyBuilder.renderSidebar(p); return; }
     head(p);
     var seats = PC.seatsOf(p);
     var conv = PC.convocationInfo();

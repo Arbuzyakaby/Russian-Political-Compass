@@ -298,15 +298,6 @@
     PC.compass.onDraw(function(){ render(); if(!list.hidden) renderList(); });
   }
 
-  /* Переключатель слоя «Мои партии» над картой. */
-  function bindMyParties(){
-    var chip = document.getElementById("myPartiesLayer");
-    chip.addEventListener("click", function(){
-      PC.settings.set("myParties", PC.settings.get("myParties") === "on" ? "off" : "on");
-    });
-    chip.setAttribute("aria-pressed", String(PC.settings.get("myParties") !== "off"));
-  }
-
   function init(){
     svg = document.getElementById("svg");
     plot = document.getElementById("plot");
@@ -317,7 +308,6 @@
     bindPan();
     bindPinch();
     bindWheel();
-    bindMyParties();
   }
 
   PC.mapControls = { init:init };

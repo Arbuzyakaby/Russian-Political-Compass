@@ -331,7 +331,7 @@
         e.preventDefault(); var command=input.value.trim().toLowerCase(),response=""; input.value="";
         if(command==="exit"){consoleDialog.close();return;}
         if(command==="help")response="help · parties · whoami · rivers · exit";
-        else if(command==="parties")response=PC.allParties().map(function(p){
+        else if(command==="parties")response=PC.PARTIES.map(function(p){
           return PC.L(p,"short")+"  "+PC.utils.fmt(p.x)+" / "+PC.utils.fmt(p.y);
         }).join("\n");
         else if(command==="whoami"){var r=PC.quiz.result();response=r?"X "+PC.utils.fmt(r.x)+" / Y "+PC.utils.fmt(r.y):"—";}
@@ -364,7 +364,7 @@
     p.textContent=PC.t("eggs.teapot");
     var b=document.createElement("button");
     b.className="btn";
-    b.textContent=PC.t("party.close");
+    b.textContent=PC.t("ui.close");
     b.addEventListener("click",function(){location.hash="#/compass";});
     teapot.append(h,art,p,b);
     document.body.appendChild(teapot);
@@ -401,7 +401,7 @@
       e.preventDefault();
       terminal();
     });
-    var count=document.createElement("p");count.id="eggsFound";count.className="party-meta";document.getElementById("setPanel-general").appendChild(count);
+    var count=document.createElement("p");count.id="eggsFound";count.className="set-meta";document.getElementById("setPanel-general").appendChild(count);
     /* Синхронизирует видимость пасхалок с настройками. */
     function sync(){
       var saved=PC.store.getJSON("pc-eggs-found",[]);

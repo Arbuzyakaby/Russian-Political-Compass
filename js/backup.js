@@ -20,7 +20,23 @@
   var QUIZ_MODES = ["short", "full", "long"];
   var THEMES = ["system", "dark", "light", "paper", "alaska", "neon", "fireplace"];
   var LAYOUTS = ["snake", "line", "column", "circle"];
-  var USER_PARTY_ID = /^u[1-6]$/;
+  /* Ключи раздела, которого больше нет: «Моя партия» удалена в 5.0.
+     Старая копия с ними не бракуется целиком — они пропускаются при
+     восстановлении, остальное ложится как было, а человек получает
+     перечень пропущенного. В новые копии они не попадают. */
+  var RETIRED = ["pc-my-parties", "pc-party-draft"];
+  function retired(key){ return RETIRED.indexOf(key) >= 0; }
+  /* То же для настроек: переключатель «Мои партии» и стартовая вкладка
+     «Моя партия» в копии 4.x не ошибка, а след удалённого раздела. */
+  function cleanSettings(s){
+    if(!isObject(s)) return s;
+    var out = {};
+    Object.keys(s).forEach(function(key){
+      if(key === "myParties" || (key === "startTab" && s[key] === "party")) return;
+      out[key] = s[key];
+    });
+    return out;
+  }
 
   function isObject(v){ return !!v && typeof v === "object" && !Array.isArray(v); }
 
@@ -54,23 +70,8 @@
     return true;
   }
 
-  function myParties(value){
-    var p = JSON.parse(value);
-    if(!p || p.v !== 1 || !Array.isArray(p.list) || p.list.length > 6) return false;
-    if(!p.list.every(PC.partyModel.valid)) return false;
-    if(!p.list.every(function(r){ return USER_PARTY_ID.test(r.id); })) return false;
-    return new Set(p.list.map(function(r){ return r.id; })).size === p.list.length;
-  }
-
-  function partyDraft(value){
-    var d = JSON.parse(value);
-    if(!d || d.v !== 1 || !PC.partyModel.valid(d.party)) return false;
-    if(!Number.isInteger(d.step) || d.step < 1 || d.step > 6) return false;
-    return d.editId === null || USER_PARTY_ID.test(d.editId);
-  }
-
   function settings(value){
-    var s = JSON.parse(value);
+    var s = cleanSettings(JSON.parse(value));
     return isObject(s) && Object.keys(s).every(function(key){ return PC.settings.valid(key, s[key]); });
   }
 
@@ -90,8 +91,6 @@
   }
 
   var CHECKS = {
-    "pc-my-parties":   myParties,
-    "pc-party-draft":  partyDraft,
     "pc-settings":     settings,
     "pc-lang":         function(value){ return value === "ru" || value === "en"; },
     "pc-quiz-answers": function(value){ return isAnswers(JSON.parse(value)); },
@@ -106,6 +105,7 @@
 
   function validKey(key, value){
     if(!/^pc-[a-z0-9-]+$/.test(key) || typeof value !== "string" || value.length > MAX_VALUE) return false;
+    if(retired(key)) return true;
     var check = CHECKS[key];
     if(!check) return true;
     try{ return check(value) !== false; }catch(e){ return false; }
@@ -117,7 +117,7 @@
     try{
       for(var i = 0; i < localStorage.length; i++){
         var key = localStorage.key(i);
-        if(/^pc-/.test(key)) data[key] = localStorage.getItem(key);
+        if(/^pc-/.test(key) && !retired(key)) data[key] = localStorage.getItem(key);
       }
     }catch(e){ return null; }
     return { format:FORMAT, v:1, version:PC.VERSION, created:new Date().toISOString(), data:data };
@@ -137,7 +137,12 @@
     if(!before) return false;
     try{
       Object.keys(before.data).forEach(function(key){ localStorage.removeItem(key); });
-      Object.keys(backup.data).forEach(function(key){ localStorage.setItem(key, backup.data[key]); });
+      Object.keys(backup.data).forEach(function(key){
+        if(retired(key)) return;
+        var value = backup.data[key];
+        if(key === "pc-settings") value = JSON.stringify(cleanSettings(JSON.parse(value)));
+        localStorage.setItem(key, value);
+      });
       return true;
     }catch(e){
       try{
@@ -148,5 +153,10 @@
     }
   }
 
-  PC.backup = { make:make, validate:validate, restore:restore };
+  /* Что из копии не будет восстановлено: ключи удалённых разделов. */
+  function skipped(backup){
+    return backup && isObject(backup.data) ? Object.keys(backup.data).filter(retired) : [];
+  }
+
+  PC.backup = { make:make, validate:validate, restore:restore, skipped:skipped, RETIRED:RETIRED };
 })(window.PC = window.PC || {});

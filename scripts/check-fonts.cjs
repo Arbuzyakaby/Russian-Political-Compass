@@ -17,7 +17,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const BASELINE = path.join(root, "docs", "check-fonts-4.4.json");
 const VERSION = require(path.join(root, "package.json")).version;
-const WIDTH = 320, TABS = ["compass", "quiz", "votes", "party", "about"], LANGS = ["ru", "en"];
+const WIDTH = 320, TABS = ["compass", "quiz", "votes", "about"], LANGS = ["ru", "en"];
 
 function startServer(){
   const port = process.env.PC_PORT || "4176";
