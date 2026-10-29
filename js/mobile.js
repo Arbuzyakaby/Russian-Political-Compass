@@ -49,12 +49,35 @@
      этого не даёт, и там ничего не происходит. Выключается в настройках
      («Доступность» → «Вибрация») и сам молчит при уменьшенном движении. */
   function haptic(ms){
-    if(!coarse() || !navigator.vibrate) return;
-    /* до первого касания браузер вибрацию запрещает и ругается в консоль */
+    /* до первого касания браузер и вибрацию, и звук запрещает */
     if(navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+    click();
+    if(!coarse() || !navigator.vibrate) return;
     if(PC.settings && PC.settings.get("haptics") === "off") return;
     if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     try{ navigator.vibrate(ms || 8); }catch(e){ /* браузер запретил — не страшно */ }
+  }
+
+  /* Тихий щелчок (настройка «Звуки», по умолчанию выключена): синус на
+     сороковую долю секунды с мягким затуханием, без файлов и сети. Один
+     AudioContext на страницу — создаётся при первом щелчке, не раньше. */
+  var audio = null;
+  function click(){
+    if(!PC.settings || PC.settings.get("sounds") !== "on") return;
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return;
+    try{
+      audio = audio || new Ctx();
+      var now = audio.currentTime, osc = audio.createOscillator(), gain = audio.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1320, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + .035);
+      gain.gain.setValueAtTime(.045, now);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + .05);
+      osc.connect(gain).connect(audio.destination);
+      osc.start(now);
+      osc.stop(now + .06);
+    }catch(e){ /* звук — украшение, его отсутствие не ошибка */ }
   }
 
   /* ---------- карточка партии нижним листом (5.0) ----------

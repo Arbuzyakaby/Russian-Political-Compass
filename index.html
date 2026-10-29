@@ -1044,6 +1044,9 @@
       <button type="button" class="setm-tab" role="tab" data-panel="srpc"
               id="setTab-srpc" aria-controls="setPanel-srpc" aria-selected="false" tabindex="-1">
         <span data-i18n="set.srpc">SRPC</span></button>
+      <button type="button" class="setm-tab" role="tab" data-panel="access"
+              id="setTab-access" aria-controls="setPanel-access" aria-selected="false" tabindex="-1">
+        <span data-i18n="set.access">Доступность и отклик</span></button>
       <button type="button" class="setm-tab" role="tab" data-panel="general"
               id="setTab-general" aria-controls="setPanel-general" aria-selected="false" tabindex="-1">
         <span data-i18n="set.page">Общее</span></button>
@@ -1062,6 +1065,28 @@
           <small data-i18n="set.theme.d">Системная следует за настройкой операционной системы</small></span>
         <div class="theme-picker" id="themeSeg" role="radiogroup" aria-label="Тема"
              data-i18n-attr="aria-label:set.theme"></div>
+      </div>
+
+      <!-- Акцент (5.0): цвет ссылок, выделения и активных элементов поверх
+           любой из шести тем. «Как в теме» — значение самой темы. -->
+      <div class="set-row set-row--block">
+        <span class="set-lab"><b data-i18n="set.accent">Акцентный цвет</b>
+          <small data-i18n="set.accent.d">Цвет выделения, ссылок и активных кнопок — поверх любой темы</small></span>
+        <div class="seg accent-seg" data-set-seg="accent" role="radiogroup" aria-label="Акцентный цвет"
+             data-i18n-attr="aria-label:set.accent">
+          <button type="button" role="radio" data-val="theme" aria-checked="true"
+                  data-i18n="set.accent.theme">Как в теме</button>
+          <button type="button" role="radio" data-val="indigo" aria-checked="false" tabindex="-1"
+                  data-i18n="set.accent.indigo">Индиго</button>
+          <button type="button" role="radio" data-val="teal" aria-checked="false" tabindex="-1"
+                  data-i18n="set.accent.teal">Бирюза</button>
+          <button type="button" role="radio" data-val="amber" aria-checked="false" tabindex="-1"
+                  data-i18n="set.accent.amber">Янтарь</button>
+          <button type="button" role="radio" data-val="rose" aria-checked="false" tabindex="-1"
+                  data-i18n="set.accent.rose">Роза</button>
+          <button type="button" role="radio" data-val="green" aria-checked="false" tabindex="-1"
+                  data-i18n="set.accent.green">Хвоя</button>
+        </div>
       </div>
 
       <div class="set-row">
@@ -1204,6 +1229,26 @@
           <option value="off" data-i18n="set.off">Выкл.</option>
           <option value="on" data-i18n="set.on">Вкл.</option>
         </select>
+      </div>
+
+      <!-- 5.0: что ещё показывать на поле компаса -->
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.axisNums">Числа на осях</b>
+          <small data-i18n="set.axisNums.d">Деления −10, −5, +5, +10 у краёв поля</small></span>
+        <button type="button" class="sw" data-set-switch="axisNums" role="switch" aria-checked="true"
+                aria-label="Числа на осях" data-i18n-attr="aria-label:set.axisNums"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.quadLabels">Подписи четвертей</b>
+          <small data-i18n="set.quadLabels.d">Названия четырёх зон поля на плашках в углах</small></span>
+        <button type="button" class="sw" data-set-switch="quadLabels" role="switch" aria-checked="true"
+                aria-label="Подписи четвертей" data-i18n-attr="aria-label:set.quadLabels"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.center">Центр палаты</b>
+          <small data-i18n="set.center.d">Точка, где стоит Дума в среднем, — с весом по мандатам фракций</small></span>
+        <button type="button" class="sw" data-set-switch="center" role="switch" aria-checked="false"
+                aria-label="Центр палаты" data-i18n-attr="aria-label:set.center"><i></i></button>
       </div>
 
     </section>
@@ -1514,6 +1559,42 @@
         </select>
       </div>
 
+    </section>
+
+    <!-- Доступность и отклик (5.0): крупные цели, заметный фокус, вибрация
+         и звук под пальцем. Значения — те же атрибуты data-* на <html>. -->
+    <section class="set-group" data-panel="access" id="setPanel-access" role="tabpanel" aria-labelledby="setTab-access" hidden>
+      <h3 data-i18n="set.access">Доступность и отклик</h3>
+
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.bigtargets">Крупные цели нажатия</b>
+          <small data-i18n="set.bigtargets.d">Кнопки, чипы и пункты списков не меньше 44 пикселей и на широком экране</small></span>
+        <button type="button" class="sw" data-set-switch="bigtargets" role="switch" aria-checked="false"
+                aria-label="Крупные цели нажатия" data-i18n-attr="aria-label:set.bigtargets"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.focusring">Рамка фокуса</b>
+          <small data-i18n="set.focusring.d">Как заметно выделен элемент, на котором стоит фокус с клавиатуры</small></span>
+        <div class="seg" data-set-seg="focusring" role="radiogroup" aria-label="Рамка фокуса"
+             data-i18n-attr="aria-label:set.focusring">
+          <button type="button" role="radio" data-val="normal" aria-checked="true"
+                  data-i18n="set.focusring.normal">Обычная</button>
+          <button type="button" role="radio" data-val="strong" aria-checked="false" tabindex="-1"
+                  data-i18n="set.focusring.strong">Яркая</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.haptics">Вибрация</b>
+          <small data-i18n="set.haptics.d">Короткий толчок под пальцем на вкладках, ответах и переключателях — где телефон это умеет</small></span>
+        <button type="button" class="sw" data-set-switch="haptics" role="switch" aria-checked="true"
+                aria-label="Вибрация" data-i18n-attr="aria-label:set.haptics"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-lab"><b data-i18n="set.sounds">Звуки</b>
+          <small data-i18n="set.sounds.d">Тихий щелчок на тех же действиях. Выключены, пока их не включить</small></span>
+        <button type="button" class="sw" data-set-switch="sounds" role="switch" aria-checked="false"
+                aria-label="Звуки" data-i18n-attr="aria-label:set.sounds"><i></i></button>
+      </div>
     </section>
 
     <section class="set-group" data-panel="general" id="setPanel-general" role="tabpanel" aria-labelledby="setTab-general" hidden>

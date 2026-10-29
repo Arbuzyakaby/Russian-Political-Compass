@@ -86,7 +86,10 @@
     eggs:     "off",     /* портал вместо кнопки «наверх» и могила в углу */
     dotSize:"normal", labelMode:"all", bubbles:"off",
     startTab:"compass", convDefault:"9", quizMode:"full", autoNext:"off", confirmReset:"off",
-    colorblind:"off", lineheight:"normal", exportFormat:"png", exportScale:"2", transparent:"off", srpcStage:"3"
+    colorblind:"off", lineheight:"normal", exportFormat:"png", exportScale:"2", transparent:"off", srpcStage:"3",
+    /* 5.0: акцент, поле компаса, доступность и отклик */
+    accent:"theme", axisNums:"on", quadLabels:"on", center:"off",
+    bigtargets:"off", focusring:"normal", haptics:"on", sounds:"off"
   };
 
   /* Почему две последние настройки выключены по умолчанию, хотя всё
@@ -157,7 +160,9 @@
     lineheight:["normal","increased"],
     exportFormat:["png","svg"],
     exportScale:["1","2","3"],
-    srpcStage:["1","2","3","4","5","6"]
+    srpcStage:["1","2","3","4","5","6"],
+    accent:["theme","indigo","teal","amber","rose","green"],
+    focusring:["normal","strong"]
   };
   /* Проверяет ключ и значение по DEFAULTS. */
   function valid(key, value){ return Object.prototype.hasOwnProperty.call(DEFAULTS,key) && (OPTIONS[key] || ["on","off"]).indexOf(value) !== -1; }

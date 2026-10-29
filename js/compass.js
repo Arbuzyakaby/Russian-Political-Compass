@@ -298,8 +298,34 @@
         }, 140 + item.i * 60);
       });
 
+    drawCenter(layer);
     M.people(layer, ownBox);
     M.user(layer, ownBox.you);
+  }
+
+  /* ---------- центр палаты (5.0, настройка «Центр палаты») ----------
+     Средняя точка Думы с весом по мандатам — та же, что в плитке «Центр
+     тяжести» под картой (PC.calc.houseMetrics), только на самом поле:
+     видно, к кому из партий палата в целом ближе. Пунктирное кольцо, а
+     не точка партии: это не участник, а свойство состава. */
+  function drawCenter(layer){
+    if(!PC.settings || PC.settings.get("center") !== "on") return;
+    var m = PC.calc.houseMetrics(PC.convocationInfo().id);
+    if(!m.total) return;
+    var c = px(m.wx, m.wy);
+    var g = el("g", { "class":"house-center", transform:"translate(" + c.sx + "," + c.sy + ")",
+      "aria-label":t("node.center") + ", X " + U.fmt(m.wx) + ", Y " + U.fmt(m.wy), role:"img" });
+    g.appendChild(el("circle", { "class":"hc-ring", r:12 }));
+    g.appendChild(el("circle", { "class":"hc-dot", r:3 }));
+    var tag = el("text", { "class":"tag" }, t("node.center"));
+    var seat = el("text", { "class":"seat" }, U.fmt(m.wx) + " / " + U.fmt(m.wy));
+    g.appendChild(tag);
+    g.appendChild(seat);
+    layer.appendChild(g);
+    var own = { x1:c.sx - 14, y1:c.sy - 14, x2:c.sx + 14, y2:c.sy + 14 };
+    Lb.add(own);
+    var place = Lb.place(tag, seat, c.sx, c.sy, 12, "bottom", own);
+    Lb.add(place.rect);
   }
 
   function draw(){

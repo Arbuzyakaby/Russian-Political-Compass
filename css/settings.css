@@ -587,3 +587,35 @@ body.sheet-lock{overflow:hidden;}
    и использовались. */
 .set-meta{font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.6;}
 .set-actions{display:flex;flex-wrap:wrap;gap:10px;}
+
+/* ============ НАСТРОЙКИ 5.0 ============
+   Акцентный цвет поверх темы (сами значения — в css/tokens.css, вариант
+   применяется ещё до отрисовки в js/theme-boot.js), три слоя поля компаса и раздел
+   «Доступность и отклик». Как и всё остальное в листе, каждая настройка —
+   атрибут data-* на <html> (js/settings.js), а здесь только правила. */
+
+/* сами варианты — с образцом цвета перед подписью */
+.accent-seg{flex-wrap:wrap;}
+.accent-seg button[data-val]::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;
+  border-radius:50%;vertical-align:-1px;background:var(--sw,conic-gradient(#a5b4fc,#5eead4,#fcd34d,#fda4af,#86efac,#a5b4fc));}
+.accent-seg [data-val="indigo"]{--sw:#818cf8;}
+.accent-seg [data-val="teal"]{--sw:#2dd4bf;}
+.accent-seg [data-val="amber"]{--sw:#f59e0b;}
+.accent-seg [data-val="rose"]{--sw:#fb7185;}
+.accent-seg [data-val="green"]{--sw:#4ade80;}
+
+/* ---------- поле компаса ---------- */
+:root[data-axis-nums="off"] .compass .tick{display:none;}
+:root[data-quad-labels="off"] .compass .quad-tag{display:none;}
+.house-center{pointer-events:none;}
+.house-center .hc-ring{fill:none;stroke:var(--text);stroke-width:1.6;stroke-dasharray:3 3;opacity:.7;}
+.house-center .hc-dot{fill:var(--text);}
+.house-center .tag{font-size:calc(11px * var(--text-k));font-weight:700;fill:var(--muted);
+  paint-order:stroke;stroke:var(--bg);stroke-width:3px;}
+
+/* ---------- доступность и отклик ---------- */
+:root[data-bigtargets="on"] :where(button:not(.sw):not([hidden]),.btn,.chip,summary,.xs-btn,.pitem){min-height:44px;min-width:44px;}
+:root[data-focusring="strong"] :focus-visible{outline:3px solid var(--accent)!important;outline-offset:3px!important;
+  box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 30%,transparent);}
+.setm-tab[data-panel="access"]{--ico:url("../assets/icons/access.svg");}
+#setSheet .setm-tab[data-panel="access"]{--tile:#ff9500;}

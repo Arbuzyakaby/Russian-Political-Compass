@@ -35,4 +35,10 @@
   root.dataset.themePref = pref;
   root.dataset.theme = name;
   root.dataset.scheme = SCHEME[name];
+  /* акцентный цвет (5.0) — тоже до первой отрисовки, иначе кнопки
+     мигнули бы цветом темы; остальные настройки ставит js/settings.js */
+  try{
+    var accent = JSON.parse(localStorage.getItem("pc-settings") || "{}").accent;
+    if(/^(?:indigo|teal|amber|rose|green)$/.test(accent)) root.dataset.accent = accent;
+  }catch(e){}
 })();
