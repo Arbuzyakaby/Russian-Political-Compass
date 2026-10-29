@@ -162,7 +162,7 @@ test("результат теста сравнивается и с заявле�
 
 test("траекторий нет ни в данных, ни в коде, ни в разметке", () => {
   assert.ok(PC.PARTIES.every(p => !("history" in p)), "у партии осталось поле history");
-  for(const rel of ["js/compass.js", "js/app.js", "js/sidebar.js", "js/export.js", "index.html",
+  for(const rel of ["js/compass-labels.js", "js/compass-board.js", "js/compass-marks.js", "js/compass.js", "js/app.js", "js/sidebar.js", "js/export.js", "index.html",
                     "css/compass.css", "css/sidebar.css"]){
     assert.ok(!/trailBtn|drawTrails|\.trail-|trajectoriesCSV|show-trails/.test(read(rel)),
       `${rel}: остались следы траекторий`);

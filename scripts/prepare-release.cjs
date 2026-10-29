@@ -34,7 +34,11 @@ for(const entry of Object.values(lazy)){
   }
 }
 function writeAsset(source, prefix, loader){
-  const code = transformSync(source, { loader, minify:true, target:"es2020", legalComments:"none" }).code;
+  /* charset:"utf8" (5.0): кириллица идёт в пакет как есть, а не
+     escape-последовательностями по шесть байт на букву —
+     словари и данные стали почти вдвое легче. Страница, сервер разработки
+     и GitHub Pages отдают скрипты в UTF-8. */
+  const code = transformSync(source, { loader, minify:true, target:"es2020", legalComments:"none", charset:"utf8" }).code;
   const hash = createHash("sha256").update(code).digest("hex").slice(0,12);
   const name = prefix + "." + hash + "." + loader;
   fs.writeFileSync(path.join(out, name), code);

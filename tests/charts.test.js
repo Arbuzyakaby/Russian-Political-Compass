@@ -68,7 +68,9 @@ test("chartColor: тёмные цвета осветляются под тёмн
    С 2.4.1 это не гипотетический риск: поле переехало на стеклянную
    подложку, и вместе с ней появилось тринадцать новых классов разом. */
 test("экспорт знает про все классы, которыми нарисовано поле компаса", () => {
-  const compass = fs.readFileSync(path.join(ROOT, "js", "compass.js"), "utf8");
+  /* с 5.0 поле рисуют четыре файла: js/compass*.js */
+  const compass = fs.readdirSync(path.join(ROOT, "js")).filter(f => /^compass(?:-[a-z]+)?\.js$/.test(f))
+    .map(f => fs.readFileSync(path.join(ROOT, "js", f), "utf8")).join("\n");
   const exporter = fs.readFileSync(path.join(ROOT, "js", "export.js"), "utf8");
 
   /* Берём только то, что рисует саму подложку: точки, подписи и
