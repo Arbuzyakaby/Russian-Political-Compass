@@ -179,3 +179,17 @@ test("пасхалки 4.4: «4.4» в поиске и команда 444 в т�
 test("strict result links reject inserted, prefixed and suffixed characters",()=>{const{PC}=loadApp();const src={};PC.quiz.questionsFor("short").forEach(q=>src[q.id]=1);const code=PC.quiz.encodeAnswers(src,"short");assert.ok(PC.quiz.decodeAnswers(code));for(const bad of [code+"!",code.slice(0,10)+"?"+code.slice(10),code+"a","3"+"a".repeat(500)])assert.equal(PC.quiz.decodeAnswers(bad),null);});
 
 test("SRPC handles use the edge gap and stay between separated cards",()=>{const{PC}=loadApp(["js/data.js","js/utils.js","js/srpc.js"]);const a={offsetLeft:0,offsetTop:0,offsetWidth:240,offsetHeight:180},b={...a,offsetLeft:264};let p=PC.srpc.anchors(a,b);assert.equal(p.h,12);assert.ok(p.x1+p.h<=p.x2);assert.ok(p.x2-p.h>=p.x1);b.offsetLeft=0;b.offsetTop=204;p=PC.srpc.anchors(a,b);assert.equal(p.v,12);assert.ok(p.y1+p.v<=p.y2);});
+
+test("5.0: приветствие по времени суток и мысль дня переведены", () => {
+  const welcome = loadApp([...DEFAULT_FILES, "js/welcome.js"]).PC.welcome;
+  assert.deepEqual([3, 8, 14, 20, 23].map(h => welcome.greeting(h)),
+    ["wel.h.night", "wel.h.morning", "wel.h.day", "wel.h.evening", "wel.h.night"]);
+  const en = loadApp(undefined, { "pc-lang":"en" }).PC;
+  for(const key of ["wel.h.morning", "wel.h.day", "wel.h.evening", "wel.h.night", "eggs.v5",
+                    ...[1, 2, 3, 4, 5, 6, 7].map(n => "foot.thought." + n)]){
+    assert.notEqual(PC.t(key), key, key);
+    assert.doesNotMatch(en.t(key), /[А-Яа-яЁё]/, key);
+  }
+  assert.ok(html.includes('id="footThought"'));
+  assert.ok(read("js/app.js").includes('"foot.thought." + (day % 7 + 1)'));
+});

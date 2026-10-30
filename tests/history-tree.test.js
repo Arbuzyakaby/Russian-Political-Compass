@@ -82,9 +82,13 @@ test("ровно один выпуск помечен текущим и это �
   const cur = ru.RELEASES.filter(r => r.cur);
   assert.equal(cur.length, 1);
   assert.equal(cur[0].v, CURRENT);
-  assert.equal(cur[0].date, "2026-10-28");
-  assert.equal(cur[0].arc, "v4");
   assert.equal(ru.RELEASES[ru.RELEASES.length - 1], cur[0], "текущий выпуск должен быть самым новым");
+  /* С 5.0 тест не знает имени линии заранее: имя реки текущего выпуска
+     обязано совпасть с PC.VERSION_NAME, на каком бы выпуске мы ни стояли */
+  const line = ru.ARCS.find(a => a.id === cur[0].arc);
+  assert.ok(line, `линия ${cur[0].arc} не объявлена`);
+  assert.equal(line.name, ru.VERSION_NAME.ru);
+  assert.equal(line.nameEn, ru.VERSION_NAME.en);
   assert.equal(ru.ARCS.find(a => a.id === "v4").nameEn, "Tisza");
 });
 
@@ -180,7 +184,7 @@ test("режим «только вехи» не рвёт линию: скрыт�
 test("сводка считает выпуски, ветки и дни из данных", () => {
   const st = ru.historyTree.stats(ru.RELEASES, ru.ARCS);
   assert.equal(st.releases, ru.RELEASES.length);
-  assert.equal(st.branches, 5);
+  assert.equal(st.branches, ru.ARCS.length);
   const first = ru.RELEASES[0].date, last = ru.RELEASES[ru.RELEASES.length - 1].date;
   assert.equal(st.days, Math.round((Date.parse(last) - Date.parse(first)) / 86400000));
 });

@@ -332,7 +332,7 @@
     "set.restoredSkip":   ["Копия восстановлена, страница перезагрузится. Пропущено то, чего больше нет: {keys} — раздел «Моя партия» удалён в 5.0.",
                            "Backup restored, the page will reload. Skipped what no longer exists: {keys} (the “My party” section was removed in 5.0)."],
 
-    /* ===== из 4.0: настройки, справка по клавишам, палитра, тур (перенесено из i18n-party.js в 4.2) ===== */
+    /* ===== из 4.0: настройки, справка по клавишам, палитра, тур ===== */
     "tour.duel.h": ["Дуэль партий","Party face-off"],
     "tour.duel.p": ["Две партии в одном окне: расстояние на компасе, восемь шкал и законопроекты, по которым фракции голосовали по-разному. Открывается и из карточки партии, и по адресу вида #/duel/er-kprf.","Two parties in one window: the distance on the compass, eight scales and the bills the factions voted differently on. It also opens from a party card and from an address like #/duel/er-kprf."],
     "tour.sv.h": ["Голосую сам","Vote yourself"],

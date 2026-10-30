@@ -69,6 +69,13 @@ for(const [name, entry] of Object.entries(lazy)){
 html = html.replace(lazyMatch[0], '<script type="application/json" id="pcLazy">' + JSON.stringify(lazyBuilt) + '</script>');
 fs.copyFileSync(path.join(root, "js/theme-boot.js"), path.join(out, "js/theme-boot.js"));
 html = html.replace(/<noscript>\s*<link[^>]+href="css\/[^\"]+"[^>]*>\s*<\/noscript>/g, "");
+/* Комментарии разметки (5.0) — для того, кто читает исходник, а не для
+   посетителя: в выкладку они не идут. */
+html = html.replace(/<!--(?!\[)[\s\S]*?-->\s*/g, "");
+/* Отступы в начале строк: в разметке нет ни <pre>, ни <textarea>, а
+   перевод строки между тегами браузер и так сворачивает в один пробел. */
+if(/<(?:pre|textarea)\b/.test(html)) throw new Error("В index.html появился <pre> или <textarea>: снимать отступы больше нельзя");
+html = html.replace(/\n[ \t]+/g, "\n");
 let styleInserted = false;
 html = html.replace(/<link[^>]+rel="stylesheet"[^>]+href="css\/[^\"]+"[^>]*>/g, () => {
   if(styleInserted) return "";

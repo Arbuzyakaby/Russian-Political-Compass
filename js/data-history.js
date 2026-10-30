@@ -132,6 +132,12 @@
       h:"Ваша партия на компасе", hEn:"Your party on the compass",
       p:"Политическая лаборатория: конструктор своих партий с эмблемами, программами, голосованиями и ссылками. Гипотетическая палата, командная палитра, новые настройки, интерактивный стол SRPC и новые пасхалки. Исправлены ссылки и пустые результаты теста, исторические карточки, экспорт и навигация.",
       pEn:"A political lab: build your own parties with emblems, manifestos, votes and shareable links. A hypothetical house, command palette, new settings, an interactive SRPC workbench and new easter eggs. Fixes cover result links, empty quizzes, historical cards, exports and navigation."
+    },
+    {
+      v:"5.0 «Нарев»", vEn:"5.0 “Narew”", date:"2026-10-30",
+      h:"Назад к корням", hEn:"Back to the roots",
+      p:"Make Compass Great Again. «Моя партия» удалена целиком: проект снова про компас, тест и голосования. Телефон стал приложением — подписанная карта во всю ширину, карточка партии нижним листом, никаких переносов в кнопках. Новые настройки: акцент, слои поля, центр палаты, вибрация и звуки. Код разобран на понятные модули, а стартовый пакет стал почти вдвое легче.",
+      pEn:"Make Compass Great Again. “My party” is gone entirely: the project is about the compass, the quiz and the votes again. The phone version became an app — a labelled full-width map, the party card as a bottom sheet, no wrapping in buttons. New settings: accent, map layers, the chamber centre, haptics and sounds. The code is split into clear modules, and the start-up bundle is almost half as heavy."
     }
   ];
 
@@ -175,7 +181,10 @@
       dEn:"Words and deeds, the ninth convocation, the mobile interface." },
     { id:"v4", lane:0, label:"4.x", name:"Тиса", nameEn:"Tisza",
       d:"Своя партия на компасе и новый интерфейс.",
-      dEn:"Your own party on the compass and a new interface." }
+      dEn:"Your own party on the compass and a new interface." },
+    { id:"v5", lane:0, label:"5.x", name:"Нарев", nameEn:"Narew",
+      d:"Назад к корням: компас, тест и голосования, телефон как приложение.",
+      dEn:"Back to the roots: the compass, the quiz and the votes, the phone as an app." }
   ];
 
   PC.RELEASES = [
@@ -314,8 +323,11 @@
     { v:"4.4.0.3", date:"2026-10-28", arc:"v4",
       s:"Английская версия для поисковиков: hreflang, адрес ?lang=en в карте сайта и свой canonical.",
       sEn:"The English version for search engines: hreflang, ?lang=en in the sitemap and its own canonical."},
-    { v:"4.4.0.4", date:"2026-10-28", arc:"v4", cur:true,
+    { v:"4.4.0.4", date:"2026-10-28", arc:"v4",
       s:"Переработан блок «О проекте в цифрах» под вкладками: цифры из данных, сворачиваемое описание и кнопки «что дальше».",
-      sEn:"The “project in numbers” block under the tabs is redesigned: figures from the data, a collapsible description and “what next” buttons." }
+      sEn:"The “project in numbers” block under the tabs is redesigned: figures from the data, a collapsible description and “what next” buttons." },
+    { v:"5.0", date:"2026-10-30", arc:"v5", from:"4.4.0.4", ms:"5.0 «Нарев»", cur:true,
+      s:"Назад к корням: без «Моей партии», телефон как приложение, новые настройки, живые тексты и стартовый код почти вдвое легче.",
+      sEn:"Back to the roots: no “My party”, the phone as an app, new settings, warmer writing and start-up code almost half as heavy." }
   ];
 })(window.PC = window.PC || {});

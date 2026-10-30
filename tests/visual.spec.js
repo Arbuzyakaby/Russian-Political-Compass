@@ -540,7 +540,8 @@ test("приветствие: выбор языка, приветствие, о�
   await expect(page.locator("html")).toHaveAttribute("lang", "en", { timeout:5000 });
   await expect(page.locator("#welHello")).toBeVisible();
   await expect(page.locator("#welLang")).toBeHidden();
-  await expect(page.locator("#welTitle")).toHaveText("Welcome");
+  /* с 5.0 заголовок здоровается по времени суток — какое оно у машины с тестом, заранее неизвестно */
+  await expect(page.locator("#welTitle")).toHaveText(/^(?:Good (?:morning|afternoon|evening|night)|Welcome)$/);
 
   await page.locator("#welTour").click();
   await expect(page.locator(".tour")).toBeVisible();

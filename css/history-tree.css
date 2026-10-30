@@ -31,6 +31,7 @@
   --ht-rpc:var(--warn);
   --ht-v3:var(--accent-2);
   --ht-v4:var(--accent);
+  --ht-v5:var(--tone-votes,var(--ok));
   --ht-row:calc(50px * max(1, var(--text-k)));
   --c:var(--accent);
   position:relative;margin-top:18px;
@@ -40,11 +41,13 @@
 .ht .a-rpc{--c:var(--ht-rpc);}
 .ht .a-v3{--c:var(--ht-v3);}
 .ht .a-v4{--c:var(--ht-v4);}
+.ht .a-v5{--c:var(--ht-v5);}
 .ht .s-v1{stop-color:var(--ht-v1);}
 .ht .s-v2{stop-color:var(--ht-v2);}
 .ht .s-rpc{stop-color:var(--ht-rpc);}
 .ht .s-v3{stop-color:var(--ht-v3);}
 .ht .s-v4{stop-color:var(--ht-v4);}
+.ht .s-v5{stop-color:var(--ht-v5);}
 
 /* ---------- легенда ---------- */
 .ht-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;}

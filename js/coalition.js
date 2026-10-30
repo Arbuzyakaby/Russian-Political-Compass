@@ -198,6 +198,10 @@
     var from = shown[name];
     shown[name] = to;
     var reduced = !window.requestAnimationFrame || !PC.motion || PC.motion.reduced();
+    /* Любое новое значение гасит недоехавший доезд: иначе «Снять все»
+       сразу после заготовки ставило «—», а ещё бегущая анимация через
+       кадр снова писала поверх число (найдено в 5.0). */
+    node._tw = null;
     if(to === null){ node.textContent = "—"; return; }
     if(reduced || from === undefined || from === null || from === to){
       node.textContent = printer(to); return;

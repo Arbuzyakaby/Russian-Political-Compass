@@ -525,6 +525,13 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px);}
   .stage-head .chip,.xs-btn,.pitem .nm,.pitem .nm small,.pitem .mandates,.tabs .tab-short,
   .sv-topics .chip,.votes-filter .chip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
+  /* Кнопки с подписью-предложением («Методология и источники») на тексте
+     200% и 320 px не вмещают даже одно слово: тогда слово переносится по
+     слогам, а не вылезает за край экрана. При обычном размере текста этого
+     не происходит. */
+  .btn{overflow-wrap:break-word;hyphens:auto;}
+  .btn > svg.ico{flex:none;}
+
   /* ---------- шапка: значок слева, шестерёнка справа, крупный заголовок ---------- */
   /* как экран в iOS: крупный заголовок раздела и кнопка справа на той же
      строке; значок и длинная строка проекта на телефоне не нужны */

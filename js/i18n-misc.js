@@ -191,11 +191,11 @@
     "ui.top":             ["Наверх", "Back to top"],
     "ui.topAria":         ["Вернуться к началу страницы", "Return to the top of the page"],
     "foot.privacy":       ["Без счётчиков и аналитики · Шрифты Google загружаются при выборе","No trackers or analytics · Google Fonts load only for the typeface you pick"],
-    "foot.version.tip": ["Версия 4.4.0.4 «Тиса»: переработанный блок «О проекте в цифрах», английская версия для поисковиков, исправления 4.4.0.1–4.4.0.3", "Version 4.4.0.4 “Tisza”: the redesigned “project in numbers” block, the English version for search engines, fixes from 4.4.0.1–4.4.0.3"],
+    "foot.version.tip": ["Версия 5.0 «Нарев»: проект вернулся к корням — без «Моей партии», телефон как приложение, новые настройки, живые тексты и код почти вдвое легче", "Version 5.0 “Narew”: back to the roots — no “My party”, the phone as an app, new settings, warmer writing and code almost half as heavy"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"],
 
-    /* ===== из 4.0: SRPC и пасхалки (перенесено из i18n-party.js в 4.2) ===== */
+    /* ===== из 4.0: SRPC и пасхалки ===== */
     "srpc.speed": ["Скорость цикла","Cycle speed"],
     "srpc.layout": ["Раскладка","Layout"],
     "srpc.pause": ["Пауза","Pause"],

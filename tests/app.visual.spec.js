@@ -66,13 +66,13 @@ test("update from the previous line to the current one keeps its release heading
   });
   await page.goto("/");
   await page.waitForFunction(()=>window.PC&&PC.settings&&PC.settings.get("dotSize")==="normal");
-  await expect(page.locator("#welTitle")).toHaveText("Кое-что изменилось");
+  await expect(page.locator("#welTitle")).toHaveText(await page.evaluate(()=>PC.t("wel.up.h")));
   await expect(page.locator("#welEyebrow")).toContainText(await page.evaluate(()=>PC.versionLabel("ru")));
   const news=await page.evaluate(()=>[1,2,3,4,5].map(n=>PC.t("wel.up.l"+n)));
   for(const line of news)await expect(page.locator("#welNews")).toContainText(line);
   await page.goto("/?lang=en#/about");
   await expect(page.locator(".foot-version")).toHaveText(await page.evaluate(()=>PC.versionLabel("en")));
-  await expect(page.locator("#welTitle")).toHaveText("A few things have changed");
+  await expect(page.locator("#welTitle")).toHaveText("Welcome back");
 });
 test("rivers, night session, uniform answers and perfect pipeline are discoverable",async({page})=>{await ready(page,"compass");await page.locator("#q").fill("tisza");expect(await page.evaluate(()=>localStorage.getItem("pc-eggs-found"))).toBeNull();await page.evaluate(()=>{Date.prototype.getHours=()=>3;PC.settings.set("eggs","on");});await page.locator("#q").fill("тиса");await expect(page.locator(".site-footer .egg-night")).toHaveCount(1);await page.evaluate(()=>{document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();document.querySelector(".foot-version").click();const a={};PC.quiz.questionsFor("short").forEach(q=>a[q.id]=1);PC.eggs.quiz(a);PC.srpc.open();});await page.getByRole("combobox",{name:"Раскладка",exact:true}).selectOption("line");await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("pc-eggs-found")||"[]"))).toEqual(expect.arrayContaining(["night","river","rivers","agree","pipeline"]));await page.evaluate(()=>PC.settings.set("eggs","off"));await expect(page.locator(".egg-night")).toHaveCount(0);});
 

@@ -139,7 +139,12 @@
   .foot-bottom{margin-top:22px;}
 }
 
-/* Мысль дня (5.0): своя строка над годом и лицензией, курсивом —
+/* Мысль дня (5.0): своя строка над нижней полосой подвала, курсивом —
    это голос автора, а не служебная справка. */
-.foot-thought{flex-basis:100%;order:-1;font-style:italic;color:var(--muted);line-height:1.5;}
+.foot-thought{margin:0 0 16px;max-width:72ch;font-style:italic;color:var(--muted);line-height:1.55;
+  overflow-wrap:break-word;font-size:calc(14px * var(--text-k));}
+.foot-thought::before{content:"«";}
+.foot-thought::after{content:"»";}
+:root[lang="en"] .foot-thought::before{content:"“";}
+:root[lang="en"] .foot-thought::after{content:"”";}
 .foot-thought[hidden]{display:none;}

@@ -245,7 +245,7 @@
                            "Your position from the quiz: economy {x}, attitude to the state {y}"],
     "seats.none":         ["нет мандатов", "no seats"],
 
-    /* ===== из 4.0: результат теста (перенесено из i18n-party.js в 4.2) ===== */
+    /* ===== из 4.0: результат теста ===== */
     "res.empty": ["Пожалуйста, ответьте хотя бы на один вопрос", "Please answer at least one question"],
     "res.damaged": ["К сожалению, ссылка повреждена","Sorry, this result link is damaged"],
     "res.completion": ["{n} из {all} ответов","{n} of {all} questions answered"],

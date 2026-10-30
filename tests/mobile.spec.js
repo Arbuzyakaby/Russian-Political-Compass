@@ -53,12 +53,17 @@ test("одиночное касание выбирает ближайшую па
   await expect(page.locator("#sideTitle")).toContainText("Яблоко");
   await expect(page.locator("#tip")).toBeHidden();
   await expect(page.locator("#sideBack")).toBeFocused();
-  const side = await page.locator(".side").boundingBox();
-  /* полоса вкладок с 4.1 внизу экрана, карточка прокручивается к самому верху */
+  /* с 5.0 карточка — нижний лист: прижат к нижнему краю и не выше экрана */
+  await expect(page.locator(".side")).toHaveClass(/is-sheet/);
+  await expect(page.locator(".side")).toHaveClass(/is-open/);
+  await expect(page.locator(".side-scrim")).toBeVisible();
+  await page.waitForTimeout(500);
+  const side = await page.locator(".side").boundingBox(), view = page.viewportSize();
   expect(side.y).toBeGreaterThanOrEqual(0);
-  expect(side.y).toBeLessThan(200);
+  expect(Math.abs(side.y + side.height - view.height)).toBeLessThan(2);
   await page.locator("#sideBack").tap();
   await expect(page.locator("#sideBack")).toBeHidden();
+  await expect(page.locator(".side")).not.toHaveClass(/is-sheet/);
   await expect(page.locator(".pitem")).toHaveCount(11);
 });
 

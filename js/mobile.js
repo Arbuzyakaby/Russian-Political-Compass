@@ -132,10 +132,14 @@
       sheet(true);
       /* Ждём кадр: сначала браузер выполняет совместимые click и focus
          для этого касания, и фокус нужно ставить уже после них. */
-      requestAnimationFrame(function(){
+      var focusBack = function(){
         var back = document.getElementById("sideBack");
-        if(back && !back.hidden) back.focus({ preventScroll:true });
-      });
+        if(back && !back.hidden && document.activeElement !== back) back.focus({ preventScroll:true });
+      };
+      requestAnimationFrame(focusBack);
+      /* касание ещё может досылать свои mousedown/focus после кадра —
+         тогда фокус возвращается в лист вторым заходом */
+      setTimeout(focusBack, 160);
     }else{
       sheet(false);
     }

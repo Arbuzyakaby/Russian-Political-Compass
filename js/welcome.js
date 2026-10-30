@@ -103,7 +103,8 @@
       /* Надпись читает человек, поэтому здесь человеческий номер —
          с приставкой линии. Сравнение версий (decide) по-прежнему идёт
          по PC.VERSION: там номер обязан быть голым числом. */
-      isUpdate ? PC.t("wel.up.eyebrow", { v:PC.versionLabel ? PC.versionLabel() : PC.VERSION }) : PC.t("wel.eyebrow");
+      /* с 5.0 к номеру добавлен слоган выпуска — «Make Compass Great Again» */
+      isUpdate ? PC.t("wel.up.eyebrow", { v:PC.versionLabel ? PC.versionLabel() : PC.VERSION }) + " · " + PC.t("slogan") : PC.t("wel.eyebrow");
     document.getElementById("welTitle").textContent =
       PC.t(isUpdate ? "wel.up.h" : greeting());
     document.getElementById("welLede").textContent =
