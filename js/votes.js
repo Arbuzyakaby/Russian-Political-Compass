@@ -3,7 +3,7 @@
    Компас держится на утверждении, которое легко объявить и трудно
    проверить: координаты выведены не только из программ, но и из того,
    как фракции голосуют. Этот раздел выкладывает вторую часть основания
-   отдельно — двадцать восемь голосований, от самых разводящих до
+   отдельно — сорок четыре голосования, от самых разводящих до
    единогласных, и матрица совпадений между фракциями.
 
    Матрица совпадений интереснее самих голосований. Она показывает то,
@@ -71,6 +71,24 @@
     return c ? L(c, "label") : String(conv);
   }
 
+  /* Источники (5.1): протокол поимённого голосования в системе Госдумы,
+     карточка законопроекта и, где протокола нет, публикация о голосовании.
+     Адреса собираются из полей src — в данных лежат только номера. */
+  function sources(v){
+    var s = v.src || {}, list = [];
+    if(s.vote) list.push({ href:"http://vote.duma.gov.ru/vote/" + s.vote, key:"votes.src.vote" });
+    if(s.bill) list.push({ href:"https://sozd.duma.gov.ru/bill/" + s.bill, key:"votes.src.bill", n:s.bill });
+    if(s.url) list.push({ href:s.url, key:"votes.src.news" });
+    return list;
+  }
+  function sourceLine(v){
+    var list = sources(v);
+    if(!list.length) return "";
+    return '<p class="vote-src"><b>' + esc(t("votes.src")) + ':</b> ' + list.map(function(x){
+      return '<a href="' + esc(x.href) + '" target="_blank" rel="noopener noreferrer">' + esc(t(x.key, { n:x.n || "" })) + '</a>';
+    }).join(" · ") + '</p>';
+  }
+
   /* ---------- карточка голосования ---------- */
   function voteCard(v, parties){
     var isOpen = !!open[v.id];
@@ -97,7 +115,7 @@
       '<div class="vote-chips">' + chips + '</div>' +
       '<button type="button" class="data-toggle vote-toggle" aria-expanded="' + isOpen + '">' +
         esc(t("votes.why")) + '</button>' +
-      '<div class="vote-why"' + (isOpen ? "" : " hidden") + '><p>' + esc(L(v, "why")) + '</p></div>' +
+      '<div class="vote-why"' + (isOpen ? "" : " hidden") + '><p>' + esc(L(v, "why")) + '</p>' + sourceLine(v) + '</div>' +
     '</article>';
   }
 
@@ -298,5 +316,5 @@
     });
   }
 
-  PC.votes = { init:init, render:render, partyBlock:partyBlock, STANCE:STANCE, focusVote:focusVote, validSelf:validSelf, TOPICS:TOPICS };
+  PC.votes = { init:init, render:render, sources:sources, partyBlock:partyBlock, STANCE:STANCE, focusVote:focusVote, validSelf:validSelf, TOPICS:TOPICS };
 })(window.PC = window.PC || {});

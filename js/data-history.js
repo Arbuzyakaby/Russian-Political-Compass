@@ -138,6 +138,12 @@
       h:"Назад к корням", hEn:"Back to the roots",
       p:"Make Compass Great Again. «Моя партия» удалена целиком: проект снова про компас, тест и голосования. Телефон стал приложением — подписанная карта во всю ширину, карточка партии нижним листом, никаких переносов в кнопках. Новые настройки: акцент, слои поля, центр палаты, вибрация и звуки. Код разобран на понятные модули, а стартовый пакет стал почти вдвое легче.",
       pEn:"Make Compass Great Again. “My party” is gone entirely: the project is about the compass, the quiz and the votes again. The phone version became an app — a labelled full-width map, the party card as a bottom sheet, no wrapping in buttons. New settings: accent, map layers, the chamber centre, haptics and sounds. The code is split into clear modules, and the start-up bundle is almost half as heavy."
+    },
+    {
+      v:"5.1 «Нарев»", vEn:"5.1 “Narew”", date:"2026-10-30",
+      h:"Книга, тур и протоколы", hEn:"A book, a tour and the records",
+      p:"Make Compass Great Again, часть вторая. «О проекте» стал книгой из двенадцати глав, обучение написано с нуля, голосований стало 44 — и каждое сверено с протоколом Госдумы, что исправило несколько старых записей. Дуэль научилась созывам и темам, «Голосую сам» — весам и ссылкам, английская версия получила свою страницу.",
+      pEn:"Make Compass Great Again, part two. About became a twelve-chapter book, the tour was rewritten from scratch, and there are now 44 votes, each checked against the Duma's voting record, which corrected several old entries. Face-offs learnt convocations and topics, Cast your own votes learnt weights and links, and the English version got a page of its own."
     }
   ];
 
@@ -329,8 +335,11 @@
     { v:"5.0", date:"2026-10-30", arc:"v5", from:"4.4.0.4", ms:"5.0 «Нарев»",
       s:"Назад к корням: без «Моей партии», телефон как приложение, новые настройки, живые тексты и стартовый код почти вдвое легче.",
       sEn:"Back to the roots: no “My party”, the phone as an app, new settings, warmer writing and start-up code almost half as heavy." },
-    { v:"5.0.1", date:"2026-10-30", arc:"v5", cur:true,
+    { v:"5.0.1", date:"2026-10-30", arc:"v5",
       s:"Спектр позиций на телефоне снова во всю ширину, без тёмных подложек под строками.",
-      sEn:"The position spectrum on phones is full-width again, with no dark pills behind the rows." }
+      sEn:"The position spectrum on phones is full-width again, with no dark pills behind the rows." },
+    { v:"5.1", date:"2026-10-30", arc:"v5", cur:true, ms:"5.1 «Нарев»",
+      s:"«О проекте» — книга, обучение с нуля, 44 голосования с протоколами Госдумы, дуэль по созывам, английская страница /en/.",
+      sEn:"About as a book, a tour rewritten from scratch, 44 votes with Duma voting records, face-offs by convocation and an English page at /en/." }
   ];
 })(window.PC = window.PC || {});

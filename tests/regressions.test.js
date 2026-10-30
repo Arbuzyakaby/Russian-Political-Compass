@@ -324,7 +324,7 @@ function welcomeRig(seen){
   const { window: w } = app;
   if(seen) w.localStorage.setItem("pc-welcome", seen);
   const ids = ["welcome", "welCard", "welPoints", "welNews", "welLang", "welHello", "welClose", "welEnter",
-    "welTour", "welQuiz", "welNote", "welEyebrow", "welTitle", "welLede"];
+    "welGuide", "welQuiz", "welNote", "welEyebrow", "welTitle", "welLede"];
   const nodes = Object.fromEntries(ids.map(id => [id, node(id)]));
   nodes.welcome.hidden = true;
   nodes.welcome.querySelectorAll = () => [];

@@ -156,12 +156,12 @@
      js/duel.js: модуль подгружается по требованию, и адрес должен его
      вызвать. Идентификаторы партий — латиница и цифры без дефиса. */
   function routeDuel(){
-    var m = /^#\/duel\/([a-z0-9]+)-([a-z0-9]+)$/.exec(location.hash);
+    var m = /^#\/duel\/([a-z0-9]+)-([a-z0-9]+)(?:\?c=(\d))?$/.exec(location.hash);
     if(!m) return;
     /* своя партия (u1–u6) жила только в браузере автора ссылки и удалена
        в 5.0 вместе с разделом: подставлять вместо неё чужую нельзя */
     if(/^u[1-6]$/.test(m[1]) || /^u[1-6]$/.test(m[2])){ retired(); return; }
-    PC.lazy.run("duel", function(){ PC.duel.open(m[1], m[2]); });
+    PC.lazy.run("duel", function(){ PC.duel.open(m[1], m[2], m[3]); });
   }
 
   /* Ссылки на «Мою партию» (#/party/…, карточки и гостевой просмотр)
@@ -391,11 +391,12 @@
        по кнопке щёлкнут, — но ни один из них при запуске ничего не
        рисует, пока его не позовут. */
     if(PC.srpc) PC.srpc.init();
-    if(PC.tour) PC.tour.init();
+    if(PC.guide) PC.guide.init();
+    if(PC.book) PC.book.init();
     /* Приветствие уже запущено welcome-boot.js. Повторный вызов безопасен
        и остаётся запасным путём при изменении порядка загрузки. */
     PC.welcome.init();
-    document.getElementById("welTour").disabled = false;
+    document.getElementById("welGuide").disabled = false;
     /* Нативные списки подменяются своими только после того, как модули
        разложили в них варианты: до этого оформленной оказалась бы пустая
        кнопка, а варианты доехали бы в скрытый <select>. */

@@ -134,3 +134,43 @@
 }
 :root[data-motion="off"] .sv-bar i{transition:none;}
 @media (prefers-reduced-motion:reduce){ .sv-bar i{transition:none;} }
+
+/* ---------- дуэль 5.1: созыв, темы, совпадения по созывам ---------- */
+.duel-pick-conv{flex:1 1 100%;}
+.duel-summary{margin:0 0 12px;font-size:calc(14px * var(--text-k));line-height:1.5;color:var(--body);}
+.duel-topics{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px;}
+.duel-topics li{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr) 6.2em;gap:10px;align-items:center;
+  font-size:calc(13px * var(--text-k));}
+.dt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dt-bar{height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+.dt-bar i{display:block;height:100%;border-radius:inherit;background:var(--accent);}
+.dt-val{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.dt-val small{color:var(--muted);}
+.duel-h4{margin:4px 0 8px;font-size:calc(12px * var(--text-k));font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+.duel-convs{display:flex;gap:8px;align-items:flex-end;margin:0 0 16px;}
+.dc{flex:1;display:grid;justify-items:center;gap:3px;min-width:0;}
+.dc-bar{display:flex;align-items:flex-end;width:100%;max-width:42px;height:64px;border-radius:8px;background:var(--surface-2);overflow:hidden;}
+.dc-bar i{display:block;width:100%;background:var(--accent);border-radius:8px 8px 0 0;}
+.dc b{font-size:calc(12.5px * var(--text-k));font-variant-numeric:tabular-nums;}
+.dc small{font-size:calc(11px * var(--text-k));color:var(--muted);white-space:nowrap;}
+@media(max-width:520px){ .duel-topics li{grid-template-columns:minmax(0,1fr) 5.6em;} .dt-bar{grid-column:1/-1;grid-row:2;} }
+
+/* ---------- «Голосую сам» 5.1: вес, раскрытие, ссылка, темы ---------- */
+.sv-imp{display:inline-block;max-width:100%;vertical-align:top;text-align:left;margin:10px 0 0;padding:6px 12px;min-height:36px;
+  border:1px solid var(--stroke);border-radius:999px;background:none;color:var(--muted);
+  font:inherit;font-size:calc(13px * var(--text-k));cursor:pointer;white-space:normal;}
+.sv-imp[aria-pressed="true"]{color:var(--text);border-color:var(--accent-line,var(--accent));background:var(--accent-soft);}
+.sv-imp span{color:var(--accent);font-size:1.1em;margin-right:6px;}
+.sv-reveal{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:var(--surface-2);border:1px solid var(--stroke);}
+.sv-reveal-h{margin:0 0 8px;font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.45;}
+.sv-reveal-h span{color:var(--text);font-weight:600;}
+.sv-reveal-list{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-wrap:wrap;gap:6px;}
+.sv-reveal-list li{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+  font-size:calc(12.5px * var(--text-k));background:var(--surface);border:1px solid var(--stroke);white-space:nowrap;}
+.sv-reveal-list li i{width:8px;height:8px;border-radius:50%;background:var(--c);}
+.sv-reveal-list li.is-same{border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:var(--ok-soft);}
+.sv-ok{color:var(--ok);font-weight:600;}
+.sv-tprog{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:calc(12.5px * var(--text-k));color:var(--muted);}
+.sv-tprog b{margin-left:5px;color:var(--text);font-variant-numeric:tabular-nums;}
+.sv-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.sv-actions .btn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}

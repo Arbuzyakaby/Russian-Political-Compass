@@ -92,32 +92,40 @@ test("заготовкой будущего созыва стал X", () => {
 
 /* ---------- голосования ---------- */
 
-test("в наборе двадцать восемь голосований, восемь из них новые", () => {
-  assert.equal(PC.VOTES.length, 28);
-  const added = ["torture-2021", "echr-2022", "agents-2022", "declarations-2023",
-                 "draftage-2023", "taxreform-2024", "extremism-2025", "vat-2025"];
+test("в наборе сорок четыре голосования, шестнадцать из них добавлены в 5.1", () => {
+  assert.equal(PC.VOTES.length, 44);
+  const added = ["kyoto-2004", "kharkiv-2010", "start-2011", "police-2011", "ngo-agents-2012", "libel-2012",
+                 "believers-2013", "undesirable-2015", "battery-2017", "renovation-2017", "disrespect-2019",
+                 "ndfl-2020", "education-2021", "summons-2023", "windfall-2023", "dprk-2024"];
   for(const id of added){
     const v = PC.VOTES.find(x => x.id === id);
     assert.ok(v, `нет голосования ${id}`);
-    assert.equal(v.conv, 8, `${id} принято VIII созывом`);
-    assert.ok(v.en && v.en.title && v.en.why, `${id}: нет перевода`);
+    assert.ok(v.en && v.en.title && v.en.summary && v.en.tally && v.en.why, `${id}: нет перевода`);
+    assert.ok(v.src && v.src.vote && v.src.bill, `${id}: нет протокола голосования`);
   }
+  assert.equal(new Set(PC.VOTES.map(v => v.id)).size, 44, "идентификаторы повторяются");
 });
 
-test("у новых голосований хотя бы одна фракция разошлась с «Единой Россией»", () => {
-  /* Единогласных голосований VIII созыва в наборе и так шесть; новые
-     добавлялись ради разделений, и каждое обязано что-то разделять. */
-  for(const id of ["torture-2021", "echr-2022", "agents-2022", "declarations-2023",
-                   "draftage-2023", "extremism-2025"]){
-    const v = PC.VOTES.find(x => x.id === id);
-    const er = v.pos.er;
-    assert.ok(Object.entries(v.pos).some(([k, s]) => k !== "er" && s !== er), `${id}: все совпали с ЕР`);
+test("у каждого голосования есть источник, у позиций — правдоподобная форма", () => {
+  const STANCES = ["for", "against", "abstain", "split"];
+  for(const v of PC.VOTES){
+    assert.ok(v.src && (v.src.vote || v.src.url), `${v.id}: нет источника`);
+    if(v.src.vote) assert.ok(Number.isInteger(v.src.vote) && v.src.vote > 40000, `${v.id}: странный номер протокола`);
+    if(v.src.bill) assert.match(v.src.bill, /^\d{3,7}-[3-8]$/, `${v.id}: номер законопроекта`);
+    if(v.src.url) assert.match(v.src.url, /^https:\/\//, `${v.id}: адрес публикации`);
+    for(const [k, st] of Object.entries(v.pos)){
+      assert.ok(PC.partyById(k), `${v.id}: неизвестная партия ${k}`);
+      assert.ok(STANCES.includes(st), `${v.id}: неизвестная позиция ${st}`);
+    }
+    assert.match(v.date, /^\d{4}-\d\d-\d\d$/);
+    assert.ok([4, 5, 6, 7, 8].includes(v.conv), `${v.id}: созыв`);
+    assert.ok(["econ", "state", "foreign"].includes(v.topic), `${v.id}: тема`);
   }
 });
 
 test("в разметке и словаре то же число голосований и тот же диапазон лет", () => {
   const html = read("index.html");
-  assert.match(html, /<b id="vfCount">28<\/b>/);
+  assert.match(html, /<b id="vfCount">44<\/b>/);
   assert.match(html, /<b>2004–2025<\/b>/);
   assert.ok(PC.t("votes.lede.short").includes("2004–2025"));
 });

@@ -31,6 +31,10 @@
     if(/^party(?:\/|$)/.test(h)) return "compass";
     if(/^duel\//.test(h)) return "votes";            /* #/duel/<a>-<b> — окно дуэли поверх голосований (4.4) */
     if(h === "srpc") return "about";
+    /* 5.1: главы книги #/about/<глава>, старые якоря карточек #ab-* и
+       ссылки на свои ответы «Голосую сам» #/selfvote/<код> */
+    if(/^about\//.test(h) || /^ab-[a-z0-9]+$/.test(h)) return "about";
+    if(/^selfvote\//.test(h)) return "votes";
     return TABS.indexOf(h) === -1 ? "compass" : h;
   }
 

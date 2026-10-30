@@ -3,6 +3,6 @@
 (function(PC){
   "use strict";
   PC.i18n.applyDom(document.getElementById("welcome"));
-  document.getElementById("welTour").disabled = true;
+  document.getElementById("welGuide").disabled = true;
   PC.welcome.init();
 })(window.PC);

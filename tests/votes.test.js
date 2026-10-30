@@ -53,10 +53,10 @@ test("voteStance различает отсутствие в Думе и отсу
   /* «Новых людей» в VII созыве не было — это не «нет данных», а «не в Думе» */
   assert.equal(PC.voteStance(pension, PC.partyById("nl")), "absent");
 
-  const internet = PC.VOTES.find(v => v.id === "internet-2019");
-  /* ЛДПР во фракции была, но официальной позиции в наборе нет:
+  const undesirable = PC.VOTES.find(v => v.id === "undesirable-2015");
+  /* ЛДПР во фракции была, но голосовали двое из 56: позиции нет, и
      догадка вместо признания незнания обесценила бы весь раздел */
-  assert.equal(PC.voteStance(internet, PC.partyById("ldpr")), "unknown");
+  assert.equal(PC.voteStance(undesirable, PC.partyById("ldpr")), "unknown");
 });
 
 test("матрица совпадений: считается только по общим голосованиям", () => {
@@ -94,10 +94,10 @@ test("близость на компасе не совпадает с близо
   assert.ok(dist(er, ldpr) < dist(sr, ldpr),
     "по координатам ЛДПР ближе к «Единой России», чем к «Справедливой России»");
   const srL = PC.voteAgreement(sr, ldpr), erL = PC.voteAgreement(er, ldpr);
-  assert.deepEqual([srL.same, srL.common], [19, 20],
-    "при этом со «Справедливой Россией» ЛДПР совпала в 19 голосованиях из 20 общих");
-  assert.deepEqual([erL.same, erL.common], [18, 23],
-    "а с ближайшей по полю «Единой Россией» — разошлась в пяти из двадцати трёх");
+  assert.deepEqual([srL.same, srL.common], [28, 32],
+    "при этом со «Справедливой Россией» ЛДПР совпала в 28 голосованиях из 32 общих");
+  assert.deepEqual([erL.same, erL.common], [27, 38],
+    "а с ближайшей по полю «Единой Россией» — разошлась в одиннадцати из тридцати восьми");
   assert.ok(srL.ratio > erL.ratio);
 });
 

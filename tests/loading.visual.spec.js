@@ -31,7 +31,7 @@ test("4.4: дуэль и «Голосую сам» не загружаются �
   /* прокрутка к «Голосую сам» подгружает модуль и стили, но не дуэль */
   await page.evaluate(() => PC.nav.go("votes"));
   await page.locator("#selfVote").scrollIntoViewIfNeeded();
-  await expect(page.locator("#selfVote .sv-count")).toHaveText("Отвечено: 0 из 28");
+  await expect(page.locator("#selfVote .sv-count")).toHaveText("Отвечено: 0 из 44");
   expect(await page.evaluate(() => [PC.lazy.loaded("selfvote"), PC.lazy.loaded("duel")])).toEqual([true, false]);
   expect(urls.some(u => /selfvote/.test(u))).toBe(true);
   expect(urls.some(u => /\/duel/.test(u))).toBe(false);
@@ -111,27 +111,27 @@ test("4.4: плашка «Без сети» на английском", async({ 
   await expect(page.locator(".offline-bar")).toBeHidden();
 });
 
-test("4.4: обучение рассказывает про дуэль и «Голосую сам» и возвращает на компас", async({ page }) => {
+test("5.1: полный тур рассказывает про дуэль и «Голосую сам» и возвращает на компас", async({ page }) => {
   const errs = errors(page);
   await ready(page, "compass");
-  await page.evaluate(() => PC.tour.start());
-  await expect(page.locator(".tour")).toBeVisible();
-  const total = Number((await page.locator("#tourCount").innerText()).match(/из (\d+)/i)[1]);
-  expect(total).toBeGreaterThanOrEqual(12);
+  await page.evaluate(() => PC.guide.start("full"));
+  await expect(page.locator(".guide")).toBeVisible();
+  const total = Number((await page.locator("#guideCount").innerText()).match(/из (\d+)/i)[1]);
+  expect(total).toBe(12);
   const seen = [];
   for(let i = 0; i < total; i++){
-    await expect(page.locator("#tourCount")).toHaveText(`Шаг ${i + 1} из ${total}`, { ignoreCase:true });
-    const title = await page.locator("#tourTitle").innerText();
+    await expect(page.locator("#guideCount")).toHaveText(`Шаг ${i + 1} из ${total}`, { ignoreCase:true });
+    const title = await page.locator("#guideTitle").innerText();
     seen.push(title);
     if(title === "Дуэль партий" || title === "Голосую сам"){
       await expect(page.locator("#panel-votes")).toBeVisible();
-      const box = await page.locator("#tourHole").boundingBox();
+      const box = await page.locator(".guide-ring").boundingBox();
       expect(box.width, title).toBeGreaterThan(40);
     }
-    await page.locator("#tourNext").press("ArrowRight");
+    await page.locator("#guideNext").press("ArrowRight");
   }
   expect(seen).toEqual(expect.arrayContaining(["Дуэль партий", "Голосую сам"]));
-  await expect(page.locator(".tour")).toBeHidden();
+  await expect(page.locator(".guide")).toBeHidden();
   await expect(page.locator("#panel-compass")).toBeVisible();
   await expect(page.locator("#panel-votes")).toBeHidden();
   expect(await page.evaluate(() => location.hash), "тур не меняет адрес").toBe("#/compass");
@@ -143,7 +143,7 @@ test("4.4: «Голосую сам» — фильтр по теме и пере�
   await ready(page, "votes");
   const card = page.locator("#selfVote");
   await card.scrollIntoViewIfNeeded();
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 0 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 0 из 44");
   await card.getByRole("button", { name:"Экономика" }).click();
   const econ = await page.evaluate(() => PC.VOTES.filter(v => v.topic === "econ").length);
   await expect(card.locator(".sv-count")).toHaveText(`Отвечено: 0 из ${econ}`);
@@ -156,7 +156,7 @@ test("4.4: «Голосую сам» — фильтр по теме и пере�
 
   /* ответы по другим темам хранятся и после возврата к «Все» считаются */
   await card.getByRole("button", { name:"Все голосования", exact:true }).click();
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 2 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 2 из 44");
   const id = await page.evaluate(() => document.querySelector("#svTitle") && PC.VOTES.find(v => v.title === document.querySelector("#svTitle").textContent).id);
   await card.getByRole("button", { name:"К этому законопроекту в списке" }).click();
   const target = page.locator(`.vote-card[data-id="${id}"]`);

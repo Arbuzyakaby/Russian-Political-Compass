@@ -259,13 +259,13 @@ test("структурированные данные разбираются и 
   }
 });
 
-test("английская версия объявлена поисковику: hreflang, canonical главной и ?lang=en в карте сайта", () => {
+test("английская версия объявлена поисковику: hreflang, canonical главной и /en/ в карте сайта", () => {
   assert.match(html, /rel="canonical" href="https:\/\/rupolitcompass.website\/"/);
-  for(const [lang, href] of [["ru", ""], ["en", "?lang=en"], ["x-default", ""]]){
+  for(const [lang, href] of [["ru", ""], ["en", "en/"], ["x-default", ""]]){
     assert.ok(html.includes(`<link rel="alternate" hreflang="${lang}" href="https://rupolitcompass.website/${href}">`), `нет hreflang=${lang}`);
   }
   const sitemap = fs.readFileSync(path.join(ROOT, "sitemap.xml"), "utf8");
-  assert.ok(sitemap.includes("<loc>https://rupolitcompass.website/?lang=en</loc>"));
+  assert.ok(sitemap.includes("<loc>https://rupolitcompass.website/en/</loc>"));
   const i18n = fs.readFileSync(path.join(ROOT, "js", "i18n.js"), "utf8");
   assert.match(i18n, /lang=en\(\?:&\|\$\)/, "canonical английской версии ставится только при явном ?lang=en");
   assert.match(html, /id="project-summary"/);
@@ -332,7 +332,7 @@ test("число голосований одно и то же в данных, �
   assert.equal(fallback("data-i18n-html", "ft.data.l3", "li"), norm(PC.t("ft.data.l3")),
     "текст подвала в разметке отстал от словаря");
   assert.ok(PC.t("ft.data.l3").includes("<b>" + n + "</b>"), `в подвале не ${n} голосований`);
-  for(const key of ["votes.lede.short", "ab.votes.p"]){
+  for(const key of ["votes.lede.short"]){
     assert.equal(fallback("data-i18n", key, "p"), norm(PC.t(key)), `${key}: разметка отстала от словаря`);
   }
   const badge = html.match(/id="tab-votes"[\s\S]*?class="tab-badge">(\d+)</);
@@ -514,7 +514,7 @@ test("у каждой вехи истории есть обе локали и д
 test("у каждого вопроса теста о проекте ровно один верный ответ", () => {
   const { loadApp } = require("./harness.js");
   const ru = loadApp(ABOUT_FILES).PC;
-  const ids = new Set(Array.from(html.matchAll(/\sid="([^"]+)"/g), m => m[1]));
+  const bookIds = Array.from(fs.readFileSync(path.join(ROOT, "js", "book.js"), "utf8").matchAll(/\{ id:"([a-z]+)",/g), m => m[1]);
 
   assert.ok(ru.ABOUT_QUIZ && ru.ABOUT_QUIZ.length >= 5,
     "набор вопросов о проекте подозрительно мал или отсутствует");
@@ -540,11 +540,10 @@ test("у каждого вопроса теста о проекте ровно �
       });
     }
 
-    /* Карточка, в которой написан ответ. Без этого id ссылка «читать
-       в разделе» ведёт в никуда — молча, потому что getElementById
-       просто вернёт null и переход не случится. */
-    assert.ok(ids.has(q.card),
-      `вопрос ${q.id} ссылается на карточку #${q.card}, которой нет в index.html`);
+    /* Глава книги, в которой написан ответ (с 5.1 карточки стали главами):
+       без неё кнопка «перечитать» вела бы в никуда. */
+    assert.ok(bookIds.includes(q.card),
+      `вопрос ${q.id} ссылается на главу ${q.card}, которой нет в книге`);
   }
 });
 

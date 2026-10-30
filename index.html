@@ -18,7 +18,7 @@
      hreflang сообщает поисковику, что это варианты одной страницы, а не дубликаты;
      canonical английского адреса переставляет js/i18n.js. -->
 <link rel="alternate" hreflang="ru" href="https://rupolitcompass.website/">
-<link rel="alternate" hreflang="en" href="https://rupolitcompass.website/?lang=en">
+<link rel="alternate" hreflang="en" href="https://rupolitcompass.website/en/">
 <link rel="alternate" hreflang="x-default" href="https://rupolitcompass.website/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
@@ -81,6 +81,8 @@
 <noscript><link rel="stylesheet" href="css/about-quiz.css"></noscript>
 <link rel="stylesheet" href="css/chain.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/chain.css"></noscript>
+<link rel="stylesheet" href="css/book.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/book.css"></noscript>
 <link rel="stylesheet" href="css/footer.css">
 <link rel="stylesheet" href="css/select.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/select.css"></noscript>
@@ -90,8 +92,8 @@
 <noscript><link rel="stylesheet" href="css/people.css"></noscript>
 <link rel="stylesheet" href="css/ui.css">
 <link rel="stylesheet" href="css/welcome.css">
-<link rel="stylesheet" href="css/tour.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="css/tour.css"></noscript>
+<link rel="stylesheet" href="css/guide.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/guide.css"></noscript>
 <link rel="stylesheet" href="css/srpc.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="css/srpc.css"></noscript>
 <link rel="stylesheet" href="css/eggs.css" media="print" onload="this.media='all'">
@@ -140,7 +142,7 @@
       "alternateName": ["Политический компас партий РФ", "Russian Political Compass"],
       "url": "https://rupolitcompass.website/",
       "applicationCategory": "EducationalApplication",
-      "softwareVersion": "5.0.1",
+      "softwareVersion": "5.1",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
@@ -260,7 +262,7 @@
     <button type="button" class="tab" data-tab="quiz" role="tab" id="tab-quiz"
             aria-controls="panel-quiz" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-quiz"/></svg><span data-i18n="tab.quiz">Тест</span><span class="tab-short" data-i18n="tab.quiz.short" aria-hidden="true"></span><span class="tab-badge">40</span></button>
     <button type="button" class="tab" data-tab="votes" role="tab" id="tab-votes"
-            aria-controls="panel-votes" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-votes"/></svg><span data-i18n="tab.votes">Голосования</span><span class="tab-short" data-i18n="tab.votes.short" aria-hidden="true"></span><span class="tab-badge">28</span></button>
+            aria-controls="panel-votes" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-votes"/></svg><span data-i18n="tab.votes">Голосования</span><span class="tab-short" data-i18n="tab.votes.short" aria-hidden="true"></span><span class="tab-badge">44</span></button>
     <button type="button" class="tab" data-tab="about" role="tab" id="tab-about"
             aria-controls="panel-about" aria-selected="false" tabindex="-1"><svg class="tab-ico ico" aria-hidden="true" focusable="false"><use href="#i-about"/></svg><span data-i18n="tab.about">О проекте</span><span class="tab-short" data-i18n="tab.about.short" aria-hidden="true"></span></button>
   </nav>
@@ -479,10 +481,10 @@
            Теперь сверху одно предложение и три числа, а объяснения
            убраны под раскрывающиеся заголовки: кто пришёл за таблицей,
            видит таблицу; кто пришёл разобраться, раскрывает и читает. -->
-      <p class="votes-lede" data-reveal data-i18n="votes.lede.short">Программу можно написать какой угодно — голосование уже поступок. Двадцать восемь законопроектов 2004–2025 годов и позиция каждой фракции по каждому из них.</p>
+      <p class="votes-lede" data-reveal data-i18n="votes.lede.short">Программу можно написать какой угодно — голосование уже поступок. Сорок четыре законопроекта 2004–2025 годов и позиция каждой фракции по каждому из них.</p>
 
       <div class="votes-figures" data-reveal>
-        <span class="vf"><b id="vfCount">28</b> <span data-i18n="votes.s1">голосований</span></span>
+        <span class="vf"><b id="vfCount">44</b> <span data-i18n="votes.s1">голосований</span></span>
         <span class="vf"><b>2004–2025</b> <span data-i18n="votes.s2">годы</span></span>
         <span class="vf"><b id="vfFactions">6</b> <span data-i18n="votes.s3">фракций</span></span>
       </div>
@@ -535,57 +537,54 @@
 
   <!-- ============ ВКЛАДКА: О ПРОЕКТЕ ============ -->
   <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="-1" hidden>
-    <div class="about">
-      <article class="card about-card about-hero" data-reveal>
-        <!-- Сияние поверх снимка поля (2.4): чисто декоративный слой,
-             вся его жизнь — в css/about.css. -->
-        <span class="hero-aura" aria-hidden="true"></span>
-        <span class="eyebrow" data-i18n="tab.about">О проекте</span>
-        <h2 data-i18n="ab.hero.h">Карта вместо ярлыков</h2>
-        <p class="about-lede" data-i18n="ab.hero.lede">Разговор о политике в России быстро сводится к двум ярлыкам — «свои» и «чужие».
-          Этот проект пробует заменить их координатной сеткой: у каждой партии есть измеримое положение
-          по двум независимым осям, и рядом с ним — объяснение, почему оно именно такое.</p>
-        <p data-i18n="ab.hero.p2">Компас не голосует за вас и никого не рекламирует. Он показывает, как программы и публичная
-          риторика партий раскладываются по двум измерениям, насколько далеко партии отстоят друг от друга
-          и как менялся состав Госдумы за шесть созывов подряд.</p>
-      </article>
-
-      <!-- Числа проекта одной строкой. Раздел состоит из тринадцати
-           текстовых карточек подряд, и до первой картинки читатель
-           добирается через три экрана сплошных абзацев. Плитки дают
-           масштаб сразу и заодно делят стену на части.
-
-           Значения подставляет js/ui.js из самих данных — написанные
-           руками, они разошлись бы с набором при первой же новой
-           партии. В разметке стоят текущие: без JavaScript страница
-           обязана оставаться правдивой. -->
-      <div class="about-stats" data-reveal>
+    <!-- «О проекте» как книга (5.1). Обложка с оглавлением и введением
+         лежит в разметке: её читают поисковик и браузер без скрипта.
+         Главы собирает js/book.js из словаря js/i18n-book.js и
+         показывает по одной; адреса — #/about/<глава>. Готовые блоки,
+         которые встают внутрь глав (схема осей, дерево версий, цепочка
+         SRPC, тест по книге), ждут в #bookParts. -->
+    <div class="book" id="book">
+      <header class="book-cover" id="bookCover">
+        <p class="book-slogan" data-i18n="slogan">Make Compass Great Again</p>
+        <span class="eyebrow" data-i18n="bk.eyebrow">Книга о проекте</span>
+        <h2 data-i18n="bk.title">Как читать политическую карту</h2>
+        <p class="book-lede" data-i18n="bk.lede">Двенадцать коротких глав о том, откуда берутся точки на компасе, что они значат и чего не значат. Читаются по одной и в любом порядке.</p>
+        <p class="book-intro" data-i18n="bk.intro.1">Спор о политике в России обычно начинается с ярлыков: «левые», «либералы», «системные», «оппозиция». Через минуту выясняется, что собеседники вкладывают в одни и те же слова разное, и спорят уже о словаре, а не о партиях.</p>
+        <div class="book-actions">
+          <a class="btn primary" id="bookStart" href="#/about/intro" data-i18n="bk.start">Начать с первой главы</a>
+          <a class="btn" id="bookResume" href="#/about/intro" hidden>Продолжить</a>
+        </div>
+        <div class="about-stats">
         <div class="ab-st"><b id="abStParties">11</b><span>партий на поле</span></div>
         <div class="ab-st"><b id="abStQuiz">90</b><span>утверждений в тесте</span></div>
-        <div class="ab-st"><b id="abStVotes">28</b><span>ключевых голосований</span></div>
+        <div class="ab-st"><b id="abStVotes">44</b><span>ключевых голосований</span></div>
         <div class="ab-st"><b id="abStConv" data-conv-count>6</b><span>созывов Госдумы</span></div>
         <div class="ab-st"><b id="abStSub">6</b><span>под-осей у каждой партии</span></div>
         <div class="ab-st"><b id="abStLangs">2</b><span>языка интерфейса</span></div>
       </div>
-
-      <!-- Оглавление раздела. Собирается скриптом из заголовков самих
-           карточек (js/ui.js): список из тринадцати пунктов, написанный
-           в разметке руками, пришлось бы править дважды на каждый новый
-           раздел и ещё раз в словаре — и однажды он бы отстал. -->
-      <nav class="about-nav" id="aboutNav" hidden aria-label="Разделы «О проекте»"
-           data-i18n-attr="aria-label:ab.nav.h"></nav>
-
-      <article class="card about-card about-card--wide" id="ab-axes" data-reveal>
-        <h3 data-i18n="ab.axes.h">Две оси</h3>
-        <p data-i18n="ab.axes.p">Одномерная шкала «левые — правые» склеивает вещи, которые в жизни не связаны: отношение
-          к собственности и отношение к принуждению. Поэтому осей две, и они независимы.</p>
-
-        <!-- Схема поля вместо описания поля. Два абзаца ниже объясняют,
-             что означает каждая ось; эта картинка показывает, как они
-             складываются в четыре четверти, — и делает это быстрее,
-             чем любой из абзацев. Нарисована разметкой, а не в SVG:
-             здесь нет ни одной кривой, только сетка и подписи, и на
-             гриде это переживает смену кегля без пересчёта. -->
+        <nav class="book-toc-static" aria-labelledby="bookTocH">
+          <h3 id="bookTocH" data-i18n="bk.toc">Оглавление</h3>
+          <ol>
+            <li><a href="#/about/intro" data-ch="intro"><span class="bt-num">1</span><span class="bt-title" data-i18n="bk.intro.t">Что это и зачем</span><span class="bt-dek" data-i18n="bk.intro.d">Карта вместо ярлыков</span></a></li>
+            <li><a href="#/about/axes" data-ch="axes"><span class="bt-num">2</span><span class="bt-title" data-i18n="bk.axes.t">Две оси и координаты</span><span class="bt-dek" data-i18n="bk.axes.d">Почему осей две и что значат числа</span></a></li>
+            <li><a href="#/about/sub" data-ch="sub"><span class="bt-num">3</span><span class="bt-title" data-i18n="bk.sub.t">Шесть под-осей</span><span class="bt-dek" data-i18n="bk.sub.d">Что прячется внутри одной точки</span></a></li>
+            <li><a href="#/about/method" data-ch="method"><span class="bt-num">4</span><span class="bt-title" data-i18n="bk.method.t">Источники и методика оценок</span><span class="bt-dek" data-i18n="bk.method.d">Экспертная оценка, а не измерение</span></a></li>
+            <li><a href="#/about/votes" data-ch="votes"><span class="bt-num">5</span><span class="bt-title" data-i18n="bk.votes.t">Голосования Думы</span><span class="bt-dek" data-i18n="bk.votes.d">Программа — слова, голосование — поступок</span></a></li>
+            <li><a href="#/about/quiz" data-ch="quiz"><span class="bt-num">6</span><span class="bt-title" data-i18n="bk.quiz.t">Тест</span><span class="bt-dek" data-i18n="bk.quiz.d">Как ваша точка попадает на поле</span></a></li>
+            <li><a href="#/about/duel" data-ch="duel"><span class="bt-num">7</span><span class="bt-title" data-i18n="bk.duel.t">Дуэль и «Голосую сам»</span><span class="bt-dek" data-i18n="bk.duel.d">Две партии рядом — и вы рядом с ними</span></a></li>
+            <li><a href="#/about/limits" data-ch="limits"><span class="bt-num">8</span><span class="bt-title" data-i18n="bk.limits.t">Чего здесь нет</span><span class="bt-dek" data-i18n="bk.limits.d">Ограничения, о которых стоит помнить</span></a></li>
+            <li><a href="#/about/history" data-ch="history"><span class="bt-num">9</span><span class="bt-title" data-i18n="bk.history.t">История проекта</span><span class="bt-dek" data-i18n="bk.history.d">Дерево версий от 1.0 до сегодняшней</span></a></li>
+            <li><a href="#/about/author" data-ch="author"><span class="bt-num">10</span><span class="bt-title" data-i18n="bk.author.t">Об авторе</span><span class="bt-dek" data-i18n="bk.author.d">Зачем всё это считать</span></a></li>
+            <li><a href="#/about/tech" data-ch="tech"><span class="bt-num">11</span><span class="bt-title" data-i18n="bk.tech.t">Устройство и открытый код</span><span class="bt-dek" data-i18n="bk.tech.d">HTML, CSS и обычный JavaScript</span></a></li>
+            <li><a href="#/about/check" data-ch="check"><span class="bt-num">12</span><span class="bt-title" data-i18n="bk.check.t">Проверь себя</span><span class="bt-dek" data-i18n="bk.check.d">Двенадцать вопросов по книге</span></a></li>
+            <li><a href="#/about/glossary" data-ch="glossary"><span class="bt-num">А</span><span class="bt-title" data-i18n="bk.glossary.t">Глоссарий</span><span class="bt-dek" data-i18n="bk.glossary.d">Термины сайта на двух языках</span></a></li>
+            <li><a href="#/about/cite" data-ch="cite"><span class="bt-num">Б</span><span class="bt-title" data-i18n="bk.cite.t">Как цитировать</span><span class="bt-dek" data-i18n="bk.cite.d">Ссылка на проект и на данные</span></a></li>
+            <li><a href="#/about/faq" data-ch="faq"><span class="bt-num">В</span><span class="bt-title" data-i18n="bk.faq.t">Быстрые ответы</span><span class="bt-dek" data-i18n="bk.faq.d">Пять вопросов, которые задают чаще всего</span></a></li>
+          </ol>
+        </nav>
+      </header>
+      <div class="book-reader" id="bookReader" hidden></div>
+      <div id="bookParts" hidden>
         <div class="axis-map" aria-hidden="true">
           <span class="am-q am-q--lu"></span>
           <span class="am-q am-q--ru"></span>
@@ -599,174 +598,14 @@
           <span class="am-lab am-lab--right" data-i18n="ab.axes.xhi">+10 рыночная</span>
           <span class="am-dot"></span>
         </div>
-
-        <div class="axis-grid">
-          <div class="axis-box">
-            <div class="k" data-i18n="ab.axes.xk">Горизонталь · экономика</div>
-            <div class="poles"><span data-i18n="ab.axes.xlo">−10 плановая</span><span data-i18n="ab.axes.xhi">+10 рыночная</span></div>
-            <p data-i18n="ab.axes.xp">Кто распоряжается собственностью и доходом: государство через национализацию, планирование
-              и перераспределение — или частные владельцы через рынок, конкуренцию и низкие налоги.</p>
-          </div>
-          <div class="axis-box">
-            <div class="k" data-i18n="ab.axes.yk">Вертикаль · отношение к власти государства</div>
-            <div class="poles"><span data-i18n="ab.axes.ylo">−10 свободы</span><span data-i18n="ab.axes.yhi">+10 этатизм</span></div>
-            <p data-i18n="ab.axes.yp">Сколько государство вправе решать за человека: контроль над словом, собраниями, интернетом
-              и частной жизнью, сила вертикали власти — или права личности, суд, федерализм и самоуправление.</p>
-          </div>
-        </div>
-        <p class="about-note" data-i18n="ab.axes.note">Оси независимы: партия может требовать национализации и при этом выступать
-          за честные выборы — таких сочетаний в российской политике достаточно, и на одной шкале они бы слиплись.</p>
-      </article>
-
-      <article class="card about-card" id="ab-src" data-reveal>
-        <h3 data-i18n="ab.src.h">Откуда берутся координаты</h3>
-        <p data-i18n="ab.src.p">Координаты — это экспертная оценка, а не результат измерения. Каждая позиция выведена
-          из четырёх источников, в порядке приоритета:</p>
-        <ol class="about-list">
-          <li data-i18n-html="ab.src.l1"><b>Программные документы партии</b> — официальная программа и предвыборная платформа.</li>
-          <li data-i18n-html="ab.src.l2"><b>Голосования фракции в Госдуме</b> — что партия поддерживает на практике, а не на словах.</li>
-          <li data-i18n-html="ab.src.l3"><b>Публичная риторика руководства</b> — заявления лидеров и партийных спикеров.</li>
-          <li data-i18n-html="ab.src.l4"><b>Позиция относительно соседей</b> — координата калибруется так, чтобы расстояния между
-            партиями отражали реальную разницу программ, а не только абсолютные значения.</li>
-        </ol>
-        <p data-i18n="ab.src.p2">У каждой партии в карточке есть раздел «Почему такие координаты» — там разбор конкретной позиции.
-          Это и есть главное содержание проекта: не цифра, а обоснование, с которым можно спорить.</p>
-        <p data-i18n="ab.src.p3">С 3.0 у каждой партии две точки. Сплошная — реальная позиция, выведенная из всех четырёх источников. Полая — заявленная: где партия стоит по собственному названию, уставу и предвыборной риторике, то есть по третьему источнику, взятому отдельно. Стрелка между ними и есть разрыв между словом и делом — у «Яблока» он почти нулевой, у ЛДПР и КПРФ самый длинный на поле.</p>
-      </article>
-
-      <article class="card about-card about-card--wide" id="ab-sub" data-reveal>
-        <h3 data-i18n="ab.sub.h">Шесть под-осей</h3>
-        <p data-i18n="ab.sub.p">Точка на компасе — это свёртка, а всякая свёртка что-то теряет. Партия с рыночным
-          взглядом на собственность и жёстким запросом на перераспределение попадает туда же, куда партия,
-          умеренная в обоих вопросах. Поэтому каждая координата дополнительно разложена на три более узкие
-          шкалы в той же системе −10…+10.</p>
-        <ul class="about-list plain">
-          <li data-i18n-html="ab.sub.l1"><b>Собственность</b> — кому принадлежат недра, банки и крупная промышленность.</li>
-          <li data-i18n-html="ab.sub.l2"><b>Перераспределение</b> — насколько сильно налоги и выплаты выравнивают доходы.</li>
-          <li data-i18n-html="ab.sub.l3"><b>Регулирование</b> — как глубоко государство вмешивается в работу компаний.</li>
-          <li data-i18n-html="ab.sub.l4"><b>Гражданские свободы</b> — где заканчивается право государства ограничивать.</li>
-          <li data-i18n-html="ab.sub.l5"><b>Централизация</b> — вертикаль власти против федерализма и самоуправления.</li>
-          <li data-i18n-html="ab.sub.l6"><b>Традиционализм</b> — должно ли государство охранять определённый культурный уклад.</li>
-        </ul>
-        <p class="about-note" data-i18n="ab.sub.note">Среднее трёх под-осей равно координате партии — это требование к данным,
-          а не совпадение: под-оси обязаны объяснять точку на компасе, иначе они начнут жить своей жизнью.
-          Диаграмма-паук в аналитике накладывает профиль партии на ваш результат теста, и расхождения там
-          видны лучше, чем в цифрах.</p>
-      </article>
-
-      <article class="card about-card about-card--wide" id="ab-votes" data-reveal>
-        <h3 data-i18n="ab.votes.h">Ключевые голосования</h3>
-        <p data-i18n="ab.votes.p">Программу можно написать какой угодно, голосование — уже поступок. Отдельная вкладка
-          собирает двадцать знаковых законопроектов — от монетизации льгот 2004 года до запрета
-          «пропаганды чайлдфри» в 2024-м — и показывает, как по ним разошлись фракции.</p>
-        <p data-i18n="ab.votes.p2">Матрица совпадений под таблицей интереснее самих голосований. Она показывает то,
-          что на компасе видно лишь косвенно: расстояние между точками и разница в поведении — не одно и то же.
-          ЛДПР и «Справедливая Россия» стоят в 6.7 единицы друг от друга — почти втрое дальше, чем ЛДПР
-          от «Единой России», — и при этом совпали во всех общих голосованиях, тогда как с ближайшей
-          «Единой Россией» ЛДПР разошлась по пенсионному возрасту. Расстояние на поле измеряет программы,
-          матрица — поведение, и совпадают они не всегда.</p>
-        <p data-i18n="ab.votes.p3">С 4.3 по тем же законопроектам можно проголосовать самому — блок «Проголосуйте сами» покажет, чья фракция голосовала как вы. А «Дуэль партий» сводит две партии в одном окне: расстояние на компасе, восемь шкал и законопроекты, по которым их фракции разошлись.</p>
-        <p class="about-note" data-i18n="ab.votes.note">Позиция фракции приведена как преобладающая: отдельные депутаты голосовали
-          иначе. Там, где у фракции не было официальной позиции, стоит «нет данных», а не догадка — единственная
-          ценность этого раздела в том, что ему можно верить.</p>
-      </article>
-
-
-      <article class="card about-card about-card--wide about-card--feature" id="ab-quiz90" data-reveal>
-        <h3 data-i18n="ab.quiz.h">Тест на 90 утверждений</h3>
-        <p data-i18n="ab.quiz.p">Тест ставит на ту же сетку вас. Сорок пять утверждений про экономику и сорок пять про роль
-          государства, ответ по шкале от «полностью не согласен» до «полностью согласен».
-          Согласие двигает координату к одному полюсу оси, несогласие — к другому; пять ключевых
-          утверждений весят 1.3 против 1 у остальных, потому что разводят позиции сильнее прочих.</p>
-        <p data-i18n="ab.quiz.p2">Версий теста три — на 90, 40 и 20 утверждений, — но это не три анкеты, а три вложенные
-          выборки одного набора и одна общая шкала: короткая целиком входит в стандартную, стандартная —
-          в расширенную, и результат любой из них лежит на том же поле.
-          Результат — две координаты и список партий, отсортированный по расстоянию до вашей точки.
-          Совпадение в процентах считается именно от расстояния и означает близость координат,
-          а не совет за кого-то голосовать.</p>
-        <p data-i18n="ab.quiz.p3">На экране результата раскрывается разбор: каждое утверждение с его вкладом в координату,
-          пятёрка ответов, повлиявших сильнее прочих, и профиль по шести под-осям, наложенный на профиль
-          ближайшей партии. Формула не прячется — сумма вкладов, достижимый максимум и итоговое число
-          показаны прямо в таблице.</p>
-        <p class="about-note" data-i18n="ab.quiz.note">Ответы и результат хранятся только в браузере. Расчёты не отправляются на сервер. Ссылкой на результат и скачанным файлом вы делитесь самостоятельно; выбранные веб-шрифты могут загружаться из Google Fonts.</p>
-      </article>
-
-
-      <article class="card about-card" id="ab-not" data-reveal>
-        <h3 data-i18n="ab.not.h">Чего проект не делает</h3>
-        <ul class="about-list plain">
-          <li data-i18n="ab.not.l1">Не агитирует и не призывает голосовать — материал справочный.</li>
-          <li data-i18n="ab.not.l2">Не измеряет внешнюю политику, национальный вопрос и личное доверие к политикам:
-            две оси не вмещают всё, и это осознанное упрощение.</li>
-          <li data-i18n="ab.not.l3">Не претендует на единственно верные координаты — это оценка, открытая к аргументам.</li>
-          <li data-i18n="ab.not.l4">Не собирает и не передаёт данные о посетителях.</li>
-        </ul>
-      </article>
-
-      <!-- Слово автора (переписано в 2.4.2.1) и реклама соседнего проекта.
-
-           Прежний текст был благодарностью: спасибо, что дочитали,
-           проект начинался как вечерний эксперимент, спасибо тем, кто
-           писал. Всё это правда, но раздел стоит двенадцатым в списке
-           «О проекте» — то есть до него доходит человек, который уже
-           прочитал методику и теперь хочет понять, кто и зачем всё это
-           считал. Отвечать ему перечислением тёплых слов — значит не
-           ответить. Теперь здесь написано, зачем проект вообще
-           существует и чего он про себя не утверждает. -->
-      <article class="card about-card about-card--wide about-author" id="ab-author" data-reveal>
-        <h3 data-i18n="ab.author.h">Слово автора</h3>
-        <p data-i18n="ab.author.p">Этот проект начался с раздражения. В любом споре о политике первые полторы минуты уходят на то, чтобы выяснить, кого собеседник считает «левым», а кого «либералом», — и выясняется, что одним и тем же словом вы называете разные вещи. Координатная сетка не мирит спорящих, но она заставляет их спорить о чём-то проверяемом: не о ярлыке, а о числе и о том, откуда оно взялось.</p>
-        <p data-i18n="ab.author.p2">Поэтому здесь нет ни одной координаты без объяснения и ни одной цифры, которую нельзя выгрузить и пересчитать. Это экспертная оценка, а не измерение: с ней можно и нужно спорить — но спорить придётся с конкретным абзацем, а не с общим ощущением, что «автор предвзят».</p>
-        <ul class="about-list plain">
-          <li data-i18n-html="ab.author.l1"><b>Никакой агитации.</b> Проект не зовёт голосовать, не собирает подписи и не продаёт ничего — ни явно, ни исподволь. Если вам показалось, что какая-то формулировка агитирует, это ошибка формулировки, и о ней стоит написать.</li>
-          <li data-i18n-html="ab.author.l2"><b>Никаких счётчиков.</b> Сколько людей прошло тест и какие ответы они выбирали, автор не знает и узнать не может: ответы не покидают ваш браузер. Это ограничение архитектуры, а не обещание в подвале.</li>
-          <li data-i18n-html="ab.author.l3"><b>Спасибо тем, кто спорит предметно.</b> Половина правок в координатах и почти все найденные баги на телефонах пришли от читателей, которые не поленились написать, где именно не сходится.</li>
-        </ul>
-        <p class="about-note" data-i18n="ab.author.sign">— Arbuzyakaby, автор PolitCompass</p>
-      </article>
-
-      <aside class="card about-card about-card--wide about-promo" data-reveal>
+        <div class="ht" id="abHistory"></div>
+        <div class="ht-sum" id="abHistorySum"></div>
+        <aside class="card about-card about-card--wide about-promo">
         <span class="about-tag" data-i18n="promo.tag">Новый проект автора</span>
         <h3>Lumen Photo Editor</h3>
         <p data-i18n="promo.p">Фоторедактор прямо в браузере: без установки и регистрации. Попробуйте — и расскажите, чего не хватает.</p>
         <p class="about-cta"><a class="btn primary" href="https://arbuzyakaby.github.io/lumen-photo-editor/" target="_blank" rel="noopener noreferrer" data-i18n="promo.cta">Открыть Lumen →</a></p>
       </aside>
-      <!-- История проекта (2.5, с 4.1 — дерево версий). Выпуски и вехи
-           живут в js/data-history.js, дерево и итог под ним рисует
-           js/history-tree.js: сорок узлов, написанных в разметке руками,
-           пришлось бы держать в двух языках и править на каждый выпуск —
-           и однажды они бы отстали от CHANGELOG. Пустой блок без
-           JavaScript просто не показывается: карточка остаётся с
-           заголовком и абзацем, которые и без дерева правдивы. -->
-      <article class="card about-card about-card--wide" id="ab-history" data-reveal>
-        <h3 data-i18n="ab.history.h">История проекта</h3>
-        <p data-i18n="ab.history.p">Проект существует меньше месяца, и половина вех в этом дереве — не новые возможности, а переделки того, что уже было и работало плохо. Это не оговорка: почти всё, чем сейчас можно пользоваться, сначала вышло в виде, который пришлось переписать.</p>
-        <div class="ht" id="abHistory"></div>
-        <div class="ht-sum" id="abHistorySum"></div>
-      </article>
-
-      <!-- Тест по самому разделу (2.5). Вопросы лежат в
-           js/data-quiz-about.js, экраны строит js/about-quiz.js: три
-           варианта на каждый из двенадцати вопросов — это тридцать шесть строк,
-           которые в разметке пришлось бы держать в двух языках.
-           Без JavaScript карточка остаётся с заголовком и абзацем;
-           проверять прочитанное без скрипта всё равно нечем. -->
-      <article class="card about-card about-card--wide" id="ab-quiz" data-reveal>
-        <h3 data-i18n="ab.aq.h">Проверьте себя по разделу</h3>
-        <p data-i18n="ab.aq.p">Двенадцать вопросов о том, как устроен компас. Ответ на каждый написан в одной из карточек выше — это проверка прочитанного, а не викторина на эрудицию. Результат остаётся в вашем браузере и никуда не отправляется.</p>
-        <div class="aq" id="abQuiz"></div>
-      </article>
-
-      <article class="card about-card about-card--wide about-card--tech" id="ab-tech" data-reveal>
-        <h3 data-i18n="ab.tech.h">Как это устроено</h3>
-        <p data-i18n="ab.tech.p">HTML, CSS и обычный JavaScript: исходники запускаются без сборки, при публикации собираются в пакет. Компас и графики рисуются в SVG прямо в браузере. Шесть тем, два языка и пять вкладок; выбранные веб-шрифты загружаются из Google Fonts. Статический русский текст доступен без JavaScript, а интерактивные расчёты требуют его включения.</p>
-
-        <!-- SRPC (2.4): блок-цепочка кода в духе PVFP и FGDRI из настроек.
-             Схема стоит внутри этой карточки, а не отдельным блоком, потому
-             что она не самостоятельный сюжет, а иллюстрация к абзацу выше:
-             тот описывает конвейер словами, эта — показывает его целиком,
-             вместе со сбоем и восстановлением. Разметка статическая, вся
-             анимация и все четыре состояния живут в css/chain.css. -->
         <figure class="chain">
           <figcaption class="chain-cap">
             <span class="chain-badge" data-i18n="ab.chain.badge">SRPC · 6 звеньев</span>
@@ -847,14 +686,8 @@
           <li class="is-crit"><i aria-hidden="true"></i><span data-i18n="ab.chain.lg.crit">критическая ошибка</span></li>
           </ul>
         </figure>
-        <p data-i18n-html="ab.tech.p2">Доступность: точки компаса и элементы легенд достижимы с клавиатуры, у графика динамики есть
-          таблица данных как альтернатива цвету, цвет нигде не остаётся единственным кодом, а анимации
-          выключаются по <code>prefers-reduced-motion</code>.</p>
-        <p class="about-cta" data-i18n-html="ab.tech.cta">Исходный код открыт:
-          <a href="https://github.com/Arbuzyakaby/Russian-Political-Compass" target="_blank" rel="noopener noreferrer">
-            github.com/Arbuzyakaby/Russian-Political-Compass</a>. Замечания к координатам, данным
-          и формулировкам вопросов — через issues.</p>
-      </article>
+        <div class="aq" id="abQuiz"></div>
+      </div>
     </div>
   </section>
 
@@ -866,7 +699,7 @@
     <ul class="si-facts">
       <li><b data-si="parties">11</b><span data-i18n="seo.f.parties">Партии</span></li>
       <li><b data-si="seats">450</b><span data-i18n="seo.f.seats">Мандаты Госдумы</span></li>
-      <li><b data-si="votes">28</b><span data-i18n="seo.f.votes">Голосования</span></li>
+      <li><b data-si="votes">44</b><span data-i18n="seo.f.votes">Голосования</span></li>
       <li><b data-si="quiz">20 · 40 · 90</b><span data-i18n="seo.f.quiz">Утверждения в тесте</span></li>
     </ul>
     <details class="si-more" id="siMore" open>
@@ -894,7 +727,6 @@
                встречало по-английски человека, который английского
                не просил;
        hello — само приветствие;
-       tour  — короткое обучение из четырёх анимированных сцен.
      Вернувшийся после обновления видит один шаг — список изменений,
      он живёт в том же блоке, что и приветствие. -->
 <div class="welcome" id="welcome" hidden>
@@ -975,15 +807,15 @@
       </ul>
 
       <ul class="wel-news" id="welNews" hidden>
-        <li data-i18n="wel.up.l1">Спектр позиций на телефоне снова во всю ширину: шкалы не обрываются посередине.</li>
-        <li data-i18n="wel.up.l2">Под строками спектра больше нет тёмных подложек-пилюль, а значения стоят ровно у правого края.</li>
-        <li data-i18n="wel.up.l3">Заголовки спектра на телефоне — обычным текстом, без крупной разрядки прописными.</li>
-        <li data-i18n="wel.up.l4">Всё, что появилось в 5.0 «Нарев», на месте: компас, тест и голосования, телефон как приложение, новые настройки.</li>
-        <li data-i18n="wel.up.l5">Версия 5.0.1 указана в подвале, истории версий и документации.</li>
+        <li data-i18n="wel.up.l1">«О проекте» стал короткой книгой: двенадцать глав, оглавление, поиск, закладка и печать.</li>
+        <li data-i18n="wel.up.l2">Обучение написано заново: «Быстрый старт» на пять шагов и «Полный тур» на двенадцать.</li>
+        <li data-i18n="wel.up.l3">Голосований стало 44, и у каждого есть ссылка на протокол Госдумы.</li>
+        <li data-i18n="wel.up.l4">Дуэль по созывам и темам; в «Голосую сам» — важные законопроекты и ссылка на ответы.</li>
+        <li data-i18n="wel.up.l5">Английская версия получила свой адрес /en/, а окно настроек стало просторнее.</li>
       </ul>
 
       <div class="wel-actions">
-        <button type="button" class="btn primary" id="welTour" data-i18n="wel.tour">Как пользоваться</button>
+        <button type="button" class="btn primary" id="welGuide" data-i18n="wel.guide">Быстрый старт · 5 шагов</button>
         <button type="button" class="btn" id="welEnter" data-i18n="wel.enter">Смотреть компас</button>
         <button type="button" class="btn ghost" id="welQuiz" data-i18n="wel.quiz">Сразу к тесту</button>
       </div>
@@ -1486,7 +1318,7 @@
             </span>
             <div>
               <b data-i18n="set.privacy.p2.t">Состояние только у вас</b>
-              <span data-i18n="set.privacy.p2.d">Тема, язык, ответы, свои партии и черновик хранятся в localStorage. Передать их можно самостоятельно: ссылкой или файлом.</span>
+              <span data-i18n="set.privacy.p2.d">Тема, язык, ответы теста и «Голосую сам», закладка книги и прогресс обучения хранятся в localStorage. Передать их можно самостоятельно: ссылкой или файлом.</span>
             </div>
           </div>
           <div class="pvfp-point">
@@ -1632,9 +1464,13 @@
       </div>
 
       <div class="set-row">
-        <span class="set-lab"><b data-i18n="set.tour">Обучение</b>
-          <small data-i18n="set.tour.d">Десять шагов по самой странице: экран затемняется, а подсвеченным остаётся тот элемент, о котором идёт речь</small></span>
-        <button type="button" class="btn small" id="setTour" data-i18n="set.tour.start">Пройти обучение</button>
+        <span class="set-lab"><b data-i18n="set.guide">Обучение</b>
+          <small data-i18n="set.guide.d">Быстрый старт — пять шагов по главному, полный тур — двенадцать, от созыва до резервной копии</small>
+          <small class="set-guide-state" id="setGuideState" aria-live="polite"></small></span>
+        <span class="set-guide-btns">
+          <button type="button" class="btn small" id="setGuideQuick" data-i18n="set.guide.quick">Быстрый старт</button>
+          <button type="button" class="btn small" id="setGuideFull" data-i18n="set.guide.full">Полный тур</button>
+        </span>
       </div>
 
       <div class="set-row">
@@ -1782,7 +1618,7 @@
     <dl class="foot-figures" data-reveal>
       <div><dt data-i18n="ft.fig.parties">Партий на поле</dt><dd id="footParties">11</dd></div>
       <div><dt data-i18n="ft.fig.convs">Созывов Госдумы</dt><dd data-conv-count>6</dd></div>
-      <div><dt data-i18n="ft.fig.votes">Ключевых голосований</dt><dd id="footVotes">28</dd></div>
+      <div><dt data-i18n="ft.fig.votes">Ключевых голосований</dt><dd id="footVotes">44</dd></div>
       <div><dt data-i18n="ft.fig.sub">Под-осей у каждой партии</dt><dd>6</dd></div>
     </dl>
 
@@ -1811,7 +1647,7 @@
         <ul>
           <li data-i18n-html="ft.data.l1">Созывы <b>IV–IX</b>, 2003–2026</li>
           <li data-i18n-html="ft.data.l2"><b>450</b> мандатов в каждом созыве</li>
-          <li data-i18n-html="ft.data.l3"><b>28</b> ключевых голосований</li>
+          <li data-i18n-html="ft.data.l3"><b>44</b> ключевых голосования</li>
           <li data-i18n="ft.data.l4">Координаты — экспертная оценка</li>
           <li><a href="#/about"><span data-i18n="ft.data.l5">Как они выведены</span><span class="arr" aria-hidden="true">→</span></a></li>
         </ul>
@@ -1844,7 +1680,7 @@
              С 2.5 здесь стоит человеческий номер (PC.VERSION_LABEL) —
              с приставкой линии, а не голое число. -->
         <span class="foot-version" data-i18n-attr="title:foot.version.tip"
-              title="Версия 5.0.1 «Нарев»: спектр позиций на телефоне снова во всю ширину — без тёмных подложек под строками">5.0.1 «Нарев»</span>
+              title="Версия 5.1 «Нарев»: книга «О проекте», новое обучение, 44 голосования с протоколами Госдумы, дуэль по созывам и английская версия /en/">5.1 «Нарев»</span>
         <span class="foot-rose" role="img" data-i18n-attr="title:foot.rose.tip;aria-label:foot.rose.tip"
               title="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память"
               aria-label="Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память">🌹</span>
@@ -1866,6 +1702,7 @@
 <script src="js/i18n-quiz.js" defer></script>
 <script src="js/i18n-about.js" defer></script>
 <script src="js/i18n-tools.js" defer></script>
+<script src="js/i18n-book.js" defer></script>
 <script src="js/data-parties.js" defer></script>
 <script src="js/data-votes.js" defer></script>
 <script src="js/data-people.js" defer></script>
@@ -1902,11 +1739,12 @@
 <script src="js/quiz-blocks.js" defer></script>
 <script src="js/quiz.js" defer></script>
 <script src="js/about-quiz.js" defer></script>
+<script src="js/book.js" defer></script>
 <script src="js/share.js" defer></script>
 <script src="js/export-data.js" defer></script>
 <script src="js/export.js" defer></script>
 <script src="js/srpc.js" defer></script>
-<script src="js/tour.js" defer></script>
+<script src="js/guide.js" defer></script>
 <script src="js/eggs.js" defer></script>
 <script src="js/mobile.js" defer></script>
 <script src="js/palette.js" defer></script>

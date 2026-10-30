@@ -56,3 +56,29 @@ test("приветствие не показывается по ссылке н�
   }
   assert.equal(welcome.decide({ hash:"#/votes", seen:null, version:V }), "lang");
 });
+
+/* ---------- 5.1: созыв, темы, сводка ---------- */
+test("дуэль внутри одного созыва считает только его голосования", () => {
+  const er = PC.partyById("er"), kprf = PC.partyById("kprf");
+  const all = PC.duel.compare(er, kprf), c8 = PC.duel.compare(er, kprf, 8);
+  assert.ok(c8.agreement.common > 0 && c8.agreement.common < all.agreement.common);
+  assert.ok(c8.same.concat(c8.differ).every(r => r.vote.conv === 8));
+  assert.equal(all.agreement.common, PC.voteAgreement(er, kprf).common);
+});
+
+test("совпадения по темам и по созывам складываются в общий итог", () => {
+  const r = PC.duel.compare(PC.partyById("er"), PC.partyById("ldpr"));
+  assert.deepEqual(Array.from(r.topics, x => x.id), ["econ", "state", "foreign"]);
+  const sum = r.topics.reduce((n, x) => n + x.common, 0);
+  assert.equal(sum, r.agreement.common);
+  assert.equal(r.convs.reduce((n, x) => n + x.common, 0), r.agreement.common);
+  for(const x of r.topics.concat(r.convs)) if(x.common) assert.ok(x.ratio >= 0 && x.ratio <= 1);
+});
+
+test("словесная сводка называет темы, а ссылка дуэли знает созыв", () => {
+  const r = PC.duel.compare(PC.partyById("er"), PC.partyById("kprf"));
+  assert.match(PC.duel.summary(r), /«[^»]+»/);
+  const app = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8");
+  assert.ok(app.includes(String.raw`(?:\?c=(\d))?$`), "маршрут дуэли не принимает ?c=");
+  assert.match(fs.readFileSync(path.join(ROOT, "js", "duel.js"), "utf8"), /"\?c=" \+ state\.c/);
+});

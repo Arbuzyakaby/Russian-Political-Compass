@@ -33,7 +33,7 @@
 
   PC.ABOUT_QUIZ = [
     {
-      id:"axes", card:"ab-axes",
+      id:"axes", card:"axes",
       q:"Почему у компаса две оси, а не одна шкала «левые — правые»?",
       qEn:"Why does the compass have two axes instead of a single left–right scale?",
       a:[
@@ -51,7 +51,7 @@
       whyEn:"The axes are independent by design: a party can demand nationalisation and campaign for fair elections at the same time. Russian politics has plenty of such combinations, and a one-dimensional scale would collapse them into a single point."
     },
     {
-      id:"points", card:"ab-src",
+      id:"points", card:"method",
       q:"Что означает полая точка партии рядом со сплошной?",
       qEn:"What does a party's hollow dot next to the solid one mean?",
       a:[
@@ -69,7 +69,7 @@
       whyEn:"The solid dot is the real position derived from all four sources; the hollow one is the declared position, taken from the third source alone. The longer the arrow between them, the wider the gap between word and deed."
     },
     {
-      id:"sub", card:"ab-sub",
+      id:"sub", card:"sub",
       q:"Как шесть под-осей связаны с точкой партии на компасе?",
       qEn:"How do the six sub-axes relate to a party's point on the compass?",
       a:[
@@ -87,7 +87,7 @@
       whyEn:"The sub-axes must explain the point rather than lead a life of their own: the three economic ones average to X, the three political ones to Y. The reverse does not hold — three scales cannot be derived from one coordinate, or they would add nothing."
     },
     {
-      id:"votes", card:"ab-votes",
+      id:"votes", card:"votes",
       q:"Почему расстояние между партиями на компасе не всегда совпадает с тем, как они голосуют?",
       qEn:"Why does the distance between parties on the compass not always match how they vote?",
       a:[
@@ -105,7 +105,7 @@
       whyEn:"LDPR and A Just Russia stand far apart, yet they split in only one vote out of twenty they had in common, while LDPR split with the nearest party, United Russia, in five out of twenty-three."
     },
     {
-      id:"weight", card:"ab-quiz90",
+      id:"weight", card:"quiz",
       q:"Все ли утверждения теста весят одинаково?",
       qEn:"Do all the quiz statements carry the same weight?",
       a:[
@@ -123,7 +123,7 @@
       whyEn:"The raised weight sits on the statements that separate positions most sharply — nationalisation and the power vertical, for instance. There are five of them, and they appear in all three versions of the quiz, the short one included."
     },
     {
-      id:"scale", card:"ab-quiz90",
+      id:"scale", card:"quiz",
       q:"Версий теста три — на 90, 40 и 20 утверждений. Что у них общего?",
       qEn:"There are three versions of the quiz — 90, 40 and 20 statements. What do they share?",
       a:[
@@ -141,7 +141,7 @@
       whyEn:"The short version is contained in the standard one, the standard in the extended. The difference between them is resolution, not severity: the more statements, the less a spoke on the radar depends on the wording of any single question."
     },
     {
-      id:"not", card:"ab-not",
+      id:"not", card:"limits",
       q:"Что из перечисленного проект про себя не утверждает?",
       qEn:"Which of the following does the project not claim about itself?",
       a:[
@@ -159,7 +159,7 @@
       whyEn:"The coordinates are an expert estimate open to argument: every party card carries written reasoning, and that is what you are invited to dispute. The other two statements are ones the project does make about itself."
     },
     {
-      id:"server", card:"ab-tech",
+      id:"server", card:"tech",
       q:"Где считается всё, что показано на странице?",
       qEn:"Where is everything shown on the page computed?",
       a:[
@@ -177,7 +177,7 @@
       whyEn:"The compass, the hemicycle, the trend chart, the spectrum and the radar are all drawn as SVG right in the browser. There is no server doing any computing at all."
     },
     {
-      id:"export", card:"ab-tech",
+      id:"export", card:"tech",
       q:"В каких форматах проект отдаёт свои данные?",
       qEn:"In what formats does the project hand over its data?",
       a:[
@@ -195,27 +195,27 @@
       whyEn:"The compass image goes out as PNG and SVG, the tables as CSV, the whole dataset as JSON. All of it is assembled in the browser, and nothing is sent anywhere in the process."
     },
     {
-      id:"nojs", card:"ab-tech",
+      id:"nojs", card:"tech",
       q:"Что останется от страницы, если выключить JavaScript?",
       qEn:"What is left of the page if JavaScript is switched off?",
       a:[
         "Пустой экран: разметка собирается скриптом",
-        "Полноценный русский документ — без графиков, но со всем текстом и всеми числами",
+        "Русский документ: описание проекта, обложка и оглавление книги — без графиков, теста и глав",
         "Английская версия: русский накладывается скриптом поверх"
       ],
       aEn:[
         "A blank screen: the markup is assembled by a script",
-        "A fully readable Russian document — no charts, but all of the text and all of the numbers",
+        "A Russian document: the project summary and the book's cover and contents — no charts, quiz or chapters",
         "The English version: Russian is layered on top by a script"
       ],
       ok:1,
-      why:"Разметка написана по-русски и помечена атрибутами перевода, а не собирается скриптом. Английский накладывается поверх — поэтому и без JavaScript, и для поисковика страница остаётся русским документом.",
-      whyEn:"The markup is written in Russian and tagged with translation attributes rather than assembled by a script. English is layered on top — which is why, both without JavaScript and for a search engine, the page stays a Russian document."
+      why:"Разметка написана по-русски и помечена атрибутами перевода, а не собирается скриптом. Английский накладывается поверх — поэтому и без JavaScript, и для поисковика страница остаётся русским документом. Главы книги, графики и тест собираются скриптом.",
+      whyEn:"The markup is written in Russian and tagged with translation attributes rather than assembled by a script. English is layered on top — which is why, both without JavaScript and for a search engine, the page stays a Russian document. The book's chapters, the charts and the quiz are built by script."
     },
     {
-      id:"srpc", card:"ab-tech",
-      q:"Что показывает схема SRPC в карточке «Как это устроено»?",
-      qEn:"What does the SRPC diagram in the “How it is built” card show?",
+      id:"srpc", card:"tech",
+      q:"Что показывает схема SRPC в главе «Устройство и открытый код»?",
+      qEn:"What does the SRPC diagram in the chapter “How it is built, and the source” show?",
       a:[
         "Маршрут пользователя по вкладкам сайта",
         "Путь страницы от разметки до выгрузки, шестью звеньями",
@@ -231,7 +231,7 @@
       whyEn:"Static Render Pipeline Chain is a diagram of the page's own pipeline: markup, styles, data, maths, drawing, export. The signal runs left to right, and that is genuinely how the page assembles itself on load."
     },
     {
-      id:"storage", card:"ab-quiz90",
+      id:"storage", card:"quiz",
       q:"Куда попадают ваши ответы на утверждения теста?",
       qEn:"Where do your answers to the quiz statements go?",
       a:[

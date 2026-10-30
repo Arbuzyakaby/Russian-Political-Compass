@@ -67,6 +67,11 @@
        Пришедший из адреса язык тут же запоминается: иначе следующая
        страница без параметра вернула бы прежний, и переключение
        выглядело бы как сбой. */
+    /* 5.1: собранная английская страница /en/ — английский без параметра */
+    if(/\/en\/(?:index\.html)?$/.test(location.pathname)){
+      safeSet(KEY, "en");
+      return "en";
+    }
     var m = /[?&]lang=([a-z-]+)/i.exec(location.search + location.hash);
     if(m){
       var v = m[1].toLowerCase().slice(0, 2);

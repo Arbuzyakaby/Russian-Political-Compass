@@ -28,7 +28,7 @@
     "ft.data.h":          ["Данные", "Data"],
     "ft.data.l1":         ["Созывы <b>IV–IX</b>, 2003–2026", "Convocations <b>IV–IX</b>, 2003–2026"],
     "ft.data.l2":         ["<b>450</b> мандатов в каждом созыве", "<b>450</b> seats in every convocation"],
-    "ft.data.l3":         ["<b>28</b> ключевых голосований", "<b>28</b> landmark votes"],
+    "ft.data.l3":         ["<b>44</b> ключевых голосования", "<b>44</b> landmark votes"],
     "ft.data.l4":         ["Координаты — экспертная оценка", "Coordinates are an expert estimate"],
     "ft.data.l5":         ["Как они выведены", "How they were derived"],
     "ft.proj.h":          ["Проект", "The project"],
@@ -97,6 +97,8 @@
     "wel.p3.h":           ["Ничего не уходит наружу", "Nothing leaves your browser"],
     "wel.p3.p":           ["Ни счётчиков, ни аналитики. Ответы и настройки лежат только в вашем браузере.",
                            "No trackers, no analytics. Your answers and settings stay in your browser and nowhere else."],
+    "wel.guide":          ["Быстрый старт · 5 шагов", "Quick start · 5 steps"],
+    "wel.up.guide":       ["Новое обучение", "The new tour"],
     "wel.enter":          ["Смотреть компас", "Open the compass"],
     "wel.quiz":           ["Сразу к тесту", "Straight to the quiz"],
     "wel.note":           ["Это окно больше не появится — разве что после следующего обновления. Вернуть его можно в настройках.",
@@ -107,11 +109,11 @@
     "wel.up.lede":        ["Вы уже бывали здесь, так что коротко. Это «Нарев» — большая уборка: всё лишнее вынесено, всё нужное стало удобнее.",
                            "You have been here before, so briefly. This is “Narew” — a big clear-out: everything superfluous is gone, everything that matters is easier to use."],
     "wel.up.enter":       ["Понятно, дальше", "Got it, carry on"],
-    "wel.up.l1": ["Спектр позиций на телефоне снова во всю ширину: шкалы не обрываются посередине.", "The position spectrum on phones is full-width again: the scales no longer stop halfway."],
-    "wel.up.l2": ["Под строками спектра больше нет тёмных подложек-пилюль, а значения стоят ровно у правого края.", "No more dark pills behind the spectrum rows, and the values line up at the right edge."],
-    "wel.up.l3": ["Заголовки спектра на телефоне — обычным текстом, без крупной разрядки прописными.", "Spectrum headings on phones are plain text, without large spaced capitals."],
-    "wel.up.l4": ["Всё, что появилось в 5.0 «Нарев», на месте: компас, тест и голосования, телефон как приложение, новые настройки.", "Everything from 5.0 “Narew” is still here: the compass, the quiz and the votes, the phone as an app, the new settings."],
-    "wel.up.l5": ["Версия 5.0.1 указана в подвале, истории версий и документации.", "Version 5.0.1 is shown in the footer, the version history and the docs."],
+    "wel.up.l1": ["«О проекте» стал короткой книгой: двенадцать глав, оглавление, поиск, закладка и печать.", "About is now a short book: twelve chapters, contents, search, a bookmark and printing."],
+    "wel.up.l2": ["Обучение написано заново: «Быстрый старт» на пять шагов и «Полный тур» на двенадцать.", "The tour is rewritten: a five-step quick start and a twelve-step full tour."],
+    "wel.up.l3": ["Голосований стало 44, и у каждого есть ссылка на протокол Госдумы.", "There are now 44 votes, each linked to the Duma's own voting record."],
+    "wel.up.l4": ["Дуэль по созывам и темам; в «Голосую сам» — важные законопроекты и ссылка на ответы.", "Face-offs by convocation and topic; important bills and a share link in Cast your own votes."],
+    "wel.up.l5": ["Английская версия получила свой адрес /en/, а окно настроек стало просторнее.", "The English version has its own address, /en/, and the settings window is roomier."],
     "ab.author.h":        ["Слово автора", "A note from the author"],
     "ab.author.p":        ["Этот проект начался с раздражения. В любом споре о политике первые полторы минуты уходят на то, чтобы выяснить, кого собеседник считает «левым», а кого «либералом», — и выясняется, что одним и тем же словом вы называете разные вещи. Координатная сетка не мирит спорящих, но она заставляет их спорить о чём-то проверяемом: не о ярлыке, а о числе и о том, откуда оно взялось.",
                            "This project started out of irritation. In any political argument the first ninety seconds go on working out whom the other person calls “left” and whom they call “liberal” — and it turns out you are using the same words for different things. A coordinate grid does not reconcile anyone, but it makes the argument about something checkable: not about a label, but about a number and where that number came from."],
@@ -137,11 +139,10 @@
                            "Secret code found. Thanks for reading the code, not just the interface."],
     "quiz.congrats":      ["Поздравляю, тест пройден! Спасибо, что дошли до конца. — автор",
                            "Congratulations, you finished the quiz! Thanks for sticking with it. — the author"],
-    "wel.tour":           ["Как пользоваться", "Show me around"],
     /* Ключи wel.skip / wel.back / wel.next / wel.done и все wel.t* жили
        здесь до 2.4.2.1 и обслуживали обучение, нарисованное внутри
        приветственного окна. Обучение переехало на саму страницу
-       (js/tour.js) и завело собственный набор ключей tour.*; старый
+       (с 5.1 — js/guide.js, ключи guide.*); старый
        набор удалён целиком, а не оставлен «вдруг пригодится»: словарь
        с двумя параллельными наборами подписей для одного и того же
        рано или поздно расходится, и расходится он молча. */
@@ -157,8 +158,8 @@
                            "Hover over a dot for a quick card. Click it to open the party in full, reasoning included."],
 
     /* ===== вкладка голосований ===== */
-    "votes.lede.short":   ["Программу можно написать какой угодно — голосование уже поступок. Двадцать восемь законопроектов 2004–2025 годов и позиция каждой фракции по каждому из них.",
-                           "A platform can say anything; a vote is an act. Twenty-eight bills from 2004 to 2025, and where every faction stood on each of them."],
+    "votes.lede.short":   ["Программу можно написать какой угодно — голосование уже поступок. Сорок четыре законопроекта 2004–2025 годов и позиция каждой фракции по каждому из них.",
+                           "A platform can say anything; a vote is an act. Forty-four bills from 2004 to 2025, and where every faction stood on each of them."],
     "votes.s1":           ["голосований", "votes"],
     "votes.s2":           ["годы", "years"],
     "votes.s3":           ["фракций", "factions"],
@@ -191,7 +192,7 @@
     "ui.top":             ["Наверх", "Back to top"],
     "ui.topAria":         ["Вернуться к началу страницы", "Return to the top of the page"],
     "foot.privacy":       ["Без счётчиков и аналитики · Шрифты Google загружаются при выборе","No trackers or analytics · Google Fonts load only for the typeface you pick"],
-    "foot.version.tip": ["Версия 5.0.1 «Нарев»: спектр позиций на телефоне снова во всю ширину — без тёмных подложек под строками", "Version 5.0.1 “Narew”: the position spectrum on phones is full-width again — no dark pills behind the rows"],
+    "foot.version.tip": ["Версия 5.1 «Нарев»: книга «О проекте», новое обучение, 44 голосования с протоколами Госдумы, дуэль по созывам и английская версия /en/", "Version 5.1 “Narew”: the About book, a new tour, 44 votes with Duma voting records, face-offs by convocation and an English version at /en/"],
     "foot.rose.tip":      ["Здесь была пасхалка про Horse Update в Minecraft 1.6 — роза осталась на память",
                            "A Horse Update easter egg used to live here — the rose is what's left of it"],
 

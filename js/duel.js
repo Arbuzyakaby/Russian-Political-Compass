@@ -21,18 +21,42 @@
   /* Сравнение двух партий. Голосования считаются по тем же правилам, что
      матрица совпадений (PC.voteAgreement): только законопроекты, по
      которым известны позиции обеих фракций. */
-  function compare(a, b){
-    var d = PC.calc.distance(a, b);
-    var agreement = PC.voteAgreement(a, b);
-    var votes = PC.VOTES.map(function(v){
+  function stances(a, b, conv){
+    return PC.VOTES.filter(function(v){ return !conv || v.conv === conv; }).map(function(v){
       return { vote:v, a:PC.voteStance(v, a), b:PC.voteStance(v, b) };
     }).filter(function(r){
       return r.a !== "absent" && r.a !== "unknown" && r.b !== "absent" && r.b !== "unknown";
     });
+  }
+  function shareOf(list){
+    var same = list.filter(function(r){ return r.a === r.b; }).length;
+    return { same:same, common:list.length, ratio:list.length ? same / list.length : null };
+  }
+
+  /* 5.1: conv — сравнение внутри одного созыва (0 — все); topics — доля
+     совпадений по темам голосований; convs — по каждому созыву, где у
+     обеих фракций есть общие голосования. Координаты партий в данных
+     одни на все созывы, поэтому «сближение по созывам» — это сближение
+     в поведении, а не на поле. */
+  function compare(a, b, conv){
+    var d = PC.calc.distance(a, b);
+    var votes = stances(a, b, conv || 0);
+    var all = stances(a, b, 0);
+    var topics = ["econ", "state", "foreign"].map(function(id){
+      var r = shareOf(votes.filter(function(x){ return x.vote.topic === id; }));
+      r.id = id;
+      return r;
+    });
+    var convs = [4, 5, 6, 7, 8, 9].map(function(c){
+      var r = shareOf(all.filter(function(x){ return x.vote.conv === c; }));
+      r.conv = c;
+      return r;
+    }).filter(function(r){ return r.common > 0; });
     return {
-      a:a, b:b, distance:d, share:d / MAX_DISTANCE, verdict:verdict(d),
+      a:a, b:b, distance:d, share:d / MAX_DISTANCE, verdict:verdict(d), conv:conv || 0,
       axes:PC.calc.subaxisDelta(a, b),
-      agreement:agreement,
+      agreement:conv ? shareOf(votes) : PC.voteAgreement(a, b),
+      topics:topics, convs:convs,
       same:votes.filter(function(r){ return r.a === r.b; }),
       differ:votes.filter(function(r){ return r.a !== r.b; }),
       biggest:PC.calc.subaxisDelta(a, b).filter(function(x){ return x.delta != null; })
@@ -40,9 +64,22 @@
     };
   }
 
+  /* Словесная сводка: в какой теме партии совпадали чаще всего и в какой
+     реже — по темам, где общих голосований не меньше двух. */
+  function summary(r){
+    var ok = r.topics.filter(function(x){ return x.common >= 2; })
+      .sort(function(x, y){ return y.ratio - x.ratio; });
+    if(!ok.length) return "";
+    var hi = ok[0], lo = ok[ok.length - 1];
+    var name = function(x){ return t("duel.topic." + x.id); };
+    if(hi === lo || hi.ratio === lo.ratio) return t("duel.sum.one", { topic:name(hi), p:Math.round(hi.ratio * 100) });
+    return t("duel.sum.two", { hi:name(hi), hp:Math.round(hi.ratio * 100), lo:name(lo), lp:Math.round(lo.ratio * 100) });
+  }
+
   /* ---------- окно ---------- */
   var dialog, pickA, pickB, body, lastFocus;
-  var state = { a:null, b:null };
+  var state = { a:null, b:null, c:0 };
+  var pickC;
 
   function esc(s){ return PC.utils.esc(s); }
   function fmt(v){ return (v > 0 ? "+" : "") + v.toFixed(1); }
@@ -80,7 +117,7 @@
   var prevHash = "";
   function base(){ return location.pathname + location.search; }
   function isDuelHash(){ return /^#\/duel\//.test(location.hash); }
-  function pairHash(){ return "#/duel/" + state.a + "-" + state.b; }
+  function pairHash(){ return "#/duel/" + state.a + "-" + state.b + (state.c ? "?c=" + state.c : ""); }
   function syncHash(){
     if(history.replaceState && state.a && state.b) history.replaceState(null, "", base() + pairHash());
   }
@@ -142,7 +179,7 @@
       body.innerHTML = '<p class="duel-empty">' + PC.icon("alert") + esc(t("duel.same")) + "</p>";
       return;
     }
-    var r = compare(a, b);
+    var r = compare(a, b, state.c);
     var pct = r.agreement.ratio == null ? null : Math.round(r.agreement.ratio * 100);
     body.innerHTML =
       '<div class="duel-top">' + miniMap(r) +
@@ -160,11 +197,13 @@
         track(t("side.econ"), a.x, b.x, r) + track(t("side.state"), a.y, b.y, r) +
         r.axes.map(function(x){ return track(t("sub." + x.axis.id), x.a, x.b, r); }).join("") +
       "</div>" +
-      '<h3 class="duel-h">' + esc(t("duel.votes")) + "</h3>" +
+      '<h3 class="duel-h">' + esc(t("duel.votes")) + (state.c ? " · " + esc(convName(state.c)) : "") + "</h3>" +
       (pct == null
         ? '<p class="duel-note">' + esc(t("duel.noCommon")) + "</p>"
         : '<p class="duel-agree"><b>' + pct + "%</b> " + esc(t("duel.agree", { k:r.agreement.same, n:r.agreement.common })) + "</p>" +
-          '<div class="duel-agree-bar" aria-hidden="true"><i style="width:' + pct + '%"></i></div>') +
+          '<div class="duel-agree-bar" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+          (summary(r) ? '<p class="duel-summary">' + esc(summary(r)) + "</p>" : "") +
+          topicBars(r) + convChart(r)) +
       (r.differ.length
         ? '<p class="duel-sub">' + esc(t("duel.differ", { n:r.differ.length })) + '</p><ul class="duel-bills">' +
           r.differ.map(function(x){
@@ -173,6 +212,30 @@
               '<span class="duel-bill-s">' + stanceChip(x.a, a) + stanceChip(x.b, b) + "</span></button></li>";
           }).join("") + "</ul>"
         : (pct != null ? '<p class="duel-note">' + esc(t("duel.allSame")) + "</p>" : ""));
+  }
+
+  function convName(c){
+    var x = PC.CONVOCATIONS.filter(function(k){ return k.id === c; })[0];
+    return x ? L(x, "label") : String(c);
+  }
+  function topicBars(r){
+    return '<ul class="duel-topics">' + r.topics.map(function(x){
+      var p = x.ratio == null ? null : Math.round(x.ratio * 100);
+      return '<li><span class="dt-name">' + esc(t("duel.topic." + x.id)) + '</span>' +
+        '<span class="dt-bar" aria-hidden="true"><i style="width:' + (p || 0) + '%"></i></span>' +
+        '<span class="dt-val">' + (p == null ? "—" : p + "%") + (x.common ? " <small>" + x.same + "/" + x.common + "</small>" : "") + "</span></li>";
+    }).join("") + "</ul>";
+  }
+  /* столбики по созывам: высота — доля совпадений, подпись — номер созыва */
+  function convChart(r){
+    if(r.convs.length < 2) return "";
+    return '<h4 class="duel-h4">' + esc(t("duel.byConv")) + '</h4><div class="duel-convs" role="list">' + r.convs.map(function(x){
+      var p = Math.round(x.ratio * 100);
+      var name = convName(x.conv);
+      return '<div class="dc" role="listitem" aria-label="' + esc(name + ": " + p + "% (" + x.same + "/" + x.common + ")") + '">' +
+        '<span class="dc-bar" aria-hidden="true"><i style="height:' + Math.max(4, p) + '%"></i></span>' +
+        '<b>' + p + '%</b><small>' + esc(name.split(" ")[0]) + "</small></div>";
+    }).join("") + "</div>";
   }
 
   function build(){
@@ -206,6 +269,20 @@
     swap.addEventListener("click", function(){ var x = state.a; state.a = state.b; state.b = x; sync(); render(); syncHash(); });
     var picks = el("div", "duel-picks");
     picks.append(a.wrap, swap, b.wrap);
+    /* созыв: все или один — сравнение голосований внутри него */
+    var cw = el("label", "duel-pick duel-pick-conv");
+    cw.htmlFor = "duelC";
+    pickC = el("select");
+    pickC.id = "duelC";
+    pickC.setAttribute("data-native", "");
+    var o0 = el("option", "", t("duel.convAll"));
+    o0.value = "0";
+    pickC.appendChild(o0);
+    PC.CONVOCATIONS.filter(function(c){ return !c.draft && PC.VOTES.some(function(v){ return v.conv === c.id; }); })
+      .forEach(function(c){ var o = el("option", "", L(c, "label")); o.value = String(c.id); pickC.appendChild(o); });
+    cw.append(el("span", "duel-pick-cap", t("duel.conv")), pickC);
+    picks.appendChild(cw);
+    pickC.addEventListener("change", function(){ state.c = +pickC.value || 0; render(); syncHash(); });
     body = el("div", "duel-body");
     dialog.append(head, picks, body);
     document.body.appendChild(dialog);
@@ -232,17 +309,18 @@
     window.addEventListener("hashchange", function(){ if(dialog.open && !isDuelHash()) dialog.close(); });
   }
 
-  function sync(){ pickA.value = state.a; pickB.value = state.b; }
+  function sync(){ pickA.value = state.a; pickB.value = state.b; pickC.value = String(state.c || 0); }
 
   /* Вторая партия по умолчанию — ближайшая к первой: с неё сравнение
      интереснее, чем с соседом по списку. */
-  function open(a, b){
+  function open(a, b, c){
     if(!PC.PARTIES || !PC.PARTIES.length) return;
     if(!dialog) build();
     if(PC.utils.modalOpen() && !dialog.open) return;
     fill(pickA); fill(pickB);
     state.a = PC.partyById(a) ? a : PC.PARTIES[0].id;
     state.b = PC.partyById(b) && b !== state.a ? b : PC.calc.rankParties(PC.partyById(state.a), state.a)[0].p.id;
+    state.c = PC.VOTES.some(function(v){ return v.conv === +c; }) ? +c : 0;
     sync();
     render();
     if(!dialog.open){
@@ -254,5 +332,5 @@
     pickB.focus();
   }
 
-  PC.duel = { compare:compare, open:open, verdict:verdict, MAX_DISTANCE:MAX_DISTANCE };
+  PC.duel = { compare:compare, summary:summary, open:open, verdict:verdict, MAX_DISTANCE:MAX_DISTANCE };
 })(window.PC = window.PC || {});

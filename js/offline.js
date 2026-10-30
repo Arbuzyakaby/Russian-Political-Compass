@@ -53,7 +53,7 @@
     window.addEventListener("online", sync);
     if(!supported()) return;
     var hadController = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.register("sw.js").then(function(reg){
+    navigator.serviceWorker.register((document.documentElement.dataset.root || "") + "sw.js").then(function(reg){
       if(reg.active) hadController = true;          /* жёсткая перезагрузка: страница без работника, но он установлен */
       if(reg.waiting && hadController) offerUpdate(reg.waiting);
       reg.addEventListener("updatefound", function(){

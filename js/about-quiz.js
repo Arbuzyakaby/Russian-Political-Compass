@@ -202,9 +202,9 @@
         if(!q || seen[q.card]) return;
         seen[q.card] = true;
         var li = el("li");
-        var card = document.getElementById(q.card);
-        var h = card && card.querySelector("h3");
-        var b = el("button", "aq-go", h ? h.textContent.trim() : t("ab.aq.reread"));
+        /* с 5.1 карточки стали главами книги: подпись — название главы */
+        var title = PC.book ? PC.book.anchorTitle(q.card) : "";
+        var b = el("button", "aq-go", title || t("ab.aq.reread"));
         b.type = "button";
         b.addEventListener("click", function(){
           if(PC.ui && PC.ui.aboutNavGo) PC.ui.aboutNavGo(q.card);

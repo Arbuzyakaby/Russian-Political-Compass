@@ -543,16 +543,17 @@ test("приветствие: выбор языка, приветствие, о�
   /* с 5.0 заголовок здоровается по времени суток — какое оно у машины с тестом, заранее неизвестно */
   await expect(page.locator("#welTitle")).toHaveText(/^(?:Good (?:morning|afternoon|evening|night)|Welcome)$/);
 
-  await page.locator("#welTour").click();
-  await expect(page.locator(".tour")).toBeVisible();
-  const tourSteps = Number((await page.locator("#tourCount").innerText()).match(/of (\d+)/i)[1]);
+  await page.locator("#welGuide").click();
+  await expect(page.locator(".guide")).toBeVisible();
+  await expect(page.locator("#guideCount")).toHaveText(/Step 1 of \d+/);
+  const tourSteps = Number((await page.locator("#guideCount").innerText()).match(/of (\d+)/i)[1]);
   for(let i = 0; i < tourSteps; i++){
-    await expect(page.locator("#tourCount")).toHaveText(`Step ${i + 1} of ${tourSteps}`, { ignoreCase:true });
-    await expect(page.locator("#tourText")).not.toHaveText("");
-    await expect(page.locator("#tourText")).not.toContainText(/[а-яё]/i);
-    await page.locator("#tourNext").press("ArrowRight");
+    await expect(page.locator("#guideCount")).toHaveText(`Step ${i + 1} of ${tourSteps}`, { ignoreCase:true });
+    await expect(page.locator("#guideText")).not.toHaveText("");
+    await expect(page.locator("#guideText")).not.toContainText(/[а-яё]/i);
+    await page.locator("#guideNext").press("ArrowRight");
   }
-  await expect(page.locator(".tour")).toBeHidden();
+  await expect(page.locator(".guide")).toBeHidden();
   await expect(welcome).toBeHidden();
 
   await page.reload();

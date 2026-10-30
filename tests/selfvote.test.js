@@ -80,3 +80,37 @@ test("«Голосую сам»: рейтинг по теме считает т�
   assert.deepEqual(PC.selfVote.score(mine, PC.VOTES).map(r => r.p.id), all.map(r => r.p.id), "без темы — все законопроекты");
   assert.ok(PC.votes.TOPICS.some(t => t.id === "foreign"));
 });
+
+/* ---------- 5.1: веса, ссылка, совместимость ---------- */
+test("«Голосую сам»: ссылка на ответы кодирует и читает ответы и важность", () => {
+  const votes = { [PC.VOTES[0].id]:"for", [PC.VOTES[3].id]:"against", [PC.VOTES[10].id]:"abstain" };
+  const imp = { [PC.VOTES[3].id]:true };
+  const code = PC.selfVote.encode(votes, imp);
+  assert.match(code, /^v1\.[-fabFAB]+$/);
+  assert.ok(code.length <= 3 + PC.VOTES.length, "код длиннее набора");
+  const back = PC.selfVote.decode(code);
+  assert.deepEqual({ ...back.votes }, votes);
+  assert.deepEqual({ ...back.imp }, imp);
+  /* старая (короткая) ссылка читается: недостающее — «нет ответа» */
+  assert.deepEqual({ ...PC.selfVote.decode("v1.f").votes }, { [PC.VOTES[0].id]:"for" });
+  for(const bad of ["", "v2.fff", "v1.xyz", "v1." + "f".repeat(700), null, 5]) assert.equal(PC.selfVote.decode(bad), null, String(bad).slice(0, 20));
+});
+
+test("«Голосую сам»: важный законопроект весит вдвое", () => {
+  const kprf = PC.partyById("kprf");
+  const known = PC.VOTES.filter(v => ["for", "against"].includes(PC.voteStance(v, kprf)));
+  const agree = known[0], disagree = known[1];
+  const flip = s => s === "for" ? "against" : "for";
+  const votes = { [agree.id]:PC.voteStance(agree, kprf), [disagree.id]:flip(PC.voteStance(disagree, kprf)) };
+  const plain = PC.selfVote.score(votes).find(r => r.p.id === "kprf");
+  const heavy = PC.selfVote.score(votes, undefined, { [agree.id]:true }).find(r => r.p.id === "kprf");
+  assert.equal(plain.ratio, 0.5);
+  assert.equal(heavy.common, 3);
+  assert.ok(Math.abs(heavy.ratio - 2 / 3) < 1e-9);
+});
+
+test("«Голосую сам»: старые сохранённые ответы без поля imp остаются валидными", () => {
+  assert.ok(PC.votes.validSelf({ v:1, votes:{ [PC.VOTES[0].id]:"for" } }));
+  assert.ok(PC.votes.validSelf({ v:1, votes:{ [PC.VOTES[0].id]:"for" }, imp:[PC.VOTES[0].id] }));
+  assert.match(read("js/nav.js"), /selfvote/);
+});

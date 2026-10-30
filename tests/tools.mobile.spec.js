@@ -38,7 +38,7 @@ for(const width of [320, 390]){
       expect(box.height).toBeGreaterThanOrEqual(44);
     }
     await page.locator('.sv-choice[data-choice="for"]').tap();
-    await expect(page.locator(".sv-count")).toHaveText("Отвечено: 1 из 28");
+    await expect(page.locator(".sv-count")).toHaveText("Отвечено: 1 из 44");
     /* окно дуэли меряется при обычном тексте: при 200% в мобильной эмуляции
        сама страница шире экрана ещё с 4.2, и лист растягивается вместе с ней;
        дуэль при 200% проверяется на 320 px в tools43.visual.spec.js */

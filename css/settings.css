@@ -48,13 +48,13 @@
 .sheet{
   position:fixed;z-index:calc(var(--z-sheet,80) + 1);
   top:50%;left:50%;
-  width:min(860px,calc(100vw - 32px));
+  width:min(1080px,calc(100vw - 40px));
   /* Высота фиксированная, а не «до стольки-то»: с max-height окно
      подстраивалось под содержимое каждого раздела и прыгало при каждом
      переключении рельса — то на треть выше, то ниже. Одна и та же
      высота на всех шести (семи с 2.3.1.1) разделах читается как одно
      окно с меняющимся содержимым, а не как семь окон разного размера. */
-  height:min(660px,calc(100vh - 48px));
+  height:min(880px,calc(100vh - 40px));
   display:flex;flex-direction:column;overflow:hidden;
   border-radius:var(--radius-lg);border:1px solid var(--stroke-2);
   background:var(--glass-bg-2);
@@ -335,8 +335,10 @@ body.sheet-lock{overflow:hidden;}
    крутится и не наклоняется — в проекте лежачие слои не наклоняют. */
 .pvfp-card{
   position:relative;
-  text-align:center;max-width:52ch;margin:6px auto 0;
-  padding:22px 20px 4px;
+  /* 5.1: на всю ширину раздела — в широком окне колонка в 52 знака
+     оставляла по бокам пустые поля */
+  text-align:center;margin:6px 0 0;
+  padding:26px 28px 10px;
   border-radius:var(--radius-lg);
   border:1px solid var(--glass-stroke);
   background:
@@ -368,7 +370,7 @@ body.sheet-lock{overflow:hidden;}
   0%,100%{ transform:translateY(-6px); opacity:.45; }
   50%    { transform:translateY(10px); opacity:.85; }
 }
-.pvfp-lock{width:60px;height:60px;margin:0 auto 12px;overflow:visible;position:relative;z-index:1;
+.pvfp-lock{display:block;width:60px;height:60px;margin:0 auto 12px;overflow:visible;position:relative;z-index:1;
   animation:pvfpPop .5s var(--ease-spring) both;}
 .pvfp-lock .shackle{
   transform-origin:32px 29px;
@@ -424,12 +426,13 @@ body.sheet-lock{overflow:hidden;}
   0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 45%,transparent); }
   50%    { box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 0%,transparent); }
 }
-.pvfp-lead{font-size:calc(12px * var(--text-k));line-height:1.55;color:var(--muted);margin-bottom:18px;position:relative;z-index:1;}
+.pvfp-lead{font-size:calc(13px * var(--text-k));line-height:1.55;color:var(--muted);margin:0 auto 20px;max-width:64ch;position:relative;z-index:1;}
 .pvfp-points{
   display:grid;grid-template-columns:1fr;gap:10px;text-align:left;margin-bottom:16px;
   position:relative;z-index:1;
 }
 @media(min-width:480px){ .pvfp-points{ grid-template-columns:1fr 1fr; } }
+@media(min-width:1100px){ .pvfp-points{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
 .pvfp-point{
   display:flex;align-items:flex-start;gap:10px;
   padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--stroke);
@@ -587,6 +590,29 @@ body.sheet-lock{overflow:hidden;}
    и использовались. */
 .set-meta{font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.6;}
 .set-actions{display:flex;flex-wrap:wrap;gap:10px;}
+
+/* ---------- подвал раздела и хранилище (5.1) ---------- */
+.set-gfoot{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--hairline,var(--stroke));}
+.set-gfoot-t{margin:0;min-width:0;font-size:calc(13px * var(--text-k));line-height:1.5;color:var(--muted);max-width:52ch;}
+.set-gfoot-btn{flex:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+.set-gfoot-btn .ico{width:15px;height:15px;}
+.set-store{margin-top:18px;padding:16px 18px;border-radius:var(--radius);
+  border:1px solid var(--stroke);background:var(--surface-2);display:grid;gap:12px;}
+.set-store-h{display:grid;gap:3px;}
+.set-store-h b{font-size:calc(15px * var(--text-k));}
+.set-store-h span{font-size:calc(13px * var(--text-k));color:var(--muted);line-height:1.5;}
+.set-store-keys{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;}
+.set-store-keys code{display:inline-block;padding:4px 9px;border-radius:8px;
+  font-family:var(--font-mono);font-size:calc(12.5px * var(--text-k));
+  background:var(--surface);border:1px solid var(--stroke);color:var(--text);white-space:nowrap;}
+.set-erase{justify-self:start;color:var(--bad,#c0392b);border-color:color-mix(in srgb,var(--bad,#c0392b) 40%,transparent);}
+.set-erase:hover{background:var(--bad-soft,rgba(192,57,43,.1));}
+@media(max-width:520px){
+  .set-gfoot{flex-direction:column;align-items:stretch;}
+  .set-gfoot-btn{justify-content:center;min-height:44px;}
+  .set-erase{justify-self:stretch;min-height:44px;}
+}
 
 /* ============ НАСТРОЙКИ 5.0 ============
    Акцентный цвет поверх темы (сами значения — в css/tokens.css, вариант

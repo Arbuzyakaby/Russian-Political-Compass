@@ -1,0 +1,96 @@
+/* ============ Обучение 5.1 (js/guide.js) ============
+   Затемнение — SVG с вырезом, над вырезом — обводка цветом акцента,
+   подпись — карточка у цели или нижний лист над панелью вкладок.
+   Анимируются только opacity и transform. ============ */
+
+.guide{position:fixed;inset:0;z-index:200;pointer-events:auto;opacity:0;
+  transition:opacity var(--dur-2,.22s) var(--ease-out,ease);}
+.guide.is-on{opacity:1;}
+.guide.is-still,.guide.is-still *{transition:none;animation:none;}
+
+.guide-veil{position:absolute;inset:0;width:100%;height:100%;}
+.guide-veil path{fill:rgba(6,8,14,.58);}
+:root[data-scheme="dark"] .guide-veil path{fill:rgba(0,0,0,.66);}
+
+.guide-ring{position:absolute;left:0;top:0;pointer-events:none;
+  border:2px solid var(--accent);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 22%,transparent),0 10px 40px rgba(0,0,0,.25);
+  transition:transform .32s var(--ease-out,ease),opacity .2s ease;}
+.guide.is-waiting .guide-ring{opacity:0;}
+
+/* ---------- карточка ---------- */
+.guide-card{position:absolute;left:24px;top:24px;width:min(372px,calc(100vw - 32px));
+  box-sizing:border-box;padding:16px 18px 14px;
+  /* поверхность темы бывает полупрозрачной (стекло): под карточкой
+     подкладывается сплошной фон темы, иначе сквозь текст видна страница */
+  background:linear-gradient(var(--surface),var(--surface)),var(--bg);color:var(--text);
+  border:1px solid var(--stroke);border-radius:var(--radius-lg,26px);
+  box-shadow:var(--shadow-lift,0 24px 60px rgba(0,0,0,.28));
+  outline:none;}
+.guide-card.is-in{animation:guide-in .28s var(--ease-out,ease) both;}
+@keyframes guide-in{from{opacity:0;transform:translateY(6px) scale(.985);}to{opacity:1;transform:none;}}
+.guide.is-waiting .guide-card{opacity:.0;}
+
+.guide-grab{display:none;}
+
+.guide-top{display:flex;align-items:center;gap:10px;min-width:0;}
+.guide-mode{flex:none;font-size:12px;font-weight:650;letter-spacing:.01em;white-space:nowrap;
+  padding:4px 10px;border-radius:var(--radius-pill,999px);
+  background:var(--accent-soft);color:var(--accent-ink,var(--accent));}
+.guide-count{flex:1;min-width:0;font-size:13px;color:var(--muted);
+  font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.guide-x{flex:none;display:grid;place-items:center;width:32px;height:32px;min-height:0;
+  margin:-4px -6px -4px 0;padding:0;border:0;border-radius:50%;
+  background:var(--surface-2);color:var(--muted);cursor:pointer;}
+.guide-x:hover{color:var(--text);}
+.guide-x .ico{width:14px;height:14px;}
+
+.guide-bar{display:flex;gap:4px;margin:12px 0 14px;}
+.guide-bar i{flex:1;height:4px;border-radius:2px;background:var(--stroke);
+  transition:background-color .25s ease;}
+.guide-bar i.is-past{background:color-mix(in srgb,var(--accent) 45%,var(--stroke));}
+.guide-bar i.is-now{background:var(--accent);}
+
+.guide-h{margin:0 0 6px;font-family:var(--font-display);font-size:calc(19px * var(--text-k,1));
+  line-height:1.25;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere;}
+.guide-p{margin:0;font-size:calc(15px * var(--text-k,1));line-height:1.5;color:var(--body,var(--text));
+  overflow-wrap:anywhere;}
+
+.guide-foot{display:flex;align-items:center;gap:8px;margin-top:16px;}
+.guide-skip{margin-right:auto;padding:8px 4px;min-height:0;border:0;background:none;
+  font:inherit;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+.guide-skip:hover{color:var(--text);text-decoration:underline;text-underline-offset:3px;}
+.guide-foot .btn{white-space:nowrap;}
+.guide-back[disabled]{visibility:hidden;}
+
+.guide-keys{margin:10px 0 0;font-size:12px;color:var(--muted-2,var(--muted));}
+
+/* страница под туром не прокручивается колесом мимо выреза */
+body.guide-open{overscroll-behavior:contain;}
+
+/* ---------- телефон: нижний лист над панелью вкладок ---------- */
+.guide-card.is-sheet{left:8px;right:8px;top:auto;width:auto;
+  bottom:calc(84px + env(safe-area-inset-bottom));
+  padding:8px 18px 16px;border-radius:24px;
+  max-height:calc(var(--mobile-viewport-height,100dvh) - 140px - env(safe-area-inset-bottom));
+  overflow-y:auto;}
+.guide-card.is-sheet .guide-grab{display:block;width:36px;height:5px;margin:0 auto 10px;
+  border-radius:3px;background:var(--stroke-2,var(--stroke));}
+.guide-card.is-sheet .guide-keys{display:none;}
+.guide-card.is-sheet .guide-foot .btn{min-height:44px;}
+.guide-card.is-sheet .guide-next{flex:1 1 auto;max-width:60%;}
+.guide-card.is-sheet .guide-x{width:44px;height:44px;margin:-8px -10px -8px 0;background:none;}
+@keyframes guide-sheet{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+.guide-card.is-sheet.is-in{animation-name:guide-sheet;}
+
+@media(max-width:360px){
+  .guide-card.is-sheet{padding-left:14px;padding-right:14px;}
+  .guide-skip{font-size:13px;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .guide,.guide-ring,.guide-bar i{transition:none;}
+  .guide-card.is-in{animation:none;}
+}
+
+@media print{.guide{display:none;}}

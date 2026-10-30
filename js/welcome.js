@@ -9,7 +9,7 @@
      lang  — выбор языка;
      hello — приветствие.
 
-   Обучение из окна ушло целиком и стало отдельным модулем (js/tour.js),
+   Обучение из окна ушло целиком и стало отдельным модулем (js/guide.js),
    который ведёт человека по настоящей странице: затемняет экран,
    оставляет в нём вырез вокруг реального элемента и рассказывает про
    него. Нарисованные сцены показывали схему интерфейса, а не сам
@@ -119,7 +119,11 @@
        вернулся после обновления, они ни к чему: он знает, где тест. */
     document.getElementById("welQuiz").hidden = isUpdate;
     document.getElementById("welNote").hidden = isUpdate;
-    document.getElementById("welTour").hidden = isUpdate;
+    /* обучение 5.1 предлагается и новичку, и вернувшемуся после обновления:
+       тур написан заново, и старый маршрут из памяти уже не поможет */
+    document.getElementById("welGuide").textContent = PC.t(isUpdate ? "wel.up.guide" : "wel.guide");
+    document.getElementById("welGuide").removeAttribute("data-i18n");
+    document.getElementById("welGuide").classList.toggle("primary", !isUpdate);
     document.getElementById("welEnter").classList.toggle("primary", isUpdate);
   }
 
@@ -239,21 +243,14 @@
 
     document.getElementById("welClose").addEventListener("click", close);
     document.getElementById("welEnter").addEventListener("click", close);
-    /* «Как пользоваться» больше не листает сцены внутри окна, а
-       закрывает его и отдаёт человека настоящему туру по странице
-       (js/tour.js). Пауза — чтобы тур начал мерить положение элементов
-       после того, как приветствие уехало: под ним у половины узлов
-       нулевые или чужие координаты. */
-    document.getElementById("welTour").addEventListener("click", function(){
-      /* Облёт компаса камерой (PC.flyover) закрытие приветствия
-         запускает само — но не тогда, когда человек уходит в обучение:
-         две анимации поверх одного поля спорили бы друг с другом, и
-         первый шаг тура пришёлся бы на едущую камеру. Подмена режима —
-         самый дешёвый способ это сказать: close() смотрит именно на
-         него, и придумывать второй флаг ради одного места незачем. */
+    /* Быстрый старт (5.1): окно закрывается и отдаёт человека туру по
+       самой странице (js/guide.js). Пауза — чтобы тур мерил положение
+       элементов после того, как приветствие уехало. Облёт компаса
+       камерой при этом не запускается: close() смотрит на mode. */
+    document.getElementById("welGuide").addEventListener("click", function(){
       mode = "tour";
       close();
-      if(PC.tour) setTimeout(PC.tour.start, reduced() ? 0 : 420);
+      if(PC.guide) setTimeout(function(){ PC.guide.start("quick"); }, reduced() ? 0 : 420);
     });
     document.getElementById("welQuiz").addEventListener("click", function(){
       close();

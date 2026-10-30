@@ -101,6 +101,13 @@
         }, 60);
       });
     } });
+    /* 5.1: обучение и главы книги — в конце, чтобы «дуэль» сначала находила саму дуэль */
+    list.push({ label:t("guide.mode.quick"), type:t("set.guide"), run:function(){ PC.guide.start("quick"); } });
+    list.push({ label:t("guide.mode.full"), type:t("set.guide"), run:function(){ PC.guide.start("full"); } });
+    if(PC.book) PC.book.CHAPTERS.forEach(function(c){
+      list.push({ label:t("bk." + c.id + ".t"), more:t("bk." + c.id + ".d"), type:t("bk.toc"),
+        run:function(){ PC.nav.go("about", { silent:true }); location.hash = "#/about/" + c.id; } });
+    });
     return list;
   }
 

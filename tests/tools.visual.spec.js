@@ -22,45 +22,45 @@ test("4.3: «Голосую сам» считает рейтинг, пережи
   await ready(page, "votes");
   const card = page.locator("#selfVote");
   await card.scrollIntoViewIfNeeded();
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 0 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 0 из 44");
   await expect(card.locator(".sv-empty")).toBeVisible();
   for(const name of ["За", "Против", "За", "Воздержусь", "Против"]){
     await card.getByRole("button", { name, exact:true }).click();
   }
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 44");
   await expect(card.locator(".sv-rank li").first()).toBeVisible();
   await expect(card.locator(".sv-lead")).toContainText("Ближе всех к вам");
   /* после ответа фокус на заголовке следующего законопроекта */
   await expect(page.locator("#svTitle")).toBeFocused();
-  await expect(card.locator(".sv-meta")).toContainText("Законопроект 6 из 28");
+  await expect(card.locator(".sv-meta")).toContainText("Законопроект 6 из 44");
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("pc-selfvote")));
   expect(Object.keys(stored.votes)).toHaveLength(5);
 
   await page.reload();
   await page.waitForFunction(() => window.PC && PC.loadSelfVote);
   await page.evaluate(() => PC.loadSelfVote());
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 44");
   await card.getByRole("button", { name:"Назад" }).click();
   await expect(card.getByRole("button", { name:"Против", exact:true })).toHaveAttribute("aria-pressed", "true");
 
   await card.getByRole("button", { name:"Начать заново" }).click();
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 0 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 0 из 44");
   await page.locator(".toast").filter({ hasText:"Ваши голоса стёрты" }).getByRole("button", { name:"Отменить" }).click();
-  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 28");
+  await expect(card.locator(".sv-count")).toHaveText("Отвечено: 5 из 44");
   expect(errs).toEqual([]);
 });
 
 test("4.3: «Голосую сам» проходится с клавиатуры до конца", async({ page }) => {
   await ready(page, "votes");
   await page.locator("#selfVote").scrollIntoViewIfNeeded();
-  for(let i = 0; i < 28; i++){
+  for(let i = 0; i < 44; i++){
     await page.locator('.sv-choice[data-choice="for"]').focus();
     await page.keyboard.press("Enter");
   }
-  await expect(page.locator(".sv-done")).toContainText("по всем 28");
+  await expect(page.locator(".sv-done")).toContainText("по всем 44");
   await expect(page.locator(".sv-done .btn")).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.locator(".sv-meta")).toContainText("Законопроект 1 из 28");
+  await expect(page.locator(".sv-meta")).toContainText("Законопроект 1 из 44");
 });
 
 test("4.3: дуэль открывается кнопкой, ячейкой матрицы и из карточки партии", async({ page }) => {
@@ -203,7 +203,7 @@ test("4.3: смена языка не теряет голоса, партии и
   await page.goto("/?lang=en#/votes");
   await page.waitForFunction(() => window.PC && PC.loadSelfVote);
   await page.evaluate(() => PC.loadSelfVote());
-  await expect(page.locator(".sv-count")).toHaveText("Answered: 2 of 28");
+  await expect(page.locator(".sv-count")).toHaveText("Answered: 2 of 44");
   await expect(page.locator("#svHead")).toHaveText("Cast your own votes");
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("pc-quiz-answers")).e1)).toBe(2);
 });

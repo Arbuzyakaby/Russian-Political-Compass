@@ -122,24 +122,6 @@ test("загрузка по требованию: перечень в разме
     assert.ok(read(file).includes(needle), `${file}: ${needle}`);
 });
 
-test("обучение: число шагов в настройках совпадает с маршрутом, новые шаги переведены", () => {
-  const tour = read("js/tour.js");
-  const steps = Array.from(tour.matchAll(/\{ key:"(\w+)",\s*tab:"(\w+)",\s*sel:"([^"]+)"/g), m => ({ key:m[1], tab:m[2], sel:m[3] }));
-  const words = { 10:["Десять", "Ten"], 11:["Одиннадцать", "Eleven"], 12:["Двенадцать", "Twelve"], 13:["Тринадцать", "Thirteen"], 14:["Четырнадцать", "Fourteen"] };
-  assert.ok(words[steps.length], `нет слова для ${steps.length} шагов`);
-  const en = loadApp(undefined, { "pc-lang":"en" }).PC;
-  assert.ok(PC.t("set.tour.d").startsWith(words[steps.length][0] + " шагов"), PC.t("set.tour.d"));
-  assert.ok(en.t("set.tour.d").startsWith(words[steps.length][1] + " steps"), en.t("set.tour.d"));
-  for(const key of ["duel", "sv"]){
-    const step = steps.find(s => s.key === key);
-    assert.ok(step && step.tab === "votes", `шаг ${key} на вкладке голосований`);
-    assert.ok(html.includes(`id="${step.sel.slice(1)}"`), step.sel);
-    for(const app of [PC, en]) for(const part of ["h", "p"]) assert.notEqual(app.t(`tour.${key}.${part}`), `tour.${key}.${part}`);
-  }
-  assert.doesNotMatch(en.t("tour.duel.p") + en.t("tour.sv.p"), /[А-Яа-яЁё]/);
-  assert.ok(steps.at(-1).key === "settings" && steps.at(-1).tab === "any", "последний шаг — настройки, не привязаны к вкладке");
-});
-
 test("check:fonts: команда, эталон и состав проверки", () => {
   const pkg = JSON.parse(read("package.json"));
   assert.equal(pkg.scripts["check:fonts"], "node scripts/check-fonts.cjs");

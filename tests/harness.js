@@ -72,7 +72,7 @@ function makeStorage(){
 
 const DEFAULT_FILES = [
   "js/data.js", "js/data-parties.js", "js/data-votes.js", "js/data-people.js", "js/utils.js", "js/calc.js",
-  "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js", "js/i18n-about.js", "js/i18n-misc.js", "js/i18n-tools.js", "js/i18n.js",
+  "js/i18n-shell.js", "js/i18n-compass.js", "js/i18n-quiz.js", "js/i18n-about.js", "js/i18n-misc.js", "js/i18n-tools.js", "js/i18n-book.js", "js/i18n.js",
   "js/quiz-data.js", "js/quiz-calc.js", "js/quiz-blocks.js", "js/quiz.js",
   "js/votes.js", "js/selfvote.js", "js/duel.js", "js/intro.js", "js/charts.js", "js/charts-hemi.js", "js/charts-trend.js", "js/coalition.js", "js/export-data.js", "js/export.js"
 ];

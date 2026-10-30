@@ -76,6 +76,8 @@
   border:1px solid var(--stroke);}
 .vote-why[hidden]{display:none;}
 .vote-why p{font-size:calc(12.5px * var(--text-k));line-height:1.6;color:var(--body);}
+.vote-why .vote-src{margin-top:8px;font-size:calc(12px * var(--text-k));color:var(--muted);overflow-wrap:anywhere;}
+.vote-src a{color:var(--accent);text-underline-offset:2px;}
 
 /* ---------- матрица совпадений ---------- */
 /* Заголовки — инициалы фракции (см. headerAbbr в votes.js), а не полное

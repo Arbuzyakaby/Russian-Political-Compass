@@ -60,7 +60,13 @@
      возвращаются кнопкой в уведомлении. */
   function addSectionResets(){
     document.querySelectorAll("#setPanels .set-group").forEach(function(group){
-      group.appendChild(smallButton(PC.t("set.resetSection"), function(){
+      /* 5.1: подвал раздела — пояснение слева, кнопка справа, над ним
+         тонкая линия; раньше кнопка висела под последней строкой сама по себе */
+      var foot = node("div", "set-gfoot");
+      var text = node("p", "set-gfoot-t", PC.t("set.resetSection.d"));
+      foot.append(text);
+      group.appendChild(foot);
+      foot.appendChild(resetButton(function(){
         var previous = {};
         group.querySelectorAll("[data-set-switch],[data-set-seg],[data-setting]").forEach(function(c){
           var k = c.dataset.setSwitch || c.dataset.setSeg || c.dataset.setting;
@@ -74,6 +80,14 @@
         });
       }));
     });
+  }
+
+  function resetButton(onClick){
+    var b = smallButton("", onClick);
+    b.className = "btn small set-gfoot-btn";
+    b.innerHTML = '<svg class="ico" aria-hidden="true" focusable="false"><use href="#i-reset"/></svg>';
+    b.appendChild(document.createTextNode(PC.t("set.resetSection")));
+    return b;
   }
 
   /* Поиск под шапкой листа, как в настройках iOS: он один на все разделы
@@ -146,8 +160,19 @@
      в уведомлении кнопку «отменить», пока оно не исчезло. */
   function addEraseAll(){
     var privacy = document.getElementById("setPanel-privacy");
-    privacy.appendChild(node("p", "set-meta", "pc-settings · pc-quiz-* · pc-selfvote · pc-eggs-found"));
-    privacy.appendChild(smallButton(PC.t("set.eraseAll"), function(){
+    /* 5.1: что именно лежит в браузере — карточкой с ключами-чипами,
+       а не строкой мелкого текста; кнопка стирания — предупреждающая */
+    var store = node("div", "set-store");
+    var head = node("div", "set-store-h");
+    head.append(node("b", "", PC.t("set.store.h")), node("span", "", PC.t("set.store.d")));
+    var keys = node("ul", "set-store-keys");
+    ["pc-settings", "pc-quiz-*", "pc-selfvote", "pc-tour", "pc-book", "pc-eggs-found"].forEach(function(k){
+      var li = node("li"); li.appendChild(node("code", "", k)); keys.appendChild(li);
+    });
+    store.append(head, keys);
+    var foot = privacy.querySelector(".set-gfoot");
+    privacy.insertBefore(store, foot);
+    var erase = smallButton(PC.t("set.eraseAll"), function(){
       var before = PC.backup.make();
       if(!before) return;
       Object.keys(before.data).concat(PC.backup.RETIRED).forEach(function(k){ PC.store.remove(k); });
@@ -161,7 +186,9 @@
         duration:5000,
         action:function(){ if(PC.backup.restore(before)) location.reload(); }
       });
-    }));
+    });
+    erase.classList.add("set-erase");
+    store.appendChild(erase);
   }
 
   function extend(){

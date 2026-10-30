@@ -42,7 +42,8 @@ const handler = (req, res) => {
   try{ rel = decodeURIComponent(url.pathname); }catch(e){ res.writeHead(400).end("bad request"); return; }
   if(rel.includes("\0")){ res.writeHead(400).end("bad request"); return; }
   rel = rel.replace(/\\/g, "/");
-  const file = path.join(ROOT, rel === "/" ? "index.html" : rel);
+  /* адрес-папка (/en/ в пакете 5.1) отдаёт свой index.html, как GitHub Pages */
+  const file = path.join(ROOT, rel.endsWith("/") ? rel + "index.html" : rel);
 
   /* выход за пределы корня — единственная опасность такого сервера,
      и закрывается она одной проверкой пути после нормализации */

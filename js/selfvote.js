@@ -24,23 +24,53 @@
 
   function load(){
     var raw = PC.store.getJSON(KEY, null), out = {};
+    imp = {};
     if(!valid(raw)) return out;
     PC.VOTES.forEach(function(v){ if(raw.votes[v.id]) out[v.id] = raw.votes[v.id]; });
+    if(Array.isArray(raw.imp)) raw.imp.forEach(function(id){ if(typeof id === "string" && out[id]) imp[id] = true; });
+    return out;
+  }
+
+  /* ---------- ссылка на свои ответы (5.1) ----------
+     Один знак на законопроект в порядке PC.VOTES: «-» — нет ответа,
+     f/a/b — за / против / воздержусь, заглавная — отмечен как важный.
+     Новые голосования добавляются в конец набора, поэтому старые ссылки
+     читаются и после пополнения: недостающие знаки — «нет ответа». */
+  var CODE = { "for":"f", "against":"a", "abstain":"b" };
+  function encode(votes, imp){
+    return "v1." + PC.VOTES.map(function(v){
+      var c = CODE[votes[v.id]] || "-";
+      return imp && imp[v.id] && c !== "-" ? c.toUpperCase() : c;
+    }).join("").replace(/-+$/, "");
+  }
+  function decode(code){
+    if(typeof code !== "string" || code.length > 600 || !/^v1\.[-fabFAB]*$/.test(code)) return null;
+    var body = code.slice(3), out = { votes:{}, imp:{} };
+    var back = { f:"for", a:"against", b:"abstain" };
+    for(var i = 0; i < body.length && i < PC.VOTES.length; i++){
+      var ch = body.charAt(i), low = ch.toLowerCase();
+      if(!back[low]) continue;
+      out.votes[PC.VOTES[i].id] = back[low];
+      if(ch !== low) out.imp[PC.VOTES[i].id] = true;
+    }
     return out;
   }
 
   /* Рейтинг фракций по совпадению с ответами. Партии без единого общего
      голосования в список не попадают: процент от нуля голосов не значит
      ничего. Порядок — по доле, при равенстве — по числу общих. */
-  function score(votes, bills){
+  function score(votes, bills, imp){
     bills = bills || PC.VOTES;
+    imp = imp || {};
     return PC.PARTIES.map(function(p){
       var same = 0, common = 0;
       bills.forEach(function(v){
         var mine = votes[v.id], theirs = PC.voteStance(v, p);
         if(!mine || !COUNTED[theirs]) return;
-        common++;
-        if(mine === theirs) same++;
+        /* 5.1: важный законопроект весит вдвое */
+        var w = imp[v.id] ? 2 : 1;
+        common += w;
+        if(mine === theirs) same += w;
       });
       return { p:p, same:same, common:common, ratio:common ? same / common : null };
     }).filter(function(r){ return r.common > 0; })
@@ -49,10 +79,13 @@
 
   /* ---------- раздел ---------- */
   var host, votes = {}, current = 0, order = [], topic = "all";
+  var imp = {}, lastId = null;
 
   function esc(s){ return PC.utils.esc(s); }
 
-  function save(){ PC.store.setJSON(KEY, { v:1, votes:votes }); }
+  function save(){
+    PC.store.setJSON(KEY, { v:1, votes:votes, imp:Object.keys(imp).filter(function(id){ return votes[id]; }) });
+  }
 
   /* Тема (4.4): ограничивает и вопросы, и рейтинг одной темой законопроектов —
      «экономика», «государство и права», «внешняя политика». Ответы по
@@ -84,11 +117,31 @@
     return -1;
   }
 
+  /* Раскрытие (5.1): после ответа — как проголосовала каждая фракция по
+     этому законопроекту и с кем ответ совпал; здесь же «Отменить». */
+  function reveal(){
+    var v = lastId && PC.VOTES.filter(function(x){ return x.id === lastId; })[0];
+    if(!v || !votes[v.id]) return "";
+    var mine = votes[v.id];
+    var rows = PC.PARTIES.map(function(p){ return { p:p, st:PC.voteStance(v, p) }; })
+      .filter(function(r){ return COUNTED[r.st] || r.st === "split"; });
+    return '<div class="sv-reveal" role="status">' +
+      '<p class="sv-reveal-h"><span>' + esc(t("sv.youChose", { c:t("sv." + mine) })) + "</span> · " + esc(L(v, "title")) + "</p>" +
+      (rows.length ? '<ul class="sv-reveal-list">' + rows.map(function(r){
+        var same = r.st === mine;
+        return '<li class="' + (same ? "is-same" : "") + '" style="--c:' + esc(r.p.color) + '"><i aria-hidden="true"></i>' +
+          esc(L(r.p, "short")) + ' <b>' + esc(t(PC.votes.STANCE[r.st].key)) + "</b>" +
+          (same ? ' <span class="sv-ok">' + esc(t("sv.same")) + "</span>" : "") + "</li>";
+      }).join("") + "</ul>" : '<p class="sv-hint">' + esc(t("sv.noFactions")) + "</p>") +
+      '<button type="button" class="btn small ghost" data-sv="undo">' + PC.icon("reset") + "<span>" + esc(t("sv.undo")) + "</span></button>" +
+      "</div>";
+  }
+
   function billCard(){
     if(current < 0) return '<div class="sv-done">' + PC.icon("check-circle") + "<p>" + esc(t("sv.done", { n:order.length })) + "</p>" +
       '<button type="button" class="btn small" data-sv="review">' + esc(t("sv.review")) + "</button></div>";
     var v = order[current], mine = votes[v.id];
-    return '<article class="sv-bill" aria-labelledby="svTitle">' +
+    return reveal() + '<article class="sv-bill" aria-labelledby="svTitle">' +
       '<p class="sv-meta">' + esc(t("sv.of", { k:current + 1, n:order.length })) + " · " + esc(v.date.slice(0, 4)) + "</p>" +
       '<h4 id="svTitle" tabindex="-1">' + esc(L(v, "title")) + "</h4>" +
       '<p class="sv-summary">' + esc(L(v, "summary")) + "</p>" +
@@ -98,6 +151,8 @@
             esc(t("sv." + c)) + "</button>";
         }).join("") +
       "</div>" +
+      '<button type="button" class="sv-imp" data-sv="imp" aria-pressed="' + !!imp[v.id] + '">' +
+        '<span aria-hidden="true">' + (imp[v.id] ? "★" : "☆") + "</span>" + esc(t("sv.important")) + "</button>" +
       '<div class="sv-nav">' +
         '<button type="button" class="btn small ghost" data-sv="prev"' + (current === 0 ? " disabled" : "") + ">" +
           PC.icon("back") + "<span>" + esc(t("sv.prev")) + "</span></button>" +
@@ -110,7 +165,7 @@
   function results(){
     var n = answered();
     if(!n) return '<div class="sv-empty">' + PC.icon("ballot") + "<p>" + esc(t("sv.empty")) + "</p></div>";
-    var rows = score(votes, order);
+    var rows = score(votes, order, imp);
     if(!rows.length) return '<div class="sv-empty"><p>' + esc(t("sv.noCommon")) + "</p></div>";
     var best = rows[0];
     return '<p class="sv-lead" role="status">' +
@@ -123,7 +178,19 @@
           '<b class="sv-pct">' + pct + '%</b><small class="sv-k">' + esc(t("votes.ofVotes", { k:r.same, n:r.common })) + "</small></li>";
       }).join("") + "</ol>" +
       (rows.some(function(r){ return r.common <= 3; }) ? '<p class="sv-hint">' + esc(t("sv.thin")) + "</p>" : "") +
-      '<button type="button" class="btn small ghost sv-reset" data-sv="reset">' + PC.icon("reset") + "<span>" + esc(t("sv.reset")) + "</span></button>";
+      topicProgress() +
+      (Object.keys(imp).some(function(id){ return votes[id]; }) ? '<p class="sv-hint">' + esc(t("sv.weighted")) + "</p>" : "") +
+      '<div class="sv-actions">' +
+      '<button type="button" class="btn small" data-sv="link">' + PC.icon("link") + "<span>" + esc(t("sv.link")) + "</span></button>" +
+      '<button type="button" class="btn small ghost sv-reset" data-sv="reset">' + PC.icon("reset") + "<span>" + esc(t("sv.reset")) + "</span></button></div>";
+  }
+
+  function topicProgress(){
+    return '<ul class="sv-tprog">' + PC.votes.TOPICS.filter(function(tp){ return tp.id !== "all"; }).map(function(tp){
+      var list = PC.VOTES.filter(function(v){ return v.topic === tp.id; });
+      var k = list.filter(function(v){ return votes[v.id]; }).length;
+      return "<li><span>" + esc(t(tp.key)) + "</span><b>" + k + "/" + list.length + "</b></li>";
+    }).join("") + "</ul>";
   }
 
   function render(focus){
@@ -149,6 +216,7 @@
     if(!v) return;
     var wasDone = firstOpen(0) < 0;
     votes[v.id] = choice;
+    lastId = v.id;
     save();
     /* Пока не всё отвечено — к следующему открытому; при пересмотре
        готового набора — просто к следующему законопроекту по порядку. */
@@ -184,12 +252,55 @@
     else if(act === "skip"){ current = current + 1 < order.length ? current + 1 : 0; render(true); }
     else if(act === "review"){ current = 0; render(true); }
     else if(act === "goto" && order[current] && PC.votes.focusVote) PC.votes.focusVote(order[current].id);
+    else if(act === "imp" && order[current]){
+      var id = order[current].id;
+      if(imp[id]) delete imp[id]; else imp[id] = true;
+      save(); render(false);
+      var again2 = host.querySelector(".sv-imp");
+      if(again2) again2.focus({ preventScroll:true });
+    }
+    else if(act === "undo" && lastId){
+      delete votes[lastId];
+      delete imp[lastId];
+      save();
+      var at = order.map(function(x){ return x.id; }).indexOf(lastId);
+      lastId = null;
+      current = at >= 0 ? at : firstOpen(0);
+      render(true);
+    }
+    else if(act === "link") copyLink();
     else if(act === "reset"){
       var before = votes;
       votes = {}; save(); current = 0; render(true);
       PC.ui.toast(t("sv.cleared"), false, { label:t("ui.undo"), duration:5000,
         action:function(){ votes = before; save(); current = firstOpen(0); render(); } });
     }
+  }
+
+  function copyLink(){
+    var url = location.origin + location.pathname + location.search + "#/selfvote/" + encode(votes, imp);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ PC.ui.toast(t("sv.linkCopied")); },
+        function(){ PC.ui.toast(t("duel.copyFail"), true); });
+    }else PC.ui.toast(t("duel.copyFail"), true);
+  }
+
+  /* Открыли чужую (или свою) ссылку: свои ответы не затираются молча —
+     пустой набор принимает ссылку сразу, непустой спрашивает в уведомлении. */
+  function fromHash(){
+    var m = /^#\/selfvote\/(v1\.[-fabFAB]*)$/.exec(location.hash);
+    if(!m) return;
+    var got = decode(m[1]);
+    if(history.replaceState) history.replaceState(null, "", location.pathname + location.search + "#/votes");
+    if(!got || !Object.keys(got.votes).length){ PC.ui.toast(t("sv.badLink"), true); return; }
+    var apply = function(){
+      votes = got.votes; imp = got.imp; lastId = null; save();
+      current = firstOpen(0); render(false);
+      host.scrollIntoView({ block:"start" });
+    };
+    if(!answered()) { apply(); PC.ui.toast(t("sv.linkLoaded", { n:Object.keys(got.votes).length })); }
+    else PC.ui.toast(t("sv.linkAsk", { n:Object.keys(got.votes).length }), false,
+      { label:t("sv.linkApply"), duration:8000, action:apply });
   }
 
   function init(){
@@ -201,10 +312,12 @@
     host.addEventListener("click", onClick);
     drawTopics();
     render(false);
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
   }
 
   /* Для «Стереть всё» в настройках: модуль держит ответы в памяти. */
-  function clearLocal(){ votes = {}; current = 0; render(false); }
+  function clearLocal(){ votes = {}; imp = {}; lastId = null; current = 0; render(false); }
 
-  PC.selfVote = { init:init, score:score, valid:valid, clearLocal:clearLocal, KEY:KEY };
+  PC.selfVote = { init:init, score:score, valid:valid, clearLocal:clearLocal, KEY:KEY, encode:encode, decode:decode };
 })(window.PC = window.PC || {});
