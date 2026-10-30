@@ -54,7 +54,9 @@ test("верхняя запись CHANGELOG и шапки актуальных �
     assert.equal(line[1].trim(), PC.VERSION_LABEL, doc);
   }
   assert.ok(read("README.md").includes("**Текущая версия — " + PC.VERSION_LABEL + "**"), "README: строка «Текущая версия»");
-  assert.ok(fs.existsSync(path.join(ROOT, "docs", "RELEASE_" + PC.VERSION.replace(/\./g, "_") + ".md")), "нет отчёта о выпуске в docs/");
+  /* отчёт пишется на выпуск линии (5.0), а не на каждую правку (5.0.1) */
+  const line = PC.VERSION.split(".").slice(0, 2).join("_");
+  assert.ok(fs.existsSync(path.join(ROOT, "docs", "RELEASE_" + line + ".md")), "нет отчёта о выпуске в docs/");
 });
 
 test("история версий: текущий узел — эта версия, её линия носит это имя", () => {
@@ -65,7 +67,9 @@ test("история версий: текущий узел — эта верси
   const line = h.ARCS.find(a => a.id === cur[0].arc);
   assert.equal(line.name, PC.VERSION_NAME.ru);
   assert.equal(line.nameEn, PC.VERSION_NAME.en);
-  assert.ok(h.HISTORY.some(x => x.v === PC.VERSION_LABEL), "нет вехи текущей версии");
+  /* веха есть у выпуска линии (5.0), у правок вроде 5.0.1 её нет */
+  const major = PC.VERSION.split(".").slice(0, 2).join(".");
+  assert.ok(h.HISTORY.some(x => x.v === major + " «" + PC.VERSION_NAME.ru + "»"), "нет вехи текущей линии");
 });
 
 test("окно обновления: пять пунктов, разметка совпадает со словарём, слоган на месте", () => {

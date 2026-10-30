@@ -34,7 +34,7 @@
    номером вместе с именем; машинный номер остаётся голым. VERSION_NAME
    нужен отдельно, чтобы английский интерфейс мог назвать реку
    по-английски, не разбирая строку подписи. */
-var VERSION = "5.0";
+var VERSION = "5.0.1";
 var VERSION_NAME = { ru:"Нарев", en:"Narew" };
 var VERSION_LABEL = VERSION + " «" + VERSION_NAME.ru + "»";
 

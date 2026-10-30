@@ -702,7 +702,8 @@ button.sw[aria-checked="true"]:active i{transform:translateX(16px);}
      девять пикселей на широком экране; на телефоне пол кегля делает их
      четырнадцатью, и разрядка начинает кричать. Здесь — как подписи
      групп в iOS: строчные, серые, без разрядки. */
-  :root :is(.leader .k,.coord .k,.mandate-top .k,.nb-far .k,.sect h4){text-transform:none;letter-spacing:0;font-weight:600;}
+  :root :is(.leader .k,.coord .k,.mandate-top .k,.nb-far .k,.sect h4,.spec-col h4){text-transform:none;letter-spacing:0;font-weight:600;}
+  :root .spec-col h4{font-size:calc(17px * var(--text-k));color:var(--text);}
   :root .sect h4{color:var(--muted);}
   :root .votes-figures{grid-template-columns:repeat(3,auto);}
 

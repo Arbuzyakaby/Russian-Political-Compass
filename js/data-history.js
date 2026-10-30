@@ -326,8 +326,11 @@
     { v:"4.4.0.4", date:"2026-10-28", arc:"v4",
       s:"Переработан блок «О проекте в цифрах» под вкладками: цифры из данных, сворачиваемое описание и кнопки «что дальше».",
       sEn:"The “project in numbers” block under the tabs is redesigned: figures from the data, a collapsible description and “what next” buttons." },
-    { v:"5.0", date:"2026-10-30", arc:"v5", from:"4.4.0.4", ms:"5.0 «Нарев»", cur:true,
+    { v:"5.0", date:"2026-10-30", arc:"v5", from:"4.4.0.4", ms:"5.0 «Нарев»",
       s:"Назад к корням: без «Моей партии», телефон как приложение, новые настройки, живые тексты и стартовый код почти вдвое легче.",
-      sEn:"Back to the roots: no “My party”, the phone as an app, new settings, warmer writing and start-up code almost half as heavy." }
+      sEn:"Back to the roots: no “My party”, the phone as an app, new settings, warmer writing and start-up code almost half as heavy." },
+    { v:"5.0.1", date:"2026-10-30", arc:"v5", cur:true,
+      s:"Спектр позиций на телефоне снова во всю ширину, без тёмных подложек под строками.",
+      sEn:"The position spectrum on phones is full-width again, with no dark pills behind the rows." }
   ];
 })(window.PC = window.PC || {});
